@@ -7,7 +7,7 @@
 
 | Env        | FE                    | BE                            | DB                                              | Notes              |
 | ---------- | --------------------- | ----------------------------- | ----------------------------------------------- | ------------------ |
-| Local      | Vite dev `:5173`      | NestJS `:3001`                | Docker Postgres `:5432` (main) + `:5433` (test) | docker-compose     |
+| Local      | Vite dev `:5173`      | NestJS `:3001`                | Docker Postgres `:5434` (main) + `:5433` (test) | docker-compose     |
 | Preview    | Vercel preview per PR | Fly.io preview app (optional) | Neon `dev` branch                               | auto trigger on PR |
 | Production | Vercel `kha.blog`     | Fly.io `myblog-api.fly.dev`   | Neon `main` branch                              | manual promote     |
 
@@ -73,7 +73,7 @@ services:
       POSTGRES_USER: myblog
       POSTGRES_PASSWORD: myblog
       POSTGRES_DB: myblog
-    ports: ['5432:5432']
+    ports: ['5434:5432'] # host:5434 — tránh conflict local postgres :5432
     volumes: ['postgres-main-data:/var/lib/postgresql/data']
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U myblog']

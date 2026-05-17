@@ -17,4 +17,12 @@
 
 ## Migrations
 
-_(Chưa có migration. First migration sẽ tạo tại T-010 — M3 backend auth + users.)_
+### 20260517165932_init
+
+- **Created:** 2026-05-17
+- **Type:** schema
+- **Entities affected:** all 14 — `User`, `Post`, `Image`, `File`, `Comment`, `Like`, `CommentLike`, `Tag`, `PostTag`, `SavedPost`, `PostView`, `AnonymousSession`, `RefreshToken` + 4 enums (`Role`, `Mood`, `FileType`, `CommentStatus`)
+- **Breaking:** no (first migration)
+- **Notes:** Replaces `Placeholder` model (scaffold T-004). Full schema theo `docs/DATA_MODEL.md`. Includes FK cascade rules, composite unique constraints (Like/CommentLike per user+post), composite PK (PostTag, SavedPost), indexes cho feed sort + post views dedup query.
+- **Task:** T-010
+- **Rollback:** `prisma migrate resolve --rolled-back 20260517165932_init` + manual SQL drop (no down migration auto-gen)

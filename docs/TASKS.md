@@ -58,7 +58,14 @@
 
 ### Backlog — M3: BE Auth + Users
 
-- [T-010] [P0] [F1] [BE] Prisma schema initial migration (14 entities theo DATA_MODEL.md) - TODO
+- [T-010] [P0] [F1] [BE] Prisma schema initial migration (14 entities theo DATA_MODEL.md) - DONE (2026-05-17)
+  - schema.prisma: replace Placeholder với 14 models + 4 enums (Role/Mood/FileType/CommentStatus)
+  - Migration `20260517165932_init` (272 lines SQL) applied on `postgres-main` :5434
+  - Docker postgres-main port :5432 → :5434 (tránh conflict local postgres)
+  - apps/api/.env.example DATABASE_URL/DIRECT_URL port sync
+  - Add `dotenv-cli` + scripts `prisma:migrate` / `prisma:studio` (auto-load .env.local)
+  - Verify: prisma validate ✓, migrate status "up to date" ✓, typecheck ✓, build ✓
+  - Migration log: apps/api/docs/MIGRATIONS.md + DATA_MODEL.md summary updated
 - [T-011] [P0] [F1] [BE] Seed script (admin user + dev/test fixtures) - TODO
 - [T-012] [P0] [F1] [BE] AuthModule — JwtStrategy + JwtRefreshStrategy + bcrypt + cookie - TODO
 - [T-013] [P0] [F1] [BE] Endpoints `/auth/register`, `/login`, `/refresh`, `/logout`, `/me` - TODO

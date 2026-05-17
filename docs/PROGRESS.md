@@ -8,7 +8,7 @@
 | --- | --------------------------------------------------------------------------------- | ---------- | ----------- |
 | M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done    | 2026-05-17  |
 | M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done    | 2026-05-17  |
-| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ⬜ Todo    |             |
+| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | 🟡 Doing   |             |
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ⬜ Todo    |             |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ⬜ Todo    |             |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |

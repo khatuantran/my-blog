@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: myblog
       POSTGRES_DB: myblog
     ports:
-      - '5432:5432'
+      - '5434:5432' # host:5434 → container:5432 (local postgres chiếm :5432)
     volumes:
       - postgres-main-data:/var/lib/postgresql/data
     healthcheck:

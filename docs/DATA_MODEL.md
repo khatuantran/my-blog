@@ -492,6 +492,7 @@ model RefreshToken {
 
 ### v0.2.0-alpha (2026-05-17) — initial schema
 
+- **Migration:** `20260517165932_init` (T-010) — xem [apps/api/docs/MIGRATIONS.md](../apps/api/docs/MIGRATIONS.md)
 - **Added:** User, Post, Image, File, Comment, Like, CommentLike, Tag, PostTag, SavedPost, PostView, AnonymousSession, RefreshToken
 - **Added enums:** Role (with BANNED), Mood (7 values), FileType (7 values), CommentStatus (3 values)
 - **Breaking:** N/A (initial schema, chưa có v1 ship)
@@ -499,6 +500,7 @@ model RefreshToken {
 - **Notes:**
   - `Like` vs `CommentLike` tách riêng (xem note ở `CommentLike` section)
   - `AnonymousSession.id` dùng string format hex hoặc sequential — KHÔNG cuid để có ID format friendly cho UI
+  - Local postgres-main đổi port `:5432` → `:5434` (tránh conflict local postgres). Update `apps/api/.env.example` + `docker-compose.yml`.
 
 ---
 

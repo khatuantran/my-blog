@@ -31,9 +31,7 @@
 
   html,
   body {
-    background:
-      var(--bg)
-      radial-gradient(circle, #2a354822 1px, transparent 1px);
+    background: var(--bg) radial-gradient(circle, #2a354822 1px, transparent 1px);
     background-size: 24px 24px;
     color: var(--tp);
   }

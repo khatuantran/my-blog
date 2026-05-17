@@ -33,16 +33,17 @@ Tất cả page (trừ Login) dùng **shared layout**:
 
 ### TopBar (52px, fixed top, z-100)
 
-| Element | Detail |
-|---------|--------|
-| Logo | SVG `< >` brackets (cyan/purple) + text `kha.blog` (Space Grotesk 700, "." cyan, "blog" muted), glitch animation 9s loop |
-| Search input | Centered (440px max), placeholder `~$ search posts, tags, users...`, JetBrains Mono 13px |
-| ⌘K hint button | Right end of search input — click open Command Palette |
-| Version badge | `[ v0.1.0 ]` (JetBrains Mono 10px, border muted) |
-| Online count | `● N` (green pulse + count) |
-| Avatar | 32px circle, gradient bg (cyan→purple), border cyan, online dot bottom-right. Click → dropdown menu |
+| Element        | Detail                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Logo           | SVG `< >` brackets (cyan/purple) + text `kha.blog` (Space Grotesk 700, "." cyan, "blog" muted), glitch animation 9s loop |
+| Search input   | Centered (440px max), placeholder `~$ search posts, tags, users...`, JetBrains Mono 13px                                 |
+| ⌘K hint button | Right end of search input — click open Command Palette                                                                   |
+| Version badge  | `[ v0.1.0 ]` (JetBrains Mono 10px, border muted)                                                                         |
+| Online count   | `● N` (green pulse + count)                                                                                              |
+| Avatar         | 32px circle, gradient bg (cyan→purple), border cyan, online dot bottom-right. Click → dropdown menu                      |
 
 **Avatar dropdown menu items:**
+
 - Header: avatar + `~/admin` + `[ ADMIN ]` badge
 - Create Post (cyan, ⌘N) → `/admin/create`
 - Admin Dashboard (purple, ⌘3) → `/admin`
@@ -56,13 +57,13 @@ Tất cả page (trừ Login) dùng **shared layout**:
 
 Style: full-width bar `#070A14` bg, JetBrains Mono 11px, divided by `1px #1F2A3A` borders.
 
-| Section | Content | Notes |
-|---------|---------|-------|
-| Left (path) | `~/feed` / `~/post/abc123` / `~/admin/dashboard` / `~/admin/create-post` | cyan, highlighted bg |
-| Info | `● 42 posts` / `● draft · unsaved` / `last update: 14:32` | page-specific |
-| Separator | `──────` | muted |
-| Build | `build: a1b2c3` | git short hash |
-| Right (right-align) | `● 3 online` (green pulse) + `[ v0.1.0 ]` | |
+| Section             | Content                                                                  | Notes                |
+| ------------------- | ------------------------------------------------------------------------ | -------------------- |
+| Left (path)         | `~/feed` / `~/post/abc123` / `~/admin/dashboard` / `~/admin/create-post` | cyan, highlighted bg |
+| Info                | `● 42 posts` / `● draft · unsaved` / `last update: 14:32`                | page-specific        |
+| Separator           | `──────`                                                                 | muted                |
+| Build               | `build: a1b2c3`                                                          | git short hash       |
+| Right (right-align) | `● 3 online` (green pulse) + `[ v0.1.0 ]`                                |                      |
 
 ### CommandPalette (⌘K overlay)
 
@@ -102,7 +103,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Layout
 
-```
+````
 ┌─────────────────── TopBar (52px) ────────────────────┐
 ├─────────┬──────────────────────────────┬─────────────┤
 │         │  // feed.posts · 42 total    │  // mood.   │
@@ -130,31 +131,31 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 │         │                              │             │
 ├─────────┴──────────────────────────────┴─────────────┤
 └────────────────── StatusBar (28px) ───────────────────┘
-```
+````
 
 ### Components
 
-| Component | Source |
-|-----------|--------|
-| Sidebar (admin only) | DESIGN_SYSTEM > Sidebar |
-| FilterBar (mood pills + sort) | DESIGN_SYSTEM > FilterBar |
-| PostCard | DESIGN_SYSTEM > PostCard |
-| ImageGrid | DESIGN_SYSTEM > ImageGrid |
-| FileAttachments | DESIGN_SYSTEM > FileAttachments |
-| MoodBadge | DESIGN_SYSTEM > MoodBadge |
-| TagPill | DESIGN_SYSTEM > TagPill |
-| RightPanel (mood/heatmap/visitors) | DESIGN_SYSTEM > RightPanel |
-| AsciiSpinner (loading) | DESIGN_SYSTEM > AsciiSpinner |
+| Component                          | Source                          |
+| ---------------------------------- | ------------------------------- |
+| Sidebar (admin only)               | DESIGN_SYSTEM > Sidebar         |
+| FilterBar (mood pills + sort)      | DESIGN_SYSTEM > FilterBar       |
+| PostCard                           | DESIGN_SYSTEM > PostCard        |
+| ImageGrid                          | DESIGN_SYSTEM > ImageGrid       |
+| FileAttachments                    | DESIGN_SYSTEM > FileAttachments |
+| MoodBadge                          | DESIGN_SYSTEM > MoodBadge       |
+| TagPill                            | DESIGN_SYSTEM > TagPill         |
+| RightPanel (mood/heatmap/visitors) | DESIGN_SYSTEM > RightPanel      |
+| AsciiSpinner (loading)             | DESIGN_SYSTEM > AsciiSpinner    |
 
 ### State machine
 
-| State | Trigger | UI |
-|-------|---------|----|
-| `initial` | Mount | Skeleton 3 PostCards |
-| `loading` | Fetch | Skeleton hoặc bottom spinner `⠋ loading posts...` |
-| `success` | Data received | PostCards rendered với `fadeUp .3s ease` (stagger 60ms delay) |
-| `empty` | Zero posts | ASCII deco `◐` + `// no posts matching filter` + `$ cd ../feed && ls -la --all-moods` hint |
-| `error` | Fetch fail | Retry button + `// connection lost` message |
+| State     | Trigger       | UI                                                                                         |
+| --------- | ------------- | ------------------------------------------------------------------------------------------ |
+| `initial` | Mount         | Skeleton 3 PostCards                                                                       |
+| `loading` | Fetch         | Skeleton hoặc bottom spinner `⠋ loading posts...`                                          |
+| `success` | Data received | PostCards rendered với `fadeUp .3s ease` (stagger 60ms delay)                              |
+| `empty`   | Zero posts    | ASCII deco `◐` + `// no posts matching filter` + `$ cd ../feed && ls -la --all-moods` hint |
+| `error`   | Fetch fail    | Retry button + `// connection lost` message                                                |
 
 ### Interactions
 
@@ -190,7 +191,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Layout
 
-```
+````
 ┌─────────────────── TopBar (52px) ────────────────────┐
 ├──────────────────────────────────────┬──────────────┤
 │  ← feed / ~/post/abc123              │ // post.meta │
@@ -232,32 +233,32 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 ├──────────────────────────────────────┴──────────────┤
 └────────────────── StatusBar (28px) ───────────────────┘
    path: ~/post/abc123  info: 142 views · 5 comments
-```
+````
 
 ### Components
 
-| Component | Source |
-|-----------|--------|
-| Breadcrumb | DESIGN_SYSTEM > Breadcrumb |
-| PostHeader (avatar + admin tag + mood) | DESIGN_SYSTEM > PostHeader |
-| PostContent (markdown renderer) | DESIGN_SYSTEM > PostContent |
-| ImageCarousel | DESIGN_SYSTEM > ImageCarousel |
-| TagPill | DESIGN_SYSTEM > TagPill |
-| CommentForm | DESIGN_SYSTEM > CommentForm |
-| CommentItem | DESIGN_SYSTEM > CommentItem |
-| MetaPanel right | DESIGN_SYSTEM > MetaPanel |
-| ShareButton | DESIGN_SYSTEM > ShareButton |
+| Component                              | Source                        |
+| -------------------------------------- | ----------------------------- |
+| Breadcrumb                             | DESIGN_SYSTEM > Breadcrumb    |
+| PostHeader (avatar + admin tag + mood) | DESIGN_SYSTEM > PostHeader    |
+| PostContent (markdown renderer)        | DESIGN_SYSTEM > PostContent   |
+| ImageCarousel                          | DESIGN_SYSTEM > ImageCarousel |
+| TagPill                                | DESIGN_SYSTEM > TagPill       |
+| CommentForm                            | DESIGN_SYSTEM > CommentForm   |
+| CommentItem                            | DESIGN_SYSTEM > CommentItem   |
+| MetaPanel right                        | DESIGN_SYSTEM > MetaPanel     |
+| ShareButton                            | DESIGN_SYSTEM > ShareButton   |
 
 ### State machine
 
-| State | Trigger | UI |
-|-------|---------|----|
-| `initial` | Mount | Skeleton post + 3 comment skeleton |
-| `loading` | Fetch | (same) |
-| `success` | Data ready | Full content + comments visible |
-| `empty (comment)` | Zero comments | `// no comments yet — be the first ❯` |
-| `error 404` | Post not found | `// post not found` + back to feed button |
-| `error other` | Fetch fail | Retry button |
+| State             | Trigger        | UI                                        |
+| ----------------- | -------------- | ----------------------------------------- |
+| `initial`         | Mount          | Skeleton post + 3 comment skeleton        |
+| `loading`         | Fetch          | (same)                                    |
+| `success`         | Data ready     | Full content + comments visible           |
+| `empty (comment)` | Zero comments  | `// no comments yet — be the first ❯`     |
+| `error 404`       | Post not found | `// post not found` + back to feed button |
+| `error other`     | Fetch fail     | Retry button                              |
 
 ### Interactions
 
@@ -337,30 +338,30 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component | Source |
-|-----------|--------|
-| Sub-toolbar | DESIGN_SYSTEM > Sub-toolbar |
-| MoodPicker (7 emoji buttons) | DESIGN_SYSTEM > MoodPicker |
-| MarkdownEditor (textarea + toolbar) | DESIGN_SYSTEM > MarkdownEditor |
-| UploadZone (images + files) | DESIGN_SYSTEM > UploadZone |
-| ImageThumb (preview thumb) | DESIGN_SYSTEM > ImageThumb |
+| Component                           | Source                          |
+| ----------------------------------- | ------------------------------- |
+| Sub-toolbar                         | DESIGN_SYSTEM > Sub-toolbar     |
+| MoodPicker (7 emoji buttons)        | DESIGN_SYSTEM > MoodPicker      |
+| MarkdownEditor (textarea + toolbar) | DESIGN_SYSTEM > MarkdownEditor  |
+| UploadZone (images + files)         | DESIGN_SYSTEM > UploadZone      |
+| ImageThumb (preview thumb)          | DESIGN_SYSTEM > ImageThumb      |
 | FileAttachments (mini editing list) | DESIGN_SYSTEM > FileAttachments |
-| TagInput (tag + chip) | DESIGN_SYSTEM > TagInput |
-| PostPreview (right pane) | DESIGN_SYSTEM > PostPreview |
-| ToolbarButton (B/I/code/h/link) | DESIGN_SYSTEM > ToolbarButton |
-| Button (publish/save draft) | DESIGN_SYSTEM > Button |
+| TagInput (tag + chip)               | DESIGN_SYSTEM > TagInput        |
+| PostPreview (right pane)            | DESIGN_SYSTEM > PostPreview     |
+| ToolbarButton (B/I/code/h/link)     | DESIGN_SYSTEM > ToolbarButton   |
+| Button (publish/save draft)         | DESIGN_SYSTEM > Button          |
 
 ### State machine
 
-| State | Trigger | UI |
-|-------|---------|----|
-| `draft` | Mount / typing | `● draft · unsaved` (yellow) |
-| `saving` | ⌘S / debounced | `⠋ saving...` |
-| `saved` | Save ok | `● draft · saved 2s ago` |
-| `publishing` | ⌘↵ / Publish click | `⠋ publishing...` button disabled |
-| `published` | Publish ok | Button text `✓ Published!` → redirect `/post/<id>` sau 1.2s |
-| `error (upload)` | Upload fail | Toast error + thumb hiển thị `× retry` |
-| `error (publish)` | Publish fail | Inline error message above button |
+| State             | Trigger            | UI                                                          |
+| ----------------- | ------------------ | ----------------------------------------------------------- |
+| `draft`           | Mount / typing     | `● draft · unsaved` (yellow)                                |
+| `saving`          | ⌘S / debounced     | `⠋ saving...`                                               |
+| `saved`           | Save ok            | `● draft · saved 2s ago`                                    |
+| `publishing`      | ⌘↵ / Publish click | `⠋ publishing...` button disabled                           |
+| `published`       | Publish ok         | Button text `✓ Published!` → redirect `/post/<id>` sau 1.2s |
+| `error (upload)`  | Upload fail        | Toast error + thumb hiển thị `× retry`                      |
+| `error (publish)` | Publish fail       | Inline error message above button                           |
 
 ### Interactions
 
@@ -430,27 +431,27 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component | Source |
-|-----------|--------|
-| Sub-bar (admin live mode) | DESIGN_SYSTEM > Sub-bar |
-| StatCard (with sparkline) | DESIGN_SYSTEM > StatCard |
-| Sparkline | DESIGN_SYSTEM > Sparkline |
-| MoodBar (progress bar) | DESIGN_SYSTEM > MoodBar |
-| ActivityLog item | DESIGN_SYSTEM > ActivityLog |
-| Table (users, comments) | DESIGN_SYSTEM > Table |
-| RoleBadge | DESIGN_SYSTEM > RoleBadge |
-| StatusBadge (pending/approved) | DESIGN_SYSTEM > StatusBadge |
-| ActionButton (ghost btn) | DESIGN_SYSTEM > Button > ghost variant |
+| Component                      | Source                                 |
+| ------------------------------ | -------------------------------------- |
+| Sub-bar (admin live mode)      | DESIGN_SYSTEM > Sub-bar                |
+| StatCard (with sparkline)      | DESIGN_SYSTEM > StatCard               |
+| Sparkline                      | DESIGN_SYSTEM > Sparkline              |
+| MoodBar (progress bar)         | DESIGN_SYSTEM > MoodBar                |
+| ActivityLog item               | DESIGN_SYSTEM > ActivityLog            |
+| Table (users, comments)        | DESIGN_SYSTEM > Table                  |
+| RoleBadge                      | DESIGN_SYSTEM > RoleBadge              |
+| StatusBadge (pending/approved) | DESIGN_SYSTEM > StatusBadge            |
+| ActionButton (ghost btn)       | DESIGN_SYSTEM > Button > ghost variant |
 
 ### State machine
 
-| State | Trigger | UI |
-|-------|---------|----|
-| `loading` | Mount | Skeleton 4 stat cards + 2 panels |
-| `live` | WS connected | Pulse green dot trên sub-bar; live update entries |
-| `disconnected` | WS disconnect | Yellow indicator + retry; static data still visible |
-| `empty (comments)` | Zero pending | `// no comments to moderate` |
-| `error` | Fetch fail | Toast error + retry |
+| State              | Trigger       | UI                                                  |
+| ------------------ | ------------- | --------------------------------------------------- |
+| `loading`          | Mount         | Skeleton 4 stat cards + 2 panels                    |
+| `live`             | WS connected  | Pulse green dot trên sub-bar; live update entries   |
+| `disconnected`     | WS disconnect | Yellow indicator + retry; static data still visible |
+| `empty (comments)` | Zero pending  | `// no comments to moderate`                        |
+| `error`            | Fetch fail    | Toast error + retry                                 |
 
 ### Interactions
 
@@ -513,22 +514,22 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component | Source |
-|-----------|--------|
-| TerminalCard | DESIGN_SYSTEM > TerminalCard |
-| Input (with `❯` prefix) | DESIGN_SYSTEM > Input |
-| PasswordInput (with eye toggle) | DESIGN_SYSTEM > Input > password variant |
+| Component                       | Source                                    |
+| ------------------------------- | ----------------------------------------- |
+| TerminalCard                    | DESIGN_SYSTEM > TerminalCard              |
+| Input (with `❯` prefix)         | DESIGN_SYSTEM > Input                     |
+| PasswordInput (with eye toggle) | DESIGN_SYSTEM > Input > password variant  |
 | Button (primary terminal style) | DESIGN_SYSTEM > Button > primary terminal |
-| AsciiSpinner | DESIGN_SYSTEM > AsciiSpinner |
+| AsciiSpinner                    | DESIGN_SYSTEM > AsciiSpinner              |
 
 ### State machine
 
-| State | Trigger | UI |
-|-------|---------|----|
-| `idle` | Mount | Form trống, focus on username |
-| `validating` | Submit | Button `[ ⠋ AUTHENTICATING... ]` disabled |
-| `error` | Login fail | Red error message + shake animation 0.4s |
-| `success` | Login ok | Brief success → redirect `/` hoặc `?next=`target |
+| State        | Trigger    | UI                                               |
+| ------------ | ---------- | ------------------------------------------------ |
+| `idle`       | Mount      | Form trống, focus on username                    |
+| `validating` | Submit     | Button `[ ⠋ AUTHENTICATING... ]` disabled        |
+| `error`      | Login fail | Red error message + shake animation 0.4s         |
+| `success`    | Login ok   | Brief success → redirect `/` hoặc `?next=`target |
 
 ### Interactions
 
@@ -575,22 +576,27 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 \`\`\`
 
 ### Components
-| Component | Source |
-|-----------|--------|
-| ... | DESIGN_SYSTEM > ... |
+
+| Component | Source              |
+| --------- | ------------------- |
+| ...       | DESIGN_SYSTEM > ... |
 
 ### State machine
-| State | Trigger | UI |
-|-------|---------|----|
-| ... | ... | ... |
+
+| State | Trigger | UI  |
+| ----- | ------- | --- |
+| ...   | ...     | ... |
 
 ### Interactions
+
 - ...
 
 ### Responsive
+
 - `<768px`: ...
 - `<640px`: ...
 
 ### Real-time (nếu có)
+
 - WS event `...` → ...
 ```

@@ -36,12 +36,19 @@
   - src/: main.tsx (QueryClient + RouterProvider + Suspense + DevTools dev-only), App, routes (lazy HomePage + NotFoundPage), pages placeholder
   - styles/globals.css: Tailwind + cyberpunk CSS vars (bg/surf/elev/over, b1-b3, tp/ts/tm/td, 8 accents) + radial dot grid background + CRT scanline class
   - tailwind.config.ts: full mapping (colors, fonts, fontSize mono variants, radius, shadow glow-cyan, animation glitch/pulse/blink/shake/fade-up)
-  - lib/: utils.ts (cn helper), env.ts (Zod VITE_* fail-fast), validators.ts barrel
+  - lib/: utils.ts (cn helper), env.ts (Zod VITE\_\* fail-fast), validators.ts barrel
   - services/api/client.ts: fetch wrapper + ApiError + cookie credentials (typed gen defer M3+)
   - shadcn components.json init (style new-york, alias `@/*`) — add components per-need
   - Test: src/App.test.tsx smoke (Vitest + RTL + jsdom)
   - Verify: typecheck ✓, test ✓ (1/1), build ✓ (dist/index.html + assets), dev boot ✓ HTTP 200 :5173
-- [T-006] [P1] [F7] [Infra] Setup ESLint + Prettier + husky + lint-staged (root + per-app config) - TODO
+- [T-006] [P1] [F7] [Infra] Setup ESLint + Prettier + husky + lint-staged (root + per-app config) - DONE (2026-05-17)
+  - ESLint 9 flat config: root `eslint.config.mjs` (typescript-eslint, no-console, no-explicit-any) + per-app extends (apps/api NestJS, apps/web React 19 hooks + refresh)
+  - Prettier 3: `.prettierrc.json` (semi, singleQuote, printWidth 100, trailingComma all) + `.prettierignore`
+  - Husky 9: `.husky/pre-commit` → `pnpm lint-staged`; `.husky/commit-msg` → `commitlint --edit`
+  - lint-staged config trong root `package.json`: eslint --fix + prettier --write
+  - commitlint extends `config-conventional`, enforce types theo CLAUDE.md Commit Convention
+  - Test files + config files: relax rules (no-console, no-explicit-any off)
+  - Verify: `pnpm lint` ✓ both apps zero warnings; `pnpm format:check` ✓ 100% files; commitlint reject invalid msg, accept valid
 - [T-007] [P1] [F7] [Infra] Setup `.env.example` per app + dotenv-safe validation - IN_PROGRESS
   - Done: split env templates → `apps/api/.env.example` + `apps/web/.env.example` (2026-05-17)
   - Remaining: `dotenv-safe` (hoặc `@nestjs/config` + Zod) runtime validation — defer đến khi scaffold app code (T-004, T-005)
@@ -165,6 +172,7 @@
 
 ```markdown
 ### [T-XXX] [P0|P1|P2|P3] [F1-F7] [FE|BE|Both|Infra|Docs] <Title ngắn>
+
 - **Status:** TODO | DOING | DONE | BLOCKED
 - **Assignee:** <tên hoặc để trống>
 - **Estimate:** <giờ hoặc story point>

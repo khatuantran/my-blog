@@ -363,12 +363,14 @@ src/<feature>/
 Global trong `main.ts`:
 
 ```ts
-app.useGlobalPipes(new ValidationPipe({
-  whitelist: true,            // strip unknown fields
-  forbidNonWhitelisted: true, // throw nếu có field lạ
-  transform: true,            // auto-convert types (string → number, etc.)
-  transformOptions: { enableImplicitConversion: true },
-}));
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true, // strip unknown fields
+    forbidNonWhitelisted: true, // throw nếu có field lạ
+    transform: true, // auto-convert types (string → number, etc.)
+    transformOptions: { enableImplicitConversion: true },
+  }),
+);
 ```
 
 ### Guards
@@ -422,7 +424,7 @@ app.useGlobalPipes(new ValidationPipe({
     .addCookieAuth('access_token')
     .build();
   const doc = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, doc);    // dev only
+  SwaggerModule.setup('swagger', app, doc); // dev only
   ```
 - **Decorator usage required** cho mỗi endpoint:
   - `@ApiTags('posts')` — group
@@ -540,7 +542,7 @@ Kiểm trước khi merge mỗi feature/fix có touch endpoint hoặc data.
 
 ### Template thêm rule mới
 
-```markdown
+````markdown
 ## <Section>
 
 - **Rule:** ...
@@ -552,13 +554,15 @@ Kiểm trước khi merge mỗi feature/fix có touch endpoint hoặc data.
   // Bad
   ...
   ```
-```
+````
+
+````
 
 ### Template Security Checklist item
 
 ```markdown
 - [ ] **<Concern>:** <specific check + how to verify>
-```
+````
 
 ### Template Performance Checklist item
 

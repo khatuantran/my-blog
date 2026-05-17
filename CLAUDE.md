@@ -28,18 +28,18 @@ Rồi mới xử lý prompt mới.
 
 Spec chi tiết: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Local setup: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-| Layer | Tech |
-|-------|------|
-| Monorepo | **Turborepo** + pnpm workspaces (`apps/web` + `apps/api` + `packages/`) |
+| Layer               | Tech                                                                                    |
+| ------------------- | --------------------------------------------------------------------------------------- |
+| Monorepo            | **Turborepo** + pnpm workspaces (`apps/web` + `apps/api` + `packages/`)                 |
 | Frontend (apps/web) | **Vite + React 19 + React Router v7** + TanStack Query + Zustand + Tailwind + shadcn/ui |
-| Backend (apps/api) | **NestJS** + Passport JWT (access 15min + refresh 30d) + bcrypt + class-validator |
-| Database | **PostgreSQL** — Neon free (prod) + Docker local 2 DB (main + test) |
-| ORM | **Prisma** via `nestjs-prisma` |
-| Storage | **Cloudinary** signed upload |
-| Real-time | **WebSocket** qua `@nestjs/websockets` + Socket.io |
-| API contract | **OpenAPI 3.0 auto-gen** từ NestJS qua `@nestjs/swagger`; FE qua `openapi-typescript` |
-| Testing | **Vitest** (FE) + **Jest** (BE) + **Supertest** (integration) + **Playwright** (E2E) |
-| Deploy | FE → Vercel, BE → Fly.io free tier, DB → Neon free tier |
+| Backend (apps/api)  | **NestJS** + Passport JWT (access 15min + refresh 30d) + bcrypt + class-validator       |
+| Database            | **PostgreSQL** — Neon free (prod) + Docker local 2 DB (main + test)                     |
+| ORM                 | **Prisma** via `nestjs-prisma`                                                          |
+| Storage             | **Cloudinary** signed upload                                                            |
+| Real-time           | **WebSocket** qua `@nestjs/websockets` + Socket.io                                      |
+| API contract        | **OpenAPI 3.0 auto-gen** từ NestJS qua `@nestjs/swagger`; FE qua `openapi-typescript`   |
+| Testing             | **Vitest** (FE) + **Jest** (BE) + **Supertest** (integration) + **Playwright** (E2E)    |
+| Deploy              | FE → Vercel, BE → Fly.io free tier, DB → Neon free tier                                 |
 
 Files quan trọng (sau khi scaffold):
 
@@ -58,15 +58,15 @@ Files quan trọng (sau khi scaffold):
 
 Khi nhận prompt từ user, Claude PHẢI xác định task thuộc loại nào và follow đúng flow:
 
-| Trigger / Keyword | Flow |
-|-------------------|------|
-| "thêm chức năng", "feature mới", "implement X" | **F1: New Feature** |
+| Trigger / Keyword                                                    | Flow                    |
+| -------------------------------------------------------------------- | ----------------------- |
+| "thêm chức năng", "feature mới", "implement X"                       | **F1: New Feature**     |
 | "có FR/requirement mới", "user muốn X" mà chưa có trong REQUIREMENTS | **F2: New Requirement** |
-| "bug", "sai", "lỗi" (không critical) | **F3: Bug Fix** |
-| "prod down", "critical", "hotfix", "user không dùng được" | **F4: Hotfix** |
-| "refactor", "tách component", "đổi pattern", không đổi behavior | **F5: Refactor** |
-| "update docs", "viết doc", "cập nhật README" | **F6: Docs-only** |
-| "update deps", "config", "lint", "CI", "script package.json" | **F7: Chore** |
+| "bug", "sai", "lỗi" (không critical)                                 | **F3: Bug Fix**         |
+| "prod down", "critical", "hotfix", "user không dùng được"            | **F4: Hotfix**          |
+| "refactor", "tách component", "đổi pattern", không đổi behavior      | **F5: Refactor**        |
+| "update docs", "viết doc", "cập nhật README"                         | **F6: Docs-only**       |
+| "update deps", "config", "lint", "CI", "script package.json"         | **F7: Chore**           |
 
 Nếu không rõ loại → dùng `AskUserQuestion` hỏi user.
 
@@ -256,14 +256,14 @@ Test stack chia per app:
 
 ### Test required theo flow
 
-| Flow | Unit test mới? |
-|------|----------------|
-| F1 New Feature | **BẮT BUỘC** thêm test mới cho code mới |
-| F3 Bug Fix | **BẮT BUỘC** thêm regression test (xem TESTING_STRATEGY.md > Regression Test) |
-| F4 Hotfix Phase B | **BẮT BUỘC** thêm regression test |
-| F5 Refactor | **KHÔNG** thêm test mới. Test cũ pass = contract giữ nguyên |
-| F6 Docs | Không áp dụng |
-| F7 Chore | Smoke test (build/dev chạy), không yêu cầu unit test mới |
+| Flow              | Unit test mới?                                                                |
+| ----------------- | ----------------------------------------------------------------------------- |
+| F1 New Feature    | **BẮT BUỘC** thêm test mới cho code mới                                       |
+| F3 Bug Fix        | **BẮT BUỘC** thêm regression test (xem TESTING_STRATEGY.md > Regression Test) |
+| F4 Hotfix Phase B | **BẮT BUỘC** thêm regression test                                             |
+| F5 Refactor       | **KHÔNG** thêm test mới. Test cũ pass = contract giữ nguyên                   |
+| F6 Docs           | Không áp dụng                                                                 |
+| F7 Chore          | Smoke test (build/dev chạy), không yêu cầu unit test mới                      |
 
 ### Test Failure Rule — TỐI QUAN TRỌNG
 
@@ -450,20 +450,20 @@ Xem chi tiết: [docs/INDEX.md > Doc Update Trigger](docs/INDEX.md).
 
 Nhanh:
 
-| Thay đổi | Doc cần update |
-|----------|----------------|
-| FR/NFR/UC | `docs/REQUIREMENTS.md` |
-| DB schema | `docs/DATA_MODEL.md` + `apps/api/docs/MIGRATIONS.md` |
-| REST endpoint | `docs/API_CONTRACT.md` + regenerate `docs/contracts/openapi.yaml` |
-| WebSocket event | `docs/API_CONTRACT.md > WebSocket Events` |
-| Screen | `docs/UI_DESIGN.md` |
-| Component / token | `docs/DESIGN_SYSTEM.md` |
-| Pattern / architecture | `docs/ARCHITECTURE.md` (+ ADR) |
-| Convention | `docs/CODING_CONVENTION.md` |
-| Test strategy / E2E flow | `docs/TESTING_STRATEGY.md` |
-| Env / deploy | `docs/DEPLOYMENT.md` |
-| Task xong | `docs/TASKS.md` + `docs/PROGRESS.md` + `docs/CHANGELOG.md` |
-| Bug phát hiện/fix | `docs/BUGS.md` + `docs/CHANGELOG.md` |
+| Thay đổi                 | Doc cần update                                                    |
+| ------------------------ | ----------------------------------------------------------------- |
+| FR/NFR/UC                | `docs/REQUIREMENTS.md`                                            |
+| DB schema                | `docs/DATA_MODEL.md` + `apps/api/docs/MIGRATIONS.md`              |
+| REST endpoint            | `docs/API_CONTRACT.md` + regenerate `docs/contracts/openapi.yaml` |
+| WebSocket event          | `docs/API_CONTRACT.md > WebSocket Events`                         |
+| Screen                   | `docs/UI_DESIGN.md`                                               |
+| Component / token        | `docs/DESIGN_SYSTEM.md`                                           |
+| Pattern / architecture   | `docs/ARCHITECTURE.md` (+ ADR)                                    |
+| Convention               | `docs/CODING_CONVENTION.md`                                       |
+| Test strategy / E2E flow | `docs/TESTING_STRATEGY.md`                                        |
+| Env / deploy             | `docs/DEPLOYMENT.md`                                              |
+| Task xong                | `docs/TASKS.md` + `docs/PROGRESS.md` + `docs/CHANGELOG.md`        |
+| Bug phát hiện/fix        | `docs/BUGS.md` + `docs/CHANGELOG.md`                              |
 
 **Rule:** Cross-cut nhiều file → update TẤT CẢ cùng commit, không tách lẻ.
 

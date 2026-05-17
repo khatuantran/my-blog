@@ -18,19 +18,20 @@
 ```
 
 **Rationale:**
+
 - Unit base lớn để feedback nhanh (CI < 30s per run)
 - Integration test BE với real Postgres để catch issue Prisma + business logic
 - E2E ít nhưng cover critical user journey end-to-end
 
 ## Stack Summary
 
-| Layer | Tool | Where |
-|-------|------|-------|
-| FE unit | **Vitest** + React Testing Library + MSW (mock API) | `apps/web/tests/**/*.test.ts(x)` |
-| BE unit | **Jest** (NestJS default) | `apps/api/tests/**/*.spec.ts` |
-| BE integration | **Supertest** + Jest + real Postgres test DB | `apps/api/tests/**/*.e2e-spec.ts` |
-| E2E | **Playwright** (chromium) | `e2e/**/*.spec.ts` (root level) |
-| Coverage | Vitest coverage v8 + Jest coverage | report uploaded to CI artifact |
+| Layer          | Tool                                                | Where                             |
+| -------------- | --------------------------------------------------- | --------------------------------- |
+| FE unit        | **Vitest** + React Testing Library + MSW (mock API) | `apps/web/tests/**/*.test.ts(x)`  |
+| BE unit        | **Jest** (NestJS default)                           | `apps/api/tests/**/*.spec.ts`     |
+| BE integration | **Supertest** + Jest + real Postgres test DB        | `apps/api/tests/**/*.e2e-spec.ts` |
+| E2E            | **Playwright** (chromium)                           | `e2e/**/*.spec.ts` (root level)   |
+| Coverage       | Vitest coverage v8 + Jest coverage                  | report uploaded to CI artifact    |
 
 ---
 
@@ -90,13 +91,13 @@ test('usePosts fetches feed', async () => {
 
 ### Coverage target
 
-| Layer | Target |
-|-------|--------|
-| Validators (Zod) | 100% |
-| Hooks | ≥ 80% |
-| Services (api client, ws client) | ≥ 70% |
-| Components quan trọng (PostCard, CommentItem, MoodBadge) | ≥ 70% |
-| Layout components (TopBar, StatusBar) | ≥ 50% (visual stuff cover qua E2E) |
+| Layer                                                    | Target                             |
+| -------------------------------------------------------- | ---------------------------------- |
+| Validators (Zod)                                         | 100%                               |
+| Hooks                                                    | ≥ 80%                              |
+| Services (api client, ws client)                         | ≥ 70%                              |
+| Components quan trọng (PostCard, CommentItem, MoodBadge) | ≥ 70%                              |
+| Layout components (TopBar, StatusBar)                    | ≥ 50% (visual stuff cover qua E2E) |
 
 ---
 
@@ -163,10 +164,12 @@ describe('PostsService', () => {
   it('lists posts with mood filter', async () => {
     prisma.post.findMany.mockResolvedValue([{ id: '1', mood: 'HAPPY' }] as any);
     const result = await service.list({ mood: 'HAPPY', page: 1, limit: 10 });
-    expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({
-      where: { mood: 'HAPPY' },
-      take: 10,
-    }));
+    expect(prisma.post.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { mood: 'HAPPY' },
+        take: 10,
+      }),
+    );
     expect(result.data).toHaveLength(1);
   });
 });
@@ -174,12 +177,12 @@ describe('PostsService', () => {
 
 ### Coverage target
 
-| Layer | Target |
-|-------|--------|
-| Service | ≥ 80% |
-| Validators / DTOs | 100% |
-| Helpers | ≥ 90% |
-| Guards / Pipes / Filters / Interceptors | ≥ 70% |
+| Layer                                   | Target |
+| --------------------------------------- | ------ |
+| Service                                 | ≥ 80%  |
+| Validators / DTOs                       | 100%   |
+| Helpers                                 | ≥ 90%  |
+| Guards / Pipes / Filters / Interceptors | ≥ 70%  |
 
 ---
 
@@ -250,7 +253,7 @@ describe('Posts (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/posts')
       .send({ content: 'x', mood: 'HAPPY' });
-    expect(res.status).toBe(401);  // chưa login
+    expect(res.status).toBe(401); // chưa login
   });
 
   afterAll(async () => await app.close());
@@ -301,21 +304,21 @@ e2e/
 
 ### Core Flow Catalog
 
-| Flow ID | Title | File | Linked FR/UC |
-|---------|-------|------|--------------|
-| E2E-01 | Auth: register → login → logout | `auth.spec.ts` | FR-01, UC-09, UC-10 |
-| E2E-02 | Admin: tạo bài (text + ảnh + mood + tag) → hiển thị feed | `admin-create-post.spec.ts` | FR-02, UC-01 |
-| E2E-03 | Admin: edit + delete bài | `admin-edit-delete.spec.ts` | FR-02 |
-| E2E-04 | Anonymous: xem feed → like → comment | `anonymous-interaction.spec.ts` | FR-03, FR-04, UC-02, UC-04 |
-| E2E-05 | User auth: save bài + xem trang saved | `save-post.spec.ts` | FR-03.3, UC-05 |
-| E2E-06 | Filter: theo mood + tag | `filter.spec.ts` | FR-04.3 |
-| E2E-07 | Share: copy link + share social | `share.spec.ts` | FR-05, UC-06 |
-| E2E-08 | Admin: xóa comment | `admin-moderate.spec.ts` | FR-03.4 |
-| E2E-09 | Admin: ban/unban user | `admin-users-ban.spec.ts` | FR-01.5, FR-07.3, UC-08 |
-| E2E-10 | Admin: moderate comment (approve/reject) | `admin-moderate-comment.spec.ts` | FR-07.4, UC-07 |
-| E2E-11 | Admin: upload + download file attachment | `file-upload-download.spec.ts` | FR-06, UC-01 |
-| E2E-12 | ⌘K command palette navigation | `command-palette.spec.ts` | FR-08, UC-12 |
-| E2E-13 | Real-time: comment hot-reload qua WS | `realtime-comment.spec.ts` | FR-09, UC-11 |
+| Flow ID | Title                                                    | File                             | Linked FR/UC               |
+| ------- | -------------------------------------------------------- | -------------------------------- | -------------------------- |
+| E2E-01  | Auth: register → login → logout                          | `auth.spec.ts`                   | FR-01, UC-09, UC-10        |
+| E2E-02  | Admin: tạo bài (text + ảnh + mood + tag) → hiển thị feed | `admin-create-post.spec.ts`      | FR-02, UC-01               |
+| E2E-03  | Admin: edit + delete bài                                 | `admin-edit-delete.spec.ts`      | FR-02                      |
+| E2E-04  | Anonymous: xem feed → like → comment                     | `anonymous-interaction.spec.ts`  | FR-03, FR-04, UC-02, UC-04 |
+| E2E-05  | User auth: save bài + xem trang saved                    | `save-post.spec.ts`              | FR-03.3, UC-05             |
+| E2E-06  | Filter: theo mood + tag                                  | `filter.spec.ts`                 | FR-04.3                    |
+| E2E-07  | Share: copy link + share social                          | `share.spec.ts`                  | FR-05, UC-06               |
+| E2E-08  | Admin: xóa comment                                       | `admin-moderate.spec.ts`         | FR-03.4                    |
+| E2E-09  | Admin: ban/unban user                                    | `admin-users-ban.spec.ts`        | FR-01.5, FR-07.3, UC-08    |
+| E2E-10  | Admin: moderate comment (approve/reject)                 | `admin-moderate-comment.spec.ts` | FR-07.4, UC-07             |
+| E2E-11  | Admin: upload + download file attachment                 | `file-upload-download.spec.ts`   | FR-06, UC-01               |
+| E2E-12  | ⌘K command palette navigation                            | `command-palette.spec.ts`        | FR-08, UC-12               |
+| E2E-13  | Real-time: comment hot-reload qua WS                     | `realtime-comment.spec.ts`       | FR-09, UC-11               |
 
 > Thêm E2E flow mới khi có feature mới → update bảng này + sync vào CLAUDE.md > Testing Rules (chỉ link, không duplicate).
 
@@ -384,12 +387,12 @@ export const postFactory = (overrides = {}) => ({
 
 ### DB reset strategy per layer
 
-| Layer | Strategy |
-|-------|----------|
-| Unit (FE) | Mock data inline; no DB |
-| Unit (BE) | Mock Prisma; no DB |
-| Integration (BE) | `beforeAll`: full reset + seed; `beforeEach`: truncate volatile tables |
-| E2E | Pre-suite: full reset + seed; in-suite via test API `/test/reset` (dev/test env only) |
+| Layer            | Strategy                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------- |
+| Unit (FE)        | Mock data inline; no DB                                                               |
+| Unit (BE)        | Mock Prisma; no DB                                                                    |
+| Integration (BE) | `beforeAll`: full reset + seed; `beforeEach`: truncate volatile tables                |
+| E2E              | Pre-suite: full reset + seed; in-suite via test API `/test/reset` (dev/test env only) |
 
 ### Cloudinary in tests
 
@@ -405,16 +408,16 @@ export const postFactory = (overrides = {}) => ({
 
 ## Coverage Targets (summary)
 
-| Test type | Target |
-|-----------|--------|
-| FE Validators (Zod) | 100% |
-| FE Services + Hooks | ≥ 70% |
-| FE Components (key) | ≥ 70% |
-| BE Service | ≥ 80% |
-| BE DTOs / Validators | 100% |
-| BE Helpers | ≥ 90% |
+| Test type                   | Target                             |
+| --------------------------- | ---------------------------------- |
+| FE Validators (Zod)         | 100%                               |
+| FE Services + Hooks         | ≥ 70%                              |
+| FE Components (key)         | ≥ 70%                              |
+| BE Service                  | ≥ 80%                              |
+| BE DTOs / Validators        | 100%                               |
+| BE Helpers                  | ≥ 90%                              |
 | BE Controller (integration) | 100% happy path + chính error case |
-| E2E core flows | E2E-01 → E2E-13 must pass |
+| E2E core flows              | E2E-01 → E2E-13 must pass          |
 
 **Overall threshold:** > 75% line coverage, > 70% branch coverage (đo qua CI report).
 

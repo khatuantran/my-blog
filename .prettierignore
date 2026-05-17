@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.turbo
+.tsbuild-node
+coverage
+pnpm-lock.yaml
+.next
+out
+design-file
+**/*.min.js
+**/*.min.css

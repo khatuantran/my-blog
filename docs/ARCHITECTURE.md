@@ -381,13 +381,13 @@ apps/api/
 
 ### Threat model (top 5)
 
-| Threat | Mitigation |
-|--------|------------|
-| **SQL Injection** | Prisma parameterized queries; KHÔNG dùng `$queryRawUnsafe` với user input |
-| **XSS (stored)** | Sanitize user-generated content (comment, anonymousName) bằng DOMPurify FE; CSP header `script-src 'self'` |
-| **CSRF** | httpOnly cookie + `SameSite=Strict`; CSRF token cho mutation request từ form (NestJS có thể dùng `csurf`) |
-| **Broken Auth** | bcrypt cost ≥ 10; refresh token rotation; logout invalidate; rate limit login; lock account sau 5 fail trong 10min |
-| **IDOR** | Check ownership trong service layer cho mọi resource (vd: chỉ admin xóa post của mình); KHÔNG trust client-sent IDs |
+| Threat            | Mitigation                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **SQL Injection** | Prisma parameterized queries; KHÔNG dùng `$queryRawUnsafe` với user input                                           |
+| **XSS (stored)**  | Sanitize user-generated content (comment, anonymousName) bằng DOMPurify FE; CSP header `script-src 'self'`          |
+| **CSRF**          | httpOnly cookie + `SameSite=Strict`; CSRF token cho mutation request từ form (NestJS có thể dùng `csurf`)           |
+| **Broken Auth**   | bcrypt cost ≥ 10; refresh token rotation; logout invalidate; rate limit login; lock account sau 5 fail trong 10min  |
+| **IDOR**          | Check ownership trong service layer cho mọi resource (vd: chỉ admin xóa post của mình); KHÔNG trust client-sent IDs |
 
 ## Operations Runbook
 
@@ -401,13 +401,13 @@ apps/api/
 
 ### Alert rules
 
-| Alert | Trigger | Action |
-|-------|---------|--------|
-| BE 5xx rate > 1% (5min window) | Sentry alert email | Check Fly logs `fly logs`, Sentry issue list |
-| BE p95 latency > 500ms (5min) | Fly metrics → webhook | Check slow query trong Neon, add index nếu cần |
-| DB connection > 80% pool | Neon dashboard alert | Restart BE machine, check connection leak |
-| Cloudinary quota > 80% | Manual monthly check | Cleanup unused images, plan upgrade |
-| BE machine down | Fly health check fail | Auto-restart bởi Fly; manual `fly machine restart` nếu stuck |
+| Alert                          | Trigger               | Action                                                       |
+| ------------------------------ | --------------------- | ------------------------------------------------------------ |
+| BE 5xx rate > 1% (5min window) | Sentry alert email    | Check Fly logs `fly logs`, Sentry issue list                 |
+| BE p95 latency > 500ms (5min)  | Fly metrics → webhook | Check slow query trong Neon, add index nếu cần               |
+| DB connection > 80% pool       | Neon dashboard alert  | Restart BE machine, check connection leak                    |
+| Cloudinary quota > 80%         | Manual monthly check  | Cleanup unused images, plan upgrade                          |
+| BE machine down                | Fly health check fail | Auto-restart bởi Fly; manual `fly machine restart` nếu stuck |
 
 ### Incident response steps
 
@@ -447,6 +447,7 @@ apps/api/
 
 ```markdown
 ### ADR-XXX: <Tiêu đề quyết định>
+
 - **Date:** YYYY-MM-DD
 - **Status:** Proposed | Accepted | Deprecated | Superseded by ADR-YYY
 - **Context:** Vấn đề cần giải quyết

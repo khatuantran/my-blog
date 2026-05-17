@@ -5,11 +5,11 @@
 
 ## Environments
 
-| Env | FE | BE | DB | Notes |
-|-----|----|----|----|----|
-| Local | Vite dev `:5173` | NestJS `:3001` | Docker Postgres `:5432` (main) + `:5433` (test) | docker-compose |
-| Preview | Vercel preview per PR | Fly.io preview app (optional) | Neon `dev` branch | auto trigger on PR |
-| Production | Vercel `kha.blog` | Fly.io `myblog-api.fly.dev` | Neon `main` branch | manual promote |
+| Env        | FE                    | BE                            | DB                                              | Notes              |
+| ---------- | --------------------- | ----------------------------- | ----------------------------------------------- | ------------------ |
+| Local      | Vite dev `:5173`      | NestJS `:3001`                | Docker Postgres `:5432` (main) + `:5433` (test) | docker-compose     |
+| Preview    | Vercel preview per PR | Fly.io preview app (optional) | Neon `dev` branch                               | auto trigger on PR |
+| Production | Vercel `kha.blog`     | Fly.io `myblog-api.fly.dev`   | Neon `main` branch                              | manual promote     |
 
 ---
 
@@ -87,7 +87,7 @@ services:
       POSTGRES_PASSWORD: myblog
       POSTGRES_DB: myblog_test
     ports: ['5433:5432']
-    tmpfs: ['/var/lib/postgresql/data']    # in-memory cho test speed
+    tmpfs: ['/var/lib/postgresql/data'] # in-memory cho test speed
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U myblog']
       interval: 10s
@@ -284,37 +284,37 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 
 ## Env Vars Matrix
 
-| Name | App | Required | Example | Notes |
-|------|-----|----------|---------|-------|
-| `DATABASE_URL` | api | yes | `postgresql://...pooler...` | Neon pooled / Docker main |
-| `DIRECT_URL` | api | yes | `postgresql://...direct...` | Neon direct / Docker main (cho migration) |
-| `DATABASE_URL_TEST` | api (test only) | test | `postgresql://...localhost:5433/myblog_test` | Docker test |
-| `JWT_SECRET` | api | yes | `<32-byte base64>` | `openssl rand -base64 32` |
-| `JWT_REFRESH_SECRET` | api | yes | `<32-byte base64>` | separate từ JWT_SECRET |
-| `JWT_ACCESS_TTL` | api | no (default 15m) | `15m` | TTL access token |
-| `JWT_REFRESH_TTL` | api | no (default 30d) | `30d` | TTL refresh token |
-| `CLOUDINARY_CLOUD_NAME` | api | yes | `your-cloud` | |
-| `CLOUDINARY_API_KEY` | api | yes | `123456789012345` | |
-| `CLOUDINARY_API_SECRET` | api | yes | `secret_xxx` | |
-| `CLOUDINARY_UPLOAD_PRESET` | api | yes | `myblog_uploads` | Signed preset config |
-| `ADMIN_USERNAME` | api (seed) | yes | `admin` | |
-| `ADMIN_PASSWORD` | api (seed) | yes | `<strong>` | dùng bcrypt hash khi seed |
-| `CORS_ORIGIN` | api | yes | `https://kha.blog,https://*.vercel.app,http://localhost:5173` | comma-separated |
-| `SENTRY_DSN` | api | no | `https://...@sentry.io/...` | optional, error tracking |
-| `PORT` | api | no (3001 default) | `3001` | Fly.io set qua env |
-| `VITE_API_URL` | web | yes | `https://myblog-api.fly.dev` | BE base URL |
-| `VITE_WS_URL` | web | yes | `wss://myblog-api.fly.dev` | BE WebSocket URL |
-| `VITE_SENTRY_DSN` | web | no | `https://...@sentry.io/...` | optional |
+| Name                       | App             | Required          | Example                                                       | Notes                                     |
+| -------------------------- | --------------- | ----------------- | ------------------------------------------------------------- | ----------------------------------------- |
+| `DATABASE_URL`             | api             | yes               | `postgresql://...pooler...`                                   | Neon pooled / Docker main                 |
+| `DIRECT_URL`               | api             | yes               | `postgresql://...direct...`                                   | Neon direct / Docker main (cho migration) |
+| `DATABASE_URL_TEST`        | api (test only) | test              | `postgresql://...localhost:5433/myblog_test`                  | Docker test                               |
+| `JWT_SECRET`               | api             | yes               | `<32-byte base64>`                                            | `openssl rand -base64 32`                 |
+| `JWT_REFRESH_SECRET`       | api             | yes               | `<32-byte base64>`                                            | separate từ JWT_SECRET                    |
+| `JWT_ACCESS_TTL`           | api             | no (default 15m)  | `15m`                                                         | TTL access token                          |
+| `JWT_REFRESH_TTL`          | api             | no (default 30d)  | `30d`                                                         | TTL refresh token                         |
+| `CLOUDINARY_CLOUD_NAME`    | api             | yes               | `your-cloud`                                                  |                                           |
+| `CLOUDINARY_API_KEY`       | api             | yes               | `123456789012345`                                             |                                           |
+| `CLOUDINARY_API_SECRET`    | api             | yes               | `secret_xxx`                                                  |                                           |
+| `CLOUDINARY_UPLOAD_PRESET` | api             | yes               | `myblog_uploads`                                              | Signed preset config                      |
+| `ADMIN_USERNAME`           | api (seed)      | yes               | `admin`                                                       |                                           |
+| `ADMIN_PASSWORD`           | api (seed)      | yes               | `<strong>`                                                    | dùng bcrypt hash khi seed                 |
+| `CORS_ORIGIN`              | api             | yes               | `https://kha.blog,https://*.vercel.app,http://localhost:5173` | comma-separated                           |
+| `SENTRY_DSN`               | api             | no                | `https://...@sentry.io/...`                                   | optional, error tracking                  |
+| `PORT`                     | api             | no (3001 default) | `3001`                                                        | Fly.io set qua env                        |
+| `VITE_API_URL`             | web             | yes               | `https://myblog-api.fly.dev`                                  | BE base URL                               |
+| `VITE_WS_URL`              | web             | yes               | `wss://myblog-api.fly.dev`                                    | BE WebSocket URL                          |
+| `VITE_SENTRY_DSN`          | web             | no                | `https://...@sentry.io/...`                                   | optional                                  |
 
 ### Where to set env
 
-| Env target | How |
-|-----------|-----|
-| Local FE | `apps/web/.env.local` (VITE_* prefix) |
-| Local BE | `apps/api/.env.local` |
-| Vercel FE | Vercel Dashboard → Settings → Environment Variables |
-| Fly.io BE | `fly secrets set KEY=value` |
-| Neon DB | Connection string copied to Fly secrets |
+| Env target | How                                                 |
+| ---------- | --------------------------------------------------- |
+| Local FE   | `apps/web/.env.local` (VITE\_\* prefix)             |
+| Local BE   | `apps/api/.env.local`                               |
+| Vercel FE  | Vercel Dashboard → Settings → Environment Variables |
+| Fly.io BE  | `fly secrets set KEY=value`                         |
+| Neon DB    | Connection string copied to Fly secrets             |
 
 ---
 
@@ -342,12 +342,12 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 
 ### Tools
 
-| Tool | What | Free tier |
-|------|------|-----------|
-| **Sentry** | Error tracking (FE + BE), performance transactions | 5k errors/month |
-| **Fly metrics** | CPU, memory, network, HTTP status | Built-in dashboard |
-| **Neon dashboard** | Query perf, connection count, storage | Built-in |
-| **Vercel Analytics** | Web Vitals (LCP, FID, CLS), page views | Pro features paid |
+| Tool                 | What                                               | Free tier          |
+| -------------------- | -------------------------------------------------- | ------------------ |
+| **Sentry**           | Error tracking (FE + BE), performance transactions | 5k errors/month    |
+| **Fly metrics**      | CPU, memory, network, HTTP status                  | Built-in dashboard |
+| **Neon dashboard**   | Query perf, connection count, storage              | Built-in           |
+| **Vercel Analytics** | Web Vitals (LCP, FID, CLS), page views             | Pro features paid  |
 
 ### Setup (sau khi go-live)
 

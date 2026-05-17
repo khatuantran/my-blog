@@ -22,98 +22,104 @@ AnonymousSession (standalone — track guest)
 ## Entities
 
 ### User
+
 **Mục đích:** Account đăng ký (admin + auth user). Anonymous KHÔNG có record ở đây — track qua `AnonymousSession`.
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| username | String | unique | |
-| email | String? | unique, optional | |
-| passwordHash | String | | bcrypt cost ≥ 10 |
-| role | Enum(Role) | default `USER` | ADMIN / USER / BANNED |
-| avatarUrl | String? | | Cloudinary URL |
-| createdAt | DateTime | default(now()) | |
-| updatedAt | DateTime | @updatedAt | |
+| Field        | Type          | Constraints      | Notes                 |
+| ------------ | ------------- | ---------------- | --------------------- |
+| id           | String (cuid) | PK               |                       |
+| username     | String        | unique           |                       |
+| email        | String?       | unique, optional |                       |
+| passwordHash | String        |                  | bcrypt cost ≥ 10      |
+| role         | Enum(Role)    | default `USER`   | ADMIN / USER / BANNED |
+| avatarUrl    | String?       |                  | Cloudinary URL        |
+| createdAt    | DateTime      | default(now())   |                       |
+| updatedAt    | DateTime      | @updatedAt       |                       |
 
 **Relations:** `hasMany` Post, Comment, Like, CommentLike, SavedPost, RefreshToken
 **Indexes:** username (auto unique), email (auto unique)
 
 ### Post
+
 **Mục đích:** Bài viết của admin.
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| content | Text | | markdown |
-| mood | Enum(Mood) | | |
-| viewCount | Int | default 0 | FR-04.5, tracked qua PostView |
-| authorId | String | FK User | |
-| createdAt | DateTime | default(now()), `@@index` | feed sort |
-| updatedAt | DateTime | @updatedAt | |
+| Field     | Type          | Constraints               | Notes                         |
+| --------- | ------------- | ------------------------- | ----------------------------- |
+| id        | String (cuid) | PK                        |                               |
+| content   | Text          |                           | markdown                      |
+| mood      | Enum(Mood)    |                           |                               |
+| viewCount | Int           | default 0                 | FR-04.5, tracked qua PostView |
+| authorId  | String        | FK User                   |                               |
+| createdAt | DateTime      | default(now()), `@@index` | feed sort                     |
+| updatedAt | DateTime      | @updatedAt                |                               |
 
 **Relations:** `belongsTo` User (author), `hasMany` Image, File, Comment, Like, PostTag, SavedPost, PostView
 **Indexes:** `@@index([createdAt])` cho feed sort DESC; `@@index([authorId])`
 
 ### Image
+
 **Mục đích:** Ảnh thuộc bài viết (max 10/post, Cloudinary).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| postId | String | FK Post, onDelete Cascade | |
-| url | String | | Cloudinary secure URL |
-| publicId | String | | Cloudinary publicId (để xóa) |
-| width | Int | | |
-| height | Int | | |
-| order | Int | default 0 | thứ tự hiển thị |
+| Field    | Type          | Constraints               | Notes                        |
+| -------- | ------------- | ------------------------- | ---------------------------- |
+| id       | String (cuid) | PK                        |                              |
+| postId   | String        | FK Post, onDelete Cascade |                              |
+| url      | String        |                           | Cloudinary secure URL        |
+| publicId | String        |                           | Cloudinary publicId (để xóa) |
+| width    | Int           |                           |                              |
+| height   | Int           |                           |                              |
+| order    | Int           | default 0                 | thứ tự hiển thị              |
 
 **Relations:** `belongsTo` Post
 **Indexes:** `@@index([postId])`
 
 ### File (MỚI — FR-06)
+
 **Mục đích:** File attachment cho bài viết (PDF/DOC/DOCX/XLS/XLSX/TXT/CSV), max 20/post, ≤ 20MB each.
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| postId | String | FK Post, onDelete Cascade | |
-| name | String | | original filename |
-| type | Enum(FileType) | | |
-| size | Int | | bytes |
-| url | String | | Cloudinary secure URL |
-| publicId | String | | Cloudinary publicId |
-| createdAt | DateTime | default(now()) | |
+| Field     | Type           | Constraints               | Notes                 |
+| --------- | -------------- | ------------------------- | --------------------- |
+| id        | String (cuid)  | PK                        |                       |
+| postId    | String         | FK Post, onDelete Cascade |                       |
+| name      | String         |                           | original filename     |
+| type      | Enum(FileType) |                           |                       |
+| size      | Int            |                           | bytes                 |
+| url       | String         |                           | Cloudinary secure URL |
+| publicId  | String         |                           | Cloudinary publicId   |
+| createdAt | DateTime       | default(now())            |                       |
 
 **Relations:** `belongsTo` Post
 **Indexes:** `@@index([postId])`
 
 ### Comment
+
 **Mục đích:** Comment trên bài viết (auth user hoặc anonymous).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| postId | String | FK Post, onDelete Cascade | |
-| userId | String? | FK User | null = anonymous |
-| anonymousName | String? | | nếu anonymous, hiển thị tên này |
-| anonymousId | String? | | cookie UUID nếu anonymous (dedupe like) |
-| content | Text | | sanitized FE+BE |
-| status | Enum(CommentStatus) | default `APPROVED` | PENDING khi moderation queue ON |
-| createdAt | DateTime | default(now()) | |
+| Field         | Type                | Constraints               | Notes                                   |
+| ------------- | ------------------- | ------------------------- | --------------------------------------- |
+| id            | String (cuid)       | PK                        |                                         |
+| postId        | String              | FK Post, onDelete Cascade |                                         |
+| userId        | String?             | FK User                   | null = anonymous                        |
+| anonymousName | String?             |                           | nếu anonymous, hiển thị tên này         |
+| anonymousId   | String?             |                           | cookie UUID nếu anonymous (dedupe like) |
+| content       | Text                |                           | sanitized FE+BE                         |
+| status        | Enum(CommentStatus) | default `APPROVED`        | PENDING khi moderation queue ON         |
+| createdAt     | DateTime            | default(now())            |                                         |
 
 **Relations:** `belongsTo` Post, `belongsTo` User (nullable), `hasMany` CommentLike
 **Indexes:** `@@index([postId, createdAt])` cho load comment theo post + sort
 
 ### Like
+
 **Mục đích:** Like cho Post (auth user hoặc anonymous).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| postId | String | FK Post, onDelete Cascade | |
-| userId | String? | FK User | null = anonymous |
-| anonymousId | String? | | cookie UUID |
-| createdAt | DateTime | default(now()) | |
+| Field       | Type          | Constraints               | Notes            |
+| ----------- | ------------- | ------------------------- | ---------------- |
+| id          | String (cuid) | PK                        |                  |
+| postId      | String        | FK Post, onDelete Cascade |                  |
+| userId      | String?       | FK User                   | null = anonymous |
+| anonymousId | String?       |                           | cookie UUID      |
+| createdAt   | DateTime      | default(now())            |                  |
 
 **Relations:** `belongsTo` Post, `belongsTo` User (nullable)
 **Indexes:** `@@index([postId])` cho count nhanh
@@ -123,15 +129,16 @@ AnonymousSession (standalone — track guest)
 - `@@unique([postId, anonymousId])` — anonymous chỉ like 1 lần (when anonymousId NOT NULL)
 
 ### CommentLike (MỚI — FR-03.5)
+
 **Mục đích:** Like cho Comment (separate từ Like vì target khác).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| commentId | String | FK Comment, onDelete Cascade | |
-| userId | String? | FK User | null = anonymous |
-| anonymousId | String? | | cookie UUID |
-| createdAt | DateTime | default(now()) | |
+| Field       | Type          | Constraints                  | Notes            |
+| ----------- | ------------- | ---------------------------- | ---------------- |
+| id          | String (cuid) | PK                           |                  |
+| commentId   | String        | FK Comment, onDelete Cascade |                  |
+| userId      | String?       | FK User                      | null = anonymous |
+| anonymousId | String?       |                              | cookie UUID      |
+| createdAt   | DateTime      | default(now())               |                  |
 
 **Relations:** `belongsTo` Comment, `belongsTo` User (nullable)
 **Indexes:** `@@index([commentId])`
@@ -143,82 +150,88 @@ AnonymousSession (standalone — track guest)
 > **Implementation note:** Có thể merge `Like` + `CommentLike` thành generic `Reaction` table với polymorphic `targetType` (POST/COMMENT) + `targetId`. Default tách riêng cho clarity + FK constraints. Quyết định lại ở implement phase nếu cần.
 
 ### Tag
+
 **Mục đích:** Hashtag (M2M qua PostTag).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| name | String | unique | lowercase, có dấu `#` đầu (`#travel`) |
-| color | String? | | hex color (cycle qua palette khi tag mới — xem DESIGN_SYSTEM.md) |
+| Field | Type          | Constraints | Notes                                                            |
+| ----- | ------------- | ----------- | ---------------------------------------------------------------- |
+| id    | String (cuid) | PK          |                                                                  |
+| name  | String        | unique      | lowercase, có dấu `#` đầu (`#travel`)                            |
+| color | String?       |             | hex color (cycle qua palette khi tag mới — xem DESIGN_SYSTEM.md) |
 
 **Relations:** `hasMany` PostTag
 **Indexes:** `@@index([name])`
 
 ### PostTag (M2M)
+
 **Mục đích:** Bảng nối Post ↔ Tag.
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| postId | String | FK Post, onDelete Cascade | |
-| tagId | String | FK Tag, onDelete Cascade | |
+| Field  | Type   | Constraints               | Notes |
+| ------ | ------ | ------------------------- | ----- |
+| postId | String | FK Post, onDelete Cascade |       |
+| tagId  | String | FK Tag, onDelete Cascade  |       |
 
 **Relations:** `belongsTo` Post, `belongsTo` Tag
 **Unique constraints:** PK composite `(postId, tagId)`
 
 ### SavedPost
+
 **Mục đích:** Bài viết user lưu lại (CHỈ auth user).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| userId | String | FK User, onDelete Cascade | |
-| postId | String | FK Post, onDelete Cascade | |
-| savedAt | DateTime | default(now()) | |
+| Field   | Type     | Constraints               | Notes |
+| ------- | -------- | ------------------------- | ----- |
+| userId  | String   | FK User, onDelete Cascade |       |
+| postId  | String   | FK Post, onDelete Cascade |       |
+| savedAt | DateTime | default(now())            |       |
 
 **Relations:** `belongsTo` User, `belongsTo` Post
 **Unique constraints:** PK composite `(userId, postId)`
 
 ### PostView (MỚI — FR-04.5)
+
 **Mục đích:** Track view per session để dedupe (1 view / 30min / session).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| postId | String | FK Post, onDelete Cascade | |
-| userId | String? | FK User | nullable |
-| anonymousId | String? | | nullable |
-| viewedAt | DateTime | default(now()) | |
+| Field       | Type          | Constraints               | Notes    |
+| ----------- | ------------- | ------------------------- | -------- |
+| id          | String (cuid) | PK                        |          |
+| postId      | String        | FK Post, onDelete Cascade |          |
+| userId      | String?       | FK User                   | nullable |
+| anonymousId | String?       |                           | nullable |
+| viewedAt    | DateTime      | default(now())            |          |
 
 **Relations:** `belongsTo` Post
 **Indexes:** `@@index([postId, viewedAt])`, `@@index([anonymousId, postId, viewedAt])` cho dedup query
 
 ### AnonymousSession (MỚI — FR-09.2)
+
 **Mục đích:** Track anonymous session cho live visitors panel + activity log.
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String | PK | format `0x7F·4A2C` hex hoặc `Anon#7` sequential |
-| geo | String? | | ISO country code hoặc city (vd: `HN`, `SG`) — từ IP geolocation |
-| lastPage | String? | | path `/post/abc123` |
-| lastAction | String? | | `reading`, `browsing`, `commenting` |
-| lastActive | DateTime | @updatedAt | |
-| createdAt | DateTime | default(now()) | |
+| Field      | Type     | Constraints    | Notes                                                           |
+| ---------- | -------- | -------------- | --------------------------------------------------------------- |
+| id         | String   | PK             | format `0x7F·4A2C` hex hoặc `Anon#7` sequential                 |
+| geo        | String?  |                | ISO country code hoặc city (vd: `HN`, `SG`) — từ IP geolocation |
+| lastPage   | String?  |                | path `/post/abc123`                                             |
+| lastAction | String?  |                | `reading`, `browsing`, `commenting`                             |
+| lastActive | DateTime | @updatedAt     |                                                                 |
+| createdAt  | DateTime | default(now()) |                                                                 |
 
 **Relations:** standalone (không FK)
 **Indexes:** `@@index([lastActive])` cho "active in last X min" query
 
 ### RefreshToken (MỚI — FR-01.2)
+
 **Mục đích:** Lưu refresh token để có thể revoke (logout, rotation).
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| userId | String | FK User, onDelete Cascade | |
-| tokenHash | String | unique | SHA-256 hash của refresh token raw |
-| expiresAt | DateTime | | now + 30d |
-| revokedAt | DateTime? | | nếu null thì còn valid |
-| createdAt | DateTime | default(now()) | |
-| userAgent | String? | | track device |
-| ipAddress | String? | | track IP issue |
+| Field     | Type          | Constraints               | Notes                              |
+| --------- | ------------- | ------------------------- | ---------------------------------- |
+| id        | String (cuid) | PK                        |                                    |
+| userId    | String        | FK User, onDelete Cascade |                                    |
+| tokenHash | String        | unique                    | SHA-256 hash của refresh token raw |
+| expiresAt | DateTime      |                           | now + 30d                          |
+| revokedAt | DateTime?     |                           | nếu null thì còn valid             |
+| createdAt | DateTime      | default(now())            |                                    |
+| userAgent | String?       |                           | track device                       |
+| ipAddress | String?       |                           | track IP issue                     |
 
 **Relations:** `belongsTo` User
 **Indexes:** `@@index([userId])`, `@@index([tokenHash])`
@@ -226,20 +239,24 @@ AnonymousSession (standalone — track guest)
 ## Enums
 
 ### Enum Role
+
 Values: `ADMIN`, `USER`, `BANNED`
 Dùng cho: `User.role`
 
 ### Enum Mood
+
 Values: `HAPPY`, `EXCITED`, `THOUGHTFUL`, `CALM`, `SAD`, `GRATEFUL`, `ANGRY`
 Dùng cho: `Post.mood`
 
 > Cross-ref: [DESIGN_SYSTEM.md > Mood Color Map](./DESIGN_SYSTEM.md). Thêm mood enum mới PHẢI update cả 2 doc.
 
 ### Enum FileType (MỚI)
+
 Values: `PDF`, `DOC`, `DOCX`, `XLS`, `XLSX`, `TXT`, `CSV`
 Dùng cho: `File.type`
 
 ### Enum CommentStatus (MỚI)
+
 Values: `PENDING`, `APPROVED`, `REJECTED`
 Dùng cho: `Comment.status`
 
@@ -453,20 +470,20 @@ model RefreshToken {
 
 ## Indexing Strategy (tổng hợp)
 
-| Index | Purpose |
-|-------|---------|
-| `Post.createdAt DESC` | Feed sort, default page query |
-| `Post.authorId` | List bài theo author (cho admin profile sau) |
-| `Comment.postId + createdAt` | Load + sort comments theo post |
-| `Like.postId` | Count likes nhanh |
-| `CommentLike.commentId` | Count likes nhanh per comment |
-| `Tag.name` (unique auto) | Filter feed theo tag, dedup tag mới |
-| `Image.postId`, `File.postId` | Load attachments theo post |
-| `PostView.postId + viewedAt` | Dedup view trong 30min window |
-| `PostView.anonymousId + postId + viewedAt` | Dedup theo anonymous session |
-| `AnonymousSession.lastActive` | Query "active in last 5 min" cho live visitors panel |
-| `RefreshToken.tokenHash` | Lookup khi refresh |
-| `User.username/email` (unique auto) | Login lookup |
+| Index                                      | Purpose                                              |
+| ------------------------------------------ | ---------------------------------------------------- |
+| `Post.createdAt DESC`                      | Feed sort, default page query                        |
+| `Post.authorId`                            | List bài theo author (cho admin profile sau)         |
+| `Comment.postId + createdAt`               | Load + sort comments theo post                       |
+| `Like.postId`                              | Count likes nhanh                                    |
+| `CommentLike.commentId`                    | Count likes nhanh per comment                        |
+| `Tag.name` (unique auto)                   | Filter feed theo tag, dedup tag mới                  |
+| `Image.postId`, `File.postId`              | Load attachments theo post                           |
+| `PostView.postId + viewedAt`               | Dedup view trong 30min window                        |
+| `PostView.anonymousId + postId + viewedAt` | Dedup theo anonymous session                         |
+| `AnonymousSession.lastActive`              | Query "active in last 5 min" cho live visitors panel |
+| `RefreshToken.tokenHash`                   | Lookup khi refresh                                   |
+| `User.username/email` (unique auto)        | Login lookup                                         |
 
 ## Migration Log (summary high-level)
 
@@ -489,23 +506,27 @@ model RefreshToken {
 
 ```markdown
 ### <EntityName>
+
 **Mục đích:** <1 câu>
 
-| Field | Type | Constraints | Notes |
-|-------|------|-------------|-------|
-| id | String (cuid) | PK | |
-| ... | ... | ... | ... |
-| createdAt | DateTime | default(now()) | |
-| updatedAt | DateTime | @updatedAt | |
+| Field     | Type          | Constraints    | Notes |
+| --------- | ------------- | -------------- | ----- |
+| id        | String (cuid) | PK             |       |
+| ...       | ...           | ...            | ...   |
+| createdAt | DateTime      | default(now()) |       |
+| updatedAt | DateTime      | @updatedAt     |       |
 
 **Relations:**
+
 - `belongsTo` <Other>: ...
 - `hasMany` <Other>: ...
 
 **Indexes:**
+
 - `@@index([field])` — vì sao cần
 
 **Unique constraints:**
+
 - `@@unique([fieldA, fieldB])` — vì sao
 ```
 
@@ -513,6 +534,7 @@ model RefreshToken {
 
 ```markdown
 ### Enum <Name>
+
 Values: `A`, `B`, `C`
 Dùng cho: `<Model>.<field>`
 ```
@@ -521,6 +543,7 @@ Dùng cho: `<Model>.<field>`
 
 ```markdown
 ### v<X.Y.Z> (YYYY-MM-DD) — <name>
+
 - **Added:** ...
 - **Changed:** ...
 - **Removed:** ...

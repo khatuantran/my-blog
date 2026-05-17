@@ -37,8 +37,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const body = text ? (JSON.parse(text) as unknown) : null;
 
   if (!res.ok) {
-    const err = (body as { error?: { code?: string; message?: string; details?: unknown } })
-      ?.error;
+    const err = (body as { error?: { code?: string; message?: string; details?: unknown } })?.error;
     throw new ApiError(
       res.status,
       err?.code ?? 'UNKNOWN',

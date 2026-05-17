@@ -19,6 +19,7 @@ _(Trống)_
 
 ```markdown
 ### [BUG-XXX] [Critical|High|Medium|Low] [FE|BE|Both|Infra] <Tiêu đề ngắn>
+
 - **Status:** OPEN | IN_PROGRESS | FIXED | FIXED (hotfix, pending RCA) | WONT_FIX
 - **Reporter:** <tên> — **Date:** YYYY-MM-DD
 - **Environment:**

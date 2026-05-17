@@ -10,6 +10,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 - **T-003** `docker-compose.yml`: 2x Postgres 16-alpine (`postgres-main` :5432 persistent volume, `postgres-test` :5433 tmpfs in-memory) + healthcheck.
 - **T-004** Scaffold `apps/api` NestJS skeleton: bootstrap (helmet/compression/cookie-parser/CORS/ValidationPipe/Swagger dev), `common/` (HttpExceptionFilter + Transform/Logging interceptors), `config/env.schema.ts` (Zod fail-fast validate), `prisma/` (nestjs-prisma + Placeholder model). NestJS 10.4, Prisma 5.22, @nestjs/swagger 7.4, helmet 8.
 - **T-005** Scaffold `apps/web` Vite + React 19 skeleton: RouterProvider (RR v7 + lazy + Suspense) + QueryClient (TanStack Query 5 + DevTools dev-only) + Tailwind 3.4 (cyberpunk tokens) + shadcn/ui init + Zod env validation + fetch client wrapper + Vitest smoke test.
+- **T-006** ESLint 9 flat config + Prettier 3 + Husky 9 + lint-staged + commitlint. Root `eslint.config.mjs` shared base (no-console, no-explicit-any, typescript-eslint) + per-app extends (NestJS, React hooks+refresh). Pre-commit: lint-staged auto-fix + format. Commit-msg: commitlint enforce Conventional Commits. Format baseline áp dụng 28 files.
 - Init git repository (default branch `main`) + `.gitignore` (Node + Turborepo + Vite + NestJS + env secret + IDE + OS). Trunk-based workflow chính thức bắt đầu.
 
 ### Changed
@@ -101,20 +102,26 @@ Major restructure: tech stack chuyển từ Next.js full-stack → monorepo Turb
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
+
 - ...
 
 ### Changed
+
 - ...
 
 ### Deprecated
+
 - ...
 
 ### Removed
+
 - ...
 
 ### Fixed
+
 - ...
 
 ### Security
+
 - ...
 ```

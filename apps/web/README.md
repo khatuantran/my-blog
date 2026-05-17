@@ -13,14 +13,14 @@ pnpm --filter web dev                           # → http://localhost:5173
 
 ## Scripts
 
-| Script | Mô tả |
-|---|---|
-| `pnpm --filter web dev` | Vite dev server (HMR) |
-| `pnpm --filter web build` | TS typecheck + Vite production build |
-| `pnpm --filter web preview` | Serve build/ output locally |
-| `pnpm --filter web test` | Vitest run |
-| `pnpm --filter web test:ui` | Vitest UI |
-| `pnpm --filter web typecheck` | `tsc --noEmit` |
+| Script                        | Mô tả                                |
+| ----------------------------- | ------------------------------------ |
+| `pnpm --filter web dev`       | Vite dev server (HMR)                |
+| `pnpm --filter web build`     | TS typecheck + Vite production build |
+| `pnpm --filter web preview`   | Serve build/ output locally          |
+| `pnpm --filter web test`      | Vitest run                           |
+| `pnpm --filter web test:ui`   | Vitest UI                            |
+| `pnpm --filter web typecheck` | `tsc --noEmit`                       |
 
 ## Structure
 

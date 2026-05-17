@@ -16,15 +16,15 @@ pnpm --filter api dev                           # nest start --watch → :3001
 
 ## Scripts
 
-| Script | Mô tả |
-|---|---|
-| `pnpm --filter api dev` | NestJS watch mode |
-| `pnpm --filter api build` | Compile to `dist/` |
-| `pnpm --filter api start` | Run prod build (`node dist/main`) |
-| `pnpm --filter api test` | Jest unit |
-| `pnpm --filter api test:e2e` | Supertest integration (require postgres-test :5433) |
-| `pnpm --filter api typecheck` | `tsc --noEmit` |
-| `pnpm --filter api prisma:generate` | Regenerate Prisma client |
+| Script                              | Mô tả                                               |
+| ----------------------------------- | --------------------------------------------------- |
+| `pnpm --filter api dev`             | NestJS watch mode                                   |
+| `pnpm --filter api build`           | Compile to `dist/`                                  |
+| `pnpm --filter api start`           | Run prod build (`node dist/main`)                   |
+| `pnpm --filter api test`            | Jest unit                                           |
+| `pnpm --filter api test:e2e`        | Supertest integration (require postgres-test :5433) |
+| `pnpm --filter api typecheck`       | `tsc --noEmit`                                      |
+| `pnpm --filter api prisma:generate` | Regenerate Prisma client                            |
 
 ## Structure
 

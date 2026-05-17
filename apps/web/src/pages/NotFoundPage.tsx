@@ -7,10 +7,7 @@ export default function NotFoundPage() {
       <p className="mt-4 font-mono text-mono-lg text-ts">
         <span className="text-red">ERR</span> route not found
       </p>
-      <Link
-        to="/"
-        className="mt-6 inline-block font-mono text-mono text-cyan hover:underline"
-      >
+      <Link to="/" className="mt-6 inline-block font-mono text-mono text-cyan hover:underline">
         ← back to /
       </Link>
     </main>

@@ -5,7 +5,8 @@
 ## Format
 
 ```markdown
-### YYYYMMDDhhmmss_<migration_name>
+### YYYYMMDDhhmmss\_<migration_name>
+
 - **Created:** YYYY-MM-DD
 - **Type:** schema | data | refactor
 - **Entities affected:** User, Post, ...

@@ -11,37 +11,41 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 ## Personas
 
 ### P1: Admin (Chủ sở hữu)
+
 - 1 người duy nhất
 - Mục tiêu: post content cá nhân, theo dõi tương tác, moderate comment, quản lý user
 - Nhu cầu: tạo bài nhanh (markdown + drag-drop ảnh/file), xem stats, ban troll, ⌘K shortcut
 
 ### P2: Auth User (Bạn bè / Subscriber)
+
 - Đăng ký account (username + password)
 - Mục tiêu: theo dõi bài viết admin, lưu bài hay, comment dưới tên thật, like
 - Nhu cầu: feed sạch, profile cá nhân, saved list
 
 ### P3: Anonymous (Khách)
+
 - KHÔNG đăng ký
 - Mục tiêu: đọc bài, like, comment với tên tự nhập, share
 - Nhu cầu: zero-friction (không cần đăng ký), được tôn trọng (không bị track quá mức)
 
 ## Glossary
 
-| Term | Definition |
-|------|------------|
-| Mood | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY) |
-| Tag | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài |
-| Anonymous ID | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`) |
-| Session | Connection của user/anonymous từ browser → server (track cho live visitors) |
-| Activity | Sự kiện như like/comment/save/new-session — hiển thị trong Admin activity log |
-| Command Palette | Overlay ⌘K cho quick navigation/actions |
-| Affected layer | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra` |
+| Term            | Definition                                                                                          |
+| --------------- | --------------------------------------------------------------------------------------------------- |
+| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY) |
+| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                     |
+| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                    |
+| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                         |
+| Activity        | Sự kiện như like/comment/save/new-session — hiển thị trong Admin activity log                       |
+| Command Palette | Overlay ⌘K cho quick navigation/actions                                                             |
+| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                 |
 
 ## Use Cases
 
 > Mỗi UC có: actor, precondition, main flow, alternative, postcondition.
 
 ### UC-01: Admin tạo bài viết
+
 - **Actor:** Admin (P1)
 - **Precondition:** Đã đăng nhập với role ADMIN
 - **Main flow:**
@@ -56,6 +60,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** Bài hiển thị ở top Feed; admin redirect tới `/post/[id]`
 
 ### UC-02: User xem feed
+
 - **Actor:** Tất cả (P1, P2, P3)
 - **Precondition:** —
 - **Main flow:**
@@ -66,6 +71,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** —
 
 ### UC-03: User/Anonymous xem chi tiết bài
+
 - **Actor:** Tất cả
 - **Precondition:** Bài tồn tại
 - **Main flow:**
@@ -75,6 +81,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** `Post.viewCount` tăng
 
 ### UC-04: Anonymous like + comment
+
 - **Actor:** Anonymous (P3)
 - **Precondition:** Bài tồn tại
 - **Main flow (like):**
@@ -89,6 +96,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** Like/Comment được lưu DB; hiển thị real-time qua WebSocket cho mọi viewer
 
 ### UC-05: Auth user save bài
+
 - **Actor:** Auth User (P2)
 - **Precondition:** Đã đăng nhập
 - **Main flow:**
@@ -98,6 +106,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** `SavedPost` record tạo; UI button đổi state `saved`
 
 ### UC-06: User share bài
+
 - **Actor:** Tất cả
 - **Precondition:** —
 - **Main flow:**
@@ -107,6 +116,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** —
 
 ### UC-07: Admin moderate comment
+
 - **Actor:** Admin (P1)
 - **Precondition:** Có comment status `PENDING`
 - **Main flow:**
@@ -116,6 +126,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** Comment đổi status `APPROVED` hoặc bị xóa
 
 ### UC-08: Admin quản lý user
+
 - **Actor:** Admin (P1)
 - **Precondition:** Có user trong DB
 - **Main flow:**
@@ -126,6 +137,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** User status update; KHÔNG được ban role ADMIN
 
 ### UC-09: Anonymous đăng ký thành Auth User
+
 - **Actor:** Anonymous → Auth User
 - **Precondition:** —
 - **Main flow:**
@@ -136,6 +148,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** User record tạo với role `USER`
 
 ### UC-10: User đăng nhập
+
 - **Actor:** Anonymous → Admin/Auth User
 - **Precondition:** Có account
 - **Main flow:**
@@ -146,6 +159,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Alternative:** Click "Continue as anonymous" → redirect `/` không tạo session
 
 ### UC-11: Real-time activity (Admin)
+
 - **Actor:** Admin (P1)
 - **Precondition:** Admin xem `/admin`, WebSocket connected
 - **Main flow:**
@@ -155,6 +169,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** —
 
 ### UC-12: ⌘K Command Palette
+
 - **Actor:** Tất cả (auth role tương ứng)
 - **Precondition:** Trên bất kỳ trang nào
 - **Main flow:**
@@ -167,6 +182,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
+
 - **FR-01.1:** Đăng ký user mới (username + password, optional email)
 - **FR-01.2:** Đăng nhập qua JWT (access 15min + refresh 30d)
 - **FR-01.3:** 3 role: `ADMIN`, `USER`, `ANONYMOUS`. Anonymous KHÔNG có record User table — track qua cookie ID
@@ -180,6 +196,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-01, E2E-09 (xem [TESTING_STRATEGY.md](./TESTING_STRATEGY.md))
 
 ### FR-02: Bài viết (Post)
+
 - **FR-02.1:** Chỉ ADMIN đăng/sửa/xóa bài
 - **FR-02.2:** Bài viết có: `content` (markdown text), `images[]`, `files[]`, `mood`, `tags[]`
 - **FR-02.3:** Upload ảnh: max 10 ảnh/bài, ≤ 5MB each, format PNG/JPG/WebP (Cloudinary)
@@ -193,6 +210,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-02, E2E-03, E2E-11
 
 ### FR-03: Tương tác (Like, Comment, Save)
+
 - **FR-03.1:** Like cho post — cho cả auth user lẫn anonymous (anonymous track qua cookie `anonymousId`). Unique `(postId, userId)` HOẶC `(postId, anonymousId)`
 - **FR-03.2:** Comment cho post — auth user dùng tên user; anonymous nhập `anonymousName`. Status mặc định `APPROVED` (configurable: nếu admin bật moderation queue → mặc định `PENDING`)
 - **FR-03.3:** Save bài — CHỈ auth user, lưu vào `SavedPost`. Xem ở `/me/saved`
@@ -206,6 +224,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-04, E2E-05, E2E-10
 
 ### FR-04: Hiển thị (Feed, Detail, Filter)
+
 - **FR-04.1:** Feed sort `createdAt DESC`
 - **FR-04.2:** Infinite scroll — page size 10
 - **FR-04.3:** Filter theo mood (single select) hoặc tag (click vào TagPill)
@@ -219,6 +238,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-04, E2E-06
 
 ### FR-05: Share
+
 - **FR-05.1:** Share lên Facebook, X (Twitter), Telegram
 - **FR-05.2:** Copy link clipboard
 - **FR-05.3:** Open Graph meta tags cho preview link (title, description, image, type)
@@ -229,6 +249,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-07
 
 ### FR-06: File Attachments
+
 - **FR-06.1:** Admin upload file (PDF/DOC/DOCX/XLS/XLSX/TXT/CSV) khi tạo bài, max 20 files/bài, ≤ 20MB each
 - **FR-06.2:** File hiển thị trong PostCard (Feed) + Post Detail dưới dạng card với type badge + name + size + download button
 - **FR-06.3:** Download link (signed URL từ Cloudinary)
@@ -241,6 +262,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-11
 
 ### FR-07: Admin Dashboard
+
 - **FR-07.1:** Stats cards (4 metrics: posts/likes/comments/views) với sparkline 12 buckets + delta today
 - **FR-07.2:** Mood distribution chart — bar chart % theo từng mood
 - **FR-07.3:** Users table (username, role, last seen, posts count) với Ban/Unban + View actions
@@ -253,6 +275,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-09, E2E-10, E2E-12
 
 ### FR-08: Command Palette (⌘K)
+
 - **FR-08.1:** Press ⌘K (Mac) hoặc Ctrl+K (Win/Linux) → overlay xuất hiện
 - **FR-08.2:** Filter actions/nav theo query string
 - **FR-08.3:** Keyboard navigation (↑↓ + ↵ + Esc)
@@ -265,6 +288,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked Tests:** E2E-13
 
 ### FR-09: Real-time (WebSocket)
+
 - **FR-09.1:** Activity log feed (Admin) update real-time khi có like/comment/save/new-session event
 - **FR-09.2:** Live visitors panel (Feed RightPanel) update khi anonymous join/leave session
 - **FR-09.3:** Activity heatmap (28-day grid post count per day) update khi có post mới
@@ -298,17 +322,17 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Traceability Mini-Matrix
 
-| FR | Linked UCs | E2E Test | BE Module | FE Page/Component |
-|----|------------|----------|-----------|-------------------|
-| FR-01 | UC-09, UC-10, UC-08 | E2E-01, E2E-09 | AuthModule, UsersModule | LoginPage, RegisterPage, AdminPage > UsersTable |
-| FR-02 | UC-01 | E2E-02, E2E-03 | PostsModule, FilesModule | CreatePostPage |
-| FR-03 | UC-04, UC-05, UC-07 | E2E-04, E2E-05, E2E-10 | LikesModule, CommentsModule | PostCard, CommentItem |
-| FR-04 | UC-02, UC-03 | E2E-04, E2E-06 | PostsModule | FeedPage, PostDetailPage |
-| FR-05 | UC-06 | E2E-07 | (BE: OG meta in SSR/sitemap) | SharePanel |
-| FR-06 | UC-01 | E2E-11 | FilesModule | UploadZone, FileAttachments |
-| FR-07 | UC-07, UC-08, UC-11 | E2E-09, E2E-10, E2E-12 | AdminModule | AdminPage |
-| FR-08 | UC-12 | E2E-13 | — (pure FE) | CommandPalette |
-| FR-09 | UC-04, UC-11 | E2E-12 | RealtimeGateway | useWebSocket hook, Activity feed components |
+| FR    | Linked UCs          | E2E Test               | BE Module                    | FE Page/Component                               |
+| ----- | ------------------- | ---------------------- | ---------------------------- | ----------------------------------------------- |
+| FR-01 | UC-09, UC-10, UC-08 | E2E-01, E2E-09         | AuthModule, UsersModule      | LoginPage, RegisterPage, AdminPage > UsersTable |
+| FR-02 | UC-01               | E2E-02, E2E-03         | PostsModule, FilesModule     | CreatePostPage                                  |
+| FR-03 | UC-04, UC-05, UC-07 | E2E-04, E2E-05, E2E-10 | LikesModule, CommentsModule  | PostCard, CommentItem                           |
+| FR-04 | UC-02, UC-03        | E2E-04, E2E-06         | PostsModule                  | FeedPage, PostDetailPage                        |
+| FR-05 | UC-06               | E2E-07                 | (BE: OG meta in SSR/sitemap) | SharePanel                                      |
+| FR-06 | UC-01               | E2E-11                 | FilesModule                  | UploadZone, FileAttachments                     |
+| FR-07 | UC-07, UC-08, UC-11 | E2E-09, E2E-10, E2E-12 | AdminModule                  | AdminPage                                       |
+| FR-08 | UC-12               | E2E-13                 | — (pure FE)                  | CommandPalette                                  |
+| FR-09 | UC-04, UC-11        | E2E-12                 | RealtimeGateway              | useWebSocket hook, Activity feed components     |
 
 ---
 
@@ -316,6 +340,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ```markdown
 ### FR-XX: <Nhóm chức năng>
+
 - **FR-XX.1:** <yêu cầu cụ thể>
 - **FR-XX.2:** ...
 - **Acceptance Criteria (Given/When/Then):**
@@ -334,6 +359,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ```markdown
 ### UC-XX: <Tên use case>
+
 - **Actor:** <Pn>
 - **Precondition:** ...
 - **Main flow:**

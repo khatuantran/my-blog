@@ -4,22 +4,22 @@
 
 ## Milestone
 
-| # | Milestone | Trạng thái | Ngày target |
-|---|-----------|-----------|-------------|
-| M1 | Setup SDD docs v2 (cyberpunk + monorepo stack) | ✅ Done | 2026-05-17 |
-| M2 | Monorepo scaffold (Turborepo + Docker + apps skeleton) | 🟡 Doing | |
-| M3 | Backend NestJS — Auth (JWT) + Users + Prisma schema | ⬜ Todo | |
-| M4 | Backend — Posts + Files (Cloudinary signed upload) + Tags | ⬜ Todo | |
-| M5 | Backend — Comments + Likes + CommentLikes + Saved | ⬜ Todo | |
-| M6 | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway | ⬜ Todo | |
-| M7 | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel) | ⬜ Todo | |
-| M8 | Frontend — Feed + Post Detail (ImageCarousel + file download) | ⬜ Todo | |
-| M9 | Frontend — Create Post + Admin Dashboard | ⬜ Todo | |
-| M10 | Frontend — Login + auth flow + protected routes | ⬜ Todo | |
-| M11 | Real-time integration (Socket.io client + activity log + live visitors) | ⬜ Todo | |
-| M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ⬜ Todo | |
-| M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions | ⬜ Todo | |
-| M14 | Monitoring + observability (Sentry + Fly metrics + alert rules) | ⬜ Todo | |
+| #   | Milestone                                                                         | Trạng thái | Ngày target |
+| --- | --------------------------------------------------------------------------------- | ---------- | ----------- |
+| M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done    | 2026-05-17  |
+| M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | 🟡 Doing   |             |
+| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ⬜ Todo    |             |
+| M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ⬜ Todo    |             |
+| M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ⬜ Todo    |             |
+| M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |
+| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel)        | ⬜ Todo    |             |
+| M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo    |             |
+| M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo    |             |
+| M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo    |             |
+| M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo    |             |
+| M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ⬜ Todo    |             |
+| M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo    |             |
+| M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo    |             |
 
 ## Tỉ lệ hoàn thành: 7% (1/14 milestone)
 
@@ -54,13 +54,14 @@
   - **T-003** `docker-compose.yml`: postgres-main (persistent) + postgres-test (tmpfs) + healthcheck
   - **T-004** Scaffold `apps/api` NestJS skeleton (main + common + config Zod + prisma nestjs-prisma + Swagger). NestJS 10.4, Prisma 5.22
   - **T-005** Scaffold `apps/web` Vite + React 19 + RR v7 + TanStack Query 5 + Tailwind 3.4 cyberpunk tokens + shadcn/ui init + Zod env. Vitest smoke pass.
+  - **T-006** ESLint 9 flat config (root + per-app extends) + Prettier 3 + Husky 9 + lint-staged + commitlint. Format baseline 28 files. Pre-commit + commit-msg hooks active.
 - **Doing:**
   - M2 in progress (T-006 → T-007 còn lại)
 - **Blocked:**
   - —
 - **Next (M2 remaining):**
-  - T-006: ESLint + Prettier + husky + lint-staged
   - T-007 (cleanup): dotenv-safe nếu muốn extra runtime check (Zod validate đã có BE qua `config/env.schema.ts` + FE qua `src/lib/env.ts`)
+  - **M2 ~done** — chuyển M3 (Backend Auth + Users)
 
 ---
 
@@ -74,6 +75,7 @@
 
 ```markdown
 ### YYYY-MM-DD (Week N)
+
 - **Done:** ...
 - **Doing:** ...
 - **Blocked:** ...

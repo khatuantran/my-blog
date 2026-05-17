@@ -16,130 +16,128 @@
 
 #### Background layers (depth)
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `--bg` | `#0A0E1A` | Page background (deepest) |
-| `--surf` | `#11151F` | Card, panel surface |
+| Token    | Value     | Use                                           |
+| -------- | --------- | --------------------------------------------- |
+| `--bg`   | `#0A0E1A` | Page background (deepest)                     |
+| `--surf` | `#11151F` | Card, panel surface                           |
 | `--elev` | `#1A1F2E` | Elevated (hover state, dropdown, dialog body) |
-| `--over` | `#232936` | Overlay top layer (button bg subtle) |
+| `--over` | `#232936` | Overlay top layer (button bg subtle)          |
 
 #### Borders
 
-| Token | Value | Use |
-|-------|-------|-----|
+| Token  | Value     | Use                                              |
+| ------ | --------- | ------------------------------------------------ |
 | `--b1` | `#1F2A3A` | Subtle divider (status bar, inner row separator) |
-| `--b2` | `#2A3548` | Default border (cards, inputs) |
-| `--b3` | `#3D4A63` | Hover border |
+| `--b2` | `#2A3548` | Default border (cards, inputs)                   |
+| `--b3` | `#3D4A63` | Hover border                                     |
 
 #### Text
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `--tp` | `#E6EDF3` | Primary text (headings, body important) |
-| `--ts` | `#A0AEC0` | Secondary text (sub-info) |
+| Token  | Value     | Use                                            |
+| ------ | --------- | ---------------------------------------------- |
+| `--tp` | `#E6EDF3` | Primary text (headings, body important)        |
+| `--ts` | `#A0AEC0` | Secondary text (sub-info)                      |
 | `--tm` | `#8B96AA` | Muted text (captions, placeholder, timestamps) |
-| `--td` | `#566176` | Disabled / very subtle |
+| `--td` | `#566176` | Disabled / very subtle                         |
 
 #### Accent (8 colors)
 
-| Token | Value | Tag | Use |
-|-------|-------|-----|-----|
-| `--cyan` | `#00FFE5` | Primary brand | CTA, link, brand accent, focus glow, online dot |
-| `--mag` | `#FF6E96` | Magenta | Like (heart), tag rotation |
-| `--pur` | `#BB9AF7` | Purple | Tag rotation, secondary accent |
-| `--grn` | `#9ECE6A` | Green | Success, code text, GRATEFUL mood, online status |
-| `--yel` | `#E0AF68` | Yellow | Warning, saved (bookmark), tag rotation |
-| `--ora` | `#FF9E64` | Orange | Admin badge, EXCITED mood, tag rotation |
-| `--red` | `#F7768E` | Red | Error, ANGRY mood, destructive action |
-| `--blu` | `#7DCFFF` | Blue | Username link, CALM mood, info |
+| Token    | Value     | Tag           | Use                                              |
+| -------- | --------- | ------------- | ------------------------------------------------ |
+| `--cyan` | `#00FFE5` | Primary brand | CTA, link, brand accent, focus glow, online dot  |
+| `--mag`  | `#FF6E96` | Magenta       | Like (heart), tag rotation                       |
+| `--pur`  | `#BB9AF7` | Purple        | Tag rotation, secondary accent                   |
+| `--grn`  | `#9ECE6A` | Green         | Success, code text, GRATEFUL mood, online status |
+| `--yel`  | `#E0AF68` | Yellow        | Warning, saved (bookmark), tag rotation          |
+| `--ora`  | `#FF9E64` | Orange        | Admin badge, EXCITED mood, tag rotation          |
+| `--red`  | `#F7768E` | Red           | Error, ANGRY mood, destructive action            |
+| `--blu`  | `#7DCFFF` | Blue          | Username link, CALM mood, info                   |
 
 ### Typography
 
-| Token | Family | Size | Weight | Line height | Use |
-|-------|--------|------|--------|-------------|-----|
-| `text-brand` | Space Grotesk | 16px | 700 | 1 | Logo "kha.blog" (letter-spacing -0.04em) |
-| `text-display` | Space Grotesk | 28px | 700 | 1 | Stat card value |
-| `text-h1` | Space Grotesk | 22px | 600 | 1.3 | Page title hero |
-| `text-h2` | Space Grotesk | 18px | 600 | 1.4 | Section heading |
-| `text-h3` | Inter | 14px | 600 | 1.4 | Card title |
-| `text-body` | Inter | 14-16px | 400 | 1.65 | Body text (post content 15px, regular 14px) |
-| `text-small` | Inter | 12-13px | 400 | 1.5 | Caption, meta |
-| `text-xs` | Inter | 10-11px | 400 | 1.4 | Microcopy |
-| `text-mono-lg` | JetBrains Mono | 14px | 400/500 | 1.6 | Terminal text input, code block (large) |
-| `text-mono` | JetBrains Mono | 12px | 400/500 | 1.5 | UI labels, timestamps, button text |
-| `text-mono-sm` | JetBrains Mono | 10-11px | 400/500 | 1.4 | Section labels `// section.name`, status bar |
-| `text-mono-xs` | JetBrains Mono | 9px | 400 | 1.3 | Badges, IDs (hex), corner deco |
+| Token          | Family         | Size    | Weight  | Line height | Use                                          |
+| -------------- | -------------- | ------- | ------- | ----------- | -------------------------------------------- |
+| `text-brand`   | Space Grotesk  | 16px    | 700     | 1           | Logo "kha.blog" (letter-spacing -0.04em)     |
+| `text-display` | Space Grotesk  | 28px    | 700     | 1           | Stat card value                              |
+| `text-h1`      | Space Grotesk  | 22px    | 600     | 1.3         | Page title hero                              |
+| `text-h2`      | Space Grotesk  | 18px    | 600     | 1.4         | Section heading                              |
+| `text-h3`      | Inter          | 14px    | 600     | 1.4         | Card title                                   |
+| `text-body`    | Inter          | 14-16px | 400     | 1.65        | Body text (post content 15px, regular 14px)  |
+| `text-small`   | Inter          | 12-13px | 400     | 1.5         | Caption, meta                                |
+| `text-xs`      | Inter          | 10-11px | 400     | 1.4         | Microcopy                                    |
+| `text-mono-lg` | JetBrains Mono | 14px    | 400/500 | 1.6         | Terminal text input, code block (large)      |
+| `text-mono`    | JetBrains Mono | 12px    | 400/500 | 1.5         | UI labels, timestamps, button text           |
+| `text-mono-sm` | JetBrains Mono | 10-11px | 400/500 | 1.4         | Section labels `// section.name`, status bar |
+| `text-mono-xs` | JetBrains Mono | 9px     | 400     | 1.3         | Badges, IDs (hex), corner deco               |
 
 **Italic** style: `text-mono` italic 400 cho placeholder + `// quote` style.
 
 ### Spacing (4px base)
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `space-1` | 4px | Tight inline gap |
-| `space-2` | 8px | Default inline gap |
-| `space-3` | 12px | Element padding |
-| `space-4` | 16px | Card padding default |
-| `space-5` | 20px | Section gap |
-| `space-6` | 24px | Block separation |
-| `space-8` | 32px | Section padding large |
-| `space-12` | 48px | Page section gap |
-| `space-16` | 64px | Hero spacing |
+| Token      | Value | Use                   |
+| ---------- | ----- | --------------------- |
+| `space-1`  | 4px   | Tight inline gap      |
+| `space-2`  | 8px   | Default inline gap    |
+| `space-3`  | 12px  | Element padding       |
+| `space-4`  | 16px  | Card padding default  |
+| `space-5`  | 20px  | Section gap           |
+| `space-6`  | 24px  | Block separation      |
+| `space-8`  | 32px  | Section padding large |
+| `space-12` | 48px  | Page section gap      |
+| `space-16` | 64px  | Hero spacing          |
 
 ### Radius
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `radius-xs` | 2px | Inline badge ([ ADMIN ], hex IDs) |
-| `radius-sm` | 4px | Tag pill, small badge, button ghost |
-| `radius-md` | 6px | Input, button default |
-| `radius-lg` | 8px | Card, panel |
-| `radius-xl` | 12px | Modal, terminal card |
-| `radius-full` | 9999px | Avatar, mood badge (pill) |
+| Token         | Value  | Use                                 |
+| ------------- | ------ | ----------------------------------- |
+| `radius-xs`   | 2px    | Inline badge ([ ADMIN ], hex IDs)   |
+| `radius-sm`   | 4px    | Tag pill, small badge, button ghost |
+| `radius-md`   | 6px    | Input, button default               |
+| `radius-lg`   | 8px    | Card, panel                         |
+| `radius-xl`   | 12px   | Modal, terminal card                |
+| `radius-full` | 9999px | Avatar, mood badge (pill)           |
 
 ### Shadow
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `shadow-sm` | `0 1px 2px rgba(0,0,0,.05)` | Card resting subtle |
-| `shadow-md` | `0 4px 12px rgba(0,0,0,.08)` | Card hover, dropdown |
-| `shadow-lg` | `0 12px 32px rgba(0,0,0,.4)` | Modal, popover |
-| `shadow-glow-cyan-sm` | `0 0 8px rgba(0,255,229,.15)` | Focus glow subtle |
-| `shadow-glow-cyan-md` | `0 0 14px rgba(0,255,229,.22)` | Input focus |
-| `shadow-glow-cyan-lg` | `0 0 24px rgba(0,255,229,.1), 0 4px 24px rgba(0,0,0,.3)` | Card hover |
+| Token                 | Value                                                     | Use                   |
+| --------------------- | --------------------------------------------------------- | --------------------- |
+| `shadow-sm`           | `0 1px 2px rgba(0,0,0,.05)`                               | Card resting subtle   |
+| `shadow-md`           | `0 4px 12px rgba(0,0,0,.08)`                              | Card hover, dropdown  |
+| `shadow-lg`           | `0 12px 32px rgba(0,0,0,.4)`                              | Modal, popover        |
+| `shadow-glow-cyan-sm` | `0 0 8px rgba(0,255,229,.15)`                             | Focus glow subtle     |
+| `shadow-glow-cyan-md` | `0 0 14px rgba(0,255,229,.22)`                            | Input focus           |
+| `shadow-glow-cyan-lg` | `0 0 24px rgba(0,255,229,.1), 0 4px 24px rgba(0,0,0,.3)`  | Card hover            |
 | `shadow-glow-cyan-xl` | `0 0 40px rgba(0,255,229,.22), 0 8px 32px rgba(0,0,0,.4)` | Glow-hi modal/special |
-| `shadow-mood` | `0 0 8-14px <mood-color>30/50` | Mood badge glow |
+| `shadow-mood`         | `0 0 8-14px <mood-color>30/50`                            | Mood badge glow       |
 
 ### Breakpoint
 
-| Token | Value | Range |
-|-------|-------|-------|
-| `mobile` | `< 640px` | base |
-| `tablet` | `640-1024px` | `sm:` / `md:` |
-| `desktop` | `> 1024px` | `lg:` |
-| `wide` | `> 1100px` | `xl:` (hiển thị RightPanel) |
+| Token     | Value        | Range                       |
+| --------- | ------------ | --------------------------- |
+| `mobile`  | `< 640px`    | base                        |
+| `tablet`  | `640-1024px` | `sm:` / `md:`               |
+| `desktop` | `> 1024px`   | `lg:`                       |
+| `wide`    | `> 1100px`   | `xl:` (hiển thị RightPanel) |
 
 ### Motion
 
-| Token | Duration | Easing | Use |
-|-------|----------|--------|-----|
-| `motion-instant` | 100ms | linear | Backdrop fade |
-| `motion-fast` | 150ms | ease | Hover, focus, state change |
-| `motion-base` | 200-250ms | ease-in-out | Modal open, dropdown |
-| `motion-slow` | 300-400ms | ease | Page transition, fadeUp content |
-| `motion-glitch` | 9s | infinite | Logo glitch (every 9s, 88-92% timing) |
-| `motion-pulse` | 2s | ease-in-out infinite | Online dot, status |
-| `motion-blink` | 530ms | step-start infinite | Cursor blink |
-| `motion-shake` | 400ms | ease | Error shake (±5px X) |
+| Token            | Duration  | Easing               | Use                                   |
+| ---------------- | --------- | -------------------- | ------------------------------------- |
+| `motion-instant` | 100ms     | linear               | Backdrop fade                         |
+| `motion-fast`    | 150ms     | ease                 | Hover, focus, state change            |
+| `motion-base`    | 200-250ms | ease-in-out          | Modal open, dropdown                  |
+| `motion-slow`    | 300-400ms | ease                 | Page transition, fadeUp content       |
+| `motion-glitch`  | 9s        | infinite             | Logo glitch (every 9s, 88-92% timing) |
+| `motion-pulse`   | 2s        | ease-in-out infinite | Online dot, status                    |
+| `motion-blink`   | 530ms     | step-start infinite  | Cursor blink                          |
+| `motion-shake`   | 400ms     | ease                 | Error shake (±5px X)                  |
 
 ### Background pattern
 
 **Radial dot grid:**
 
 ```css
-background:
-  #0A0E1A
-  radial-gradient(circle, #2A354822 1px, transparent 1px);
+background: #0a0e1a radial-gradient(circle, #2a354822 1px, transparent 1px);
 background-size: 24px 24px;
 ```
 
@@ -148,13 +146,21 @@ background-size: 24px 24px;
 ```css
 body::after {
   content: '';
-  position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg,
-    transparent 0, transparent 2px,
-    rgba(0,0,0,.028) 2px, rgba(0,0,0,.028) 4px);
-  pointer-events: none; z-index: 9999;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.028) 2px,
+    rgba(0, 0, 0, 0.028) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
 }
-body.no-crt::after { opacity: 0; }
+body.no-crt::after {
+  opacity: 0;
+}
 ```
 
 Toggle via Tweaks panel (dev tool, không document).
@@ -490,28 +496,28 @@ Toggle via Tweaks panel (dev tool, không document).
 
 > Cross-ref: [DATA_MODEL.md > Enum Mood](./DATA_MODEL.md). Thêm mood enum mới PHẢI update color trong cả 2 doc.
 
-| Mood | Color | Emoji | Use in DESIGN_SYSTEM |
-|------|-------|-------|----------------------|
-| HAPPY | `#FFD93D` (yellow-bright) | 😊 | MoodBadge, mood filter, MoodBar |
-| EXCITED | `#FF9E64` (orange) | ⚡ | (same) |
-| THOUGHTFUL | `#BB9AF7` (purple) | 💭 | (same) |
-| CALM | `#7DCFFF` (blue) | 😌 | (same) |
-| SAD | `#6BCFFF` (cyan-blue, slightly different from CALM) | 😢 | (same) |
-| GRATEFUL | `#9ECE6A` (green) | 🙏 | (same) |
-| ANGRY | `#F7768E` (red) | 😠 | (same) |
+| Mood       | Color                                               | Emoji | Use in DESIGN_SYSTEM            |
+| ---------- | --------------------------------------------------- | ----- | ------------------------------- |
+| HAPPY      | `#FFD93D` (yellow-bright)                           | 😊    | MoodBadge, mood filter, MoodBar |
+| EXCITED    | `#FF9E64` (orange)                                  | ⚡    | (same)                          |
+| THOUGHTFUL | `#BB9AF7` (purple)                                  | 💭    | (same)                          |
+| CALM       | `#7DCFFF` (blue)                                    | 😌    | (same)                          |
+| SAD        | `#6BCFFF` (cyan-blue, slightly different from CALM) | 😢    | (same)                          |
+| GRATEFUL   | `#9ECE6A` (green)                                   | 🙏    | (same)                          |
+| ANGRY      | `#F7768E` (red)                                     | 😠    | (same)                          |
 
 ### File Type Color Map
 
-| Type | Color | Badge label |
-|------|-------|-------------|
-| PDF | `#F7768E` (red) | `PDF` |
-| DOC | `#7DCFFF` (blue) | `DOC` |
-| DOCX | `#7DCFFF` (blue) | `DOCX` |
-| XLS | `#9ECE6A` (green) | `XLS` |
-| XLSX | `#9ECE6A` (green) | `XLSX` |
-| TXT | `#A0AEC0` (gray) | `TXT` |
-| CSV | `#E0AF68` (yellow) | `CSV` |
-| (fallback) | `#8B96AA` (muted) | `FILE` |
+| Type       | Color              | Badge label |
+| ---------- | ------------------ | ----------- |
+| PDF        | `#F7768E` (red)    | `PDF`       |
+| DOC        | `#7DCFFF` (blue)   | `DOC`       |
+| DOCX       | `#7DCFFF` (blue)   | `DOCX`      |
+| XLS        | `#9ECE6A` (green)  | `XLS`       |
+| XLSX       | `#9ECE6A` (green)  | `XLSX`      |
+| TXT        | `#A0AEC0` (gray)   | `TXT`       |
+| CSV        | `#E0AF68` (yellow) | `CSV`       |
+| (fallback) | `#8B96AA` (muted)  | `FILE`      |
 
 ### Tag Color Rotation Palette
 
@@ -519,13 +525,13 @@ Khi tạo Tag mới chưa có color, cycle qua palette theo index của Tag (mod
 
 ```js
 const TAG_COLORS = [
-  '#00FFE5',  // cyan
-  '#FF6E96',  // magenta
-  '#BB9AF7',  // purple
-  '#9ECE6A',  // green
-  '#E0AF68',  // yellow
-  '#FF9E64',  // orange
-  '#7DCFFF',  // blue
+  '#00FFE5', // cyan
+  '#FF6E96', // magenta
+  '#BB9AF7', // purple
+  '#9ECE6A', // green
+  '#E0AF68', // yellow
+  '#FF9E64', // orange
+  '#7DCFFF', // blue
 ];
 ```
 
@@ -550,10 +556,18 @@ const TAG_COLORS = [
 
 ```css
 @keyframes pulse {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; filter: drop-shadow(0 0 3px currentColor); }
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
 }
-.pulse { animation: pulse 2s ease-in-out infinite; }
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
 ```
 
 Use cho: online status dot, "live mode" indicator.
@@ -562,20 +576,44 @@ Use cho: online status dot, "live mode" indicator.
 
 ```css
 @keyframes glitch {
-  0%, 87%, 100% { text-shadow: none; transform: none; }
-  88% { text-shadow: 2px 0 #FF6E96, -2px 0 #00FFE5; transform: skewX(-2deg) translateX(-2px); }
-  90% { text-shadow: -2px 0 #BB9AF7, 2px 0 #FF9E64; transform: skewX(1deg) translateX(1px); }
-  92% { text-shadow: none; transform: none; }
+  0%,
+  87%,
+  100% {
+    text-shadow: none;
+    transform: none;
+  }
+  88% {
+    text-shadow:
+      2px 0 #ff6e96,
+      -2px 0 #00ffe5;
+    transform: skewX(-2deg) translateX(-2px);
+  }
+  90% {
+    text-shadow:
+      -2px 0 #bb9af7,
+      2px 0 #ff9e64;
+    transform: skewX(1deg) translateX(1px);
+  }
+  92% {
+    text-shadow: none;
+    transform: none;
+  }
 }
-.logo-txt { animation: glitch 9s infinite; }
+.logo-txt {
+  animation: glitch 9s infinite;
+}
 ```
 
 ### Scan card animation (Login)
 
 ```css
 @keyframes scanCard {
-  0% { top: -100%; }
-  100% { top: 200%; }
+  0% {
+    top: -100%;
+  }
+  100% {
+    top: 200%;
+  }
 }
 ```
 
@@ -585,9 +623,18 @@ Use cho: online status dot, "live mode" indicator.
 
 ```css
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-5px); }
-  40%, 80% { transform: translateX(5px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-5px);
+  }
+  40%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 ```
 
@@ -597,8 +644,14 @@ Duration 400ms, applied on submit error.
 
 ```css
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8-10px); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(8-10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 ```
 
@@ -608,8 +661,13 @@ Duration 150-350ms ease. Used on card mount, dropdown open, palette open, page t
 
 ```css
 @keyframes dashedPulse {
-  0%, 100% { border-color: #2A3548; }
-  50% { border-color: #3D4A63; }
+  0%,
+  100% {
+    border-color: #2a3548;
+  }
+  50% {
+    border-color: #3d4a63;
+  }
 }
 ```
 
@@ -624,7 +682,9 @@ Duration 2s ease-in-out infinite.
   color: var(--tm);
   letter-spacing: 0.05em;
   margin-bottom: 8px;
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .sb-lbl::after {
   content: '';
@@ -639,7 +699,15 @@ Use: `// mood.distribution`, `// activity.log`, `// content` — pattern hợp v
 ### Cursor blink (Login terminal)
 
 ```css
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
 ```
 
 Apply to `_` cursor after `~/auth/login`, cycle 530ms.
@@ -647,9 +715,17 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 ### Scrollbar (custom)
 
 ```css
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--b2); border-radius: 3px; }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--b2);
+  border-radius: 3px;
+}
 ```
 
 ---
@@ -676,18 +752,19 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 
 ## Token Change Policy (versioning)
 
-| Loại thay đổi | Mức độ | Yêu cầu |
-|---------------|--------|---------|
-| Thêm token mới | Non-breaking | Update file + entry CHANGELOG (Added) + log entry trong Token Change History |
-| Đổi VALUE của token (vd: `--cyan` đổi hex) | Visual breaking | Update file + grep tất cả usage + screenshot before/after + CHANGELOG (Changed) |
-| Đổi NAME của token (rename) | API breaking | Update file + `grep -r "<old-name>" apps/` replace tất cả + test pass + CHANGELOG (Changed) + ADR nếu lý do phức tạp |
-| Xóa token | API breaking | Verify zero usage trước khi xóa + CHANGELOG (Removed) |
+| Loại thay đổi                              | Mức độ          | Yêu cầu                                                                                                              |
+| ------------------------------------------ | --------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Thêm token mới                             | Non-breaking    | Update file + entry CHANGELOG (Added) + log entry trong Token Change History                                         |
+| Đổi VALUE của token (vd: `--cyan` đổi hex) | Visual breaking | Update file + grep tất cả usage + screenshot before/after + CHANGELOG (Changed)                                      |
+| Đổi NAME của token (rename)                | API breaking    | Update file + `grep -r "<old-name>" apps/` replace tất cả + test pass + CHANGELOG (Changed) + ADR nếu lý do phức tạp |
+| Xóa token                                  | API breaking    | Verify zero usage trước khi xóa + CHANGELOG (Removed)                                                                |
 
 **Rule:** Mỗi token change → task riêng (F1 nếu kèm code change, F5 nếu pure refactor token theo CLAUDE.md flow).
 
 ## Token Change History
 
 ### 2026-05-17 — design overhaul v2 (cyberpunk migration)
+
 - **REWRITE TOÀN BỘ** từ pastel warm theme sang cyberpunk dark theme
 - **Removed:** light mode (TBD)
 - **Removed colors (light theme):** `--color-bg #FAF7F2`, `--color-primary #FF7E67`, etc.
@@ -706,6 +783,7 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 
 ```markdown
 ### <ComponentName>
+
 - **Mục đích:** <1 câu>
 - **Base:** shadcn `<X>` | custom
 - **Variants:** ...
@@ -723,22 +801,25 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 
 ```markdown
 ### <Token category>
-| Token | Value | Use |
-|-------|-------|-----|
+
+| Token    | Value     | Use        |
+| -------- | --------- | ---------- |
 | `<name>` | `<value>` | <use case> |
 ```
 
 ## Template thêm pattern
 
-```markdown
+````markdown
 ### <Pattern name>
 
 ```css
 /* CSS snippet */
 ```
+````
 
 Use: <when/where>
-```
+
+````
 
 ## Template Token Change History entry
 
@@ -747,4 +828,4 @@ Use: <when/where>
 - Added `--<token>` (#XXX) — <reason>
 - Changed `--<token>` (#OLD → #NEW) — <reason>
 - Removed `--<token>` — <reason, verified zero usage>
-```
+````

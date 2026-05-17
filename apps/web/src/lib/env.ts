@@ -11,9 +11,7 @@ export type ViteEnv = z.infer<typeof envSchema>;
 const parsed = envSchema.safeParse(import.meta.env);
 
 if (!parsed.success) {
-  const issues = parsed.error.issues
-    .map((i) => `  - ${i.path.join('.')}: ${i.message}`)
-    .join('\n');
+  const issues = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
   throw new Error(`Invalid VITE_* environment variables:\n${issues}`);
 }
 

@@ -48,18 +48,18 @@ Chi tiết setup: [docs/DEPLOYMENT.md > Local Dev Setup](docs/DEPLOYMENT.md).
 
 ## Documentation
 
-| Doc | Mục đích |
-|-----|----------|
-| [docs/INDEX.md](docs/INDEX.md) | Navigation cho toàn bộ docs |
-| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) | WHAT & WHY (Vision, Personas, Use Cases, FR, NFR) |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | HOW (C4 diagrams, ADRs, Security, Operations) |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Entities, ERD, Prisma schema |
-| [docs/API_CONTRACT.md](docs/API_CONTRACT.md) | REST + WebSocket contract |
-| [docs/UI_DESIGN.md](docs/UI_DESIGN.md) | Screens + wireframes |
-| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | Tokens + components (cyberpunk dark) |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Setup + deploy guide |
-| [docs/PROGRESS.md](docs/PROGRESS.md) | Milestone tracker |
-| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Release notes |
+| Doc                                            | Mục đích                                          |
+| ---------------------------------------------- | ------------------------------------------------- |
+| [docs/INDEX.md](docs/INDEX.md)                 | Navigation cho toàn bộ docs                       |
+| [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)   | WHAT & WHY (Vision, Personas, Use Cases, FR, NFR) |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)   | HOW (C4 diagrams, ADRs, Security, Operations)     |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md)       | Entities, ERD, Prisma schema                      |
+| [docs/API_CONTRACT.md](docs/API_CONTRACT.md)   | REST + WebSocket contract                         |
+| [docs/UI_DESIGN.md](docs/UI_DESIGN.md)         | Screens + wireframes                              |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | Tokens + components (cyberpunk dark)              |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)       | Setup + deploy guide                              |
+| [docs/PROGRESS.md](docs/PROGRESS.md)           | Milestone tracker                                 |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md)         | Release notes                                     |
 
 ## Repository Layout
 

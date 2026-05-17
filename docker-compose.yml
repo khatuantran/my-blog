@@ -7,11 +7,11 @@ services:
       POSTGRES_PASSWORD: myblog
       POSTGRES_DB: myblog
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres-main-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myblog -d myblog"]
+      test: ['CMD-SHELL', 'pg_isready -U myblog -d myblog']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,11 +25,11 @@ services:
       POSTGRES_PASSWORD: myblog
       POSTGRES_DB: myblog_test
     ports:
-      - "5433:5432"
+      - '5433:5432'
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myblog -d myblog_test"]
+      test: ['CMD-SHELL', 'pg_isready -U myblog -d myblog_test']
       interval: 10s
       timeout: 5s
       retries: 5

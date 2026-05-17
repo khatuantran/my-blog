@@ -15,6 +15,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 - **T-007** đóng task: env validation đã có qua Zod (BE `config/env.schema.ts` T-004 + FE `lib/env.ts` T-005). `dotenv-safe` defer permanent — Zod cover cả 2 use case (existence + type/format).
 - **M2 milestone hoàn tất** (T-002 → T-007): monorepo scaffold + Docker compose + NestJS skeleton + Vite skeleton + ESLint/Prettier/husky + env Zod validation.
 - **T-010** Prisma schema initial migration `20260517165932_init`: 14 entities (User/Post/Image/File/Comment/Like/CommentLike/Tag/PostTag/SavedPost/PostView/AnonymousSession/RefreshToken) + 4 enums (Role/Mood/FileType/CommentStatus). Composite unique constraints (Like/CommentLike per user+post), composite PK (PostTag/SavedPost), indexes feed sort + post view dedup. Add `dotenv-cli` cho `pnpm --filter api prisma:migrate` auto-load `.env.local`. Docker postgres-main port `:5432` → `:5434` (tránh conflict local postgres). M3 started.
+- **T-011** Seed scripts: `prisma/seed.ts` (admin upsert + 2 tags + 3 sample posts khác mood + 1 anon comment, idempotent) + `prisma/seed-test.ts` (admin only). Scripts `db:seed` + `db:seed:test` qua dotenv-cli. Deps: `bcrypt 5.1`, `tsx 4.19`. ESLint allow `no-console` cho `prisma/seed*.ts` + `scripts/**` (CLI output).
 - Init git repository (default branch `main`) + `.gitignore` (Node + Turborepo + Vite + NestJS + env secret + IDE + OS). Trunk-based workflow chính thức bắt đầu.
 
 ### Changed

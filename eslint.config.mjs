@@ -69,6 +69,14 @@ export default tseslint.config(
     },
   },
 
+  // 5b. Script files (prisma seed, build scripts) — allow console for CLI output
+  {
+    files: ['**/prisma/seed*.ts', '**/scripts/**/*.{ts,js,mjs}'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
   // 6. Prettier — disable conflicting formatting rules (MUST be last)
   prettierConfig,
 );

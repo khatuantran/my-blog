@@ -61,9 +61,10 @@
   - —
 - **Blocked:**
   - —
-- **Next (M3):**
-  - T-010: Prisma schema entities (14 entities theo DATA_MODEL.md) + first migration
-  - T-011: Seed script (admin + dev/test fixtures)
+- **M3 progress (2/6 done):**
+  - ✅ T-010: Prisma schema 14 entities + first migration `20260517165932_init`
+  - ✅ T-011: Seed scripts (admin + 3 sample posts/2 tags/1 anon comment; test seed admin only)
+- **Next (M3 remaining):**
   - T-012: AuthModule (JwtStrategy + JwtRefreshStrategy + bcrypt + cookie)
   - T-013: Endpoints `/auth/register|login|refresh|logout|me`
   - T-014: UsersModule (CRUD + ban)

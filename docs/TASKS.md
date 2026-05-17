@@ -66,7 +66,13 @@
   - Add `dotenv-cli` + scripts `prisma:migrate` / `prisma:studio` (auto-load .env.local)
   - Verify: prisma validate ✓, migrate status "up to date" ✓, typecheck ✓, build ✓
   - Migration log: apps/api/docs/MIGRATIONS.md + DATA_MODEL.md summary updated
-- [T-011] [P0] [F1] [BE] Seed script (admin user + dev/test fixtures) - TODO
+- [T-011] [P0] [F1] [BE] Seed script (admin user + dev/test fixtures) - DONE (2026-05-17)
+  - `apps/api/prisma/seed.ts` — admin upsert (bcrypt cost 10) + 2 tags (#dev cyan, #life mag) + 3 sample posts (3 mood: EXCITED/CALM/GRATEFUL) + 1 anonymous comment. Idempotent (skip nếu posts đã có).
+  - `apps/api/prisma/seed-test.ts` — admin only cho integration test
+  - Prisma config: `"seed": "tsx prisma/seed.ts"`. Scripts: `db:seed` + `db:seed:test` (dotenv-cli wrap .env.local / .env.test.local)
+  - Add deps: `bcrypt ^5.1.1`, `@types/bcrypt ^5.0.2`, `tsx ^4.19.2`
+  - ESLint exemption: `**/prisma/seed*.ts` + `**/scripts/**` allow `no-console` (CLI output legitimate)
+  - Verify: seed run thành công 2 lần (idempotent), lint ✓, typecheck ✓
 - [T-012] [P0] [F1] [BE] AuthModule — JwtStrategy + JwtRefreshStrategy + bcrypt + cookie - TODO
 - [T-013] [P0] [F1] [BE] Endpoints `/auth/register`, `/login`, `/refresh`, `/logout`, `/me` - TODO
 - [T-014] [P0] [F1] [BE] UsersModule — CRUD + ban endpoint - TODO

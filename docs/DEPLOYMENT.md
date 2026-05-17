@@ -1,0 +1,401 @@
+# Deployment Guide
+
+> Local dev (Docker Compose) + Vercel (FE) + Fly.io (BE) + Neon (DB).
+> ADR liên quan: ADR-001 (Monorepo), ADR-007 (Fly.io BE). Operations runbook: [ARCHITECTURE.md > Operations Runbook](./ARCHITECTURE.md).
+
+## Environments
+
+| Env | FE | BE | DB | Notes |
+|-----|----|----|----|----|
+| Local | Vite dev `:5173` | NestJS `:3001` | Docker Postgres `:5432` (main) + `:5433` (test) | docker-compose |
+| Preview | Vercel preview per PR | Fly.io preview app (optional) | Neon `dev` branch | auto trigger on PR |
+| Production | Vercel `kha.blog` | Fly.io `myblog-api.fly.dev` | Neon `main` branch | manual promote |
+
+---
+
+## Local Dev Setup
+
+### Prerequisites
+
+- Node 20+ (recommend nvm + `.nvmrc`)
+- pnpm 9+ (`npm i -g pnpm`)
+- Docker Desktop (Compose v2)
+- Git
+
+### First-time setup
+
+```bash
+# 1. Clone
+git clone <repo> myblog && cd myblog
+
+# 2. Install dependencies (monorepo)
+pnpm install
+
+# 3. Copy env templates (per app)
+cp apps/api/.env.example apps/api/.env.local        # backend
+cp apps/web/.env.example apps/web/.env.local        # frontend
+
+# 4. Start Postgres (main + test)
+docker compose up -d
+# Verify: docker ps -- nên thấy postgres-main + postgres-test
+
+# 5. Migrate + seed DB
+pnpm --filter api prisma migrate dev
+pnpm --filter api prisma db seed
+
+# 6. Generate OpenAPI types cho FE
+pnpm --filter api openapi:generate   # → docs/contracts/openapi.yaml
+pnpm --filter web openapi:types      # → apps/web/src/types/api.ts
+
+# 7. Start dev servers (Turbo parallel)
+pnpm dev
+# FE: http://localhost:5173
+# BE: http://localhost:3001
+# Swagger UI: http://localhost:3001/swagger (dev only)
+```
+
+### Stop dev
+
+```bash
+# Stop dev servers: Ctrl+C
+docker compose down              # stop Postgres, keep data
+docker compose down -v           # stop + delete data (full reset)
+```
+
+### docker-compose.yml structure (sẽ tạo khi scaffold)
+
+```yaml
+services:
+  postgres-main:
+    image: postgres:16-alpine
+    container_name: myblog-postgres-main
+    environment:
+      POSTGRES_USER: myblog
+      POSTGRES_PASSWORD: myblog
+      POSTGRES_DB: myblog
+    ports: ['5432:5432']
+    volumes: ['postgres-main-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U myblog']
+      interval: 10s
+
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: myblog-postgres-test
+    environment:
+      POSTGRES_USER: myblog
+      POSTGRES_PASSWORD: myblog
+      POSTGRES_DB: myblog_test
+    ports: ['5433:5432']
+    tmpfs: ['/var/lib/postgresql/data']    # in-memory cho test speed
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U myblog']
+      interval: 10s
+
+volumes:
+  postgres-main-data:
+```
+
+---
+
+## Frontend Deploy (Vercel)
+
+### First-time setup
+
+1. **Tạo Vercel project:**
+   - Import từ GitHub repo
+   - **Root directory:** `apps/web`
+   - **Framework preset:** Vite (auto-detect)
+   - **Build command:** `pnpm build` (Turbo + Vite production build)
+   - **Output directory:** `dist`
+   - **Install command:** `pnpm install` (Vercel auto-detect monorepo)
+
+2. **Environment variables (Vercel Dashboard → Settings → Environment Variables):**
+   - `VITE_API_URL` = `https://myblog-api.fly.dev` (production) / `https://myblog-api-preview.fly.dev` (preview)
+   - `VITE_WS_URL` = `wss://myblog-api.fly.dev` (production)
+   - `VITE_SENTRY_DSN` = (optional, Sentry FE)
+
+3. **SPA routing (vercel.json — quan trọng):**
+   Tạo `apps/web/vercel.json`:
+
+   ```json
+   {
+     "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+   }
+   ```
+
+   (Để React Router client-side hoạt động — fallback to index.html cho mọi route)
+
+4. **Custom domain (optional):**
+   - Settings → Domains → Add `kha.blog`
+   - Update DNS A record / CNAME theo Vercel hướng dẫn
+
+### Workflow
+
+- Push `main` → auto deploy production
+- Push PR branch → preview deploy với unique URL
+- Comment trên PR có link preview deployment
+
+### Rollback
+
+- Vercel Dashboard → Deployments → chọn version cũ → **Promote to Production**
+
+---
+
+## Backend Deploy (Fly.io free tier)
+
+### Prerequisites
+
+- Fly CLI installed: `curl -L https://fly.io/install.sh | sh`
+- Authenticated: `fly auth login`
+- Credit card on file (free tier requires verification, không charge nếu < limit)
+
+### First-time setup
+
+1. **Launch app:**
+
+   ```bash
+   cd apps/api
+   fly launch --no-deploy
+   # Trả lời prompt: region sin (gần VN), app name myblog-api, postgres NO (dùng Neon)
+   ```
+
+2. **Adjust `fly.toml` (auto-generated, manual tweak):**
+
+   ```toml
+   app = "myblog-api"
+   primary_region = "sin"   # Singapore — gần VN nhất trong free tier regions
+
+   [build]
+     dockerfile = "Dockerfile"
+
+   [env]
+     PORT = "3001"
+     NODE_ENV = "production"
+
+   [http_service]
+     internal_port = 3001
+     force_https = true
+     auto_stop_machines = "stop"   # sleep sau idle (free tier saving)
+     auto_start_machines = true
+     min_machines_running = 0      # 0 = full sleep (cold start ~3-5s)
+
+   [[vm]]
+     size = "shared-cpu-1x"
+     memory = "256mb"
+   ```
+
+3. **Dockerfile (apps/api/Dockerfile):**
+
+   Multi-stage build, NestJS production-optimized (sẽ scaffold sau với template chuẩn).
+
+4. **Set secrets:**
+
+   ```bash
+   fly secrets set \
+     DATABASE_URL="postgresql://user:pass@ep-xxx.aws.neon.tech/myblog?sslmode=require&pgbouncer=true" \
+     DIRECT_URL="postgresql://user:pass@ep-xxx.aws.neon.tech/myblog?sslmode=require" \
+     JWT_SECRET="$(openssl rand -base64 32)" \
+     JWT_REFRESH_SECRET="$(openssl rand -base64 32)" \
+     CLOUDINARY_CLOUD_NAME="..." \
+     CLOUDINARY_API_KEY="..." \
+     CLOUDINARY_API_SECRET="..." \
+     ADMIN_USERNAME="admin" \
+     ADMIN_PASSWORD="<strong-password>" \
+     CORS_ORIGIN="https://kha.blog,https://*.vercel.app"
+   ```
+
+5. **Deploy:**
+
+   ```bash
+   fly deploy
+   ```
+
+6. **Migrate prod DB (one-time + sau mỗi schema change):**
+
+   ```bash
+   # Set DATABASE_URL local to point Neon prod (careful!)
+   DATABASE_URL=<neon-prod-url> pnpm --filter api prisma migrate deploy
+
+   # Seed admin (one-time)
+   DATABASE_URL=<neon-prod-url> pnpm --filter api prisma db seed
+   ```
+
+### Cold start mitigation
+
+- **Free tier sleep:** Sau ~5min idle, machine stop để save resource
+- **First request after sleep:** ~3-5s cold start
+- **Acceptable cho blog cá nhân**; nếu cần always-on: upgrade `min_machines_running = 1` (sẽ dùng resource thường xuyên hơn → tracked nhưng có thể vẫn trong free tier limit)
+
+### Workflow
+
+- Push `main` → manual `fly deploy` (hoặc GitHub Actions auto)
+- Preview app riêng cho preview branches: `fly apps create myblog-api-preview` + `fly deploy --app myblog-api-preview`
+
+### Rollback
+
+```bash
+fly releases             # list versions
+fly deploy --image registry.fly.io/myblog-api:deployment-XXX  # rollback specific
+# Hoặc UI: https://fly.io/apps/myblog-api/releases
+```
+
+---
+
+## Database (Neon free tier)
+
+### First-time setup
+
+1. **Tạo project tại https://neon.tech**
+   - Project name: `myblog`
+   - Region: `Asia Pacific (Singapore) — ap-southeast-1`
+
+2. **Tạo branches:**
+   - `main` (default) — production
+   - `dev` — preview deployments
+
+3. **Connection strings (lấy từ Neon Console):**
+   - **Pooled** (`DATABASE_URL` cho runtime): `postgresql://...pooler.../myblog?sslmode=require`
+   - **Direct** (`DIRECT_URL` cho Prisma migrate): `postgresql://...direct.../myblog?sslmode=require`
+
+4. **Backup:**
+   - Free tier: 7-day point-in-time restore (auto)
+   - Optional: weekly `pg_dump` to cloud storage (manual cron)
+
+### Migration workflow
+
+```bash
+# Dev (local Docker)
+pnpm --filter api prisma migrate dev --name <description>
+
+# Prod (Neon)
+DATABASE_URL=<neon-prod-pooled> DIRECT_URL=<neon-prod-direct> \
+  pnpm --filter api prisma migrate deploy
+```
+
+Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md` chi tiết sau mỗi migration.
+
+### Rollback (DB)
+
+- **Schema-only rollback:** revert migration file + `prisma migrate resolve --rolled-back <name>`
+- **Data rollback:** Neon Console → Branches → tạo branch từ PITR timestamp → swap connection string trong Fly secrets
+
+---
+
+## Env Vars Matrix
+
+| Name | App | Required | Example | Notes |
+|------|-----|----------|---------|-------|
+| `DATABASE_URL` | api | yes | `postgresql://...pooler...` | Neon pooled / Docker main |
+| `DIRECT_URL` | api | yes | `postgresql://...direct...` | Neon direct / Docker main (cho migration) |
+| `DATABASE_URL_TEST` | api (test only) | test | `postgresql://...localhost:5433/myblog_test` | Docker test |
+| `JWT_SECRET` | api | yes | `<32-byte base64>` | `openssl rand -base64 32` |
+| `JWT_REFRESH_SECRET` | api | yes | `<32-byte base64>` | separate từ JWT_SECRET |
+| `JWT_ACCESS_TTL` | api | no (default 15m) | `15m` | TTL access token |
+| `JWT_REFRESH_TTL` | api | no (default 30d) | `30d` | TTL refresh token |
+| `CLOUDINARY_CLOUD_NAME` | api | yes | `your-cloud` | |
+| `CLOUDINARY_API_KEY` | api | yes | `123456789012345` | |
+| `CLOUDINARY_API_SECRET` | api | yes | `secret_xxx` | |
+| `CLOUDINARY_UPLOAD_PRESET` | api | yes | `myblog_uploads` | Signed preset config |
+| `ADMIN_USERNAME` | api (seed) | yes | `admin` | |
+| `ADMIN_PASSWORD` | api (seed) | yes | `<strong>` | dùng bcrypt hash khi seed |
+| `CORS_ORIGIN` | api | yes | `https://kha.blog,https://*.vercel.app,http://localhost:5173` | comma-separated |
+| `SENTRY_DSN` | api | no | `https://...@sentry.io/...` | optional, error tracking |
+| `PORT` | api | no (3001 default) | `3001` | Fly.io set qua env |
+| `VITE_API_URL` | web | yes | `https://myblog-api.fly.dev` | BE base URL |
+| `VITE_WS_URL` | web | yes | `wss://myblog-api.fly.dev` | BE WebSocket URL |
+| `VITE_SENTRY_DSN` | web | no | `https://...@sentry.io/...` | optional |
+
+### Where to set env
+
+| Env target | How |
+|-----------|-----|
+| Local FE | `apps/web/.env.local` (VITE_* prefix) |
+| Local BE | `apps/api/.env.local` |
+| Vercel FE | Vercel Dashboard → Settings → Environment Variables |
+| Fly.io BE | `fly secrets set KEY=value` |
+| Neon DB | Connection string copied to Fly secrets |
+
+---
+
+## CI/CD
+
+### GitHub Actions workflows (sẽ tạo khi setup CI)
+
+```
+.github/workflows/
+├── ci.yml              On PR + push main: lint + typecheck + test (unit + integration + e2e)
+├── deploy-fe.yml       On push main: Vercel auto-deploy (handled by Vercel GitHub integration)
+├── deploy-be.yml       On push main: fly deploy (via flyctl-action)
+└── preview-be.yml      On PR: deploy preview Fly app
+```
+
+### Required secrets (GitHub repo Settings → Secrets)
+
+- `FLY_API_TOKEN` — `fly auth token`
+- `VERCEL_TOKEN` — (auto qua Vercel integration)
+- `NEON_API_KEY` — (optional, cho preview DB branch tạo tự động)
+
+---
+
+## Monitoring & Observability
+
+### Tools
+
+| Tool | What | Free tier |
+|------|------|-----------|
+| **Sentry** | Error tracking (FE + BE), performance transactions | 5k errors/month |
+| **Fly metrics** | CPU, memory, network, HTTP status | Built-in dashboard |
+| **Neon dashboard** | Query perf, connection count, storage | Built-in |
+| **Vercel Analytics** | Web Vitals (LCP, FID, CLS), page views | Pro features paid |
+
+### Setup (sau khi go-live)
+
+1. Sentry: create project (Node for BE, React for FE) → get DSN → set env vars
+2. Fly metrics: tự enabled
+3. Neon: dashboard built-in
+4. Vercel Analytics: enable trong Vercel UI
+
+### Alert rules
+
+Xem [ARCHITECTURE.md > Operations Runbook > Alert rules](./ARCHITECTURE.md).
+
+---
+
+## Release Checklist (mỗi release production)
+
+- [ ] Tất cả test pass (FE unit + BE unit + BE integration + E2E)
+- [ ] Lint + format check pass
+- [ ] OpenAPI yaml regenerated + committed nếu API change
+- [ ] DATA_MODEL.md + MIGRATIONS.md cập nhật nếu schema change
+- [ ] CHANGELOG.md có entry version mới
+- [ ] Migration đã chạy trên Neon prod (nếu có)
+- [ ] Env vars mới set qua Fly secrets / Vercel (nếu có)
+- [ ] Smoke test: login + create post + comment + like trên prod URL
+- [ ] Sentry không có error spike sau 30min
+- [ ] Tag git commit `v<X.Y.Z>` + push tags
+
+---
+
+## Templates
+
+### Template thêm env var mới
+
+```markdown
+| `<NAME>` | <app> | <yes/no> | `<example>` | <notes> |
+```
+
+### Template release note (sau khi deploy)
+
+```markdown
+### Release v<X.Y.Z> (YYYY-MM-DD)
+
+- **Migration cần chạy:** yes/no — `<migration name>`
+- **Env vars mới:** `KEY=...` (set qua `fly secrets set` / Vercel UI)
+- **Steps deploy:**
+  1. `pnpm --filter api prisma migrate deploy` (nếu schema change)
+  2. `fly deploy` (BE)
+  3. Vercel auto-deploy from main (FE)
+- **Rollback plan:** `fly deploy --image <prev>` + Vercel promote previous
+- **Verification:** smoke test core flows
+```

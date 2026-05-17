@@ -1,0 +1,34 @@
+openapi: 3.0.3
+info:
+  title: MyBlog API
+  description: |
+    REST API cho MyBlog — single source of truth (auto-generated từ NestJS qua `@nestjs/swagger`).
+
+    **Placeholder hiện tại** — sẽ được tự động generate sau khi backend scaffold + setup `@nestjs/swagger`.
+    Trong khi đó, narrative spec ở [`docs/API_CONTRACT.md`](../API_CONTRACT.md).
+  version: 0.1.0-alpha
+  contact:
+    name: MyBlog
+servers:
+  - url: http://localhost:3001
+    description: Local dev (Docker)
+  - url: https://myblog-api.fly.dev
+    description: Production (Fly.io)
+
+# ──────────────────────────────────────────────────────────
+# NOTE: Sau khi scaffold backend, file này được sinh tự động.
+# Generate command (sau khi setup BE):
+#   pnpm --filter api openapi:generate
+# FE generate TS types:
+#   pnpm --filter web openapi:types
+# ──────────────────────────────────────────────────────────
+
+paths: {}
+
+components:
+  schemas: {}
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token

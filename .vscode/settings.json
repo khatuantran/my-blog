@@ -18,6 +18,8 @@
   "files.trimFinalNewlines": true,
 
   // ── TypeScript / JavaScript (unified js/ts.* namespace) ─────
+  // tsdk.path → root node_modules/typescript (lock workspace version, tránh
+  // VSCode dùng bundled TS version khác). Root devDep: typescript ^5.7.2.
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "js/ts.tsdk.promptToUseWorkspaceVersion": true,
   "js/ts.preferences.importModuleSpecifier": "non-relative",

@@ -14,9 +14,7 @@ if (!parsed.success) {
   const issues = parsed.error.issues
     .map((i) => `  - ${i.path.join('.')}: ${i.message}`)
     .join('\n');
-  // eslint-disable-next-line no-console
-  console.error(`❌ Invalid VITE_* environment variables:\n${issues}`);
-  throw new Error('Invalid VITE_* environment variables. Xem console.');
+  throw new Error(`Invalid VITE_* environment variables:\n${issues}`);
 }
 
 export const env: ViteEnv = parsed.data;

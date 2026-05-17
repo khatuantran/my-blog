@@ -7,7 +7,7 @@
 | # | Milestone | Trạng thái | Ngày target |
 |---|-----------|-----------|-------------|
 | M1 | Setup SDD docs v2 (cyberpunk + monorepo stack) | ✅ Done | 2026-05-17 |
-| M2 | Monorepo scaffold (Turborepo + Docker + apps skeleton) | ⬜ Todo | |
+| M2 | Monorepo scaffold (Turborepo + Docker + apps skeleton) | 🟡 Doing | |
 | M3 | Backend NestJS — Auth (JWT) + Users + Prisma schema | ⬜ Todo | |
 | M4 | Backend — Posts + Files (Cloudinary signed upload) + Tags | ⬜ Todo | |
 | M5 | Backend — Comments + Likes + CommentLikes + Saved | ⬜ Todo | |
@@ -47,15 +47,20 @@
     - Removed docs/PROMPT.md (obsolete spec, REQUIREMENTS.md mới thay thế)
     - Renamed: DATABASE_SCHEMA → DATA_MODEL, API → API_CONTRACT
     - Created: docs/contracts/openapi.yaml placeholder, root README + .env.example
+- **Done (M2 start):**
+  - Tách env per-app: `apps/api/.env.example` + `apps/web/.env.example` (root xóa)
+  - Init git repository (branch `main`) + `.gitignore` (ignore `design-file/` reference-only)
+  - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/`. Turbo 2.9.14, pnpm 9.15.0
 - **Doing:**
-  - (M1 complete) — chờ user confirm để start M2
+  - M2 in progress (T-003 → T-007 còn lại)
 - **Blocked:**
   - —
-- **Next week (planned M2):**
-  - Scaffold monorepo Turborepo + pnpm workspaces
-  - Setup docker-compose.yml (Postgres main + test)
-  - Init `apps/web` (Vite + React + React Router) + `apps/api` (NestJS)
-  - Setup Prisma schema từ DATA_MODEL.md → first migration
+- **Next (M2 remaining):**
+  - T-003: `docker-compose.yml` (Postgres main + test)
+  - T-004: Scaffold `apps/api` (NestJS + Prisma + Swagger)
+  - T-005: Scaffold `apps/web` (Vite + React 19 + React Router v7 + Tailwind + shadcn/ui)
+  - T-006: ESLint + Prettier + husky + lint-staged
+  - T-007 (remaining): `dotenv-safe` runtime validation
 
 ---
 

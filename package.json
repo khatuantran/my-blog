@@ -1,0 +1,24 @@
+{
+  "name": "myblog",
+  "version": "0.2.0-alpha",
+  "private": true,
+  "description": "Social blog cá nhân — monorepo Turborepo (Vite React FE + NestJS BE)",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:unit": "turbo run test:unit",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  }
+}

@@ -17,7 +17,7 @@
 
 ### Prerequisites
 
-- Node 20+ (recommend nvm + `.nvmrc`)
+- Node 24 LTS (`.nvmrc` đã pin — `nvm use` auto-pick)
 - pnpm 9+ (`npm i -g pnpm`)
 - Docker Desktop (Compose v2)
 - Git

@@ -16,7 +16,7 @@
 ## Quick Start (Local Dev)
 
 ```bash
-# Prerequisites: Node 20+, pnpm 9+, Docker Desktop
+# Prerequisites: Node 24 LTS (xem .nvmrc), pnpm 9+, Docker Desktop
 
 # 1. Clone & install
 git clone <repo> myblog && cd myblog

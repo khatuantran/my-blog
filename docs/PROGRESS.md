@@ -51,6 +51,7 @@
   - Tách env per-app: `apps/api/.env.example` + `apps/web/.env.example` (root xóa)
   - Init git repository (branch `main`) + `.gitignore` (ignore `design-file/` reference-only)
   - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/`. Turbo 2.9.14, pnpm 9.15.0
+  - **T-003** `docker-compose.yml`: postgres-main (persistent) + postgres-test (tmpfs) + healthcheck
 - **Doing:**
   - M2 in progress (T-003 → T-007 còn lại)
 - **Blocked:**

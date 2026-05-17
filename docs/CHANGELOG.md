@@ -7,6 +7,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 ### Added
 
 - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` + `packages/`. Turborepo 2.9.14, pnpm 9.15.0, Node 24 LTS. Pipeline tasks build/dev/lint/test/typecheck.
+- **T-003** `docker-compose.yml`: 2x Postgres 16-alpine (`postgres-main` :5432 persistent volume, `postgres-test` :5433 tmpfs in-memory) + healthcheck.
 - Init git repository (default branch `main`) + `.gitignore` (Node + Turborepo + Vite + NestJS + env secret + IDE + OS). Trunk-based workflow chính thức bắt đầu.
 
 ### Changed

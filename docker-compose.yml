@@ -1,0 +1,39 @@
+services:
+  postgres-main:
+    image: postgres:16-alpine
+    container_name: myblog-postgres-main
+    environment:
+      POSTGRES_USER: myblog
+      POSTGRES_PASSWORD: myblog
+      POSTGRES_DB: myblog
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-main-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myblog -d myblog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: myblog-postgres-test
+    environment:
+      POSTGRES_USER: myblog
+      POSTGRES_PASSWORD: myblog
+      POSTGRES_DB: myblog_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myblog -d myblog_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres-main-data:

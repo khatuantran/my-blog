@@ -20,7 +20,10 @@
   - Root `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/.gitkeep`
   - Turbo 2.9.14, pnpm 9.15.0, Node 24.15.0
   - Pipeline tasks: build / dev / lint / test / test:unit / test:e2e / typecheck / clean
-- [T-003] [P0] [F7] [Infra] Tạo docker-compose.yml (postgres-main:5432 + postgres-test:5433) - TODO
+- [T-003] [P0] [F7] [Infra] Tạo docker-compose.yml (postgres-main:5432 + postgres-test:5433) - DONE (2026-05-17)
+  - postgres-main: postgres:16-alpine, persistent volume `postgres-main-data`, healthcheck pg_isready
+  - postgres-test: postgres:16-alpine, tmpfs (in-memory) cho test speed, healthcheck pg_isready
+  - `docker compose config` validate passed
 - [T-004] [P0] [F7] [BE] Scaffold apps/api NestJS bằng `nest new` + Prisma + class-validator + Swagger module - TODO
 - [T-005] [P0] [F7] [FE] Scaffold apps/web Vite + React 19 + React Router v7 + TanStack Query + Tailwind + shadcn/ui - TODO
 - [T-006] [P1] [F7] [Infra] Setup ESLint + Prettier + husky + lint-staged (root + per-app config) - TODO

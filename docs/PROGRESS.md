@@ -7,7 +7,7 @@
 | #   | Milestone                                                                         | Trạng thái | Ngày target |
 | --- | --------------------------------------------------------------------------------- | ---------- | ----------- |
 | M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done    | 2026-05-17  |
-| M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | 🟡 Doing   |             |
+| M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done    | 2026-05-17  |
 | M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ⬜ Todo    |             |
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ⬜ Todo    |             |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ⬜ Todo    |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo    |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo    |             |
 
-## Tỉ lệ hoàn thành: 7% (1/14 milestone)
+## Tỉ lệ hoàn thành: 14% (2/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -47,7 +47,7 @@
     - Removed docs/PROMPT.md (obsolete spec, REQUIREMENTS.md mới thay thế)
     - Renamed: DATABASE_SCHEMA → DATA_MODEL, API → API_CONTRACT
     - Created: docs/contracts/openapi.yaml placeholder, root README + .env.example
-- **Done (M2 start):**
+- **Done (M2 complete ✅):**
   - Tách env per-app: `apps/api/.env.example` + `apps/web/.env.example` (root xóa)
   - Init git repository (branch `main`) + `.gitignore` (ignore `design-file/` reference-only)
   - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/`. Turbo 2.9.14, pnpm 9.15.0
@@ -55,13 +55,19 @@
   - **T-004** Scaffold `apps/api` NestJS skeleton (main + common + config Zod + prisma nestjs-prisma + Swagger). NestJS 10.4, Prisma 5.22
   - **T-005** Scaffold `apps/web` Vite + React 19 + RR v7 + TanStack Query 5 + Tailwind 3.4 cyberpunk tokens + shadcn/ui init + Zod env. Vitest smoke pass.
   - **T-006** ESLint 9 flat config (root + per-app extends) + Prettier 3 + Husky 9 + lint-staged + commitlint. Format baseline 28 files. Pre-commit + commit-msg hooks active.
+  - **T-007** đóng: env validation đã có qua Zod (BE + FE). `dotenv-safe` defer permanent — Zod superset cover.
+  - Bonus: `.vscode/` (extensions + settings) + `.editorconfig` + TypeScript pin root cho `js/ts.tsdk.path` resolve. Convention rules: §Enums (cấm string literal union), §Logging (cấm console.\*, dùng NestJS Logger BE + loglevel FE). Tách tests/ folder khỏi src/.
 - **Doing:**
-  - M2 in progress (T-006 → T-007 còn lại)
+  - —
 - **Blocked:**
   - —
-- **Next (M2 remaining):**
-  - T-007 (cleanup): dotenv-safe nếu muốn extra runtime check (Zod validate đã có BE qua `config/env.schema.ts` + FE qua `src/lib/env.ts`)
-  - **M2 ~done** — chuyển M3 (Backend Auth + Users)
+- **Next (M3):**
+  - T-010: Prisma schema entities (14 entities theo DATA_MODEL.md) + first migration
+  - T-011: Seed script (admin + dev/test fixtures)
+  - T-012: AuthModule (JwtStrategy + JwtRefreshStrategy + bcrypt + cookie)
+  - T-013: Endpoints `/auth/register|login|refresh|logout|me`
+  - T-014: UsersModule (CRUD + ban)
+  - T-015: RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware
 
 ---
 

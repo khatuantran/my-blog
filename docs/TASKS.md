@@ -49,9 +49,12 @@
   - commitlint extends `config-conventional`, enforce types theo CLAUDE.md Commit Convention
   - Test files + config files: relax rules (no-console, no-explicit-any off)
   - Verify: `pnpm lint` ✓ both apps zero warnings; `pnpm format:check` ✓ 100% files; commitlint reject invalid msg, accept valid
-- [T-007] [P1] [F7] [Infra] Setup `.env.example` per app + dotenv-safe validation - IN_PROGRESS
-  - Done: split env templates → `apps/api/.env.example` + `apps/web/.env.example` (2026-05-17)
-  - Remaining: `dotenv-safe` (hoặc `@nestjs/config` + Zod) runtime validation — defer đến khi scaffold app code (T-004, T-005)
+- [T-007] [P1] [F7] [Infra] Setup `.env.example` per app + dotenv-safe validation - DONE (2026-05-17)
+  - Split env templates → `apps/api/.env.example` + `apps/web/.env.example` (per-app)
+  - Runtime env validation qua Zod thay `dotenv-safe`:
+    - BE: `apps/api/src/config/env.schema.ts` → `validateEnv()` injected vào ConfigModule, fail-fast (T-004)
+    - FE: `apps/web/src/lib/env.ts` → Zod parse `import.meta.env`, throw Error trên import (T-005)
+  - `dotenv-safe` defer permanent — Zod cover cả existence + type/format (superset)
 
 ### Backlog — M3: BE Auth + Users
 

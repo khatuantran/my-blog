@@ -12,6 +12,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 - **T-005** Scaffold `apps/web` Vite + React 19 skeleton: RouterProvider (RR v7 + lazy + Suspense) + QueryClient (TanStack Query 5 + DevTools dev-only) + Tailwind 3.4 (cyberpunk tokens) + shadcn/ui init + Zod env validation + fetch client wrapper + Vitest smoke test.
 - **T-006** ESLint 9 flat config + Prettier 3 + Husky 9 + lint-staged + commitlint. Root `eslint.config.mjs` shared base (no-console, no-explicit-any, typescript-eslint) + per-app extends (NestJS, React hooks+refresh). Pre-commit: lint-staged auto-fix + format. Commit-msg: commitlint enforce Conventional Commits. Format baseline áp dụng 28 files.
 - `.vscode/` workspace config: `extensions.json` recommend 14 extensions (ESLint, Prettier, Tailwind CSS, Prisma, Vitest, pretty-ts-errors, dotenv, cSpell EN+VI, Docker, YAML, TOML, GitHub PR); `settings.json` (format-on-save + ESLint flat config + Tailwind cva/cn regex + Prisma formatter + file/search excludes + cSpell custom words). `.editorconfig` cross-editor (LF, 2 spaces, max 100). Update `.gitignore` allow track `.vscode/{extensions,settings,launch}.json`.
+- **T-007** đóng task: env validation đã có qua Zod (BE `config/env.schema.ts` T-004 + FE `lib/env.ts` T-005). `dotenv-safe` defer permanent — Zod cover cả 2 use case (existence + type/format).
+- **M2 milestone hoàn tất** (T-002 → T-007): monorepo scaffold + Docker compose + NestJS skeleton + Vite skeleton + ESLint/Prettier/husky + env Zod validation.
 - Init git repository (default branch `main`) + `.gitignore` (Node + Turborepo + Vite + NestJS + env secret + IDE + OS). Trunk-based workflow chính thức bắt đầu.
 
 ### Changed

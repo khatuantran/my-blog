@@ -53,16 +53,14 @@
   - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/`. Turbo 2.9.14, pnpm 9.15.0
   - **T-003** `docker-compose.yml`: postgres-main (persistent) + postgres-test (tmpfs) + healthcheck
   - **T-004** Scaffold `apps/api` NestJS skeleton (main + common + config Zod + prisma nestjs-prisma + Swagger). NestJS 10.4, Prisma 5.22
+  - **T-005** Scaffold `apps/web` Vite + React 19 + RR v7 + TanStack Query 5 + Tailwind 3.4 cyberpunk tokens + shadcn/ui init + Zod env. Vitest smoke pass.
 - **Doing:**
-  - M2 in progress (T-005 → T-007 còn lại)
+  - M2 in progress (T-006 → T-007 còn lại)
 - **Blocked:**
   - —
 - **Next (M2 remaining):**
-  - T-003: `docker-compose.yml` (Postgres main + test)
-  - T-004: Scaffold `apps/api` (NestJS + Prisma + Swagger)
-  - T-005: Scaffold `apps/web` (Vite + React 19 + React Router v7 + Tailwind + shadcn/ui)
   - T-006: ESLint + Prettier + husky + lint-staged
-  - T-007 (remaining): `dotenv-safe` runtime validation
+  - T-007 (cleanup): dotenv-safe nếu muốn extra runtime check (Zod validate đã có BE qua `config/env.schema.ts` + FE qua `src/lib/env.ts`)
 
 ---
 

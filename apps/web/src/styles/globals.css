@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background layers */
+    --bg: #0a0e1a;
+    --surf: #11151f;
+    --elev: #1a1f2e;
+    --over: #232936;
+    /* Borders */
+    --b1: #1f2a3a;
+    --b2: #2a3548;
+    --b3: #3d4a63;
+    /* Text */
+    --tp: #e6edf3;
+    --ts: #a0aec0;
+    --tm: #8b96aa;
+    --td: #566176;
+    /* Accents */
+    --cyan: #00ffe5;
+    --mag: #ff6e96;
+    --pur: #bb9af7;
+    --grn: #9ece6a;
+    --yel: #e0af68;
+    --ora: #ff9e64;
+    --red: #f7768e;
+    --blu: #7dcfff;
+  }
+
+  html,
+  body {
+    background:
+      var(--bg)
+      radial-gradient(circle, #2a354822 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--tp);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* CRT scanline overlay (defer toggle; class on body to enable) */
+  body.crt::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(0, 0, 0, 0.028) 2px,
+      rgba(0, 0, 0, 0.028) 4px
+    );
+    z-index: 9999;
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--cyan);
+    color: var(--bg);
+  }
+}

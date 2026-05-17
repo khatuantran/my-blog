@@ -9,6 +9,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` + `packages/`. Turborepo 2.9.14, pnpm 9.15.0, Node 24 LTS. Pipeline tasks build/dev/lint/test/typecheck.
 - **T-003** `docker-compose.yml`: 2x Postgres 16-alpine (`postgres-main` :5432 persistent volume, `postgres-test` :5433 tmpfs in-memory) + healthcheck.
 - **T-004** Scaffold `apps/api` NestJS skeleton: bootstrap (helmet/compression/cookie-parser/CORS/ValidationPipe/Swagger dev), `common/` (HttpExceptionFilter + Transform/Logging interceptors), `config/env.schema.ts` (Zod fail-fast validate), `prisma/` (nestjs-prisma + Placeholder model). NestJS 10.4, Prisma 5.22, @nestjs/swagger 7.4, helmet 8.
+- **T-005** Scaffold `apps/web` Vite + React 19 skeleton: RouterProvider (RR v7 + lazy + Suspense) + QueryClient (TanStack Query 5 + DevTools dev-only) + Tailwind 3.4 (cyberpunk tokens) + shadcn/ui init + Zod env validation + fetch client wrapper + Vitest smoke test.
 - Init git repository (default branch `main`) + `.gitignore` (Node + Turborepo + Vite + NestJS + env secret + IDE + OS). Trunk-based workflow chính thức bắt đầu.
 
 ### Changed

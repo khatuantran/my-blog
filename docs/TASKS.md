@@ -31,7 +31,16 @@
   - apps/api/README.md + apps/api/docs/MIGRATIONS.md updated
   - Verify: typecheck ✓, test ✓ (passWithNoTests), build ✓ (dist/main.js)
   - Smoke boot defer: local postgres chiếm :5432, cần stop + `docker compose up -d` (user action)
-- [T-005] [P0] [F7] [FE] Scaffold apps/web Vite + React 19 + React Router v7 + TanStack Query + Tailwind + shadcn/ui - TODO
+- [T-005] [P0] [F7] [FE] Scaffold apps/web Vite + React 19 + React Router v7 + TanStack Query + Tailwind + shadcn/ui - DONE (2026-05-17)
+  - Vite 6 + React 19 + React Router v7 + TanStack Query 5 + Tailwind 3.4 + Zustand 5 + shadcn/ui init
+  - src/: main.tsx (QueryClient + RouterProvider + Suspense + DevTools dev-only), App, routes (lazy HomePage + NotFoundPage), pages placeholder
+  - styles/globals.css: Tailwind + cyberpunk CSS vars (bg/surf/elev/over, b1-b3, tp/ts/tm/td, 8 accents) + radial dot grid background + CRT scanline class
+  - tailwind.config.ts: full mapping (colors, fonts, fontSize mono variants, radius, shadow glow-cyan, animation glitch/pulse/blink/shake/fade-up)
+  - lib/: utils.ts (cn helper), env.ts (Zod VITE_* fail-fast), validators.ts barrel
+  - services/api/client.ts: fetch wrapper + ApiError + cookie credentials (typed gen defer M3+)
+  - shadcn components.json init (style new-york, alias `@/*`) — add components per-need
+  - Test: src/App.test.tsx smoke (Vitest + RTL + jsdom)
+  - Verify: typecheck ✓, test ✓ (1/1), build ✓ (dist/index.html + assets), dev boot ✓ HTTP 200 :5173
 - [T-006] [P1] [F7] [Infra] Setup ESLint + Prettier + husky + lint-staged (root + per-app config) - TODO
 - [T-007] [P1] [F7] [Infra] Setup `.env.example` per app + dotenv-safe validation - IN_PROGRESS
   - Done: split env templates → `apps/api/.env.example` + `apps/web/.env.example` (2026-05-17)

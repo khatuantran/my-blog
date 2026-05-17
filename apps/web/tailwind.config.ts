@@ -1,0 +1,108 @@
+import type { Config } from 'tailwindcss';
+
+const config: Config = {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class', // dark-only theme; class on <html>
+  theme: {
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1100px',
+      '2xl': '1280px',
+    },
+    extend: {
+      colors: {
+        // Background layers
+        bg: '#0A0E1A',
+        surf: '#11151F',
+        elev: '#1A1F2E',
+        over: '#232936',
+        // Borders
+        b1: '#1F2A3A',
+        b2: '#2A3548',
+        b3: '#3D4A63',
+        // Text
+        tp: '#E6EDF3',
+        ts: '#A0AEC0',
+        tm: '#8B96AA',
+        td: '#566176',
+        // 8 accents
+        cyan: '#00FFE5',
+        mag: '#FF6E96',
+        pur: '#BB9AF7',
+        grn: '#9ECE6A',
+        yel: '#E0AF68',
+        ora: '#FF9E64',
+        red: '#F7768E',
+        blu: '#7DCFFF',
+      },
+      fontFamily: {
+        brand: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      fontSize: {
+        // mono variants
+        'mono-xs': ['9px', { lineHeight: '1.3' }],
+        'mono-sm': ['11px', { lineHeight: '1.4' }],
+        mono: ['12px', { lineHeight: '1.5' }],
+        'mono-lg': ['14px', { lineHeight: '1.6' }],
+      },
+      spacing: {
+        '1.5': '6px',
+      },
+      borderRadius: {
+        xs: '2px',
+        sm: '4px',
+        md: '6px',
+        lg: '8px',
+        xl: '12px',
+      },
+      boxShadow: {
+        sm: '0 1px 2px rgba(0,0,0,.05)',
+        md: '0 4px 12px rgba(0,0,0,.08)',
+        lg: '0 12px 32px rgba(0,0,0,.4)',
+        'glow-cyan-sm': '0 0 8px rgba(0,255,229,.15)',
+        'glow-cyan-md': '0 0 14px rgba(0,255,229,.22)',
+        'glow-cyan-lg': '0 0 24px rgba(0,255,229,.1), 0 4px 24px rgba(0,0,0,.3)',
+        'glow-cyan-xl': '0 0 40px rgba(0,255,229,.22), 0 8px 32px rgba(0,0,0,.4)',
+      },
+      animation: {
+        glitch: 'glitch 9s infinite',
+        'pulse-status': 'pulse-status 2s ease-in-out infinite',
+        blink: 'blink 530ms step-start infinite',
+        shake: 'shake 400ms ease',
+        'fade-up': 'fade-up 300ms ease',
+      },
+      keyframes: {
+        glitch: {
+          '0%, 88%, 100%': { transform: 'translate(0)', opacity: '1' },
+          '90%': { transform: 'translate(-1px, 1px)', opacity: '0.85' },
+          '91%': { transform: 'translate(2px, -1px)', opacity: '1' },
+          '92%': { transform: 'translate(-1px, 1px)', opacity: '0.95' },
+        },
+        'pulse-status': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.6', transform: 'scale(0.9)' },
+        },
+        blink: {
+          '0%, 50%': { opacity: '1' },
+          '50.01%, 100%': { opacity: '0' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%, 60%': { transform: 'translateX(-5px)' },
+          '40%, 80%': { transform: 'translateX(5px)' },
+        },
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

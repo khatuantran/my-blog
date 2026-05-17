@@ -1,0 +1,20 @@
+// MyBlog Prisma schema
+// Entities sẽ được add tại T-010 (M3). Hiện tại chỉ datasource + generator + 1 placeholder model
+// để `prisma generate` không fail (Prisma 5 require ≥1 model).
+// Xóa `_Placeholder` khi T-010 add User/Post/...
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Placeholder model — sẽ xóa khi T-010 add entities thực.
+/// Prisma 5 require ≥1 model để `prisma generate` chạy.
+model Placeholder {
+  id String @id @default(cuid())
+}

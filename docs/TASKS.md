@@ -24,7 +24,13 @@
   - postgres-main: postgres:16-alpine, persistent volume `postgres-main-data`, healthcheck pg_isready
   - postgres-test: postgres:16-alpine, tmpfs (in-memory) cho test speed, healthcheck pg_isready
   - `docker compose config` validate passed
-- [T-004] [P0] [F7] [BE] Scaffold apps/api NestJS bằng `nest new` + Prisma + class-validator + Swagger module - TODO
+- [T-004] [P0] [F7] [BE] Scaffold apps/api NestJS bằng `nest new` + Prisma + class-validator + Swagger module - DONE (2026-05-17)
+  - Manual scaffold (folder đã có .env.example): package.json + tsconfig + nest-cli + jest configs
+  - src/: main.ts (helmet/compression/cookie-parser/CORS/ValidationPipe/Swagger), app.module + AppController (/+/health), config/env.schema.ts (Zod fail-fast), common/filters+interceptors, prisma/ (nestjs-prisma forRoot)
+  - prisma/schema.prisma: datasource + generator + `Placeholder` model (xóa T-010)
+  - apps/api/README.md + apps/api/docs/MIGRATIONS.md updated
+  - Verify: typecheck ✓, test ✓ (passWithNoTests), build ✓ (dist/main.js)
+  - Smoke boot defer: local postgres chiếm :5432, cần stop + `docker compose up -d` (user action)
 - [T-005] [P0] [F7] [FE] Scaffold apps/web Vite + React 19 + React Router v7 + TanStack Query + Tailwind + shadcn/ui - TODO
 - [T-006] [P1] [F7] [Infra] Setup ESLint + Prettier + husky + lint-staged (root + per-app config) - TODO
 - [T-007] [P1] [F7] [Infra] Setup `.env.example` per app + dotenv-safe validation - IN_PROGRESS

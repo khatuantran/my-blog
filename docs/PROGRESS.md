@@ -52,8 +52,9 @@
   - Init git repository (branch `main`) + `.gitignore` (ignore `design-file/` reference-only)
   - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` (Node 24 LTS) + `packages/`. Turbo 2.9.14, pnpm 9.15.0
   - **T-003** `docker-compose.yml`: postgres-main (persistent) + postgres-test (tmpfs) + healthcheck
+  - **T-004** Scaffold `apps/api` NestJS skeleton (main + common + config Zod + prisma nestjs-prisma + Swagger). NestJS 10.4, Prisma 5.22
 - **Doing:**
-  - M2 in progress (T-004 → T-007 còn lại)
+  - M2 in progress (T-005 → T-007 còn lại)
 - **Blocked:**
   - —
 - **Next (M2 remaining):**

@@ -61,12 +61,11 @@
   - —
 - **Blocked:**
   - —
-- **M3 progress (2/6 done):**
+- **M3 progress (4/6 done):**
   - ✅ T-010: Prisma schema 14 entities + first migration `20260517165932_init`
   - ✅ T-011: Seed scripts (admin + 3 sample posts/2 tags/1 anon comment; test seed admin only)
+  - ✅ T-012 + T-013 (gộp): AuthModule full feature — service + 2 strategies + 2 guards + 5 endpoints + cookie httpOnly + refresh rotation DB hash. 10 smoke cases pass.
 - **Next (M3 remaining):**
-  - T-012: AuthModule (JwtStrategy + JwtRefreshStrategy + bcrypt + cookie)
-  - T-013: Endpoints `/auth/register|login|refresh|logout|me`
   - T-014: UsersModule (CRUD + ban)
   - T-015: RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware
 

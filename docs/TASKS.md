@@ -73,8 +73,18 @@
   - Add deps: `bcrypt ^5.1.1`, `@types/bcrypt ^5.0.2`, `tsx ^4.19.2`
   - ESLint exemption: `**/prisma/seed*.ts` + `**/scripts/**` allow `no-console` (CLI output legitimate)
   - Verify: seed run thành công 2 lần (idempotent), lint ✓, typecheck ✓
-- [T-012] [P0] [F1] [BE] AuthModule — JwtStrategy + JwtRefreshStrategy + bcrypt + cookie - TODO
-- [T-013] [P0] [F1] [BE] Endpoints `/auth/register`, `/login`, `/refresh`, `/logout`, `/me` - TODO
+- [T-012] [P0] [F1] [BE] AuthModule — JwtStrategy + JwtRefreshStrategy + bcrypt + cookie - DONE (2026-05-17, gộp với T-013)
+  - AuthModule (JwtModule async + PassportModule) + AuthService (bcrypt cost 10 + JWT sign + refresh rotation + reuse detection family revoke)
+  - 2 strategies: JwtStrategy (access from cookie) + JwtRefreshStrategy (refresh from cookie, passReqToCallback)
+  - 2 guards: JwtAuthGuard + JwtRefreshGuard (thin AuthGuard wrappers)
+  - DTOs: RegisterDto (username 3-32 [a-zA-Z0-9_-], password ≥8, email optional) + LoginDto + AuthUserDto
+  - Cookie config: httpOnly, secure prod, sameSite lax dev / none prod, path /
+  - RefreshToken table: store SHA-256 hash + tid in JWT payload + rotation revoke old + userAgent/IP track
+- [T-013] [P0] [F1] [BE] Endpoints `/auth/register`, `/login`, `/refresh`, `/logout`, `/me` - DONE (2026-05-17, gộp với T-012)
+  - 5 endpoints: POST /auth/register|login|refresh|logout + GET /auth/me. Swagger decorators đầy đủ.
+  - Set/clear cookies tự động trong controller. JwtRefreshGuard cho refresh + logout. JwtAuthGuard cho /me.
+  - Smoke test live ✓ 10 cases: health, register conflict (409), login (200 + cookies), me with/without cookie (200/401), refresh rotate (200), logout (204), refresh after revoke (401 REFRESH_REVOKED), wrong password (401 INVALID_CREDENTIALS)
+  - Env schema: relax Cloudinary từ `.min(1)` → `.default('')` (chỉ required khi T-022 FilesModule)
 - [T-014] [P0] [F1] [BE] UsersModule — CRUD + ban endpoint - TODO
 - [T-015] [P1] [F1] [BE] RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware - TODO
 

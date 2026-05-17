@@ -17,7 +17,7 @@
 
 - File component: `PascalCase.tsx` (vd: `PostCard.tsx`)
 - File utility/hook/service: `camelCase.ts` (vd: `useDebounce.ts`, `apiClient.ts`)
-- File test: cùng tên + `.test.ts(x)` hoặc `.spec.ts` (BE NestJS dùng `.spec.ts`)
+- File test: **luôn nằm trong `tests/` ngang cấp với `src/`**, KHÔNG co-located trong `src/`. Mirror cấu trúc src để dễ tìm. FE: `*.test.ts(x)`. BE: `*.spec.ts` (unit) hoặc `*.e2e-spec.ts` (e2e). Setup/helpers/factories đặt trong `tests/` (vd: `tests/setup.ts`, `tests/_helpers/factory.ts`). Xem [TESTING_STRATEGY.md](./TESTING_STRATEGY.md)
 - File route (FE): kebab-case folder hoặc PascalCase page (`pages/PostDetail.tsx`)
 - Component name: `PascalCase`
 - Variable/function: `camelCase`

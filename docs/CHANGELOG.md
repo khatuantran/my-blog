@@ -15,6 +15,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 ### Changed
 
 - Add 2 convention rules vào CODING_CONVENTION.md: (1) cấm string literal union làm enum ảo — define Prisma `enum` (BE) hoặc `as const` + `z.nativeEnum` (FE); (2) cấm `console.*` — dùng NestJS `Logger` (BE) hoặc `loglevel` qua `@/lib/logger` (FE). Refactor `apps/api/src/main.ts` + `apps/web/src/lib/env.ts` xóa console. Cross-ref CLAUDE.md Do NOT + Pre-flight Checklist.
+- **Convention change**: test files PHẢI tách khỏi src — chuyển sang `apps/<app>/tests/` (mirror src structure). Move `apps/web/src/App.test.tsx` → `apps/web/tests/App.test.tsx`, `apps/web/src/test/setup.ts` → `apps/web/tests/setup.ts`, `apps/api/test/` → `apps/api/tests/`. Update vitest + jest configs + tsconfig include + e2e config rootDir. Helpers/factories/setup vào `tests/_helpers/`. Imports test → source dùng alias `@/*` (KHÔNG relative). Update CODING_CONVENTION.md + TESTING_STRATEGY.md.
 - Split root `.env.example` thành `apps/api/.env.example` (BE vars) + `apps/web/.env.example` (FE `VITE_*` vars). Root file đã xóa — per-app convention chuẩn Turborepo, dễ maintain khi scaffold M2. Update `README.md` + `docs/DEPLOYMENT.md` Quick Start bỏ dòng `cp .env.example .env.local` root.
 
 ---

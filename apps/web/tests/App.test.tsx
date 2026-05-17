@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router';
-import { App } from './App';
-import HomePage from './pages/HomePage';
+import { App } from '@/App';
+import HomePage from '@/pages/HomePage';
 
 describe('App', () => {
   it('renders HomePage at /', () => {

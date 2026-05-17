@@ -71,65 +71,78 @@ Deploy độc lập: FE → Vercel, BE → Fly.io, DB → Neon.
 ### apps/web components
 
 ```
-src/
-├── pages/                  ← React Router v7 routes
-│   ├── FeedPage.tsx        (/)
-│   ├── PostDetailPage.tsx  (/post/:id)
-│   ├── CreatePostPage.tsx  (/admin/create)
-│   ├── AdminPage.tsx       (/admin)
-│   ├── LoginPage.tsx       (/auth/login)
-│   └── RegisterPage.tsx    (/auth/register)
-├── components/
-│   ├── layout/             (TopBar, StatusBar, Sidebar, RightPanel)
-│   ├── post/               (PostCard, PostContent, ImageGrid, ImageCarousel, FileAttachments)
-│   ├── ui/                 (shadcn primitives: Button, Card, Input, Dialog, ...)
-│   ├── shared/             (MoodBadge, TagPill, Avatar, Sparkline, AsciiBar)
-│   ├── command-palette/    (CommandPalette overlay)
-│   └── admin/              (StatCard, MoodBar, UsersTable, CommentsModeration, ActivityLog)
-├── hooks/
-│   ├── useAuth.ts          (auth state, JWT refresh)
-│   ├── usePosts.ts         (TanStack Query wrapper)
-│   ├── useComments.ts
-│   ├── useWebSocket.ts     (Socket.io client wrapper)
-│   └── useCommandPalette.ts (⌘K listener)
-├── services/
-│   ├── api/                (typed HTTP client, generated từ openapi.yaml)
-│   ├── ws/                 (Socket.io client + event handlers)
-│   └── storage.ts          (cookie + localStorage helpers)
-├── lib/
-│   ├── validators.ts       (Zod schemas)
-│   └── utils.ts
-├── stores/                 (Zustand — UI state global khi cần)
-└── types/                  (re-export từ generated openapi types)
+apps/web/
+├── src/                        ← source code (PURE, không test)
+│   ├── pages/                  ← React Router v7 routes
+│   │   ├── FeedPage.tsx        (/)
+│   │   ├── PostDetailPage.tsx  (/post/:id)
+│   │   ├── CreatePostPage.tsx  (/admin/create)
+│   │   ├── AdminPage.tsx       (/admin)
+│   │   ├── LoginPage.tsx       (/auth/login)
+│   │   └── RegisterPage.tsx    (/auth/register)
+│   ├── components/
+│   │   ├── layout/             (TopBar, StatusBar, Sidebar, RightPanel)
+│   │   ├── post/               (PostCard, PostContent, ImageGrid, ImageCarousel, FileAttachments)
+│   │   ├── ui/                 (shadcn primitives: Button, Card, Input, Dialog, ...)
+│   │   ├── shared/             (MoodBadge, TagPill, Avatar, Sparkline, AsciiBar)
+│   │   ├── command-palette/    (CommandPalette overlay)
+│   │   └── admin/              (StatCard, MoodBar, UsersTable, CommentsModeration, ActivityLog)
+│   ├── hooks/                  (useAuth, usePosts, useComments, useWebSocket, useCommandPalette)
+│   ├── services/
+│   │   ├── api/                (typed HTTP client, generated từ openapi.yaml)
+│   │   ├── ws/                 (Socket.io client + event handlers)
+│   │   └── storage.ts          (cookie + localStorage helpers)
+│   ├── lib/
+│   │   ├── validators.ts       (Zod schemas)
+│   │   ├── logger.ts           (loglevel wrapper)
+│   │   ├── env.ts              (Zod VITE_* validate)
+│   │   └── utils.ts            (cn helper)
+│   ├── stores/                 (Zustand — UI state global khi cần)
+│   └── types/                  (re-export từ generated openapi types)
+└── tests/                      ← TÁCH KHỎI src (mirror structure)
+    ├── setup.ts                (Vitest setupFiles)
+    ├── _helpers/               (factories, fixtures, MSW handlers)
+    ├── hooks/                  (*.test.ts mirror src/hooks/)
+    ├── components/             (*.test.tsx mirror src/components/)
+    └── lib/                    (*.test.ts mirror src/lib/)
 ```
 
 ### apps/api modules (NestJS)
 
 ```
-src/
-├── auth/                   AuthModule
-│   ├── auth.module.ts
-│   ├── auth.controller.ts  (POST /auth/login, /register, /refresh, /logout)
-│   ├── auth.service.ts     (bcrypt + JWT issue/verify)
-│   ├── strategies/         (JwtStrategy, JwtRefreshStrategy)
-│   ├── guards/             (JwtAuthGuard, RolesGuard)
-│   └── dto/                (LoginDto, RegisterDto)
-├── users/                  UsersModule (CRUD users, ban)
-├── posts/                  PostsModule (CRUD posts + view tracking)
-├── comments/               CommentsModule (CRUD + moderation)
-├── likes/                  LikesModule (toggle posts/comments — 2 endpoint riêng)
-├── files/                  FilesModule (Cloudinary signed upload + delete)
-├── tags/                   TagsModule (CRUD tags + popular list)
-├── admin/                  AdminModule (stats, activity, users mgmt)
-├── realtime/               RealtimeGateway (Socket.io @WebSocketGateway)
-├── prisma/                 PrismaModule (singleton PrismaService)
-├── common/
-│   ├── filters/            (HttpExceptionFilter — format `{error: {code, message}}`)
-│   ├── interceptors/       (TransformInterceptor — wrap `{data, meta}`, LoggingInterceptor)
-│   ├── pipes/              (ZodValidationPipe — optional, default class-validator)
-│   ├── decorators/         (@CurrentUser, @Public, @Roles)
-│   └── middleware/         (AnonymousIdMiddleware — issue cookie nếu chưa có)
-└── main.ts                 (bootstrap + Swagger setup + CORS + global pipes)
+apps/api/
+├── src/                        ← source code (PURE, không test)
+│   ├── auth/                   AuthModule
+│   │   ├── auth.module.ts
+│   │   ├── auth.controller.ts  (POST /auth/login, /register, /refresh, /logout)
+│   │   ├── auth.service.ts     (bcrypt + JWT issue/verify)
+│   │   ├── strategies/         (JwtStrategy, JwtRefreshStrategy)
+│   │   ├── guards/             (JwtAuthGuard, RolesGuard)
+│   │   └── dto/                (LoginDto, RegisterDto)
+│   ├── users/                  UsersModule (CRUD users, ban)
+│   ├── posts/                  PostsModule (CRUD posts + view tracking)
+│   ├── comments/               CommentsModule (CRUD + moderation)
+│   ├── likes/                  LikesModule (toggle posts/comments — 2 endpoint riêng)
+│   ├── files/                  FilesModule (Cloudinary signed upload + delete)
+│   ├── tags/                   TagsModule (CRUD tags + popular list)
+│   ├── admin/                  AdminModule (stats, activity, users mgmt)
+│   ├── realtime/               RealtimeGateway (Socket.io @WebSocketGateway)
+│   ├── prisma/                 PrismaModule (singleton PrismaService)
+│   ├── config/                 (env.schema.ts — Zod validate)
+│   ├── common/
+│   │   ├── filters/            (HttpExceptionFilter — format `{error: {code, message}}`)
+│   │   ├── interceptors/       (TransformInterceptor — wrap `{data, meta}`, LoggingInterceptor)
+│   │   ├── pipes/              (ZodValidationPipe — optional, default class-validator)
+│   │   ├── decorators/         (@CurrentUser, @Public, @Roles)
+│   │   └── middleware/         (AnonymousIdMiddleware — issue cookie nếu chưa có)
+│   └── main.ts                 (bootstrap + Swagger setup + CORS + global pipes)
+├── prisma/                     (schema.prisma + migrations)
+└── tests/                      ← TÁCH KHỎI src (unit + e2e + helpers)
+    ├── jest-e2e.json           (e2e config, rootDir=..)
+    ├── _helpers/               (factories, db reset, app init)
+    ├── auth/                   (*.spec.ts mirror src/auth/)
+    ├── posts/                  (*.spec.ts mirror src/posts/)
+    └── *.e2e-spec.ts           (integration tests at top level)
 ```
 
 ## Data Flow Diagrams

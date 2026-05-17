@@ -26,9 +26,9 @@
 
 | Layer | Tool | Where |
 |-------|------|-------|
-| FE unit | **Vitest** + React Testing Library + MSW (mock API) | `apps/web/src/**/*.test.ts(x)` |
-| BE unit | **Jest** (NestJS default) | `apps/api/src/**/*.spec.ts` |
-| BE integration | **Supertest** + Jest + real Postgres test DB | `apps/api/test/**/*.e2e-spec.ts` |
+| FE unit | **Vitest** + React Testing Library + MSW (mock API) | `apps/web/tests/**/*.test.ts(x)` |
+| BE unit | **Jest** (NestJS default) | `apps/api/tests/**/*.spec.ts` |
+| BE integration | **Supertest** + Jest + real Postgres test DB | `apps/api/tests/**/*.e2e-spec.ts` |
 | E2E | **Playwright** (chromium) | `e2e/**/*.spec.ts` (root level) |
 | Coverage | Vitest coverage v8 + Jest coverage | report uploaded to CI artifact |
 
@@ -40,7 +40,8 @@
 
 - `apps/web/vitest.config.ts`:
   - `environment: 'jsdom'`
-  - `setupFiles: './src/test-setup.ts'` (cleanup + MSW server start)
+  - `setupFiles: './tests/setup.ts'` (cleanup + MSW server start)
+  - `include: ['tests/**/*.{test,spec}.{ts,tsx}']`
 - Mock: `vi.mock()` cho services; MSW cho HTTP intercept
 
 ### Cover
@@ -54,22 +55,28 @@
 ### File pattern
 
 ```
-apps/web/src/
-├── hooks/usePosts.ts
-├── hooks/usePosts.test.ts          ← co-located
-├── components/post/PostCard.tsx
-├── components/post/PostCard.test.tsx
-├── lib/validators.ts
-└── lib/validators.test.ts
+apps/web/
+├── src/
+│   ├── hooks/usePosts.ts
+│   ├── components/post/PostCard.tsx
+│   └── lib/validators.ts
+└── tests/                          ← test code TÁCH KHỎI src
+    ├── setup.ts                    (Vitest setupFiles)
+    ├── _helpers/                   (factories, fixtures, MSW handlers)
+    ├── hooks/usePosts.test.ts
+    ├── components/post/PostCard.test.tsx
+    └── lib/validators.test.ts
 ```
+
+Import từ test → source: dùng path alias `@/*` (KHÔNG relative `./` vì sai vị trí).
 
 ### Example
 
 ```ts
-// apps/web/src/hooks/usePosts.test.ts
+// apps/web/tests/hooks/usePosts.test.ts
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { usePosts } from './usePosts';
+import { usePosts } from '@/hooks/usePosts';
 
 const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 const wrapper = ({ children }) => <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
@@ -98,7 +105,9 @@ test('usePosts fetches feed', async () => {
 ### Setup
 
 - `apps/api/jest.config.js`:
-  - `testRegex: '.*\\.spec\\.ts$'`
+  - `rootDir: '.'` + `roots: ['<rootDir>/src', '<rootDir>/tests']`
+  - `testRegex: 'tests/.*\\.spec\\.ts$'`
+  - `testPathIgnorePatterns: ['/node_modules/', 'tests/.*\\.e2e-spec\\.ts$']`
   - `preset: 'ts-jest'`
 - Mock Prisma: `jest.mock('@/prisma/prisma.service')` hoặc `prisma-mock` library
 
@@ -113,20 +122,27 @@ test('usePosts fetches feed', async () => {
 ### File pattern
 
 ```
-apps/api/src/
-├── posts/
-│   ├── posts.service.ts
-│   ├── posts.service.spec.ts       ← co-located
-│   ├── posts.controller.ts
-│   └── posts.controller.spec.ts
+apps/api/
+├── src/
+│   └── posts/
+│       ├── posts.service.ts
+│       └── posts.controller.ts
+└── tests/                          ← TÁCH KHỎI src (unit + e2e + helpers)
+    ├── jest-e2e.json
+    ├── _helpers/                   (factories, db reset utils)
+    └── posts/
+        ├── posts.service.spec.ts
+        └── posts.controller.spec.ts
 ```
+
+Import từ test → source: dùng alias `@/posts/posts.service` (KHÔNG relative).
 
 ### Example
 
 ```ts
-// apps/api/src/posts/posts.service.spec.ts
+// apps/api/tests/posts/posts.service.spec.ts
 import { Test } from '@nestjs/testing';
-import { PostsService } from './posts.service';
+import { PostsService } from '@/posts/posts.service';
 import { PrismaService } from '@/prisma/prisma.service';
 
 describe('PostsService', () => {
@@ -171,7 +187,7 @@ describe('PostsService', () => {
 
 ### Setup
 
-- `apps/api/test/jest-e2e.json` config riêng (Jest preset)
+- `apps/api/tests/jest-e2e.json` config riêng (Jest preset, rootDir `..` để alias `@/*` → `src/*`)
 - Use **dedicated test Postgres** trong Docker (`postgres-test` service, port 5433, db `myblog_test`)
 - Env var `DATABASE_URL_TEST` cho test runs
 - `beforeAll`: `prisma migrate reset --force --skip-seed && pnpm tsx prisma/seed-test.ts`
@@ -187,9 +203,9 @@ describe('PostsService', () => {
 ### File pattern
 
 ```
-apps/api/test/
+apps/api/tests/
 ├── jest-e2e.json
-├── setup.ts                        global setup (DB reset, app init)
+├── _helpers/setup.ts               global setup (DB reset, app init)
 ├── auth.e2e-spec.ts
 ├── posts.e2e-spec.ts
 ├── comments.e2e-spec.ts
@@ -201,7 +217,7 @@ apps/api/test/
 ### Example
 
 ```ts
-// apps/api/test/posts.e2e-spec.ts
+// apps/api/tests/posts.e2e-spec.ts
 import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
@@ -356,7 +372,7 @@ test('login with invalid creds shows error + shake', async ({ page }) => {
 Library: `faker.js` (`@faker-js/faker`) — tạo data động:
 
 ```ts
-// apps/api/test/factories/post.factory.ts
+// apps/api/tests/_helpers/factories/post.factory.ts
 import { faker } from '@faker-js/faker';
 export const postFactory = (overrides = {}) => ({
   content: faker.lorem.paragraph(),

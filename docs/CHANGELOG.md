@@ -14,6 +14,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- Add 2 convention rules vào CODING_CONVENTION.md: (1) cấm string literal union làm enum ảo — define Prisma `enum` (BE) hoặc `as const` + `z.nativeEnum` (FE); (2) cấm `console.*` — dùng NestJS `Logger` (BE) hoặc `loglevel` qua `@/lib/logger` (FE). Refactor `apps/api/src/main.ts` + `apps/web/src/lib/env.ts` xóa console. Cross-ref CLAUDE.md Do NOT + Pre-flight Checklist.
 - Split root `.env.example` thành `apps/api/.env.example` (BE vars) + `apps/web/.env.example` (FE `VITE_*` vars). Root file đã xóa — per-app convention chuẩn Turborepo, dễ maintain khi scaffold M2. Update `README.md` + `docs/DEPLOYMENT.md` Quick Start bỏ dòng `cp .env.example .env.local` root.
 
 ---

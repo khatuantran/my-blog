@@ -334,6 +334,8 @@ Xem [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md).
 - [ ] Nếu touch UI component / token mới → `docs/DESIGN_SYSTEM.md` đã có spec
 - [ ] Nếu đổi pattern/arch → `docs/ARCHITECTURE.md` đã có ADR
 - [ ] Test strategy đã rõ (file path, cases) theo `docs/TESTING_STRATEGY.md`
+- [ ] Nếu touch field enumerated value → đã có Prisma enum / `as const` đối ứng (KHÔNG string literal union)
+- [ ] KHÔNG có `console.*` trong code (BE: `Logger`, FE: `logger` từ `@/lib/logger`)
 
 **Nếu bất kỳ check nào FAIL → DỪNG, quay về step design tương ứng. Không viết code.**
 
@@ -481,3 +483,5 @@ Nhanh:
 - KHÔNG store JWT trong localStorage (httpOnly cookie only)
 - KHÔNG dùng `$queryRawUnsafe` Prisma với user input
 - KHÔNG ghi đè manual file `docs/contracts/openapi.yaml` — chỉ regenerate từ NestJS Swagger
+- KHÔNG dùng string literal union làm enum ảo — define Prisma enum + re-export (BE), hoặc FE `as const` object + `z.nativeEnum`. Xem [docs/CODING_CONVENTION.md > Enums](docs/CODING_CONVENTION.md)
+- KHÔNG dùng `console.log/error/warn` trong production code — dùng NestJS `Logger` (BE) hoặc `logger` từ `@/lib/logger` (FE, loglevel). Xem [docs/CODING_CONVENTION.md > Logging](docs/CODING_CONVENTION.md)

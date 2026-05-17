@@ -26,6 +26,153 @@
 - Enum: `PascalCase` (values UPPER_SNAKE)
 - DB (Prisma model): `PascalCase` (singular)
 
+### Enums (TỐI QUAN TRỌNG)
+
+**KHÔNG dùng string literal union làm enum ảo.** Mọi tập giá trị enumerated PHẢI define enum tường minh để:
+
+- Reuse across FE + BE + DB (1 source of truth)
+- Refactor an toàn (rename = compile error mọi reference)
+- Auto-complete + exhaustiveness check (`switch` không match → TS error)
+- Serialize/deserialize nhất quán (Prisma ↔ DTO ↔ API JSON ↔ FE)
+
+#### ❌ KHÔNG
+
+```ts
+// String literal union — fragile, không reuse được
+type Mood = 'HAPPY' | 'SAD' | 'ANGRY';
+function getMood(m: 'HAPPY' | 'SAD' | 'ANGRY') { /* ... */ }
+
+// Hardcode string trong DTO
+@IsIn(['ADMIN', 'USER'])
+role: string;
+```
+
+#### ✅ ĐÚNG
+
+**DB layer** — Prisma enum (single source):
+
+```prisma
+enum Mood { HAPPY EXCITED THOUGHTFUL CALM SAD GRATEFUL ANGRY }
+
+model Post {
+  mood Mood
+}
+```
+
+**BE DTO** — re-export Prisma enum + `@IsEnum`:
+
+```ts
+import { Mood } from '@prisma/client';
+import { IsEnum } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class CreatePostDto {
+  @ApiProperty({ enum: Mood })
+  @IsEnum(Mood)
+  mood!: Mood;
+}
+```
+
+**FE — business domain enum** (mirror từ openapi-typescript):
+
+```ts
+import { z } from 'zod';
+import type { Mood } from '@/types/api'; // gen từ openapi.yaml
+
+const schema = z.object({ mood: z.nativeEnum(Mood) });
+```
+
+**FE-only state enum** (UI state không có ở BE) — `as const` object:
+
+```ts
+export const EditorMode = {
+  EDIT: 'EDIT',
+  PREVIEW: 'PREVIEW',
+} as const;
+export type EditorMode = (typeof EditorMode)[keyof typeof EditorMode];
+```
+
+#### Quy tắc cụ thể
+
+- **Business domain enum** (Role, Mood, FileType, CommentStatus, ...): Prisma `enum` là single source
+- **FE-only state enum** (vd: UI mode `'EDIT' | 'VIEW'`): dùng `as const` object + type derive, KHÔNG raw union
+- **Internal-only TS literal** (≤ 2 giá trị, kèm với function param, không export): `'asc' | 'desc'` chấp nhận được
+- **External API contract**: PHẢI có enum định nghĩa (mirror trong openapi.yaml `enum:`)
+
+#### Cross-references
+
+- DB enums: [DATA_MODEL.md > Enums](./DATA_MODEL.md) (Role, Mood, FileType, CommentStatus)
+- Design enum-color mapping: [DESIGN_SYSTEM.md > Mood Color Map](./DESIGN_SYSTEM.md)
+- API enum: phải xuất hiện trong `docs/contracts/openapi.yaml` `components.schemas.<Name>.enum`
+
+### Logging (TỐI QUAN TRỌNG)
+
+**KHÔNG dùng `console.log` / `console.error` / `console.warn` trong production code.** Lý do:
+
+- Không có log level filter (debug/info/warn/error)
+- Không có metadata (timestamp, scope, request ID)
+- Không integrate được với Sentry / observability stack
+- Bị strip bởi production bundle config khác nhau (FE Vite có thể keep, không nhất quán)
+
+#### Backend (`apps/api`)
+
+Dùng NestJS built-in `Logger`:
+
+```ts
+import { Logger, Injectable } from '@nestjs/common';
+
+@Injectable()
+export class PostsService {
+  private readonly logger = new Logger(PostsService.name);
+
+  async create(dto: CreatePostDto) {
+    this.logger.log(`Creating post by user ${dto.authorId}`);
+    try {
+      // ...
+    } catch (err) {
+      this.logger.error('Failed to create post', err instanceof Error ? err.stack : err);
+      throw err;
+    }
+  }
+}
+```
+
+- `logger.log` (info) | `logger.warn` | `logger.error` | `logger.debug` | `logger.verbose`
+- Bootstrap (`main.ts`): `const logger = new Logger('Bootstrap'); logger.log('Server started')`
+- KHÔNG inject `LoggerService` qua DI cho service đơn giản (overhead) — dùng `new Logger(ClassName.name)` per instance
+
+#### Frontend (`apps/web`)
+
+Dùng `loglevel` (lightweight, level-filterable, browser+node):
+
+```ts
+// src/lib/logger.ts
+import log from 'loglevel';
+log.setDefaultLevel(import.meta.env.DEV ? 'debug' : 'warn');
+export const logger = log;
+```
+
+Usage:
+
+```ts
+import { logger } from '@/lib/logger';
+
+logger.info('User logged in', { userId });
+logger.error('Failed to fetch posts', err);
+```
+
+- Dev: full log (debug+)
+- Prod: chỉ warn + error
+- Sentry integration: gắn vào `logger.methodFactory` để forward error level (M14)
+
+#### Exception: bootstrap pre-logger
+
+Code chạy TRƯỚC khi logger init (vd: env validate fail) được phép `throw new Error(message)` — error message tự đủ thông tin, không cần `console.error` extra.
+
+#### Lint enforcement (defer T-006)
+
+ESLint rule `no-console` enable cho `src/` (allow trong `test/`).
+
 ### Imports
 
 Thứ tự (newline separator giữa các nhóm):

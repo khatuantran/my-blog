@@ -7,7 +7,8 @@ NestJS + Prisma + Passport JWT + Socket.io + Cloudinary.
 ```bash
 # Từ root repo
 pnpm install
-cp apps/api/.env.example apps/api/.env.local   # điền secrets thật
+cp apps/api/.env.example apps/api/.env         # điền secrets thật (dev)
+# Optional: cp apps/api/.env.example apps/api/.env.test  # override DATABASE_URL → :5433 cho test
 docker compose up -d                            # postgres-main + postgres-test
 pnpm --filter api prisma:generate               # generate Prisma client
 pnpm --filter api dev                           # nest start --watch → :3001

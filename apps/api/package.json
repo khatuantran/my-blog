@@ -11,15 +11,16 @@
     "lint:fix": "eslint . --fix",
     "test": "jest --passWithNoTests",
     "test:unit": "jest --testPathPattern=src --passWithNoTests",
-    "test:e2e": "jest --config tests/jest-e2e.json --passWithNoTests",
+    "test:e2e": "dotenv -e .env.test -- jest --config tests/jest-e2e.json --runInBand --passWithNoTests",
     "test:cov": "jest --coverage",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:studio": "dotenv -e .env.local -- prisma studio",
-    "db:seed": "dotenv -e .env.local -- prisma db seed",
-    "db:seed:test": "dotenv -e .env.test.local -- tsx prisma/seed-test.ts"
+    "prisma:studio": "prisma studio",
+    "db:seed": "prisma db seed",
+    "db:seed:test": "dotenv -e .env.test -- tsx prisma/seed-test.ts",
+    "test:e2e:migrate": "dotenv -e .env.test -- prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

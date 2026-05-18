@@ -100,11 +100,14 @@
   - Phase A ✅: T-065 primitives, T-062 PostContent, T-063 ImageGrid, T-064 FileAttachments, T-060 FeedPage + foundation, T-061 PostCard full.
   - Phase B ✅: T-066 PostDetailPage + MetaPanel + useTrackView, T-067 ImageCarousel, T-068 CommentForm post-as-anon, T-069 CommentItem + CommentList wire vào PostDetailPage.
   - Total **103 FE tests pass** (BE 227 + FE 103 = 330 tests).
-- **Next:**
-  - M9 FE Create Post + Admin Dashboard (T-070→T-079)
-  - Hoặc M10 Login + auth flow (T-090→T-093) — wire useAuth thật
-  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log)
-  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
+- **M9 in progress 🟡 (1/10 done):**
+  - ✅ **T-071** MoodPicker 7 emoji radio buttons (radiogroup a11y + active glow theo MOOD_CFG). 3 tests. Total **106 FE tests**.
+- **Next (M9 Phase A còn 5 tasks):**
+  - T-072 MarkdownEditor + toolbar B/I/code/h/link
+  - T-073 UploadZone Cloudinary direct upload
+  - T-074 TagInput chip + color cycle
+  - T-075 PostPreview live mini-card
+  - T-070 CreatePostPage assemble (close Phase A)
 
 ---
 

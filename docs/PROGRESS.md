@@ -17,7 +17,7 @@
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
 | M10 | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
 | M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
-| M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ⬜ Todo               |             |
+| M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | 🟡 Doing              | 2026-05-18  |
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 

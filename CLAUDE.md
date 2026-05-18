@@ -114,14 +114,15 @@ Trong TASKS.md template (và khi report cho user), mỗi task chỉ rõ:
    - **NFR:** API perf < 500ms p95 (Sentry transaction), Lighthouse ≥ 85 perf+a11y (cho page public), keyboard nav manual.
    - **Smoke curl/dev browser KHÔNG đủ** — phải có file test commit kèm trong cùng task.
 6. **Update Docs After**:
-   - `docs/TASKS.md` → status `DONE` + ngày + commit hash
+   - `docs/TASKS.md` → status `DONE` + ngày. **KHÔNG cần commit hash** — git log là source of truth, tra cứu qua `git log --grep "T-XXX"`. Tránh duplicate info + tránh chicken-and-egg (hash chưa tồn tại khi update docs).
    - `docs/PROGRESS.md` → cập nhật % + weekly log
    - `docs/CHANGELOG.md` → entry trong `[Unreleased] > Added`
    - `docs/contracts/openapi.yaml` → regenerate nếu touch BE controller/DTO
    - `apps/web/src/types/api.ts` → regenerate (`pnpm --filter web openapi:types`) nếu yaml change
    - `docs/DESIGN_SYSTEM.md` → sync spec nếu impl component khác design
-   - `docs/API_CONTRACT.md` → sync nếu response shape khác narrative
+   - `docs/API_CONTRACT.md` → **BẮT BUỘC** sync khi thêm/sửa endpoint: Notes column ghi rõ body shape + key response fields + status codes chính (KHÔNG để generic kiểu "Issue X" / "Remove Y"). Spec đầy đủ để FE đọc Notes là đủ implement, không cần đọc code BE.
    - `docs/DATA_MODEL.md` + `apps/api/docs/MIGRATIONS.md` → sync nếu migration thật khác design
+   - `docs/DEPLOYMENT.md` → sync khi thêm env var mới (kể cả stub cho `.env.test`), đổi script setup, đổi port/service mới
 7. **Commit** — `feat(<scope>): <subject>` + footer `Refs: T-XXX, UC-YY`.
 
 ---
@@ -164,8 +165,8 @@ Trong TASKS.md template (và khi report cho user), mỗi task chỉ rõ:
    - User-facing: Playwright E2E
    - Test name: `it('regression BUG-XXX: <description>', ...)`
 7. **Update Docs**:
-   - `docs/BUGS.md` → status `FIXED` + commit hash + file path regression test
-   - `docs/TASKS.md` → `DONE` + commit hash
+   - `docs/BUGS.md` → status `FIXED` + file path regression test (commit hash KHÔNG cần — git log là source of truth)
+   - `docs/TASKS.md` → `DONE` + ngày (KHÔNG cần commit hash)
    - `docs/PROGRESS.md` → log
    - `docs/CHANGELOG.md` → entry trong `[Unreleased] > Fixed`
 8. **Commit** — `fix(<scope>): <subject>` + footer `Fixes: BUG-XXX`.
@@ -331,7 +332,8 @@ Xem [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md).
 - [ ] Task có entry trong `docs/TASKS.md` với status `DOING` + `Flow` + `Affected layer` rõ ràng
 - [ ] FR/NFR + UC liên quan tồn tại trong `docs/REQUIREMENTS.md`
 - [ ] Nếu touch DB → `docs/DATA_MODEL.md` đã có model mới/sửa
-- [ ] Nếu touch API REST → `docs/API_CONTRACT.md` đã có endpoint mới/sửa
+- [ ] Nếu touch API REST → `docs/API_CONTRACT.md` đã có endpoint mới/sửa với Notes column chi tiết (body shape + key response fields + status codes — KHÔNG generic kiểu "Issue X")
+- [ ] Nếu thêm env var mới (kể cả `.env.test` stub) → `docs/DEPLOYMENT.md` Quick Start setup section đã update
 - [ ] Nếu touch WebSocket → `docs/API_CONTRACT.md > WebSocket Events` đã có event mới
 - [ ] Nếu touch UI screen → `docs/UI_DESIGN.md` đã có wireframe screen
 - [ ] Nếu touch UI component / token mới → `docs/DESIGN_SYSTEM.md` đã có spec
@@ -455,20 +457,20 @@ Xem chi tiết: [docs/INDEX.md > Doc Update Trigger](docs/INDEX.md).
 
 Nhanh:
 
-| Thay đổi                 | Doc cần update                                                    |
-| ------------------------ | ----------------------------------------------------------------- |
-| FR/NFR/UC                | `docs/REQUIREMENTS.md`                                            |
-| DB schema                | `docs/DATA_MODEL.md` + `apps/api/docs/MIGRATIONS.md`              |
-| REST endpoint            | `docs/API_CONTRACT.md` + regenerate `docs/contracts/openapi.yaml` |
-| WebSocket event          | `docs/API_CONTRACT.md > WebSocket Events`                         |
-| Screen                   | `docs/UI_DESIGN.md`                                               |
-| Component / token        | `docs/DESIGN_SYSTEM.md`                                           |
-| Pattern / architecture   | `docs/ARCHITECTURE.md` (+ ADR)                                    |
-| Convention               | `docs/CODING_CONVENTION.md`                                       |
-| Test strategy / E2E flow | `docs/TESTING_STRATEGY.md`                                        |
-| Env / deploy             | `docs/DEPLOYMENT.md`                                              |
-| Task xong                | `docs/TASKS.md` + `docs/PROGRESS.md` + `docs/CHANGELOG.md`        |
-| Bug phát hiện/fix        | `docs/BUGS.md` + `docs/CHANGELOG.md`                              |
+| Thay đổi                                                      | Doc cần update                                                                                                                       |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| FR/NFR/UC                                                     | `docs/REQUIREMENTS.md`                                                                                                               |
+| DB schema                                                     | `docs/DATA_MODEL.md` + `apps/api/docs/MIGRATIONS.md`                                                                                 |
+| REST endpoint mới/sửa                                         | `docs/API_CONTRACT.md` (Notes: body + key response fields + status codes — KHÔNG generic) + regenerate `docs/contracts/openapi.yaml` |
+| WebSocket event                                               | `docs/API_CONTRACT.md > WebSocket Events`                                                                                            |
+| Screen                                                        | `docs/UI_DESIGN.md`                                                                                                                  |
+| Component / token                                             | `docs/DESIGN_SYSTEM.md`                                                                                                              |
+| Pattern / architecture                                        | `docs/ARCHITECTURE.md` (+ ADR)                                                                                                       |
+| Convention                                                    | `docs/CODING_CONVENTION.md`                                                                                                          |
+| Test strategy / E2E flow                                      | `docs/TESTING_STRATEGY.md`                                                                                                           |
+| Env var mới (kể cả `.env.test` stub) / deploy / script / port | `docs/DEPLOYMENT.md` (Quick Start setup + Env matrix)                                                                                |
+| Task xong                                                     | `docs/TASKS.md` (DONE + ngày, không hash) + `docs/PROGRESS.md` + `docs/CHANGELOG.md`                                                 |
+| Bug phát hiện/fix                                             | `docs/BUGS.md` + `docs/CHANGELOG.md`                                                                                                 |
 
 **Rule:** Cross-cut nhiều file → update TẤT CẢ cùng commit, không tách lẻ.
 

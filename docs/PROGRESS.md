@@ -96,15 +96,18 @@
   - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
   - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **M8 in progress 🟡 (5/10 done):**
+- **M8 Phase A complete ✅ (6/10 done):**
   - ✅ **T-065** MoodBadge + TagPill + Avatar primitives.
   - ✅ **T-062** PostContent markdown renderer.
   - ✅ **T-063** ImageGrid + ImgSlot fallback.
-  - ✅ **T-064** FileAttachments + FILE_CFG + formatBytes.
-  - ✅ **T-060** FeedPage + foundation: API typed wrappers + query keys + hooks queries/mutations (useInfiniteQuery + optimistic like/save) + MSW test infra + FilterBar + PostList (IntersectionObserver). 8 tests. Total **68 FE tests**.
-- **Next (M8 Phase A còn 1 task → Phase B):**
-  - T-061 PostCard expand đầy đủ (header + ImageGrid + FileAttachments + tags + actions + LikeButton + SaveButton)
-  - Phase B: T-066 PostDetailPage, T-067 ImageCarousel, T-068 CommentForm, T-069 CommentItem
+  - ✅ **T-064** FileAttachments + FILE_CFG.
+  - ✅ **T-060** FeedPage + foundation (API typed wrappers + query keys + hooks + MSW).
+  - ✅ **T-061** PostCard full (PostHeader + content + ImageGrid + FileAttachments + tags + LikeButton/SaveButton local optimistic). 11 tests. Total **79 FE tests**.
+- **Next (M8 Phase B Post Detail):**
+  - T-066 PostDetailPage + MetaPanel + view tracking
+  - T-067 ImageCarousel
+  - T-068 CommentForm + post-as-anon
+  - T-069 CommentItem + like
 
 ---
 

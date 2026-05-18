@@ -1,9 +1,11 @@
-// PostCard — minimal stub cho T-060. T-061 sẽ implement đầy đủ
-// (header + images + files + tags + actions + like/save mutations).
-
 import { Link } from 'react-router';
-import { MoodBadge } from '@/components/shared/MoodBadge';
+import { PostHeader } from '@/components/post/PostHeader';
 import { PostContent } from '@/components/post/PostContent';
+import { ImageGrid } from '@/components/post/ImageGrid';
+import { FileAttachments } from '@/components/post/FileAttachments';
+import { TagPill } from '@/components/shared/TagPill';
+import { LikeButton } from './LikeButton';
+import { SaveButton } from './SaveButton';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -11,25 +13,80 @@ type Props = {
   delay?: number;
 };
 
+// Full PostCard match design-file/MyBlog Feed.html:186-269.
+// Container hover: cyan border + glow + top gradient line.
 export function PostCard({ post, delay = 0 }: Props) {
   return (
     <article
-      className="relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 animate-fade-up"
+      className="post-card-hover group relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up hover:border-cyan/45 hover:shadow-glow-cyan-lg"
       style={{ animationDelay: `${delay}ms` }}
       data-testid={`post-card-${post.id}`}
     >
+      {/* Top gradient line on hover */}
+      <span
+        aria-hidden="true"
+        className="absolute left-0 right-0 top-0 h-px opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+        style={{ background: 'linear-gradient(90deg,transparent,rgba(0,255,229,.35),transparent)' }}
+      />
+
+      {/* Corner deco */}
       <span className="absolute right-3.5 top-2.5 font-mono text-mono-xs text-b2">
         #{post.id.slice(-6)}
       </span>
-      <div className="mb-2 flex items-center justify-between">
-        <Link to={`/post/${post.id}`} className="font-mono text-mono-sm text-blu hover:underline">
-          ~/{post.author.username}
-        </Link>
-        <MoodBadge mood={post.mood} />
+
+      <PostHeader post={post} />
+
+      <PostContent content={post.content} variant="card" />
+
+      <ImageGrid images={post.images} />
+      <FileAttachments files={post.files} />
+
+      {post.tags.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {post.tags.map((t) => (
+            <TagPill key={t.id} name={t.name} color={t.color} />
+          ))}
+        </div>
+      )}
+
+      {/* Divider */}
+      <div
+        className="mb-2.5 overflow-hidden whitespace-nowrap font-mono text-[10px] text-b1"
+        style={{ letterSpacing: '2px' }}
+        aria-hidden="true"
+      >
+        ────────────────────────────────────────
       </div>
-      <PostContent content={post.content} />
-      <div className="text-mono-xs font-mono text-td">
-        ♡ {post.counts.likes} · 💬 {post.counts.comments} · 👁 {post.viewCount}
+
+      {/* Actions */}
+      <div className="flex items-center gap-0.5">
+        <LikeButton postId={post.id} liked={!!post.liked} count={post.counts.likes} />
+        <Link
+          to={`/post/${post.id}`}
+          className="flex items-center gap-1 rounded-sm px-2.5 py-1 font-mono text-mono text-tm no-underline transition-colors hover:bg-elev hover:text-tp"
+          aria-label={`View ${post.counts.comments} comments`}
+        >
+          <span className="text-sm">💬</span>
+          <span>{post.counts.comments}</span>
+        </Link>
+        <SaveButton postId={post.id} saved={!!post.saved} />
+        <button
+          type="button"
+          aria-label="Share post (placeholder)"
+          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
+        >
+          <span>↗</span>
+          <span>Share</span>
+        </button>
+        <div className="ml-auto">
+          <button
+            type="button"
+            aria-label="More actions"
+            className="rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer hover:bg-elev hover:text-tp"
+          >
+            ⋯
+          </button>
+        </div>
       </div>
     </article>
   );

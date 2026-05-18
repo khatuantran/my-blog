@@ -100,7 +100,11 @@ export async function apiFetch<T>(path: string, init: ApiFetchInit = {}): Promis
   if (res.status === 401 && shouldAttemptRefresh(path, skipRefresh)) {
     const refreshed = await performRefresh(baseUrl);
     if (refreshed) {
-      res = await doFetch(url, fetchInit);
+      // Skip retry nếu caller signal đã aborted (component unmounted / query cancelled).
+      const aborted = fetchInit.signal?.aborted ?? false;
+      if (!aborted) {
+        res = await doFetch(url, fetchInit);
+      }
     } else {
       emitLogoutEvent();
     }

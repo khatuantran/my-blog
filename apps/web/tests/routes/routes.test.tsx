@@ -80,7 +80,7 @@ describe('App router', () => {
 
   it('renders LoginPage at /auth/login với AuthLayout (no shell)', async () => {
     renderAt('/auth/login');
-    expect(await screen.findByText(/auth.login coming soon/i)).toBeInTheDocument();
+    expect(await screen.findByLabelText('Username')).toBeInTheDocument();
     expect(document.querySelector('[data-slot="topbar"]')).toBeNull();
     expect(document.querySelector('[data-slot="statusbar"]')).toBeNull();
   });

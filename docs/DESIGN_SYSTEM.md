@@ -445,6 +445,126 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Header:** bg `--bg`, border-bottom `--b1`, padding `space-4`, contains logo + version + path with blinking cursor
 - **Form padding:** `space-5 space-5 space-6`
 
+### EmojiPicker (Create Post — M11.5 FR-02.7)
+
+- **Trigger:** 😀 button trên MarkdownEditor toolbar
+- **Popover:** width 320px, absolute positioned below button, z-50, border `--b2`, bg `--surf`, radius `radius-lg`, shadow lg
+- **Header:** 4 tab buttons (faces / hands / dev / nature) — active border-bottom `--cyan` 2px + text `--cyan`
+- **Body:** grid 8-col emoji buttons 32×32px, hover bg `cyan/10` + border cyan
+- **Data:** mỗi tab 16 emoji exact list từ design-file/MyBlog Create Post.html L186-189
+- **Behavior:** click emoji → call `insertAtCursor(textareaRef, emoji)` (reuse `lib/insert-at-cursor.ts`). Close on outside-click hoặc Esc.
+
+### EditProfileDrawer (Profile — M11.5 FR-11.3)
+
+- **Trigger:** self click `[ ✎ Edit Profile ]` button trên ProfilePage hero
+- **Surface:** slide-in từ phải 420px width, full height, bg `--surf`, border-left `--b2`. Backdrop `rgba(0,0,0,.6)` blur 4px overlay
+- **Animation:** slide-in 280ms ease-out + backdrop fade 200ms
+- **Sections (2 stacked):**
+  1. `// profile` — title input (max 80) + bio textarea (max 500 markdown) + SkillChipInput (max 20)
+  2. `// security` — current password + new password + confirm password
+- **Submit:** mỗi section có button riêng → mutation riêng (PATCH /users/:id vs POST /auth/change-password)
+- **Close:** Esc, backdrop click, hoặc `[ × ]` close button top-right
+
+### SkillChipInput (Edit Profile drawer — M11.5)
+
+- **Style:** flex-wrap container border `--b2` radius `radius-md`, padding `space-2`
+- **Chip:** name + 8px color circle swatch + × remove button. Color cycle qua TAG_COLORS palette (7 colors, index modulo)
+- **Input:** bottom of container, placeholder `❯ add skill...`. Enter/comma → add chip
+- **Constraints:** max 20 chips, name max 32 chars, color hex regex `/^#[0-9A-Fa-f]{6}$/`
+- **Counter:** footer `// max 20 · N used`
+
+### TagCard (Tags page — M11.5 FR-10.3)
+
+- **Surface:** `--surf` + border `--b2` + radius `radius-md` + padding `space-4` + hover border `--cyan` + glow shadow
+- **Layout (grid view):** name `#code` + color swatch (8px circle) inline + post count badge top-right
+- **Body:** description text-sm `--tm` (truncate 1 line, ellipsis), optional
+- **Footer:** Sparkline 7d mini (60×16) + progress bar 4px height (% so với max tag postCount across all)
+- **Admin overlay (hover):** top-right `✎ Edit` + `🗑 Delete` icon buttons, opacity 0 → 1 transition
+- **Click:** navigate `/?tag=name` Feed
+- **List variant:** flex-row layout (name + count + sparkline trên 1 hàng)
+
+### TagModal (Tags page create/edit — M11.5 FR-10.4)
+
+- **Surface:** centered modal width 480px, bg `--elev`, border `--b2`, radius `radius-lg`, shadow xl
+- **Header:** `// create.tag` hoặc `// edit.tag` (variant prop)
+- **Fields:**
+  - Name (required, lowercase, auto-prefix `#`, unique check qua API 409)
+  - Color picker — swatch grid (7 từ TAG_COLORS palette + custom hex input)
+  - Description textarea max 280 chars + counter
+  - Preview chip — live render `<TagPill>` với current values
+- **Actions:** `[ Cancel ]` (close) + `[ Create ]` hoặc `[ Save ]` (submit)
+- **Error states:** inline banner cho 409 DUPLICATE_TAG, 400 validation
+- **Behavior:** Esc close, backdrop click close (confirm nếu dirty)
+
+### BigSearchInput (Search page hero — M11.5 FR-12.4)
+
+- **Style:** full-width centered, max-w 720px, height 56px, padding `space-3 space-12 space-3 space-12`, border `--b2`, radius `radius-lg`, bg `--bg`, font 22px JetBrains Mono
+- **Prefix:** `❯` icon left 16px, `--cyan`
+- **Suffix:** `×` clear button right (hiển thị khi value non-empty)
+- **Focus:** border `--cyan` + glow shadow lg `--cyan-40`
+- **Placeholder:** `search posts, #tags, files...` italic `--tm`
+
+### FilterChip (Search filters — M11.5 FR-12.4)
+
+- **Style:** inline-flex, padding `space-1 space-3`, border `--b2`, radius `radius-sm`, bg `--surf`, font-mono 11px `--tm`
+- **States:**
+  - default: `--b2` + `--tm`
+  - hover: `--b3` + `--ts`
+  - active: `--cyan` border 50% + bg cyan 8% + text `--cyan` + glow sm
+- **Use:** Search page (All/Saved/Files + 5 mood emoji chips)
+- **Toggle behavior:** single-select trong group hoặc multi-select tuỳ context
+
+### ResultCard (Search result — M11.5 FR-12.4)
+
+- **Style:** compact PostCard variant — surface `--surf` border `--b2` radius `radius-md` padding `space-3`
+- **Layout:** author row + content body (3-line clamp) + tags row + actions footer
+- **Highlight match:** content text split theo regex `new RegExp(q, 'gi')` → wrap matched substring trong `<mark>` styled `bg-cyan/30 text-cyan` (KHÔNG `dangerouslySetInnerHTML`)
+- **Click:** navigate `/post/:id`
+
+### HeatmapGrid (Profile sidebar — M11.5 FR-11.4)
+
+- **Layout:** 4 rows × 7 cols (28 cells total), gap 3px, cell 12×12px radius 2px
+- **Color scale:** 4 intensity levels theo count quartile:
+  - 0 → `--b1` (`#1A1F2E`)
+  - 1 → `--b2` (`#2A3548`)
+  - 2 → cyan 35% (`#00FFE535`)
+  - 3+ → cyan 90% (`#00FFE590`)
+- **Hover:** tooltip `{date} · {count} posts`
+- **Day labels:** optional left column `M/T/W/T/F/S/S` text-mono-xs `--td`
+
+### ProfileAvatar (Profile hero — M11.5 FR-11.1)
+
+- **Variant của Avatar:** size prop (default 88px)
+- **Rotating ring:** SVG circle stroke `--cyan` 2px, dasharray gap, animation `spin 4s linear infinite`
+- **Inner avatar:** gradient bg (cyan→purple 20% opacity) + initial char letter `--cyan` font-brand bold
+- **Status dot:** absolute bottom-right green pulse (reuse online indicator)
+
+### StatSparkline (Profile stats inline — M11.5 FR-11.4)
+
+- **Variant của Sparkline (T-077):** size 60×20 compact, color prop (theo metric: cyan/mag/pur/grn)
+- **Use:** inline với stat label trong hero stats row hoặc sidebar mini stats
+
+### TabButtons (Profile tabs — M11.5 FR-11.1)
+
+- **Style:** flex-row border-bottom `--b2`, mỗi button padding `space-2 space-4`, font-mono 12px `--tm`, border-bottom 2px transparent
+- **Active:** color `--cyan` + border-bottom `--cyan`
+- **Hover (not active):** color `--ts`
+- **Use:** Profile 4 tabs (Posts/Saved/Activity/About). URL state qua `?tab=`
+
+### SegmentedToggle (Tags view toggle — M11.5)
+
+- **Style:** flex-row, 2 button group, border `--b2` radius `radius-sm`, padding 2px
+- **Item:** padding `space-1 space-2`, font-mono 11px, transparent bg
+- **Active:** bg `--elev` + text `--cyan`
+- **Use:** Tags page grid/list toggle, future filter UIs
+
+### ConfirmDialog (Delete confirm — M11.5)
+
+- **Surface:** centered modal width 400px, bg `--elev`, border `--red` 30%, radius `radius-md`, shadow xl
+- **Header:** icon ⚠️ + title `// confirm.delete`
+- **Body:** warning text describing impact (vd `"5 posts use this tag. Are you sure?"`)
+- **Actions:** `[ Cancel ]` (close) + `[ Delete ]` (red, submit). Khi destructive action có dependency → double-confirm pattern (`[ Force Delete ]` second click)
+
 ---
 
 ## Patterns

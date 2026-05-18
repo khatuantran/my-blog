@@ -4,6 +4,18 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Changed
+
+- **F2 spec for M11.5 — Tags / Profile / Search / Create Post enhance (2026-05-18, docs only):** User update design files với 3 screen mới (Profile/Search/Tags) + Create Post emoji picker + Saved standalone route + TopBar search submit pattern. F2 (New Requirement) flow execute trên 6 doc:
+  - `docs/REQUIREMENTS.md`: thêm FR-10 Tags Module / FR-11 User Profile / FR-12 Full-text Search + expand FR-02.7 emoji picker / FR-04.6 sort dropdown / FR-05.2 copy-link wire / FR-07.4 moderation queue / FR-08.4 CommandPalette nav fix. Thêm UC-13/14/15. Glossary: Skill, Heatmap. Traceability matrix thêm 3 row.
+  - `docs/DATA_MODEL.md`: User.title (max 80) + User.bio (Text max 500 markdown) + User.skills (Json `{name,color}[]` max 20) + Tag.description (max 280) + Tag.createdAt. Migration `add_user_profile_fields_and_tag_description` planned (v0.3.0-alpha section).
+  - `docs/API_CONTRACT.md`: thêm `POST /auth/change-password` + `GET /users/by-username/:username` + `GET /users/:id/stats` + `PATCH /users/me` body extend + `GET /tags` query params + sparkline + `DELETE /tags/:id?force=` + `GET /admin/comments` queue + `GET /search` (multi-table ILIKE) + rate limit entries.
+  - `docs/UI_DESIGN.md`: Screen 7 Profile (hero + 4 tabs + sidebar + EditProfileDrawer) + Screen 8 Search (hero + filter chips + result grid + sidebar) + Screen 9 Tags (4 stat cards + toolbar + TagCard grid/list + TagModal admin) + Screen 10 Saved (reuse Feed). TopBar `hideSearch` prop + form onSubmit navigate. CommandPalette fix `n-saved`/`r-search` routes + thêm n-tags/n-profile entries.
+  - `docs/DESIGN_SYSTEM.md`: 14 component mới — EmojiPicker, EditProfileDrawer, SkillChipInput, TagCard, TagModal, BigSearchInput, FilterChip, ResultCard, HeatmapGrid, ProfileAvatar, StatSparkline, TabButtons, SegmentedToggle, ConfirmDialog.
+  - `docs/TASKS.md`: M11.5 backlog 17 task (4 quick wins T-200..T-203 + 3 Tags T-210/211/212 + 4 Profile T-220..T-223 + 5 Search T-230..T-234 + 1 emoji T-240).
+  - `docs/PROGRESS.md`: thêm M11.5 row, tổng milestone 11/15 (73%).
+  - **F2 STOP:** docs xong, chưa implement code. User pick task đầu tiên (Wave 1 quick wins hoặc Wave 2 Tags BE T-210).
+
 ### Added
 
 - **T-114** GitHub Actions CI matrix (close M12): `.github/workflows/ci.yml` 5 jobs với pnpm cache + Node 24. (1) lint-typecheck root, (2) web-unit `pnpm --filter web test:unit -- --coverage` + upload coverage artifact, (3) api-unit `pnpm --filter api test -- --coverage` + artifact, (4) api-integration với postgres:16 service container :5433 + env stub (JWT/Cloudinary), runs `prisma migrate deploy` then `test:e2e`, (5) e2e depends 4 jobs trên — postgres service + ALLOW_TEST_RESET=1 + `playwright install --with-deps chromium` (cached `~/.cache/ms-playwright`) + `prisma migrate deploy` + `playwright test --project=chromium`, upload `playwright-report/` artifact on failure (7 days retention). Concurrency group `ci-${{ ref }}` cancel-in-progress. `tsconfig.e2e.json` cover `playwright.config.ts` + `e2e/**/*.ts` cho typecheck. Add `@types/node` ở root. Fix specs: dùng `request as pwRequest` từ `@playwright/test` cho isolated HTTP contexts thay vì `request.newContext()` trên fixture. M12 ✅ Done (5/5 task) — milestone tỉ lệ **79% (11/14)**.

@@ -30,15 +30,17 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Glossary
 
-| Term            | Definition                                                                                          |
-| --------------- | --------------------------------------------------------------------------------------------------- |
-| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY) |
-| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                     |
-| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                    |
-| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                         |
-| Activity        | Sự kiện như like/comment/save/new-session — hiển thị trong Admin activity log                       |
-| Command Palette | Overlay ⌘K cho quick navigation/actions                                                             |
-| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                 |
+| Term            | Definition                                                                                                        |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)               |
+| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                   |
+| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                  |
+| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                                       |
+| Activity        | Sự kiện như like/comment/save/new-session — hiển thị trong Admin activity log                                     |
+| Command Palette | Overlay ⌘K cho quick navigation/actions                                                                           |
+| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                               |
+| Skill           | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`) |
+| Heatmap         | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity      |
 
 ## Use Cases
 
@@ -179,6 +181,50 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   4. Press ↵ chọn → execute (navigate hoặc action)
 - **Postcondition:** Navigate hoặc trigger action
 
+### UC-13: Browse tags + Admin quản lý tag
+
+- **Actor:** USER/ANON (browse) + ADMIN (manage)
+- **Precondition:** Có ≥1 tag trong DB
+- **Main flow:**
+  1. Click "Tags" trong CommandPalette hoặc trực tiếp `/tags`
+  2. Trang hiển thị 4 stat cards (Total tags / Tagged posts / Most used / Recently added) + toolbar (search + sort + grid/list toggle)
+  3. Grid TagCard hiển thị: name + color swatch + description + post count + 7-day sparkline + progress bar
+  4. Click TagCard → navigate `/?tag=name` (Feed filtered)
+- **Alternative (ADMIN):**
+  - Click `[ + New Tag ]` → TagModal (name + color picker + description) → submit POST /tags
+  - Hover TagCard → `✎ Edit` / `🗑 Delete` actions
+  - Delete: nếu tag đã gán post → cảnh báo count, double-confirm
+- **Postcondition:** Tag list cập nhật + cache invalidate
+
+### UC-14: User xem profile + edit own profile
+
+- **Actor:** Tất cả role (xem) + Self (edit)
+- **Precondition:** User tồn tại
+- **Main flow:**
+  1. Navigate `/profile/:username` hoặc `/me` (auto-redirect tới `/profile/:ownUsername`)
+  2. Trang render hero (avatar rotating ring + name + role + title + bio + stats inline) + 4 tabs (Posts/Saved/Activity/About) + right sidebar (about + skills + mood.breakdown + heatmap28d + tags.used)
+  3. Self: click `[ ✎ Edit Profile ]` → drawer slide-in (title + bio + skills chip input + change password section)
+  4. Submit profile section → PATCH /users/:selfId
+  5. Submit security section → POST /auth/change-password (verify current pw + token rotation)
+- **Alternative:**
+  - Saved tab: chỉ self/admin thấy (privacy)
+  - Tab state qua `?tab=` query param
+- **Postcondition:** Profile mới sync hiển thị
+
+### UC-15: Anonymous/User search bài viết
+
+- **Actor:** Tất cả role
+- **Precondition:** Bài viết có content khớp query
+- **Main flow:**
+  1. Type query vào TopBar search input → Enter
+  2. Navigate `/search?q=…` (TopBar tự ẩn search input trên trang Search để tránh duplicate)
+  3. Hero search input + filter chips (All/Saved/Files + 5 mood emoji)
+  4. Postgres ILIKE multi-table → result cards với highlight match
+  5. Right sidebar: 4 stat cards + mood shortcuts + recent.searches + browse.tags
+  6. Click tag pivot → navigate `/?tag=` feed
+- **Alternative:** Empty query → default browse view với stats only
+- **Postcondition:** Recent searches lưu localStorage (max 10, FIFO dedupe)
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -203,9 +249,11 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-02.4:** `mood` ∈ {HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY}
 - **FR-02.5:** Upload file: max 20 files/bài, ≤ 20MB each, format PDF/DOC/DOCX/XLS/XLSX/TXT/CSV (Cloudinary signed upload)
 - **FR-02.6:** Content support markdown (paragraph, bold, italic, code block, link, heading)
+- **FR-02.7:** Emoji picker tích hợp trong MarkdownEditor toolbar — 4 nhóm (faces / hands / dev / nature) × 16 emoji mỗi nhóm = 64 emoji. Click emoji insert vào textarea tại cursor position. Popover close on Esc hoặc outside-click.
 - **Acceptance:**
   - Given admin có bài với 10 ảnh + 20 file + 5 tag + content 10000 ký tự → When publish → Then bài hiển thị đầy đủ ở Feed
   - Given non-admin user → When call `POST /posts` → Then nhận 403 FORBIDDEN
+  - Given admin click 😀 toolbar button → Then EmojiPicker hiện 4 tab, click 🚀 → Then `🚀` insert tại cursor position trong textarea
 - **Linked UCs:** UC-01
 - **Linked Tests:** E2E-02, E2E-03, E2E-11
 
@@ -230,6 +278,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-04.3:** Filter theo mood (single select) hoặc tag (click vào TagPill)
 - **FR-04.4:** Post Detail tại `/post/[id]` — full content + ImageCarousel (prev/next + dot indicator)
 - **FR-04.5:** View tracking — increment `Post.viewCount` 1 lần / 30 phút / session (dedupe via cookie hoặc userId)
+- **FR-04.6:** Sort dropdown FilterBar (Latest / Oldest / Most liked) — `GET /posts?sort=latest|oldest|likes`
 - **Acceptance:**
   - Given feed có 25 bài → When load → Then 10 bài đầu hiển thị, scroll → load 10 tiếp
   - Given filter `mood=HAPPY` → Then chỉ hiển thị bài mood HAPPY
@@ -240,10 +289,10 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 ### FR-05: Share
 
 - **FR-05.1:** Share lên Facebook, X (Twitter), Telegram
-- **FR-05.2:** Copy link clipboard
+- **FR-05.2:** Copy link clipboard — MetaPanel "Copy link" button → `navigator.clipboard.writeText` + toast confirm
 - **FR-05.3:** Open Graph meta tags cho preview link (title, description, image, type)
 - **Acceptance:**
-  - Given click "Copy link" → Then clipboard chứa URL `https://<domain>/post/<id>`
+  - Given click "Copy link" → Then clipboard chứa URL `https://<domain>/post/<id>` + toast `// link copied`
   - Given paste link vào Facebook/X → Then preview hiển thị title + image
 - **Linked UCs:** UC-06
 - **Linked Tests:** E2E-07
@@ -279,7 +328,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-08.1:** Press ⌘K (Mac) hoặc Ctrl+K (Win/Linux) → overlay xuất hiện
 - **FR-08.2:** Filter actions/nav theo query string
 - **FR-08.3:** Keyboard navigation (↑↓ + ↵ + Esc)
-- **FR-08.4:** Groups: `navigate` (Feed, Saved, Tags, Admin, Create Post) + `actions` (Toggle theme, Logout)
+- **FR-08.4:** Groups: `navigate` (Feed, Saved, Tags, Profile, Search, Admin, Create Post) + `actions` (Toggle theme, Logout). Tags + Profile + Search + Saved fix wire đúng route (không `to: '/'`)
 - **Acceptance:**
   - Given user trên `/` → When press ⌘K → Then overlay xuất hiện trong < 100ms
   - Given query "post" → Then chỉ items match được show
@@ -299,6 +348,54 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Given anonymous mới truy cập `/` → Within 2s online count tăng cho mọi viewer
 - **Linked UCs:** UC-04, UC-11
 - **Linked Tests:** E2E-12
+
+### FR-10: Tags Module
+
+- **FR-10.1:** Public `/tags` browse — list all tags với `postCount + sparkline7d` (last 7 days post-create-with-tag count). 4 stat cards top (Total tags / Tagged posts / Most used / Recently added).
+- **FR-10.2:** Toolbar — search input (filter by name substring) + sort dropdown (Name / Posts / Recent) + grid/list view toggle.
+- **FR-10.3:** TagCard: name + color swatch + description (optional max 280 chars) + postCount + sparkline mini + progress bar % so với max. Click navigate `/?tag=name` Feed.
+- **FR-10.4:** Admin (single route `/tags` conditional UI) — `[ + New Tag ]` button → TagModal (name + color picker từ TAG_COLORS palette + description textarea + preview chip). Edit + Delete actions trên TagCard hover overlay. Delete confirm dialog (warn count posts → double-confirm).
+- **FR-10.5:** Backend `Tag.description` field nullable max 280 chars + `GET /tags?sort=&q=` + response trả `postCount + sparkline7d`.
+- **Acceptance:**
+  - Given có 15 tags → When user vào `/tags` → Then thấy 15 TagCard + 4 stat cards
+  - Given non-admin user → When click TagCard → Then navigate `/?tag=name` (chỉ navigation, không edit)
+  - Given admin click `+ New Tag` → submit form valid → Then tag mới xuất hiện trong list, cache invalidate
+  - Given admin click Delete trên tag có 5 post → Then dialog "5 posts use this tag" + require double-confirm
+- **Linked UCs:** UC-13
+- **Linked Tests:** E2E (defer add)
+
+### FR-11: User Profile
+
+- **FR-11.1:** Public `/profile/:username` — hero (avatar rotating ring 88px + name + role badge + title + bio + stats inline `42 posts · 287 likes · 1.2k views`) + 4 tabs (Posts/Saved/Activity/About) + right sidebar (about + skills.top + mood.breakdown + activity.28d heatmap + tags.used).
+- **FR-11.2:** Self `/me` → redirect `/profile/:ownUsername`. Avatar dropdown link "Profile" wire đúng route.
+- **FR-11.3:** Self edit drawer (slide-in 420px) — sections: profile (title max 80, bio max 500 markdown, skills `{name,color}[]` chip input max 20) + security (POST /auth/change-password với current + new + confirm). Backdrop + Esc close.
+- **FR-11.4:** Stats endpoint `GET /users/:id/stats` trả: postsCount, likesReceived, commentsReceived, viewsTotal, streak (distinct post-created days liên tiếp), heatmap28d, moodBreakdown (zero-fill 7), tagsUsed (top 8).
+- **FR-11.5:** Saved tab visible CHỈ self/admin (privacy). Tab state qua `?tab=posts|saved|activity|about`.
+- **FR-11.6:** Backend migration: User thêm `title String?` (80) + `bio String? @db.Text` (500 markdown) + `skills Json @default("[]")` shape `{name,color}[]`. Endpoint mới `GET /users/by-username/:username` + `GET /users/:id/stats` + `POST /auth/change-password`.
+- **Acceptance:**
+  - Given user X có 42 posts → When vào `/profile/X` → Then hero stats hiển thị `42 posts`
+  - Given self click Edit Profile → drawer mở, sửa title → submit → Then PATCH /users/:selfId thành công + drawer đóng + hero re-render
+  - Given self click change password với current pw sai → Then 401 INVALID_CREDENTIALS, drawer giữ open
+  - Given guest xem `/profile/admin` → Then Saved tab KHÔNG hiện (chỉ Posts/Activity/About)
+- **Linked UCs:** UC-14
+- **Linked Tests:** E2E (defer add)
+
+### FR-12: Full-text Search
+
+- **FR-12.1:** `GET /search?q=&type=all|posts|files|tags&mood=&page=&limit=` — Postgres ILIKE multi-table (`Post.content` + `Tag.name` substring + `File.name`). Empty q → trả `stats` toàn cục, không chạy ILIKE.
+- **FR-12.2:** Response shape: `{ posts: PaginatedPosts, files: { id, name, postId, type }[], tags: Tag[], stats: { totalPosts, withImages, withFiles, savedCount } }`. Authed user thấy `saved` flag per post.
+- **FR-12.3:** Throttle 30 req/min/IP cho `/search` qua existing ThrottleGuard.
+- **FR-12.4:** FE `/search?q=…` page — BigSearchInput hero + filter chips (All/Saved/Files + 5 mood emoji) + result grid với highlight match (`<mark>` styled cyan bg). Empty state `// no results for "{q}" — try different keywords`.
+- **FR-12.5:** TopBar search input wrap form, onSubmit navigate `/search?q={encodeURIComponent(value.trim())}`. `TopBar` prop `hideSearch?: boolean` — AppLayout sniff route `/search` → set true (avoid duplicate search bar).
+- **FR-12.6:** Right sidebar — 4 stat cards (Total/Images/Files/Saved) + filter.by.mood + recent.searches (localStorage 10 dedupe FIFO) + browse.tags (click → navigate `/?tag=`).
+- **FR-12.7:** Debounce input 250ms → update URL query → refetch. SEO `<meta name="robots" content="noindex">` trên `/search`.
+- **Acceptance:**
+  - Given có post `content="hello world"` → When search `q=hello` → Then post xuất hiện với `<mark>hello</mark> world`
+  - Given user trên `/search` → Then TopBar KHÔNG hiển thị search input (hideSearch=true)
+  - Given user gõ 31 request/phút → Then request thứ 31 nhận 429 THROTTLED
+  - Given empty q → Then trả `stats` toàn cục + `posts.items = []`
+- **Linked UCs:** UC-15
+- **Linked Tests:** E2E (defer add)
 
 ## Non-Functional Requirements
 
@@ -333,6 +430,9 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 | FR-07 | UC-07, UC-08, UC-11 | E2E-09, E2E-10, E2E-12 | AdminModule                  | AdminPage                                       |
 | FR-08 | UC-12               | E2E-13                 | — (pure FE)                  | CommandPalette                                  |
 | FR-09 | UC-04, UC-11        | E2E-12                 | RealtimeGateway              | useWebSocket hook, Activity feed components     |
+| FR-10 | UC-13               | E2E (defer)            | TagsModule                   | TagsPage, TagCard, TagModal                     |
+| FR-11 | UC-14               | E2E (defer)            | UsersModule, AuthModule      | ProfilePage, EditProfileDrawer                  |
+| FR-12 | UC-15               | E2E (defer)            | SearchModule (new)           | SearchPage, BigSearchInput, ResultCard          |
 
 ---
 

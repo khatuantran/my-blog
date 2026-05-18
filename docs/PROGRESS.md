@@ -4,24 +4,25 @@
 
 ## Milestone
 
-| #   | Milestone                                                                         | Trạng thái            | Ngày target |
-| --- | --------------------------------------------------------------------------------- | --------------------- | ----------- |
-| M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done               | 2026-05-17  |
-| M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done               | 2026-05-17  |
-| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done               | 2026-05-17  |
-| M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done               | 2026-05-18  |
-| M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
-| M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
-| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
-| M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
-| M9  | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
-| M10 | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
-| M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
-| M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
-| M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
-| M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
+| #     | Milestone                                                                         | Trạng thái            | Ngày target |
+| ----- | --------------------------------------------------------------------------------- | --------------------- | ----------- |
+| M1    | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done               | 2026-05-17  |
+| M2    | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done               | 2026-05-17  |
+| M3    | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done               | 2026-05-17  |
+| M4    | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done               | 2026-05-18  |
+| M5    | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
+| M6    | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
+| M7    | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
+| M8    | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
+| M9    | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
+| M10   | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
+| M11   | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
+| M11.5 | Tags / Profile / Search / Create Post enhance (F2 spec done — 17 tasks pending)   | ⬜ Todo               |             |
+| M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
+| M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
+| M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 79% (11/14 milestone)
+## Tỉ lệ hoàn thành: 73% (11/15 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -114,11 +115,25 @@
   - T-094 Avatar dropdown wire Logout + guest variant.
   - T-091 RegisterPage skeleton.
   - Total **181 FE tests pass** (BE 227 + FE 181 = **408 tests** project-wide).
+- **M12 complete ✅ (5/5 done):**
+  - T-110 BE unit audit + cloudinary gap-fill (112 BE unit).
+  - T-111 BE integration audit (123 BE integration, 28 endpoints all happy+negative).
+  - T-112 FE unit audit + use-like/use-save/saved.ts gap-fill (188 FE unit).
+  - T-113 Playwright scaffolding + 13 specs (8 functional, 5 skip with reason) + `POST /admin/test-reset` endpoint env-gated.
+  - T-114 GitHub Actions CI matrix 5 jobs (lint-typecheck + web-unit + api-unit + api-integration + e2e với postgres service + Playwright browser cache).
+- **M11.5 F2 spec ✅ (docs only, 17 tasks pending F1):**
+  - Add FR-10 Tags Module + FR-11 User Profile + FR-12 Full-text Search + FR-02.7 EmojiPicker + FR-04.6 sort + FR-05.2 copy-link wire + FR-07.4 moderation queue wire (REQUIREMENTS.md).
+  - Add UC-13/14/15 (REQUIREMENTS.md Use Cases).
+  - DATA_MODEL: User thêm title/bio/skills (Json `{name,color}[]`) + Tag thêm description/createdAt.
+  - API_CONTRACT: thêm `/auth/change-password`, `/users/by-username/:username`, `/users/:id/stats`, `/tags` query params + DELETE force, `/admin/comments` queue, `/search` endpoint.
+  - UI_DESIGN: Screen 7 Profile + Screen 8 Search + Screen 9 Tags + Screen 10 Saved + TopBar `hideSearch` prop + CommandPalette fix routes.
+  - DESIGN_SYSTEM: 10 components mới (EmojiPicker, EditProfileDrawer, SkillChipInput, TagCard, TagModal, BigSearchInput, FilterChip, ResultCard, HeatmapGrid, ProfileAvatar, StatSparkline, TabButtons, SegmentedToggle, ConfirmDialog).
+  - TASKS: M11.5 backlog 17 task (T-200..T-203 quick wins + T-210/211/212 Tags + T-220..T-223 Profile + T-230..T-234 Search + T-240 emoji).
 - **Next:**
-  - M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042
-  - Hoặc M12 Testing E2E Playwright
-  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
-  - Hoặc M14 Monitoring (Sentry + Fly metrics)
+  - M11.5 F1 execute (pick task đầu tiên từ Wave 1 quick wins hoặc Wave 2 F2-A Tags).
+  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042.
+  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon).
+  - Hoặc M14 Monitoring (Sentry + Fly metrics).
 
 ---
 

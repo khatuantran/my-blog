@@ -33,23 +33,27 @@ Tất cả page (trừ Login) dùng **shared layout**:
 
 ### TopBar (52px, fixed top, z-100)
 
-| Element        | Detail                                                                                                                   |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Logo           | SVG `< >` brackets (cyan/purple) + text `kha.blog` (Space Grotesk 700, "." cyan, "blog" muted), glitch animation 9s loop |
-| Search input   | Centered (440px max), placeholder `~$ search posts, tags, users...`, JetBrains Mono 13px                                 |
-| ⌘K hint button | Right end of search input — click open Command Palette                                                                   |
-| Version badge  | `[ v0.1.0 ]` (JetBrains Mono 10px, border muted)                                                                         |
-| Online count   | `● N` (green pulse + count)                                                                                              |
-| Avatar         | 32px circle, gradient bg (cyan→purple), border cyan, online dot bottom-right. Click → dropdown menu                      |
+| Element        | Detail                                                                                                                                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Logo           | SVG `< >` brackets (cyan/purple) + text `kha.blog` (Space Grotesk 700, "." cyan, "blog" muted), glitch animation 9s loop                                                                                           |
+| Search input   | Centered (440px max), placeholder `~$ search posts, tags, users...`, JetBrains Mono 13px. **Wrap trong `<form onSubmit>` → navigate `/search?q={encodeURIComponent(value.trim())}` khi value non-empty (FR-12.5)** |
+| ⌘K hint button | Right end of search input — click open Command Palette                                                                                                                                                             |
+| Version badge  | `[ v0.1.0 ]` (JetBrains Mono 10px, border muted)                                                                                                                                                                   |
+| Online count   | `● N` (green pulse + count)                                                                                                                                                                                        |
+| Avatar         | 32px circle, gradient bg (cyan→purple), border cyan, online dot bottom-right. Click → dropdown menu                                                                                                                |
 
-**Avatar dropdown menu items:**
+**TopBar prop `hideSearch?: boolean`** (default `false`) — khi `true` ẩn cả search input + ⌘K hint. AppLayout sniff `useLocation().pathname === '/search'` → set `hideSearch={true}` (avoid duplicate hero search trên trang Search).
 
-- Header: avatar + `~/admin` + `[ ADMIN ]` badge
-- Create Post (cyan, ⌘N) → `/admin/create`
-- Admin Dashboard (purple, ⌘3) → `/admin`
-- System Settings (yellow)
-- Profile (muted) — separator above
-- Logout (red, ⌘Q) → `/auth/login`
+**Avatar dropdown menu items (authed):**
+
+- Header: avatar + `~/{username}` + `[ ADMIN ]` badge (chỉ ADMIN)
+- Create Post (cyan, ⌘N) → `/admin/create` (admin only)
+- Admin Dashboard (purple, ⌘3) → `/admin` (admin only)
+- Saved (yellow, ⌘2) → `/saved` (new)
+- Profile (muted) — separator above → `/profile/{user.username}` (FR-11.2)
+- Logout (red, ⌘Q) → POST /auth/logout → `/auth/login`
+
+**Guest variant:** Login + Register chỉ.
 
 **Responsive:** `<768px` ẩn search input + version badge; chỉ giữ logo + avatar.
 
@@ -93,6 +97,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - Empty state: `// no results for "<query>"`
 - Keyboard: ↑↓ navigate, ↵ select, Esc close
 - Focus trap: input autoFocus on mount
+
+**Nav items wire (FR-08.4):** Feed → `/`, Search → `/search`, Saved → `/saved`, Tags → `/tags`, Profile → `/profile/{user.username}` (chỉ render khi authed), Admin → `/admin` (chỉ render khi admin), Create Post → `/admin/create` (admin), Toggle theme + Logout actions. **Fix bugs hiện tại:** `n-saved`/`r-search` đang điểm `to: '/'` → đổi sang đúng route.
 
 ---
 
@@ -333,18 +339,19 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component                           | Source                          |
-| ----------------------------------- | ------------------------------- |
-| Sub-toolbar                         | DESIGN_SYSTEM > Sub-toolbar     |
-| MoodPicker (7 emoji buttons)        | DESIGN_SYSTEM > MoodPicker      |
-| MarkdownEditor (textarea + toolbar) | DESIGN_SYSTEM > MarkdownEditor  |
-| UploadZone (images + files)         | DESIGN_SYSTEM > UploadZone      |
-| ImageThumb (preview thumb)          | DESIGN_SYSTEM > ImageThumb      |
-| FileAttachments (mini editing list) | DESIGN_SYSTEM > FileAttachments |
-| TagInput (tag + chip)               | DESIGN_SYSTEM > TagInput        |
-| PostPreview (right pane)            | DESIGN_SYSTEM > PostPreview     |
-| ToolbarButton (B/I/code/h/link)     | DESIGN_SYSTEM > ToolbarButton   |
-| Button (publish/save draft)         | DESIGN_SYSTEM > Button          |
+| Component                                             | Source                          |
+| ----------------------------------------------------- | ------------------------------- |
+| Sub-toolbar                                           | DESIGN_SYSTEM > Sub-toolbar     |
+| MoodPicker (7 emoji buttons)                          | DESIGN_SYSTEM > MoodPicker      |
+| MarkdownEditor (textarea + toolbar + 😀 emoji button) | DESIGN_SYSTEM > MarkdownEditor  |
+| EmojiPicker (popover 4 tabs × 16 emoji)               | DESIGN_SYSTEM > EmojiPicker     |
+| UploadZone (images + files)                           | DESIGN_SYSTEM > UploadZone      |
+| ImageThumb (preview thumb)                            | DESIGN_SYSTEM > ImageThumb      |
+| FileAttachments (mini editing list)                   | DESIGN_SYSTEM > FileAttachments |
+| TagInput (tag + chip)                                 | DESIGN_SYSTEM > TagInput        |
+| PostPreview (right pane)                              | DESIGN_SYSTEM > PostPreview     |
+| ToolbarButton (B/I/code/h/link)                       | DESIGN_SYSTEM > ToolbarButton   |
+| Button (publish/save draft)                           | DESIGN_SYSTEM > Button          |
 
 ### State machine
 
@@ -362,6 +369,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 - **Mood picker**: click toggle, only 1 selected at a time, current mood highlighted với border cyan + glow
 - **Markdown editor**: keystrokes update content state; live preview updates in real-time (right pane); toolbar buttons insert markdown syntax at cursor
+- **Emoji picker (FR-02.7)**: click 😀 toolbar button → popover mở (320px wide) với 4 tab (faces/hands/dev/nature × 16 emoji); click emoji insert vào textarea tại cursor (reuse `insert-at-cursor.ts`); Esc hoặc outside-click close
 - **Image upload**: click upload zone → file picker; drag-drop area highlight on hover; per-file thumb với × remove; max 10 → ẩn upload zone
 - **File upload**: same as image; max 20
 - **Tag input**: Enter / comma / space → add tag; auto prefix `#` nếu thiếu; click × remove; cycle color qua palette (7 colors)
@@ -550,9 +558,254 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ---
 
-## Screen 6 (defer): Register (`/auth/register`)
+## Screen 6: Register (`/auth/register`)
 
-**Status:** Not in design source — defer to implementation phase. Reuse Login screen pattern với 2-3 fields thêm (username, password, optional email).
+**Status:** Implemented M10 T-091. Reuse `TerminalCard` từ Login. 3 fields (username 3-32 chars regex `[a-zA-Z0-9_-]` + password min 8 + email optional). Submit `[ CREATE ACCOUNT ↵ ]` → POST /auth/register → setUser + navigate `/`. Error mapping 409 → `username already taken`, 400 → `invalid input · check fields`.
+
+---
+
+## Screen 7: Profile (`/profile/:username` + `/me` redirect)
+
+**Linked UCs:** UC-14 (xem profile + edit own)
+**User roles:** Public xem + Self edit + Admin xem all tabs (incl. Saved)
+
+### Layout
+
+```
+┌────────── TopBar (52px, hideSearch=false) ──────────┐
+├── Hero (gradient bg, max-w 1100px, py-12) ─────────┤
+│  ┌──────┐                                            │
+│  │ 88px │  Kha Tran           [ ADMIN ]              │
+│  │ ring │  Full-stack Developer                      │
+│  └──────┘  Bio paragraph 2-3 lines truncate...       │
+│            42 posts · 287 likes · 1.2k views         │
+│                                       [ ✎ Edit ]    │  ← self only
+├── Tabs (sticky, border-b) ──────────────────────────┤
+│   Posts │ Saved │ Activity │ About                  │  ← ?tab= query
+├────────────────────────────────────┬─────────────────┤
+│  MAIN (flex-1)                     │ SIDEBAR (280px) │
+│                                    │                 │
+│  ── Posts tab ──                   │ // about.me     │
+│  // posts.all  42 total            │ Bio markdown    │
+│  [ PostCard ] [ PostCard ] ...     │                 │
+│                                    │ // skills.top   │
+│  ── Saved tab (self/admin only) ── │ [TS] [React] .. │
+│  // saved.posts  8 items           │                 │
+│  [ PostCard ] [ PostCard ] ...     │ // mood.breakdown│
+│                                    │ [MoodBar × 7]   │
+│  ── Activity tab ──                │                 │
+│  // recent.actions                 │ // activity.28d │
+│  [ ActivityLogItem × 50 ]          │ [HeatmapGrid]   │
+│                                    │                 │
+│  ── About tab ──                   │ // tags.used    │
+│  // about.me  (bio full)           │ #code #life ... │
+│  // skills.stack (chips)           │                 │
+│  // tags.used                      │                 │
+└────────────────────────────────────┴─────────────────┘
+```
+
+### Components
+
+| Component                            | Source                            |
+| ------------------------------------ | --------------------------------- |
+| ProfileAvatar (rotating ring 88px)   | DESIGN_SYSTEM > ProfileAvatar     |
+| Hero stats inline                    | inline layout                     |
+| Tabs (4: Posts/Saved/Activity/About) | DESIGN_SYSTEM > TabButtons        |
+| EditProfileDrawer (self)             | DESIGN_SYSTEM > EditProfileDrawer |
+| SkillChipInput (drawer)              | DESIGN_SYSTEM > SkillChipInput    |
+| PostCard (Posts/Saved)               | existing                          |
+| ActivityLogItem (Activity tab)       | DESIGN_SYSTEM > ActivityLogItem   |
+| MoodBar (sidebar mood breakdown)     | existing                          |
+| HeatmapGrid (sidebar 28d)            | DESIGN_SYSTEM > HeatmapGrid       |
+| TagPill (tags.used)                  | existing                          |
+| StatSparkline (sidebar)              | DESIGN_SYSTEM > StatSparkline     |
+
+### State machine
+
+| State         | Trigger                         | UI                              |
+| ------------- | ------------------------------- | ------------------------------- |
+| `loading`     | Mount fetch user + stats        | Skeleton hero + placeholder     |
+| `404`         | User not found                  | `// user @{username} not found` |
+| `ready`       | Data ok                         | Render hero + tabs + sidebar    |
+| `editing`     | Self click `[ ✎ Edit Profile ]` | Drawer slide-in                 |
+| `saving`      | Submit drawer profile section   | Button `⠋ saving...` disabled   |
+| `pw-changing` | Submit security section         | Button `⠋ ...` + validation     |
+| `error`       | PATCH/auth fail                 | Inline banner trong drawer      |
+
+### Interactions
+
+- **Tab switching**: URL `?tab=posts|saved|activity|about` (default `posts`). Saved tab visible chỉ self/admin (privacy FR-11.5).
+- **Edit drawer**: Self click `[ ✎ Edit Profile ]` → drawer slide-in từ phải 420px, backdrop blur. Esc / outside-click close.
+- **Profile section submit**: PATCH /users/:selfId → cache invalidate `/users/by-username` + `/users/:id/stats`.
+- **Security section submit**: client-side check newPassword === confirm → POST /auth/change-password. Wrong current → 401 inline error, drawer giữ open.
+- **Stats sparkline**: hover heatmap cell → tooltip `{date} · {count} posts`.
+
+### Responsive
+
+- `<lg` (1024px): ẩn right sidebar (single column).
+- `<md` (640px): drawer full-width slide-up từ bottom thay vì right.
+
+---
+
+## Screen 8: Search (`/search?q=…`)
+
+**Linked UCs:** UC-15 (anonymous/user search)
+**User roles:** Public
+
+### Layout
+
+```
+┌────── TopBar (hideSearch=true, ⌘K vẫn còn) ──────┐
+├── Hero (max-w 720px center, py-10) ──────────────┤
+│  ┌────────────────────────────────────────────┐  │
+│  │ ❯  search posts, #tags, files...        × │  │  ← BigSearchInput
+│  └────────────────────────────────────────────┘  │
+│  [ All ] [ Saved ] [ Files ] · [😊][⚡][💭][😌][😢] │  ← FilterChips
+├──────────────────────────────────────┬───────────┤
+│  MAIN (flex-1)                       │ SIDEBAR 280px│
+│                                      │              │
+│  // results  N matches for "{q}"     │ 4 stat cards │
+│  [ ResultCard với <mark> highlight ] │ (Total/Imgs/ │
+│  [ ResultCard ]                      │  Files/Saved)│
+│  ...                                 │              │
+│  ── infinite scroll sentinel ──      │ // filter.by.mood │
+│                                      │ [ 😊 ][ ⚡ ] ... │
+│  Empty: // no results for "{q}" —    │              │
+│         try different keywords       │ // recent.searches │
+│                                      │ • react      │
+│  (Empty q + default browse view:     │ • cyberpunk  │
+│   render top posts hoặc null)        │ • #code      │
+│                                      │              │
+│                                      │ // browse.tags │
+│                                      │ [#code][#life]│
+└──────────────────────────────────────┴──────────────┘
+```
+
+### Components
+
+| Component                    | Source                         |
+| ---------------------------- | ------------------------------ |
+| BigSearchInput (hero)        | DESIGN_SYSTEM > BigSearchInput |
+| FilterChip (3 + 5 mood)      | DESIGN_SYSTEM > FilterChip     |
+| ResultCard (highlight match) | DESIGN_SYSTEM > ResultCard     |
+| Stat card mini (sidebar 4)   | reuse design pattern           |
+| TagPill (browse.tags)        | existing                       |
+| RecentSearches list          | `useRecentSearches` hook       |
+
+### State machine
+
+| State       | Trigger                        | UI                                  |
+| ----------- | ------------------------------ | ----------------------------------- |
+| `idle`      | Mount, empty q                 | Sidebar stats only, main empty hint |
+| `searching` | URL q changes (debounce 250ms) | `⠋ searching...`                    |
+| `results`   | API 200 với items > 0          | ResultCard grid                     |
+| `empty`     | API 200 với items=0            | `// no results for "{q}"`           |
+| `error`     | API 5xx                        | Inline error                        |
+| `throttled` | 429                            | `// too many searches · retry`      |
+
+### Interactions
+
+- **Input → URL**: debounce 250ms → `setSearchParams({ q })`. Triggers refetch.
+- **FilterChip click**: toggle `?type` (All/Saved/Files) hoặc `?mood`.
+- **ResultCard click**: navigate `/post/:id`.
+- **Highlight match**: split content theo regex `new RegExp(q, 'gi')` → wrap `<mark className="bg-cyan/30 text-cyan">{match}</mark>` (KHÔNG `dangerouslySetInnerHTML`).
+- **Recent searches**: localStorage key `myblog.recentSearches` (FIFO max 10 dedupe). Click entry → fill input + navigate.
+- **Browse.tags**: click → navigate `/?tag=name` Feed.
+- **Throttle 429**: show banner `// too many searches · retry in {retryAfter}s` — disable submit cho đến khi hết.
+- **SEO**: `<meta name="robots" content="noindex">` trên page mount.
+
+### Responsive
+
+- `<lg`: ẩn sidebar.
+- `<md`: 1-col result grid.
+
+---
+
+## Screen 9: Tags (`/tags` — admin actions conditional)
+
+**Linked UCs:** UC-13
+**User roles:** Public browse + ADMIN CRUD
+
+### Layout
+
+```
+┌────── TopBar ──────┐
+├── Header section (max-w 1200px) ───────────────────┤
+│  // tags.all                                        │
+│  [ Stat card × 4: Total / Tagged posts / Most used / Recent ] │
+├── Toolbar ─────────────────────────────────────────┤
+│  [❯ search tags...]  [ sort: posts ▾ ]  [ grid ▦ ] [ list ☰ ] │
+│                                       [ + New Tag ]  ← admin │
+├── Grid view (responsive 1/2/3/4 cols) ─────────────┤
+│  ┌─ TagCard ─────────┐  ┌─ TagCard ──────┐         │
+│  │ ● #code  24 posts │  │ ● #life  18 .. │         │
+│  │ Lập trình, debug. │  │ Cuộc sống ...  │         │
+│  │ ⌒⌒⌒ sparkline7d │  │ ⌒⌒⌒          │         │
+│  │ ████████░░ 90%   │  │ ███████░░░ 75% │         │
+│  │ (hover admin:    │  │                 │         │
+│  │  ✎ Edit · 🗑 Del)│  │                 │         │
+│  └───────────────────┘  └─────────────────┘         │
+│  ...                                                │
+└─────────────────────────────────────────────────────┘
+```
+
+### Components
+
+| Component              | Source                          |
+| ---------------------- | ------------------------------- |
+| Stat card (4)          | reuse Admin StatCard pattern    |
+| Search input           | reuse `.srch-inp` style         |
+| Sort dropdown          | DESIGN_SYSTEM > Dropdown        |
+| View toggle            | DESIGN_SYSTEM > SegmentedToggle |
+| TagCard                | DESIGN_SYSTEM > TagCard         |
+| TagModal (create/edit) | DESIGN_SYSTEM > TagModal        |
+| DeleteConfirm dialog   | DESIGN_SYSTEM > ConfirmDialog   |
+| MiniSparkline          | reuse `Sparkline` T-077         |
+
+### State machine
+
+| State            | Trigger                   | UI                                 |
+| ---------------- | ------------------------- | ---------------------------------- |
+| `loading`        | Mount fetch tags          | Skeleton grid                      |
+| `ready`          | API ok                    | Render grid/list                   |
+| `modal-create`   | Admin click `+ New Tag`   | TagModal open create variant       |
+| `modal-edit`     | Admin click ✎ trên card   | TagModal open edit variant         |
+| `modal-saving`   | Submit modal              | Button `⠋ ...` disabled            |
+| `confirm-delete` | Admin click 🗑            | DeleteConfirm dialog với postCount |
+| `error`          | API 5xx hoặc 409 dup name | Inline banner trong modal          |
+
+### Interactions
+
+- **Card click**: navigate `/?tag=name` Feed filter.
+- **Admin hover overlay**: render `✎ Edit` (open TagModal edit) + `🗑 Delete` (open ConfirmDialog).
+- **Create form**: name (required, unique) + color (swatch grid từ TAG_COLORS palette) + description (max 280) + preview chip live. Submit POST /tags → cache invalidate.
+- **Edit form**: pre-fill values. Submit PATCH /tags/:id.
+- **Delete confirm**: nếu `postCount > 0` → text `"This tag is used by N posts. Are you sure?"` + button `[ Force Delete ]` (double-confirm). Submit DELETE /tags/:id?force=true.
+- **Sort**: dropdown values `name|posts|recent` → update query → refetch.
+- **View toggle**: localStorage persist `myblog.tagsView = grid|list`.
+
+### Responsive
+
+- `<1024px`: 2-col grid; `<640px`: 1-col.
+- Modal: max-w 480px, center.
+
+---
+
+## Screen 10: Saved (`/saved`)
+
+**Linked UCs:** UC-05 (auth user save bài)
+**User roles:** Authed only (redirect `/auth/login?next=/saved` nếu guest)
+
+### Layout
+
+- Reuse Feed page pattern (FeedPage + PostList).
+- Header `// saved.posts {total} items`.
+- Empty state `// no saved posts yet — browse feed and 🔖 to save`.
+
+### Interactions
+
+- Hooks: `useSavedPosts` (existing `listSavedPosts` service T-saved).
+- Unsave: `useTogglePostSave` (existing) → optimistic remove khỏi list.
 
 ---
 

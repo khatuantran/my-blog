@@ -25,19 +25,23 @@ AnonymousSession (standalone — track guest)
 
 **Mục đích:** Account đăng ký (admin + auth user). Anonymous KHÔNG có record ở đây — track qua `AnonymousSession`.
 
-| Field        | Type          | Constraints      | Notes                 |
-| ------------ | ------------- | ---------------- | --------------------- |
-| id           | String (cuid) | PK               |                       |
-| username     | String        | unique           |                       |
-| email        | String?       | unique, optional |                       |
-| passwordHash | String        |                  | bcrypt cost ≥ 10      |
-| role         | Enum(Role)    | default `USER`   | ADMIN / USER / BANNED |
-| avatarUrl    | String?       |                  | Cloudinary URL        |
-| createdAt    | DateTime      | default(now())   |                       |
-| updatedAt    | DateTime      | @updatedAt       |                       |
+| Field        | Type          | Constraints      | Notes                                                    |
+| ------------ | ------------- | ---------------- | -------------------------------------------------------- |
+| id           | String (cuid) | PK               |                                                          |
+| username     | String        | unique           |                                                          |
+| email        | String?       | unique, optional |                                                          |
+| passwordHash | String        |                  | bcrypt cost ≥ 10                                         |
+| role         | Enum(Role)    | default `USER`   | ADMIN / USER / BANNED                                    |
+| avatarUrl    | String?       |                  | Cloudinary URL                                           |
+| title        | String?       | max 80           | FR-11.6 profile title (vd "Full-stack Developer")        |
+| bio          | Text?         | max 500          | FR-11.6 markdown allowed (@db.Text)                      |
+| skills       | Json          | default `[]`     | FR-11.6 array `{ name: string, color: string }[]` max 20 |
+| createdAt    | DateTime      | default(now())   |                                                          |
+| updatedAt    | DateTime      | @updatedAt       |                                                          |
 
 **Relations:** `hasMany` Post, Comment, Like, CommentLike, SavedPost, RefreshToken
 **Indexes:** username (auto unique), email (auto unique)
+**Validation (BE class-validator):** `title` max 80 chars, `bio` max 500 chars, `skills` IsArray + ArrayMaxSize(20) + nested DTO { name: string max 32, color: hex regex `/^#[0-9A-Fa-f]{6}$/` }.
 
 ### Post
 
@@ -153,11 +157,13 @@ AnonymousSession (standalone — track guest)
 
 **Mục đích:** Hashtag (M2M qua PostTag).
 
-| Field | Type          | Constraints | Notes                                                            |
-| ----- | ------------- | ----------- | ---------------------------------------------------------------- |
-| id    | String (cuid) | PK          |                                                                  |
-| name  | String        | unique      | lowercase, có dấu `#` đầu (`#travel`)                            |
-| color | String?       |             | hex color (cycle qua palette khi tag mới — xem DESIGN_SYSTEM.md) |
+| Field       | Type          | Constraints    | Notes                                                            |
+| ----------- | ------------- | -------------- | ---------------------------------------------------------------- |
+| id          | String (cuid) | PK             |                                                                  |
+| name        | String        | unique         | lowercase, có dấu `#` đầu (`#travel`)                            |
+| color       | String?       |                | hex color (cycle qua palette khi tag mới — xem DESIGN_SYSTEM.md) |
+| description | String?       | max 280        | FR-10.3 optional, hiển thị trong TagCard                         |
+| createdAt   | DateTime      | default(now()) | FR-10.1 "Recently added" stat                                    |
 
 **Relations:** `hasMany` PostTag
 **Indexes:** `@@index([name])`
@@ -287,6 +293,9 @@ model User {
   passwordHash  String
   role          Role          @default(USER)
   avatarUrl     String?
+  title         String?       // FR-11.6 max 80 chars
+  bio           String?       @db.Text  // FR-11.6 max 500 chars markdown
+  skills        Json          @default("[]")  // FR-11.6 array { name, color } max 20
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -397,9 +406,11 @@ model CommentLike {
 }
 
 model Tag {
-  id    String    @id @default(cuid())
-  name  String    @unique
-  color String?
+  id          String    @id @default(cuid())
+  name        String    @unique
+  color       String?
+  description String?   // FR-10.3 max 280 chars
+  createdAt   DateTime  @default(now())  // FR-10.1 "Recently added" stat
 
   posts PostTag[]
 
@@ -501,6 +512,14 @@ model RefreshToken {
   - `Like` vs `CommentLike` tách riêng (xem note ở `CommentLike` section)
   - `AnonymousSession.id` dùng string format hex hoặc sequential — KHÔNG cuid để có ID format friendly cho UI
   - Local postgres-main đổi port `:5432` → `:5434` (tránh conflict local postgres). Update `apps/api/.env.example` + `docker-compose.yml`.
+
+### v0.3.0-alpha (planned) — profile + tags expand (M11.5)
+
+- **Planned migration:** `add_user_profile_fields_and_tag_description` (T-220 + T-210)
+- **Added:** `User.title String?` (80) + `User.bio String? @db.Text` (500 markdown) + `User.skills Json @default("[]")` (array `{name,color}` max 20) + `Tag.description String?` (280) + `Tag.createdAt DateTime @default(now())`.
+- **Backfill:** N/A — all new fields nullable hoặc have defaults; existing rows OK.
+- **Breaking:** None — purely additive.
+- **Linked:** FR-10 (Tag), FR-11 (User profile).
 
 ---
 

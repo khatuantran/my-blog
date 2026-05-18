@@ -94,20 +94,23 @@ Exceed → 429 `RATE_LIMITED`. Test env (`NODE_ENV=test`) skip throttle (existin
 
 ### Auth (`/auth/*`)
 
-| Method | Path             | Auth           | FR      | Notes                                  |
-| ------ | ---------------- | -------------- | ------- | -------------------------------------- |
-| POST   | `/auth/register` | public         | FR-01.1 | Body: `{ username, password, email? }` |
-| POST   | `/auth/login`    | public         | FR-01.2 | Set access + refresh cookies           |
-| POST   | `/auth/refresh`  | refresh cookie | FR-01.2 | Rotation — issue new pair              |
-| POST   | `/auth/logout`   | access cookie  | FR-01   | Clear cookies + revoke refresh in DB   |
-| GET    | `/auth/me`       | access cookie  | FR-01   | Current user info                      |
+| Method | Path                    | Auth           | FR      | Notes                                                                                                                                                                                                                                      |
+| ------ | ----------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/auth/register`        | public         | FR-01.1 | Body: `{ username, password, email? }`                                                                                                                                                                                                     |
+| POST   | `/auth/login`           | public         | FR-01.2 | Set access + refresh cookies                                                                                                                                                                                                               |
+| POST   | `/auth/refresh`         | refresh cookie | FR-01.2 | Rotation — issue new pair                                                                                                                                                                                                                  |
+| POST   | `/auth/logout`          | access cookie  | FR-01   | Clear cookies + revoke refresh in DB                                                                                                                                                                                                       |
+| GET    | `/auth/me`              | access cookie  | FR-01   | Current user info                                                                                                                                                                                                                          |
+| POST   | `/auth/change-password` | user           | FR-11.3 | Body: `{ currentPassword, newPassword }`. Verify current bcrypt → update + revoke ALL refresh tokens TRỪ current. Response 200 `{ ok: true }`. 401 `INVALID_CREDENTIALS` nếu current sai. 400 nếu newPassword < 8. Throttle 5 req/min/user |
 
 ### Users (`/users/*`)
 
-| Method | Path        | Auth | FR    | Notes                |
-| ------ | ----------- | ---- | ----- | -------------------- |
-| GET    | `/users/me` | user | FR-01 | Alias `/auth/me`     |
-| PATCH  | `/users/me` | user | FR-01 | Update avatar, email |
+| Method | Path                           | Auth   | FR             | Notes                                                                                                                                                                                                                                                                                                         |
+| ------ | ------------------------------ | ------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/users/me`                    | user   | FR-01          | Alias `/auth/me`                                                                                                                                                                                                                                                                                              |
+| PATCH  | `/users/me`                    | user   | FR-01, FR-11.3 | Update profile. Body: `{ avatarUrl?, email?, title? (max 80), bio? (max 500), skills? (max 20 items, each {name max 32, color hex regex /^#[0-9A-Fa-f]{6}$/}) }`. **Reject** `username` change. Response 200 User. 400 validation                                                                             |
+| GET    | `/users/by-username/:username` | public | FR-11.1        | Public lookup by username. Response 200 `{ id, username, role, avatarUrl, title, bio, skills: {name,color}[], createdAt }`. 404 `USER_NOT_FOUND`                                                                                                                                                              |
+| GET    | `/users/:id/stats`             | public | FR-11.4        | Profile stats aggregation. Response 200 `{ postsCount, likesReceived, commentsReceived, viewsTotal, streak, heatmap28d: [{date, count}], moodBreakdown: Record<Mood, number>, tagsUsed: [{name, color, count}] (top 8) }`. `streak`: distinct post-created days liên tiếp ngược tới ngày đầu break (UTC). 404 |
 
 ### Posts (`/posts/*`)
 
@@ -152,22 +155,29 @@ Exceed → 429 `RATE_LIMITED`. Test env (`NODE_ENV=test`) skip throttle (existin
 
 ### Tags (`/tags/*`)
 
-| Method | Path        | Auth   | FR      | Notes                                                                                                                                                |
-| ------ | ----------- | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/tags`     | public | FR-04.3 | Top N popular by postCount DESC. Query: `limit` (default 20, max 100). Response 200 `{ items: [{ id, name, color, postCount }] }`                    |
-| POST   | `/tags`     | admin  | FR-04.3 | Body: `{ name, color? }`. Auto-assign color từ palette (cycle theo Tag count % 7) nếu thiếu. Response 201 `{ id, name, color }`. 409 `DUPLICATE_TAG` |
-| PATCH  | `/tags/:id` | admin  | FR-04.3 | Body: `{ name?, color? }`. Rename/đổi color. Response 200 `{ id, name, color }`. 404, 409 nếu name trùng                                             |
-| DELETE | `/tags/:id` | admin  | FR-04.3 | Hard delete Tag + cascade PostTag rows. Response 204. 404                                                                                            |
+| Method | Path        | Auth   | FR               | Notes                                                                                                                                                                                                                                                                                                                                                                            |
+| ------ | ----------- | ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/tags`     | public | FR-04.3, FR-10.1 | List tags với meta. Query: `limit` (default 20, max 100), `sort: name\|posts\|recent` (default `posts`), `q` (substring name filter), `withSparkline` (default true). Response 200 `{ items: [{ id, name, color, description, postCount, sparkline7d: number[7], createdAt }] }`. `sparkline7d` last 7 days post-create-with-tag count (oldest→newest). Empty `q` → toàn bộ tags |
+| POST   | `/tags`     | admin  | FR-04.3, FR-10.4 | Body: `{ name, color?, description? (max 280) }`. Auto-assign color từ palette (cycle theo Tag count % 7) nếu thiếu. Response 201 `{ id, name, color, description }`. 409 `DUPLICATE_TAG`                                                                                                                                                                                        |
+| PATCH  | `/tags/:id` | admin  | FR-04.3, FR-10.4 | Body: `{ name?, color?, description? }`. Rename/đổi color/description. Response 200 `{ id, name, color, description }`. 404, 409 nếu name trùng                                                                                                                                                                                                                                  |
+| DELETE | `/tags/:id` | admin  | FR-04.3, FR-10.4 | Hard delete Tag + cascade PostTag rows. Query: `force` (default false). Response 204 nếu force=true HOẶC postCount=0. 409 `TAG_IN_USE` với body `{ code: 'TAG_IN_USE', postCount: N }` nếu force=false + postCount>0. 404                                                                                                                                                        |
 
 ### Admin (`/admin/*`)
 
-| Method | Path             | Auth  | FR      | Notes                                                                                                                                                                                                          |
-| ------ | ---------------- | ----- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/admin/stats`   | admin | FR-07.1 | 4 metrics aggregation. Response 200 `{ posts, likes, comments, views }` mỗi field `{ total: number, sparkline: number[12] (daily buckets oldest→newest), deltaToday: number (today vs yesterday) }`. 401 / 403 |
-| GET    | `/admin/moods`   | admin | FR-07.2 | Mood distribution zero-filled. Response 200 `{ items: [{ mood, count }] }` — 7 entries (theo Mood enum), count=0 nếu không có post. 401 / 403                                                                  |
-| GET    | `/admin/heatmap` | admin | FR-09.3 | 28-day post creation heatmap. Response 200 `{ days: [{ date: 'YYYY-MM-DD', count }] }` — 28 entries (oldest→newest, zero-fill missing). 401 / 403                                                              |
+| Method | Path              | Auth  | FR      | Notes                                                                                                                                                                                                                                                                          |
+| ------ | ----------------- | ----- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/admin/stats`    | admin | FR-07.1 | 4 metrics aggregation. Response 200 `{ posts, likes, comments, views }` mỗi field `{ total: number, sparkline: number[12] (daily buckets oldest→newest), deltaToday: number (today vs yesterday) }`. 401 / 403                                                                 |
+| GET    | `/admin/moods`    | admin | FR-07.2 | Mood distribution zero-filled. Response 200 `{ items: [{ mood, count }] }` — 7 entries (theo Mood enum), count=0 nếu không có post. 401 / 403                                                                                                                                  |
+| GET    | `/admin/heatmap`  | admin | FR-09.3 | 28-day post creation heatmap. Response 200 `{ days: [{ date: 'YYYY-MM-DD', count }] }` — 28 entries (oldest→newest, zero-fill missing). 401 / 403                                                                                                                              |
+| GET    | `/admin/comments` | admin | FR-07.4 | Cross-post comment moderation queue. Query: `status: PENDING\|APPROVED\|REJECTED` (default PENDING), `page` (default 1), `limit` (default 20, max 100). Response 200 `{ items: [{ ...Comment, post: { id, content: string (truncate 80) } }], total, page, limit }`. 401 / 403 |
 
-> Endpoints khác (defer/overlap): `GET /users` + `POST /users/:id/ban` đã có ở UsersModule (T-014); `/admin/comments/pending` defer (T-031 enhancement nếu cần cross-post badge); `/admin/visitors` defer T-042 với AnonymousSession activity persist.
+> Endpoints khác (defer/overlap): `GET /users` + `POST /users/:id/ban` đã có ở UsersModule (T-014); `/admin/visitors` defer T-042 với AnonymousSession activity persist.
+
+### Search (`/search`)
+
+| Method | Path      | Auth   | FR    | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------ | --------- | ------ | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/search` | public | FR-12 | Full-text search Postgres ILIKE multi-table. Query: `q` (string, empty cho default browse), `type: all\|posts\|files\|tags` (default `all`), `mood?: Mood`, `page` (default 1), `limit` (default 10, max 30). Response 200 `{ posts: { items: Post[], total, page, limit }, files: [{ id, name, postId, type }], tags: Tag[], stats: { totalPosts, withImages, withFiles, savedCount } }`. ILIKE pattern `%q%` trên `Post.content` + `Tag.name` (strip `#`) + `File.name`. `mood` filter chỉ apply `posts`. Authed user `posts.items[].saved` flag set. Empty `q` → posts/files/tags empty + stats toàn cục. Throttle 30 req/min/IP |
 
 ## Pagination
 
@@ -185,13 +195,15 @@ Exceed → 429 `RATE_LIMITED`. Test env (`NODE_ENV=test`) skip throttle (existin
 
 ## Rate Limiting
 
-| Endpoint group        | Limit      | Key              |
-| --------------------- | ---------- | ---------------- |
-| Default               | 60 req/min | IP               |
-| `POST /auth/register` | 5 req/min  | IP               |
-| `POST /auth/login`    | 10 req/min | IP               |
-| `POST /comments`      | 10 req/min | IP + anonymousId |
-| `POST /*/like`        | 30 req/min | IP + anonymousId |
+| Endpoint group               | Limit      | Key              |
+| ---------------------------- | ---------- | ---------------- |
+| Default                      | 60 req/min | IP               |
+| `POST /auth/register`        | 5 req/min  | IP               |
+| `POST /auth/login`           | 10 req/min | IP               |
+| `POST /comments`             | 10 req/min | IP + anonymousId |
+| `POST /*/like`               | 30 req/min | IP + anonymousId |
+| `GET /search`                | 30 req/min | IP               |
+| `POST /auth/change-password` | 5 req/min  | userId           |
 
 Response khi rate limited: `429` với `Retry-After` header + error code `RATE_LIMITED`.
 

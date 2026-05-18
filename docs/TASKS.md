@@ -223,6 +223,42 @@
 - [T-113] [P1] [F1] [Both] E2E tests Playwright (E2E-01 → E2E-13) - DONE 2026-05-18 (E2E-07/08/10/11/13 test.skip với reason — phụ thuộc UI/feature chưa wire)
 - [T-114] [P2] [F7] [Infra] CI GitHub Actions matrix (FE unit + BE unit + BE integration + E2E) - DONE 2026-05-18
 
+### Backlog — M11.5: Tags / Profile / Search / Create Post enhance
+
+> F2 docs spec done 2026-05-18 (FR-10/11/12 + UC-13/14/15 + DATA_MODEL/API_CONTRACT/UI_DESIGN/DESIGN_SYSTEM updated). Tasks below pending F1 execute.
+
+#### Quick wins (parallel)
+
+- [T-200] [P2] [F1] [FE] Wire `Copy link` button MetaPanel + toast (FR-05.2) - TODO
+- [T-201] [P2] [F1] [Both] FilterBar sort dropdown Latest/Oldest/Most liked + BE `GET /posts?sort=` (FR-04.6) - TODO
+- [T-202] [P2] [F1] [Both] Comment moderation queue UI + `GET /admin/comments?status=PENDING` (FR-07.4) - TODO
+- [T-203] [P2] [F1] [FE] `/saved` standalone route (authed only) + SavedPage layout (FR-03.3) - TODO
+
+#### F2-A: Tags Module (FR-10)
+
+- [T-210] [P1] [F1] [BE] Tag.description + Tag.createdAt migration + PATCH/POST description + GET /tags response postCount + sparkline7d + sort/q query params + DELETE force=true (FR-10) - TODO
+- [T-211] [P1] [F1] [FE] TagCard + TagModal + ConfirmDialog + FilterChip + SegmentedToggle primitives (FR-10.3/10.4) - TODO
+- [T-212] [P1] [F1] [FE] `/tags` route page — 4 stat cards + toolbar + grid/list views + admin-conditional CRUD wire (FR-10.1/10.2) - TODO
+
+#### F2-B: Profile + Edit Profile (FR-11)
+
+- [T-220] [P1] [F1] [BE] User.title/bio/skills migration (skills Json {name,color}[]) + PATCH /users/:id validators + GET /users/by-username/:username + GET /users/:id/stats + POST /auth/change-password (FR-11.6) - TODO
+- [T-221] [P1] [F1] [FE] ProfileAvatar (rotating ring) + HeatmapGrid + StatSparkline + TabButtons + ProfilePage layout (hero + 4 tabs + sidebar) (FR-11.1/11.4/11.5) - TODO
+- [T-222] [P1] [F1] [FE] EditProfileDrawer + SkillChipInput + useUpdateProfile + useChangePassword mutations (FR-11.3) - TODO
+- [T-223] [P1] [F1] [FE] `/me` redirect + Avatar dropdown wire Profile link (FR-11.2) - TODO
+
+#### F2-C: Search (FR-12)
+
+- [T-230] [P1] [F1] [BE] `GET /search?q=&type=&mood=&page=&limit=` endpoint — Postgres ILIKE multi-table + throttle 30/min/IP (FR-12.1/12.2/12.3) - TODO
+- [T-231] [P1] [F1] [FE] BigSearchInput + ResultCard với highlight match + SearchPage layout (hero + filter chips + grid + sidebar) (FR-12.4/12.6/12.7) - TODO
+- [T-232] [P1] [F1] [FE] TopBar `hideSearch` prop + form onSubmit navigate + AppLayout sniff `/search` route (FR-12.5) - TODO
+- [T-233] [P2] [F1] [FE] `useRecentSearches` hook (localStorage 10 FIFO dedupe) + recent + browse.tags sidebar wire (FR-12.6) - TODO
+- [T-234] [P2] [F1] [FE] CommandPalette commands.ts fix routes + thêm n-tags/n-profile entries (FR-08.4) - TODO
+
+#### F2-D: Create Post enhance (FR-02.7)
+
+- [T-240] [P2] [F1] [FE] EmojiPicker popover (4 tabs × 16 emoji) + insert-at-cursor wire trong MarkdownEditor 😀 button (FR-02.7) - TODO
+
 ### Backlog — M13: Deploy
 
 - [T-120] [P1] [F7] [Infra] Setup Vercel project (FE) + connect GitHub - TODO

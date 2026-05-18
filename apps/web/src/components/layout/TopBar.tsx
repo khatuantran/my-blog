@@ -1,0 +1,160 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
+import { Logo } from './Logo';
+import { useAuth } from '@/hooks/use-auth';
+
+type Props = {
+  onOpenCommandPalette: () => void;
+};
+
+type MenuItem = {
+  icon: string;
+  label: string;
+  to: string;
+  kbd?: string;
+  color: 'cyan' | 'pur' | 'yel' | 'tp' | 'red';
+  separatorBefore?: boolean;
+};
+
+const COLOR_CLASS: Record<MenuItem['color'], string> = {
+  cyan: 'text-cyan',
+  pur: 'text-pur',
+  yel: 'text-yel',
+  tp: 'text-tp',
+  red: 'text-red',
+};
+
+const MENU_ITEMS: MenuItem[] = [
+  { icon: '✏️', label: 'Create Post', to: '/admin/create', kbd: '⌘N', color: 'cyan' },
+  { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur' },
+  { icon: '🔧', label: 'System Settings', to: '#', color: 'yel' },
+  { icon: '👤', label: 'Profile', to: '#', color: 'tp', separatorBefore: true },
+  { icon: '🚪', label: 'Logout', to: '/auth/login', kbd: '⌘Q', color: 'red' },
+];
+
+export function TopBar({ onOpenCommandPalette }: Props) {
+  const { user } = useAuth();
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const initial = (user?.username[0] ?? 'A').toUpperCase();
+  const isAdmin = user?.role === 'ADMIN';
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <header
+      data-slot="topbar"
+      className="fixed top-0 left-0 right-0 h-[52px] bg-surf/95 backdrop-blur-sm border-b border-b1 flex items-center px-5 z-50"
+    >
+      <Logo />
+
+      {/* Search — centered absolute */}
+      <div className="absolute left-1/2 -translate-x-1/2 w-[440px] max-w-[calc(100vw-260px)] z-[1] hidden md:block">
+        <span
+          aria-hidden="true"
+          className="absolute left-[10px] top-1/2 -translate-y-1/2 text-tm text-[13px] pointer-events-none"
+        >
+          ⌕
+        </span>
+        <input
+          type="search"
+          aria-label="Search posts, tags, users"
+          placeholder="~$ search posts, tags, users..."
+          className="w-full bg-bg border border-b2 text-ts font-mono text-[13px] pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
+        />
+        <button
+          type="button"
+          onClick={onOpenCommandPalette}
+          aria-label="Open command palette (⌘K)"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-mono-xs text-tm bg-elev border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer whitespace-nowrap hover:text-tp hover:border-b3"
+        >
+          ⌘K
+        </button>
+      </div>
+
+      {/* Right cluster */}
+      <div className="flex items-center gap-2.5 ml-auto shrink-0">
+        <span className="font-mono text-mono-xs text-tm border border-b2 rounded-[3px] px-[7px] py-[2px] hidden md:inline-block">
+          [ v0.1.0 ]
+        </span>
+        <span className="flex items-center gap-1 font-mono text-mono-sm text-grn">
+          <span className="animate-pulse-status text-[8px]">●</span> 3
+        </span>
+
+        {/* Avatar + dropdown */}
+        <div ref={menuRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setShowMenu((v) => !v)}
+            aria-label="User menu"
+            aria-expanded={showMenu}
+            className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-[13px] text-cyan cursor-pointer transition-shadow relative ${
+              showMenu ? 'shadow-glow-cyan-md' : 'shadow-glow-cyan-sm'
+            }`}
+            style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
+          >
+            {initial}
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-[1px] -right-[1px] w-2 h-2 bg-grn rounded-full"
+              style={{ border: '1.5px solid #11151F', boxShadow: '0 0 5px #9ECE6A' }}
+            />
+          </button>
+
+          {showMenu && (
+            <div
+              role="menu"
+              className="absolute top-[42px] right-0 bg-elev rounded-lg min-w-[210px] p-1.5 z-[200] animate-fade-up"
+              style={{
+                border: '1px solid rgba(0,255,229,.25)',
+                boxShadow: '0 0 30px rgba(0,255,229,.1),0 12px 40px rgba(0,0,0,.6)',
+              }}
+            >
+              <div className="px-2.5 pt-2 pb-2.5 border-b border-b2 mb-1">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-[11px] text-cyan font-bold font-brand"
+                    style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
+                  >
+                    {initial}
+                  </div>
+                  <div>
+                    <div className="font-mono text-mono-sm text-blu">
+                      ~/{user?.username ?? 'guest'}
+                    </div>
+                    {isAdmin && (
+                      <div className="font-mono text-mono-xs text-ora mt-px">[ ADMIN ]</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {MENU_ITEMS.map((item, i) => (
+                <div key={i}>
+                  {item.separatorBefore && <div className="h-px bg-b2 my-1" />}
+                  <Link
+                    to={item.to}
+                    role="menuitem"
+                    onClick={() => setShowMenu(false)}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[5px] no-underline transition-colors hover:bg-cyan/10 ${COLOR_CLASS[item.color]}`}
+                  >
+                    <span className="text-sm">{item.icon}</span>
+                    <span className="flex-1 text-[13px]">{item.label}</span>
+                    {item.kbd && <span className="font-mono text-mono-xs text-tm">{item.kbd}</span>}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}

@@ -1,19 +1,20 @@
 import { Outlet } from 'react-router';
+import { TopBar } from './TopBar';
 
-// Shell shared cho mọi page (trừ Auth). TopBar (T-050) + StatusBar (T-051)
-// + CommandPalette (T-052) sẽ wire vào slot tại các task kế.
-// Hiện tại render Outlet với spacing tương đương khi shell đầy đủ
-// (52px top + 28px bottom) để layout không jump khi components đáp vào.
+// Shell shared cho mọi page (trừ Auth).
+// StatusBar (T-051) + CommandPalette (T-052) sẽ wire ở task kế.
 export function AppLayout() {
+  function handleOpenCommandPalette() {
+    // TODO(T-052): mở CommandPalette qua Zustand store.
+    if (import.meta.env.DEV) {
+      // eslint-disable-next-line no-console
+      console.log('[AppLayout] open command palette (stub — wired in T-052)');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-bg text-tp font-sans antialiased">
-      {/* TopBar slot — fixed top 52px, fill ở T-050 */}
-      <div
-        role="presentation"
-        aria-hidden="true"
-        className="fixed top-0 left-0 right-0 h-[52px] border-b border-b1 bg-surf/95 backdrop-blur-sm z-50"
-        data-slot="topbar"
-      />
+      <TopBar onOpenCommandPalette={handleOpenCommandPalette} />
 
       <main className="pt-[52px] pb-[28px] min-h-screen">
         <Outlet />

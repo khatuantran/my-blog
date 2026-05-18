@@ -164,7 +164,7 @@
 
 > **Scope refactor 2026-05-18:** M7 scope co lại còn 5 tasks (TopBar + StatusBar + CommandPalette + router + tokens). T-053 Sidebar và T-054 RightPanel đã DROPPED — design hiện tại (Feed.html) không còn global sidebar/rightpanel; aside content di chuyển sang per-page (Admin mood.distribution + activity.log, PostDetail post.meta/tags/share/related, CreatePost live.preview).
 
-- [T-050] [P0] [F1] [FE] TopBar (logo + search + ⌘K hint + avatar dropdown) - TODO
+- [T-050] [P0] [F1] [FE] TopBar (logo + search + ⌘K hint + avatar dropdown) - DONE (2026-05-18)
 - [T-051] [P0] [F1] [FE] StatusBar (fixed bottom 28px terminal) - TODO
 - [T-052] [P1] [F1] [FE] CommandPalette (⌘K overlay với filter + keyboard nav) - TODO
 - [T-053] [P1] [F1] [FE] Sidebar (admin only, 220px sticky) - DROPPED (2026-05-18) — design refactor: global sidebar removed, không còn applicable

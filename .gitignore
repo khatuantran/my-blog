@@ -13,8 +13,9 @@ out/
 
 # Env (KHÔNG commit secret — chỉ commit .env.example)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
 # Test / coverage
 coverage/

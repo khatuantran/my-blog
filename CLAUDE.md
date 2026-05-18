@@ -105,11 +105,14 @@ Trong TASKS.md template (và khi report cho user), mỗi task chỉ rõ:
    - Architecture change → `docs/ARCHITECTURE.md` + ADR mới
 3. **Plan Task** — Add entry vào `docs/TASKS.md` với template đầy đủ + `Flow: F1` + `Affected layer`. Status `DOING`.
 4. **Implement** — Code theo `docs/CODING_CONVENTION.md` (Universal + FE/BE section tương ứng). Commit thẳng `main` (trunk-based).
-5. **Test & NFR Verify** — Theo [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md):
-   - FE: Vitest unit cho hooks/services/components
-   - BE: Jest unit cho service + Supertest integration cho endpoint
-   - E2E: Playwright nếu user-facing flow mới
-   - NFR: API perf < 500ms p95 (Sentry transaction), Lighthouse ≥ 85 perf+a11y (cho page public), keyboard nav manual
+5. **Test & NFR Verify (BẮT BUỘC trước commit)** — Theo [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md):
+   - **MỖI service mới (BE):** unit test `apps/api/tests/<feature>/<feature>.service.spec.ts` cover ≥1 happy + ≥2 error cases. Coverage ≥80%.
+   - **MỖI controller endpoint mới (BE):** integration test `apps/api/tests/<feature>.e2e-spec.ts` (Supertest + real postgres-test :5433) cover happy + 401/403/404 nếu có guard.
+   - **MỖI hook / service / validator mới (FE):** Vitest test `apps/web/tests/<area>/<name>.test.ts(x)`.
+   - **DTO / Zod schema mới:** validator test (positive + negative).
+   - **E2E (Playwright):** nếu user-facing flow mới (`e2e/` root).
+   - **NFR:** API perf < 500ms p95 (Sentry transaction), Lighthouse ≥ 85 perf+a11y (cho page public), keyboard nav manual.
+   - **Smoke curl/dev browser KHÔNG đủ** — phải có file test commit kèm trong cùng task.
 6. **Update Docs After**:
    - `docs/TASKS.md` → status `DONE` + ngày + commit hash
    - `docs/PROGRESS.md` → cập nhật % + weekly log
@@ -334,6 +337,8 @@ Xem [docs/TESTING_STRATEGY.md](docs/TESTING_STRATEGY.md).
 - [ ] Nếu touch UI component / token mới → `docs/DESIGN_SYSTEM.md` đã có spec
 - [ ] Nếu đổi pattern/arch → `docs/ARCHITECTURE.md` đã có ADR
 - [ ] Test strategy đã rõ (file path, cases) theo `docs/TESTING_STRATEGY.md`
+- [ ] Test file paths đã xác định (unit + integration), cases đã list ra
+- [ ] BE: test DB infra sẵn sàng (postgres-test :5433 healthy + `apps/api/.env.test` set)
 - [ ] Nếu touch field enumerated value → đã có Prisma enum / `as const` đối ứng (KHÔNG string literal union)
 - [ ] KHÔNG có `console.*` trong code (BE: `Logger`, FE: `logger` từ `@/lib/logger`)
 
@@ -485,3 +490,4 @@ Nhanh:
 - KHÔNG ghi đè manual file `docs/contracts/openapi.yaml` — chỉ regenerate từ NestJS Swagger
 - KHÔNG dùng string literal union làm enum ảo — define Prisma enum + re-export (BE), hoặc FE `as const` object + `z.nativeEnum`. Xem [docs/CODING_CONVENTION.md > Enums](docs/CODING_CONVENTION.md)
 - KHÔNG dùng `console.log/error/warn` trong production code — dùng NestJS `Logger` (BE) hoặc `logger` từ `@/lib/logger` (FE, loglevel). Xem [docs/CODING_CONVENTION.md > Logging](docs/CODING_CONVENTION.md)
+- KHÔNG commit feature code mới (F1/F2) khi thiếu test file. Smoke curl/dev browser KHÔNG thay thế. Exception: F4 Phase A (test follow Phase B), F5 (test cũ làm contract), F6/F7 (smoke đủ).

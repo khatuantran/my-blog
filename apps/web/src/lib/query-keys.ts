@@ -16,4 +16,13 @@ export const qk = {
     all: ['saved'] as const,
     list: (params: { page?: number; limit?: number } = {}) => ['saved', 'list', params] as const,
   },
+  users: {
+    all: ['users'] as const,
+    list: (params: { page?: number; limit?: number } = {}) => ['users', 'list', params] as const,
+  },
+  admin: {
+    stats: ['admin', 'stats'] as const,
+    moods: ['admin', 'moods'] as const,
+    heatmap: ['admin', 'heatmap'] as const,
+  },
 };

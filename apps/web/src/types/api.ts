@@ -4,7 +4,23 @@
 import type { Mood } from '@/lib/mood-config';
 import type { FileType } from '@/lib/file-config';
 
-export type Role = 'ADMIN' | 'USER';
+export type Role = 'ADMIN' | 'USER' | 'BANNED';
+
+export type AdminUser = {
+  id: string;
+  username: string;
+  email: string | null;
+  role: Role;
+  avatarUrl: string | null;
+  createdAt: string;
+};
+
+export type PaginatedUsers = {
+  items: AdminUser[];
+  total: number;
+  page: number;
+  limit: number;
+};
 
 export type CommentStatus = 'APPROVED' | 'PENDING' | 'REJECTED';
 

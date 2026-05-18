@@ -1,22 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Logo } from './Logo';
 import { useAuth } from '@/hooks/use-auth';
+import { useLogout } from '@/hooks/mutations/use-logout';
 
 type Props = {
   onOpenCommandPalette: () => void;
 };
 
+type ColorKey = 'cyan' | 'pur' | 'yel' | 'tp' | 'red';
 type MenuItem = {
   icon: string;
   label: string;
   to: string;
   kbd?: string;
-  color: 'cyan' | 'pur' | 'yel' | 'tp' | 'red';
+  color: ColorKey;
   separatorBefore?: boolean;
+  adminOnly?: boolean;
 };
 
-const COLOR_CLASS: Record<MenuItem['color'], string> = {
+const COLOR_CLASS: Record<ColorKey, string> = {
   cyan: 'text-cyan',
   pur: 'text-pur',
   yel: 'text-yel',
@@ -24,20 +27,34 @@ const COLOR_CLASS: Record<MenuItem['color'], string> = {
   red: 'text-red',
 };
 
-const MENU_ITEMS: MenuItem[] = [
-  { icon: '✏️', label: 'Create Post', to: '/admin/create', kbd: '⌘N', color: 'cyan' },
-  { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur' },
+const AUTHED_MENU: MenuItem[] = [
+  {
+    icon: '✏️',
+    label: 'Create Post',
+    to: '/admin/create',
+    kbd: '⌘N',
+    color: 'cyan',
+    adminOnly: true,
+  },
+  { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur', adminOnly: true },
   { icon: '🔧', label: 'System Settings', to: '#', color: 'yel' },
   { icon: '👤', label: 'Profile', to: '#', color: 'tp', separatorBefore: true },
-  { icon: '🚪', label: 'Logout', to: '/auth/login', kbd: '⌘Q', color: 'red' },
+];
+
+const GUEST_MENU: MenuItem[] = [
+  { icon: '🔑', label: 'Login', to: '/auth/login', color: 'cyan' },
+  { icon: '✨', label: 'Register', to: '/auth/register', color: 'pur' },
 ];
 
 export function TopBar({ onOpenCommandPalette }: Props) {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, isAuthed } = useAuth();
+  const logoutMutation = useLogout();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const initial = (user?.username[0] ?? 'A').toUpperCase();
+  const initial = (user?.username[0] ?? '?').toUpperCase();
   const isAdmin = user?.role === 'ADMIN';
+  const menuItems = isAuthed ? AUTHED_MENU.filter((i) => !i.adminOnly || isAdmin) : GUEST_MENU;
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -48,6 +65,13 @@ export function TopBar({ onOpenCommandPalette }: Props) {
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  function handleLogout() {
+    setShowMenu(false);
+    logoutMutation.mutate(undefined, {
+      onSettled: () => navigate('/auth/login', { replace: true }),
+    });
+  }
 
   return (
     <header
@@ -136,7 +160,7 @@ export function TopBar({ onOpenCommandPalette }: Props) {
                   </div>
                 </div>
               </div>
-              {MENU_ITEMS.map((item, i) => (
+              {menuItems.map((item, i) => (
                 <div key={i}>
                   {item.separatorBefore && <div className="h-px bg-b2 my-1" />}
                   <Link
@@ -151,6 +175,24 @@ export function TopBar({ onOpenCommandPalette }: Props) {
                   </Link>
                 </div>
               ))}
+              {isAuthed && (
+                <>
+                  <div className="h-px bg-b2 my-1" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                    className="flex w-full items-center gap-2 px-2.5 py-1.5 rounded-[5px] border-none bg-transparent text-left text-red transition-colors hover:bg-red/10 disabled:opacity-50"
+                  >
+                    <span className="text-sm">🚪</span>
+                    <span className="flex-1 text-[13px]">
+                      {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
+                    </span>
+                    <span className="font-mono text-mono-xs text-tm">⌘Q</span>
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

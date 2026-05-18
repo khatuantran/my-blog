@@ -205,7 +205,7 @@
 - [T-091] [P1] [F1] [FE] RegisterPage (defer scaffold pattern từ Login) - TODO
 - [T-092] [P0] [F1] [FE] useAuth hook + TanStack Query refresh logic (catch 401 → refresh) - DONE (2026-05-18)
 - [T-093] [P0] [F1] [FE] ProtectedRoute component (role check + redirect) - DONE (2026-05-18)
-- [T-094] [P1] [F1] [FE] Avatar dropdown menu + Logout action - TODO
+- [T-094] [P1] [F1] [FE] Avatar dropdown menu + Logout action - DONE (2026-05-18)
 
 ### Backlog — M11: Real-time
 

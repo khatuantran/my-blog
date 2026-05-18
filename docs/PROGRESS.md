@@ -107,11 +107,10 @@
   - Phase A ✅ (T-070/T-071/T-072/T-073/T-074/T-075): Create Post page + 5 components + Cloudinary direct upload.
   - Phase B ✅ (T-076/T-077/T-078/T-079): Admin dashboard + StatCard/Sparkline + MoodBar + ActivityLogItem + UsersTable + AdminPage.
   - Total **155 FE tests pass** (BE 227 + FE 155 = **382 tests** project-wide).
-- **M10 in progress 🟡 (3/5 done):**
-  - ✅ T-092 foundation, ✅ T-090 LoginPage.
-  - ✅ **T-093** ProtectedRoute hydrating-aware + role gate. 5 tests. Total **175 FE tests**.
-- **Next (M10 còn 2 tasks):**
-  - T-094 Avatar dropdown Logout wire
+- **M10 in progress 🟡 (4/5 done):**
+  - ✅ T-092 foundation, ✅ T-090 LoginPage, ✅ T-093 ProtectedRoute.
+  - ✅ **T-094** Avatar dropdown wire Logout (useLogout mutation + navigate /auth/login replace) + guest variant menu Login/Register + USER role ẩn admin-only items. Total **177 FE tests**.
+- **Next (M10 còn 1 task):**
   - T-091 RegisterPage skeleton (close M10)
 
 ---

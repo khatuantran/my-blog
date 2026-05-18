@@ -1,9 +1,20 @@
-import { Outlet } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 import { TopBar } from './TopBar';
+import { StatusBar } from './StatusBar';
 
-// Shell shared cho mọi page (trừ Auth).
-// StatusBar (T-051) + CommandPalette (T-052) sẽ wire ở task kế.
+// Map URL path → terminal path label cho StatusBar.
+function pathLabel(pathname: string): string {
+  if (pathname === '/') return '~/feed';
+  if (pathname.startsWith('/post/')) return `~/post${pathname.slice(5)}`;
+  if (pathname === '/admin') return '~/admin/dashboard';
+  if (pathname === '/admin/create') return '~/admin/create-post';
+  return `~${pathname}`;
+}
+
+// Shell shared cho mọi page (trừ Auth). CommandPalette (T-052) wire ở task kế.
 export function AppLayout() {
+  const { pathname } = useLocation();
+
   function handleOpenCommandPalette() {
     // TODO(T-052): mở CommandPalette qua Zustand store.
     if (import.meta.env.DEV) {
@@ -20,13 +31,7 @@ export function AppLayout() {
         <Outlet />
       </main>
 
-      {/* StatusBar slot — fixed bottom 28px, fill ở T-051 */}
-      <div
-        role="presentation"
-        aria-hidden="true"
-        className="fixed bottom-0 left-0 right-0 h-[28px] border-t border-b1 bg-[#070A14] z-50"
-        data-slot="statusbar"
-      />
+      <StatusBar path={pathLabel(pathname)} />
     </div>
   );
 }

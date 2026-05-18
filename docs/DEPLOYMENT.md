@@ -35,6 +35,22 @@ pnpm install
 cp apps/api/.env.example apps/api/.env              # backend (Prisma auto-read .env)
 cp apps/web/.env.example apps/web/.env.local        # frontend (Vite convention)
 
+# 3b. Tạo apps/api/.env.test cho integration tests (file untracked theo .gitignore security)
+# Copy template từ .env, đổi DATABASE_URL trỏ port :5433 + dùng db myblog_test, set NODE_ENV=test
+# + JWT stub + Cloudinary stub (CloudinaryService bị mock trong createTestApp nên giá trị stub là OK):
+#   DATABASE_URL="postgresql://myblog:myblog@localhost:5433/myblog_test?schema=public"
+#   DIRECT_URL="postgresql://myblog:myblog@localhost:5433/myblog_test?schema=public"
+#   NODE_ENV="test"
+#   JWT_SECRET="test-jwt-secret-32-byte-base64-AAAAAAAAA"
+#   JWT_REFRESH_SECRET="test-refresh-secret-32-byte-base64-AAAA"
+#   ADMIN_USERNAME="test-admin"
+#   ADMIN_PASSWORD="test-admin-password"
+#   CORS_ORIGIN="http://localhost:5173"
+#   CLOUDINARY_CLOUD_NAME="test-cloud"
+#   CLOUDINARY_API_KEY="test-key"
+#   CLOUDINARY_API_SECRET="test-secret"
+#   CLOUDINARY_UPLOAD_PRESET="test_preset"
+
 # 4. Start Postgres (main + test)
 docker compose up -d
 # Verify: docker ps -- nên thấy postgres-main + postgres-test

@@ -134,10 +134,10 @@
 
 ### Files (`/files/*`)
 
-| Method | Path          | Auth  | FR               | Notes                                 |
-| ------ | ------------- | ----- | ---------------- | ------------------------------------- |
-| POST   | `/files/sign` | admin | FR-02.3, FR-06.1 | Issue Cloudinary signed upload params |
-| DELETE | `/files/:id`  | admin | FR-06.4          | Remove from DB + Cloudinary           |
+| Method | Path          | Auth  | FR               | Notes                                                                                                                                                    |
+| ------ | ------------- | ----- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | `/files/sign` | admin | FR-02.3, FR-06.1 | Body: `{ resourceType: 'image'\|'raw', folder?, publicId? }`. Response 200 `{ signature, timestamp, apiKey, cloudName, folder, resourceType, publicId }` |
+| DELETE | `/files/:id`  | admin | FR-06.4          | Hard delete DB + best-effort destroy Cloudinary asset. Response 204. `PostsService.remove`/`update` cũng auto-cascade Cloudinary                         |
 
 ### Tags (`/tags/*`)
 

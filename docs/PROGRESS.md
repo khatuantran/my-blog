@@ -100,14 +100,11 @@
   - Phase A ✅: T-065 primitives, T-062 PostContent, T-063 ImageGrid, T-064 FileAttachments, T-060 FeedPage + foundation, T-061 PostCard full.
   - Phase B ✅: T-066 PostDetailPage + MetaPanel + useTrackView, T-067 ImageCarousel, T-068 CommentForm post-as-anon, T-069 CommentItem + CommentList wire vào PostDetailPage.
   - Total **103 FE tests pass** (BE 227 + FE 103 = 330 tests).
-- **M9 in progress 🟡 (4/10 done):**
-  - ✅ **T-071** MoodPicker.
-  - ✅ **T-072** MarkdownEditor + wrapSelection.
-  - ✅ **T-073** UploadZone Cloudinary direct.
-  - ✅ **T-074** TagInput chip add/remove + color cycle + Backspace remove last. 6 tests. Total **125 FE tests**.
-- **Next (M9 Phase A còn 2 tasks):**
-  - T-075 PostPreview live mini-card
-  - T-070 CreatePostPage assemble (close Phase A)
+- **M9 in progress 🟡 (5/10 done):**
+  - ✅ T-071/T-072/T-073/T-074 (4 building blocks).
+  - ✅ **T-075** PostPreview live mini-card với mock author + truncate 300ch + ImgSlot grid + tags. 5 tests. Total **130 FE tests**.
+- **Next (M9 Phase A còn 1 task):**
+  - T-070 CreatePostPage assemble (close Phase A) — wire MoodPicker + MarkdownEditor + UploadZone × 2 + TagInput + PostPreview + useCreatePost mutation + ⌘S/⌘↵ shortcuts.
 
 ---
 

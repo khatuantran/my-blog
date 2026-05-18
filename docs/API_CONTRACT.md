@@ -120,10 +120,10 @@
 
 ### Likes (`/likes/*`)
 
-| Method | Path                 | Auth     | FR      | Notes                                                        |
-| ------ | -------------------- | -------- | ------- | ------------------------------------------------------------ |
-| POST   | `/posts/:id/like`    | optional | FR-03.1 | Toggle (idempotent) — return `{ liked: true\|false, count }` |
-| POST   | `/comments/:id/like` | optional | FR-03.5 | Toggle                                                       |
+| Method | Path                 | Auth     | FR      | Notes                                                                                                                                                             |
+| ------ | -------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| POST   | `/posts/:id/like`    | optional | FR-03.1 | Toggle Like. Identity: userId (auth) hoặc anonymousId (anon cookie). Response 200 `{ liked, count }`. 404 post không tồn tại. 400 `VIEWER_ID_REQUIRED` thiếu cả 2 |
+| POST   | `/comments/:id/like` | optional | FR-03.5 | Toggle CommentLike chỉ trên comment APPROVED. Response 200 `{ liked, count }`. 404 comment không tồn tại hoặc không APPROVED                                      |
 
 ### Saved (`/saved/*`)
 

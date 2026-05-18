@@ -128,7 +128,10 @@
 
 ### Backlog — M5: BE Interactions
 
-- [T-030] [P1] [F1] [BE] LikesModule (post + comment) - TODO
+- [T-030] [P1] [F1] [BE] LikesModule (post + comment) - DONE (2026-05-18)
+  - 2 endpoints: POST /posts/:id/like + POST /comments/:id/like (optional auth qua JwtOptionalAuthGuard từ T-021). Identity: userId (auth) hoặc anonymousId (anon). Toggle idempotent qua unique constraint schema. Comment likes chỉ APPROVED, PENDING/REJECTED → 404 (ẩn).
+  - Helper `buildDedupKey()` reusable + `BadRequestException` `VIEWER_ID_REQUIRED` khi thiếu cả. Response 200 `{ liked, count }`.
+  - Tests: 11 unit + 10 integration (toggle on/off anon, 2 anon riêng count=2, auth user prefer userId, cascade Post delete xóa Like, comment PENDING/REJECTED 404). Total **77 unit + 84 e2e = 161 tests pass**.
 - [T-031] [P1] [F1] [BE] CommentsModule + moderation status logic - TODO
 - [T-032] [P1] [F1] [BE] SavedModule (`/posts/:id/save`, `/me/saved`) - TODO
 

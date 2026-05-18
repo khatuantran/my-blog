@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
+import { LikesModule } from './likes/likes.module';
 import { PostsModule } from './posts/posts.module';
 import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
@@ -24,6 +25,7 @@ import { validateEnv } from './config/env.schema';
     FilesModule,
     TagsModule,
     PostsModule,
+    LikesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

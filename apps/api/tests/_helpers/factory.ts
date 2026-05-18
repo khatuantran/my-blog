@@ -1,5 +1,5 @@
 import { PrismaService } from 'nestjs-prisma';
-import { Mood, Role, type Post, type User } from '@prisma/client';
+import { CommentStatus, Mood, Role, type Comment, type Post, type User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const TEST_PASSWORD = 'test-password-123';
@@ -43,6 +43,29 @@ export async function makePost(
       mood: opts.mood ?? Mood.HAPPY,
       authorId: opts.authorId,
       postTags: { create: tags.map((t) => ({ tagId: t.id })) },
+    },
+  });
+}
+
+export async function makeComment(
+  prisma: PrismaService,
+  opts: {
+    postId: string;
+    userId?: string;
+    anonymousId?: string;
+    anonymousName?: string;
+    content?: string;
+    status?: CommentStatus;
+  },
+): Promise<Comment> {
+  return prisma.comment.create({
+    data: {
+      postId: opts.postId,
+      userId: opts.userId ?? null,
+      anonymousId: opts.anonymousId ?? null,
+      anonymousName: opts.anonymousName ?? null,
+      content: opts.content ?? 'test comment',
+      status: opts.status ?? CommentStatus.APPROVED,
     },
   });
 }

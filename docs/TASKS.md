@@ -144,12 +144,16 @@
 
 ### Backlog — M6: BE Admin + WebSocket
 
+> **M6 closed 2026-05-18 (partial 2/4 done):** T-040 + T-043 hoàn tất; T-041 + T-042 DEFERRED — realtime feature có thể implement sau hoặc skip tuỳ scope.
+
 - [T-040] [P1] [F1] [BE] AdminModule — dashboard aggregations (stats / moods / heatmap) - DONE (2026-05-18)
   - 3 endpoints admin-only: GET /admin/stats (4 metrics totals + sparkline 12 daily buckets + deltaToday), GET /admin/moods (zero-filled 7 moods), GET /admin/heatmap (28-day post creation count). Helper `bucketByDay(rows, days)` UTC-based + zero-fill missing.
   - DROP /admin/users + /admin/users/:id/ban (overlap T-014), /admin/comments/pending (defer T-031 enhancement nếu cần cross-post badge), /admin/visitors (defer T-042 với AnonymousSession activity persist).
   - Tests: 6 unit (bucketByDay helper, getStats 4 metrics, getMoodDistribution 7 zero-fill, getHeatmap 28 entries) + 9 integration (401/403/200 cho 3 endpoints + zero-fill verify). Total **104 unit + 121 e2e = 225 tests pass**.
-- [T-041] [P1] [F1] [BE] RealtimeGateway — Socket.io + rooms (`post:<id>`, `admin`) + lifecycle hooks - TODO
-- [T-042] [P1] [F1] [BE] Activity log persist (PostView, AnonymousSession update) - TODO
+- [T-041] [P1] [F1] [BE] RealtimeGateway — Socket.io + rooms (`post:<id>`, `admin`) + lifecycle hooks - DEFERRED (2026-05-18)
+  - Phụ thuộc quyết định scope realtime (sẽ làm hoặc không làm). FR-09 + WebSocket events catalog trong API_CONTRACT.md đã có spec sẵn nếu cần resume.
+- [T-042] [P1] [F1] [BE] Activity log persist (PostView, AnonymousSession update) - DEFERRED (2026-05-18)
+  - Gộp với T-041 vì phụ thuộc Socket.io gateway (heartbeat từ client populate AnonymousSession). Cũng kèm endpoint /admin/visitors.
 - [T-043] [P2] [F1] [BE] Rate limiting (@nestjs/throttler) + per-endpoint limits - DONE (2026-05-18)
   - Global ThrottlerModule 100/60s/IP + APP_GUARD. Per-endpoint `@Throttle({ default: { limit: 10, ttl: 60_000 } })` cho POST /auth/register, /auth/login, /posts/:id/comments, /posts/:id/like, /comments/:id/like.
   - skipIf flag: `process.env.THROTTLE_DISABLED === '1'`. `.env.test` set `THROTTLE_DISABLED=1` để existing e2e không bị burst-fail. throttle.e2e-spec.ts opt-in (xoá flag trước createTestApp, restore sau).

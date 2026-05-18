@@ -2,9 +2,13 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
 import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
+import { TagsService, normalizeTagName as normalizeTagNameImpl } from '../tags/tags.service';
 import type { CreatePostDto } from './dto/create-post.dto';
 import type { UpdatePostDto } from './dto/update-post.dto';
 import type { ListPostsDto } from './dto/list-posts.dto';
+
+// Re-export for backward compat (tests import from posts.service)
+export const normalizeTagName = normalizeTagNameImpl;
 
 const POST_INCLUDE = {
   author: { select: { id: true, username: true, role: true, avatarUrl: true } },
@@ -50,10 +54,6 @@ export function toPostView(post: PostWithRelations): PostView {
   };
 }
 
-export function normalizeTagName(raw: string): string {
-  return raw.trim().toLowerCase().replace(/^#+/, '');
-}
-
 export const VIEW_DEDUP_WINDOW_MS = 30 * 60 * 1000;
 
 @Injectable()
@@ -63,6 +63,7 @@ export class PostsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
+    private readonly tags: TagsService,
   ) {}
 
   async list(
@@ -103,16 +104,9 @@ export class PostsService {
   }
 
   async create(authorId: string, dto: CreatePostDto): Promise<PostView> {
-    const tagNames = (dto.tags ?? []).map(normalizeTagName).filter((n) => n.length > 0);
-    const uniqueTagNames = Array.from(new Set(tagNames));
-
     const post = await this.prisma.$transaction(async (tx) => {
-      // Upsert tags (auto-create missing)
-      const tags = await Promise.all(
-        uniqueTagNames.map((name) =>
-          tx.tag.upsert({ where: { name }, update: {}, create: { name } }),
-        ),
-      );
+      // Upsert tags via TagsService (auto-assign color cycle cho tag mới)
+      const tags = await this.tags.upsertMany(dto.tags ?? [], tx);
 
       return tx.post.create({
         data: {
@@ -183,13 +177,7 @@ export class PostsService {
 
     const post = await this.prisma.$transaction(async (tx) => {
       if (tagsProvided) {
-        const tagNames = (dto.tags ?? []).map(normalizeTagName).filter((n) => n.length > 0);
-        const uniqueTagNames = Array.from(new Set(tagNames));
-        const tags = await Promise.all(
-          uniqueTagNames.map((name) =>
-            tx.tag.upsert({ where: { name }, update: {}, create: { name } }),
-          ),
-        );
+        const tags = await this.tags.upsertMany(dto.tags ?? [], tx);
         await tx.postTag.deleteMany({ where: { postId: id } });
         if (tags.length > 0) {
           await tx.postTag.createMany({

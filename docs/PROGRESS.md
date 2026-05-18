@@ -9,7 +9,7 @@
 | M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done    | 2026-05-17  |
 | M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done    | 2026-05-17  |
 | M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done    | 2026-05-17  |
-| M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | 🟡 Doing   |             |
+| M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done    | 2026-05-18  |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ⬜ Todo    |             |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel)        | ⬜ Todo    |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo    |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo    |             |
 
-## Tỉ lệ hoàn thành: 21% (3/14 milestone)
+## Tỉ lệ hoàn thành: 29% (4/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -75,12 +75,16 @@
 
 ### 2026-05-18 (Week 2)
 
-- **Done (M4 progress 3/4):**
-  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), DTOs đầy đủ (Create/Update/List/Response + nested Image/File inputs), Service auto-upsert Tag (normalize lowercase + strip `#`), `$transaction` cho create/update replace tags/images/files, hard delete cascade. 14 unit + 20 integration.
-  - ✅ **T-021** View tracking POST /posts/:id/view: optional auth qua new `JwtOptionalAuthGuard` reusable. Dedup 30min theo userId/anonymousId. PostView record + viewCount increment trong `$transaction`. Response `{ viewCount, counted }`. 5 unit + 5 integration.
-  - ✅ **T-022** FilesModule Cloudinary: POST /files/sign + DELETE /files/:id (admin). `CloudinaryService` wrapper + cascade Cloudinary cleanup hook vào PostsService.remove() + update() (fix image/file leak từ T-020). `createTestApp` override CloudinaryService mock. Dep `cloudinary ^2.10`. 3 unit + 9 integration. Total **50 unit + 56 e2e = 106 tests pass**.
-- **Next:**
-  - T-023: TagsModule CRUD + color rotation (M4 last task)
+- **M4 complete ✅ (4/4):**
+  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), Service auto-upsert Tag, `$transaction` replace tags/images/files, hard delete cascade. 14 unit + 20 integration.
+  - ✅ **T-021** View tracking POST /posts/:id/view: optional auth qua new `JwtOptionalAuthGuard` reusable. Dedup 30min theo userId/anonymousId. Response `{ viewCount, counted }`. 5 unit + 5 integration.
+  - ✅ **T-022** FilesModule Cloudinary: POST /files/sign + DELETE /files/:id (admin). `CloudinaryService` wrapper + cascade Cloudinary cleanup hook PostsService.remove/update. Dep `cloudinary ^2.10`. 3 unit + 9 integration.
+  - ✅ **T-023** TagsModule CRUD + color rotation: GET public top N + POST/PATCH/DELETE admin. `TAG_COLORS` palette 7 cyberpunk colors cycle theo `tag.count() % 7`. Refactor PostsService inline upsert → `TagsService.upsertMany(names, tx?)` transaction-aware. 16 unit + 18 integration.
+  - Total **66 unit + 74 e2e = 140 tests pass**.
+- **Next (M5 — BE Interactions):**
+  - T-030: LikesModule (post + comment, toggle + optional auth)
+  - T-031: CommentsModule + moderation status
+  - T-032: SavedModule (`/posts/:id/save`, `/me/saved`)
 
 ---
 

@@ -119,7 +119,12 @@
   - **Cascade Cloudinary cleanup** hook vào `PostsService.remove()` (collect image+file publicIds trước cascade DB delete, destroy sau commit) và `PostsService.update()` (orphaned assets khi replace images/files).
   - Test infra: `createTestApp()` override `CloudinaryService` provider với mock — không hit real Cloudinary API. Stub `.env.test` Cloudinary vars.
   - Tests: 3 unit (FilesService) + 9 integration (sign auth/role/validate, delete cascade, post delete + patch replace verify destroyMany). Total **50 unit + 56 e2e = 106 tests pass**.
-- [T-023] [P1] [F1] [BE] TagsModule — CRUD + color rotation logic - TODO
+- [T-023] [P1] [F1] [BE] TagsModule — CRUD + color rotation logic - DONE (2026-05-18)
+  - 4 endpoints: GET /tags (public, top N by postCount DESC, default limit 20 max 100), POST /tags (admin, body `{ name, color? }`, auto-assign từ palette nếu thiếu), PATCH /tags/:id (admin, rename/change color), DELETE /tags/:id (admin, hard delete + cascade PostTag).
+  - Color rotation: `TAG_COLORS` palette 7 cyberpunk colors theo DESIGN_SYSTEM.md. Cycle theo `tag.count() % 7` khi auto-create.
+  - Refactor `PostsService.create/update` inline `tag.upsert` → delegate sang `TagsService.upsertMany(names, tx?)` áp dụng color rotation nhất quán. PostsService unit tests update để mock TagsService.
+  - Tests: 16 unit (TagsService) + 18 integration (CRUD auth/validate/cascade + color cycle wrap-around 7→0 + PostsService auto-create dùng palette). Total **66 unit + 74 e2e = 140 tests pass**.
+  - M4 milestone complete (T-020/T-021/T-022/T-023 done).
 
 ### Backlog — M5: BE Interactions
 

@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { PostsModule } from './posts/posts.module';
+import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
 import { AnonymousIdMiddleware } from './common/middleware/anonymous-id.middleware';
 import { validateEnv } from './config/env.schema';
@@ -21,6 +22,7 @@ import { validateEnv } from './config/env.schema';
     AuthModule,
     UsersModule,
     FilesModule,
+    TagsModule,
     PostsModule,
   ],
   controllers: [AppController],

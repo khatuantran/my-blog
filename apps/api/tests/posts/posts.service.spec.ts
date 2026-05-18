@@ -3,6 +3,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileType, Mood, Role } from '@prisma/client';
 import { CloudinaryService } from '@/files/cloudinary.service';
+import { TagsService } from '@/tags/tags.service';
 import { PostsService, normalizeTagName } from '@/posts/posts.service';
 
 type MockPrisma = {
@@ -37,6 +38,7 @@ describe('PostsService', () => {
   let service: PostsService;
   let prisma: MockPrisma;
   let cloudinary: { signUpload: jest.Mock; destroyMany: jest.Mock };
+  let tags: { upsertMany: jest.Mock };
   let tx: {
     tag: { upsert: jest.Mock };
     post: { create: jest.Mock; update: jest.Mock };
@@ -72,12 +74,16 @@ describe('PostsService', () => {
       signUpload: jest.fn(),
       destroyMany: jest.fn().mockResolvedValue(undefined),
     };
+    tags = {
+      upsertMany: jest.fn().mockResolvedValue([]),
+    };
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         PostsService,
         { provide: PrismaService, useValue: prisma },
         { provide: CloudinaryService, useValue: cloudinary },
+        { provide: TagsService, useValue: tags },
       ],
     }).compile();
     service = moduleRef.get(PostsService);
@@ -146,10 +152,11 @@ describe('PostsService', () => {
   });
 
   describe('create', () => {
-    it('happy with tags auto-upsert + image order fallback', async () => {
-      tx.tag.upsert.mockImplementation(({ create }: { create: { name: string } }) =>
-        Promise.resolve({ id: 'tag-' + create.name, name: create.name, color: null }),
-      );
+    it('happy: delegate tags upsert sang TagsService + image order fallback', async () => {
+      tags.upsertMany.mockResolvedValue([
+        { id: 'tag-dev', name: 'dev', color: '#00FFE5' },
+        { id: 'tag-life', name: 'life', color: '#FF6E96' },
+      ]);
       tx.post.create.mockResolvedValue(basePost);
 
       await service.create('admin-id', {
@@ -168,23 +175,23 @@ describe('PostsService', () => {
         ],
       });
 
-      // dedupe + normalize → 'dev' + 'life'
-      expect(tx.tag.upsert).toHaveBeenCalledTimes(2);
+      expect(tags.upsertMany).toHaveBeenCalledWith(['#Dev', 'life', '#dev'], tx);
       const created = tx.post.create.mock.calls[0][0];
       expect(created.data.authorId).toBe('admin-id');
-      expect(created.data.postTags.create).toHaveLength(2);
+      expect(created.data.postTags.create).toEqual([{ tagId: 'tag-dev' }, { tagId: 'tag-life' }]);
       expect(created.data.images.create[0].order).toBe(0);
       expect(created.data.files.create[0].name).toBe('r.pdf');
     });
 
-    it('happy không tags/images/files', async () => {
+    it('happy không tags/images/files: TagsService upsertMany vẫn được gọi với []', async () => {
+      tags.upsertMany.mockResolvedValue([]);
       tx.post.create.mockResolvedValue(basePost);
       await service.create('admin-id', { content: 'hi', mood: Mood.HAPPY });
+      expect(tags.upsertMany).toHaveBeenCalledWith([], tx);
       const created = tx.post.create.mock.calls[0][0];
       expect(created.data.postTags.create).toEqual([]);
       expect(created.data.images).toBeUndefined();
       expect(created.data.files).toBeUndefined();
-      expect(tx.tag.upsert).not.toHaveBeenCalled();
     });
   });
 
@@ -209,19 +216,21 @@ describe('PostsService', () => {
       );
     });
 
-    it('tags replace: delete old + upsert new', async () => {
+    it('tags replace: delete old + delegate upsert sang TagsService', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
-      tx.tag.upsert.mockResolvedValue({ id: 'tag-new', name: 'new', color: null });
+      tags.upsertMany.mockResolvedValue([{ id: 'tag-new', name: 'new', color: '#00FFE5' }]);
       tx.post.update.mockResolvedValue(basePost);
       await service.update('p1', { tags: ['new'] });
+      expect(tags.upsertMany).toHaveBeenCalledWith(['new'], tx);
       expect(tx.postTag.deleteMany).toHaveBeenCalledWith({ where: { postId: 'p1' } });
       expect(tx.postTag.createMany).toHaveBeenCalledWith({
         data: [{ postId: 'p1', tagId: 'tag-new' }],
       });
     });
 
-    it('tags empty array clears all tags', async () => {
+    it('tags empty array clears all tags (no createMany)', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
+      tags.upsertMany.mockResolvedValue([]);
       tx.post.update.mockResolvedValue(basePost);
       await service.update('p1', { tags: [] });
       expect(tx.postTag.deleteMany).toHaveBeenCalledWith({ where: { postId: 'p1' } });

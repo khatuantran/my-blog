@@ -141,9 +141,12 @@
 
 ### Tags (`/tags/*`)
 
-| Method | Path    | Auth   | FR      | Notes                                           |
-| ------ | ------- | ------ | ------- | ----------------------------------------------- |
-| GET    | `/tags` | public | FR-04.3 | List popular (top N) — response include `color` |
+| Method | Path        | Auth   | FR      | Notes                                                                                                                                                |
+| ------ | ----------- | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/tags`     | public | FR-04.3 | Top N popular by postCount DESC. Query: `limit` (default 20, max 100). Response 200 `{ items: [{ id, name, color, postCount }] }`                    |
+| POST   | `/tags`     | admin  | FR-04.3 | Body: `{ name, color? }`. Auto-assign color từ palette (cycle theo Tag count % 7) nếu thiếu. Response 201 `{ id, name, color }`. 409 `DUPLICATE_TAG` |
+| PATCH  | `/tags/:id` | admin  | FR-04.3 | Body: `{ name?, color? }`. Rename/đổi color. Response 200 `{ id, name, color }`. 404, 409 nếu name trùng                                             |
+| DELETE | `/tags/:id` | admin  | FR-04.3 | Hard delete Tag + cascade PostTag rows. Response 204. 404                                                                                            |
 
 ### Admin (`/admin/*`)
 

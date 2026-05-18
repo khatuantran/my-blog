@@ -1,18 +1,12 @@
 export default function HomePage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="font-brand text-4xl font-bold text-cyan animate-fade-up">kha.blog</h1>
-      <p className="mt-4 font-mono text-mono-lg text-ts">
-        <span className="text-grn">$</span> apps/web scaffold OK
-        <span className="ml-1 inline-block w-2 h-4 bg-cyan animate-blink align-middle" />
-      </p>
-      <pre className="mt-8 rounded-lg border border-b2 bg-surf p-4 font-mono text-mono text-tm shadow-glow-cyan-sm">
-        {`// next steps
-- T-005 ✅ scaffold vite + react 19 + router v7
-- T-006   eslint + prettier + husky
-- T-010   prisma entities + migration
-- T-050+  layout components (TopBar, StatusBar, ...)`}
-      </pre>
-    </main>
+    <div className="mx-auto max-w-[820px] px-6 py-12">
+      <div className="font-mono text-mono-xs text-tm mb-3">// feed.posts · 0 total</div>
+      <div className="text-center py-20 font-mono">
+        <div className="text-5xl mb-3 opacity-30">◐</div>
+        <div className="text-tm mb-2">// feed coming soon · M8</div>
+        <div className="text-td text-mono-xs">$ cd ../feed &amp;&amp; ls -la --all-moods</div>
+      </div>
+    </div>
   );
 }

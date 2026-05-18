@@ -89,11 +89,11 @@
   - ✅ **T-040** AdminModule (stats / moods / heatmap): 3 endpoints aggregation admin-only. Helper `bucketByDay` UTC + zero-fill.
   - ✅ **T-043** Rate limiting (@nestjs/throttler): Global 100/60s/IP + per-endpoint @Throttle 10/min cho register/login/comments/likes (NFR-04). skipIf `THROTTLE_DISABLED=1` cho test. Map ThrottlerException → `RATE_LIMITED` 429. Total **104 unit + 123 e2e = 227 tests pass**.
   - 🟦 **T-041 + T-042 DEFERRED** — realtime stack (Socket.io gateway + activity log persist) gộp thành 1 phase riêng, có thể implement sau hoặc skip tuỳ scope.
-- **M7 in progress 🟡 (1/5 done):**
+- **M7 in progress 🟡 (2/5 done):**
   - ✅ **T-056** Design tokens align với design-file: fix `glitch` keyframe (text-shadow chroma split), thêm `scan-line` keyframe, `::-webkit-scrollbar` rules, utility `.sb-lbl` cho section label.
+  - ✅ **T-055** App router + AppLayout/AuthLayout shells + ProtectedRoute + useAuth stub. 6 routes lazy (/, /post/:id, /admin, /admin/create, /auth/login, \*). 7 integration tests pass.
   - Docs sync prep: drop global Sidebar/RightPanel khỏi UI_DESIGN/DESIGN_SYSTEM/ARCHITECTURE; T-053 + T-054 DROPPED; M7 scope 7 → 5 tasks.
-- **Next (M7 còn 4 tasks):**
-  - T-055 App router + AppLayout/AuthLayout + placeholder pages
+- **Next (M7 còn 3 tasks):**
   - T-050 TopBar (logo glitch + search + avatar dropdown)
   - T-051 StatusBar
   - T-052 CommandPalette ⌘K

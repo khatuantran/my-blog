@@ -96,18 +96,13 @@
   - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
   - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **M8 Phase A complete ✅ (6/10 done):**
-  - ✅ **T-065** MoodBadge + TagPill + Avatar primitives.
-  - ✅ **T-062** PostContent markdown renderer.
-  - ✅ **T-063** ImageGrid + ImgSlot fallback.
-  - ✅ **T-064** FileAttachments + FILE_CFG.
-  - ✅ **T-060** FeedPage + foundation (API typed wrappers + query keys + hooks + MSW).
-  - ✅ **T-061** PostCard full (PostHeader + content + ImageGrid + FileAttachments + tags + LikeButton/SaveButton local optimistic). 11 tests. Total **79 FE tests**.
-- **Next (M8 Phase B Post Detail):**
-  - T-066 PostDetailPage + MetaPanel + view tracking
-  - T-067 ImageCarousel
+- **M8 in progress 🟡 (7/10 done — Phase A done, Phase B 1/4):**
+  - Phase A ✅: T-065 primitives, T-062 PostContent, T-063 ImageGrid, T-064 FileAttachments, T-060 FeedPage + foundation, T-061 PostCard full.
+  - ✅ **T-066** PostDetailPage: full detail layout 2-col (main + MetaPanel 280px hidden < lg). PostHeader avatarSize=lg, PostContent variant=detail, ImageCarousel stub, MetaPanel (post.meta/tags/share/related). useTrackView hook fire POST /view 1x per mount. 404 → back to feed. 3 tests. Total **82 FE tests**.
+- **Next (M8 Phase B còn 3 tasks):**
+  - T-067 ImageCarousel (prev/next + dots + keyboard)
   - T-068 CommentForm + post-as-anon
-  - T-069 CommentItem + like
+  - T-069 CommentItem + like + CommentList
 
 ---
 

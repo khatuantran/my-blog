@@ -35,9 +35,17 @@ describe('App router', () => {
     expect(await screen.findByText(/no posts matching filter/i)).toBeInTheDocument();
   });
 
-  it('renders PostDetailPage at /post/:id với id từ URL', async () => {
+  it('renders PostDetailPage at /post/:id (404 vì MSW default)', async () => {
+    mswServer.use(
+      http.get(`${API_URL}/posts/abc123`, () =>
+        HttpResponse.json(
+          { error: { code: 'NOT_FOUND', message: 'Post not found' } },
+          { status: 404 },
+        ),
+      ),
+    );
     renderAt('/post/abc123');
-    expect(await screen.findByText(/post.detail \[abc123\] coming soon/i)).toBeInTheDocument();
+    expect(await screen.findByText(/post not found/i)).toBeInTheDocument();
   });
 
   it('renders AdminPage at /admin (admin role allowed)', async () => {

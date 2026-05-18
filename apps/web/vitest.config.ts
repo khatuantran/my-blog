@@ -16,5 +16,10 @@ export default defineConfig({
     setupFiles: './tests/setup.ts',
     include: ['tests/**/*.{test,spec}.{ts,tsx}'],
     css: true,
+    env: {
+      VITE_API_URL: 'http://localhost:3001',
+      VITE_WS_URL: 'ws://localhost:3001',
+      VITE_SENTRY_DSN: '',
+    },
   },
 });

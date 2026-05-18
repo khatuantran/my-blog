@@ -96,10 +96,10 @@
   - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
   - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **M8 in progress 🟡 (1/10 done):**
-  - ✅ **T-065** Shared primitives MoodBadge + TagPill + Avatar + `lib/mood-config.ts`. 11 unit tests. Total **37 FE tests**.
-- **Next (M8 Phase A còn 5 tasks):**
-  - T-062 PostContent markdown parser
+- **M8 in progress 🟡 (2/10 done):**
+  - ✅ **T-065** Shared primitives MoodBadge + TagPill + Avatar + `lib/mood-config.ts`.
+  - ✅ **T-062** PostContent markdown renderer (custom parser zero deps + variant card/detail). 7 tests. Total **44 FE tests**.
+- **Next (M8 Phase A còn 4 tasks):**
   - T-063 ImageGrid + ImgSlot fallback
   - T-064 FileAttachments + FILE_CFG
   - T-061 PostCard (assembles primitives + like/save mutations)

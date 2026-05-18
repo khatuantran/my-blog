@@ -1,0 +1,40 @@
+import { parsePostContent } from '@/lib/markdown';
+
+type Variant = 'card' | 'detail';
+
+type Props = {
+  content: string;
+  variant?: Variant;
+};
+
+const VARIANT_TEXT: Record<Variant, string> = {
+  card: 'text-[14px] leading-[1.65]',
+  detail: 'text-[15px] leading-[1.75]',
+};
+
+export function PostContent({ content, variant = 'card' }: Props) {
+  const segs = parsePostContent(content);
+  return (
+    <div className={`text-tp ${VARIANT_TEXT[variant]}`} style={{ color: '#C9D1D9' }}>
+      {segs.map((s, i) =>
+        s.type === 'code' ? (
+          <pre
+            key={i}
+            className="my-3 overflow-x-auto whitespace-pre rounded-md border border-b2 bg-[#070A14] px-3.5 py-3 font-mono text-mono leading-[1.6] text-grn"
+            style={{ borderLeft: '2px solid rgba(158,206,106,.5)' }}
+          >
+            {s.value.trim()}
+          </pre>
+        ) : (
+          s.value.split('\n\n').map((p, j) =>
+            p.trim() ? (
+              <p key={`${i}-${j}`} className="mb-2">
+                {p.trim()}
+              </p>
+            ) : null,
+          )
+        ),
+      )}
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 // E2E-04 — Anonymous: view feed → like → comment as anon
-import { test, expect } from '@playwright/test';
+import { test, expect, request as pwRequest } from '@playwright/test';
 import { resetDb, E2E_USERS } from './_helpers/seed';
 
 const API = process.env.E2E_API_URL ?? 'http://localhost:3001';
@@ -8,7 +8,7 @@ test.describe('E2E-04 Anonymous interaction', () => {
   test.beforeEach(async ({ request }) => {
     await resetDb(request);
     // Admin seeds 1 post via API (no browser login mixed in)
-    const ctx = await request.newContext();
+    const ctx = await pwRequest.newContext();
     await ctx.post(`${API}/auth/login`, { data: E2E_USERS.admin });
     await ctx.post(`${API}/posts`, {
       data: { content: 'anon-target post', mood: 'HAPPY' },

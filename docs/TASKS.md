@@ -221,7 +221,7 @@
 - [T-111] [P1] [F1] [BE] Integration tests Supertest cho mọi endpoint - DONE 2026-05-18
 - [T-112] [P1] [F1] [FE] Unit tests Vitest cho hooks + services + validators - DONE 2026-05-18
 - [T-113] [P1] [F1] [Both] E2E tests Playwright (E2E-01 → E2E-13) - DONE 2026-05-18 (E2E-07/08/10/11/13 test.skip với reason — phụ thuộc UI/feature chưa wire)
-- [T-114] [P2] [F7] [Infra] CI GitHub Actions matrix (FE unit + BE unit + BE integration + E2E) - TODO
+- [T-114] [P2] [F7] [Infra] CI GitHub Actions matrix (FE unit + BE unit + BE integration + E2E) - DONE 2026-05-18
 
 ### Backlog — M13: Deploy
 

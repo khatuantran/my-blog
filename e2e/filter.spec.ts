@@ -1,5 +1,5 @@
 // E2E-06 — Filter feed theo mood
-import { test, expect } from '@playwright/test';
+import { test, expect, request as pwRequest } from '@playwright/test';
 import { resetDb, E2E_USERS } from './_helpers/seed';
 
 const API = process.env.E2E_API_URL ?? 'http://localhost:3001';
@@ -7,7 +7,7 @@ const API = process.env.E2E_API_URL ?? 'http://localhost:3001';
 test.describe('E2E-06 Filter feed', () => {
   test.beforeEach(async ({ request }) => {
     await resetDb(request);
-    const ctx = await request.newContext();
+    const ctx = await pwRequest.newContext();
     await ctx.post(`${API}/auth/login`, { data: E2E_USERS.admin });
     await ctx.post(`${API}/posts`, { data: { content: 'happy one', mood: 'HAPPY' } });
     await ctx.post(`${API}/posts`, { data: { content: 'sad one', mood: 'SAD' } });

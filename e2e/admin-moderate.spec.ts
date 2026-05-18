@@ -1,5 +1,5 @@
 // E2E-08 — Admin delete comment (via DELETE /comments/:id)
-import { test, expect } from '@playwright/test';
+import { test, expect, request as pwRequest } from '@playwright/test';
 import { resetDb, E2E_USERS } from './_helpers/seed';
 
 const API = process.env.E2E_API_URL ?? 'http://localhost:3001';
@@ -9,8 +9,8 @@ test.describe('E2E-08 Admin moderate (delete comment)', () => {
     await resetDb(request);
   });
 
-  test('admin xoá comment → biến mất khỏi post detail', async ({ page, request }) => {
-    const ctx = await request.newContext();
+  test('admin xoá comment → biến mất khỏi post detail', async ({ page }) => {
+    const ctx = await pwRequest.newContext();
     await ctx.post(`${API}/auth/login`, { data: E2E_USERS.admin });
     const postRes = await ctx.post(`${API}/posts`, {
       data: { content: 'host post', mood: 'CALM' },
@@ -21,7 +21,6 @@ test.describe('E2E-08 Admin moderate (delete comment)', () => {
     });
     const comment = await commentRes.json();
 
-    // Admin deletes
     const del = await ctx.delete(`${API}/comments/${comment.id}`);
     expect(del.ok()).toBeTruthy();
     await ctx.dispose();

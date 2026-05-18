@@ -1,0 +1,179 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '9.15.0'
+
+jobs:
+  lint-typecheck:
+    name: Lint + Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  web-unit:
+    name: FE unit (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web test:unit -- --coverage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: web-coverage
+          path: apps/web/coverage/
+
+  api-unit:
+    name: BE unit (Jest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter api test -- --coverage
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-coverage
+          path: apps/api/coverage/
+
+  api-integration:
+    name: BE integration (Supertest + Postgres)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: myblog
+          POSTGRES_PASSWORD: myblog
+          POSTGRES_DB: myblog_test
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U myblog -d myblog_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://myblog:myblog@localhost:5433/myblog_test?schema=public
+      DIRECT_URL: postgresql://myblog:myblog@localhost:5433/myblog_test?schema=public
+      NODE_ENV: test
+      JWT_SECRET: test-jwt-secret-32-byte-base64-AAAAAAAAA
+      JWT_REFRESH_SECRET: test-refresh-secret-32-byte-base64-AAAA
+      ADMIN_USERNAME: test-admin
+      ADMIN_PASSWORD: test-admin-password
+      CORS_ORIGIN: http://localhost:5173
+      CLOUDINARY_CLOUD_NAME: test-cloud
+      CLOUDINARY_API_KEY: test-key
+      CLOUDINARY_API_SECRET: test-secret
+      CLOUDINARY_UPLOAD_PRESET: test_preset
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter api prisma migrate deploy
+      - run: pnpm --filter api test:e2e
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    needs: [lint-typecheck, web-unit, api-unit, api-integration]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: myblog
+          POSTGRES_PASSWORD: myblog
+          POSTGRES_DB: myblog_e2e
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U myblog -d myblog_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://myblog:myblog@localhost:5433/myblog_e2e?schema=public
+      DIRECT_URL: postgresql://myblog:myblog@localhost:5433/myblog_e2e?schema=public
+      NODE_ENV: development
+      JWT_SECRET: e2e-jwt-secret-32-byte-base64-AAAAAAAAAA
+      JWT_REFRESH_SECRET: e2e-refresh-secret-32-byte-base64-AAAA
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin1234
+      CORS_ORIGIN: http://localhost:5173
+      CLOUDINARY_CLOUD_NAME: e2e-cloud
+      CLOUDINARY_API_KEY: e2e-key
+      CLOUDINARY_API_SECRET: e2e-secret
+      CLOUDINARY_UPLOAD_PRESET: e2e_preset
+      ALLOW_TEST_RESET: '1'
+      VITE_API_URL: http://localhost:3001
+      E2E_BASE_URL: http://localhost:5173
+      E2E_API_URL: http://localhost:3001
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm --filter api prisma migrate deploy
+      - run: pnpm exec playwright test --project=chromium
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

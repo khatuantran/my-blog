@@ -183,7 +183,7 @@
 - [T-066] [P0] [F1] [FE] PostDetailPage — breadcrumb + ImageCarousel + comment list + form + MetaPanel - DONE (2026-05-18)
 - [T-067] [P1] [F1] [FE] ImageCarousel (prev/next + dots + keyboard) - DONE (2026-05-18)
 - [T-068] [P1] [F1] [FE] CommentForm + post-as-anon toggle - DONE (2026-05-18)
-- [T-069] [P1] [F1] [FE] CommentItem + like + reply (defer) - TODO
+- [T-069] [P1] [F1] [FE] CommentItem + like + reply (defer) - DONE (2026-05-18)
 
 ### Backlog — M9: FE Create Post + Admin
 

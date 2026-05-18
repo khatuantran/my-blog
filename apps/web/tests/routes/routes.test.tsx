@@ -26,6 +26,9 @@ beforeEach(() => {
   // Default empty Feed cho HomePage tests — bất kỳ route nào touch / cũng gọi GET /posts.
   mswServer.use(
     http.get(`${API_URL}/posts`, () => HttpResponse.json({ data: makePaginatedPosts([]) })),
+    http.get(`${API_URL}/posts/:id/comments`, () =>
+      HttpResponse.json({ data: { items: [], total: 0, page: 1, limit: 10 } }),
+    ),
   );
 });
 

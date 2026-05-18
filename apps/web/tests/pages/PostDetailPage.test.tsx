@@ -25,6 +25,9 @@ function renderAt(path: string) {
 beforeEach(() => {
   mswServer.use(
     http.get(`${API_URL}/posts`, () => HttpResponse.json({ data: makePaginatedPosts([]) })),
+    http.get(`${API_URL}/posts/:id/comments`, () =>
+      HttpResponse.json({ data: { items: [], total: 0, page: 1, limit: 10 } }),
+    ),
   );
 });
 

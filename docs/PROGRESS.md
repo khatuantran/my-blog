@@ -13,7 +13,7 @@
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
-| M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo               |             |
+| M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo               |             |
 | M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo               |             |
 | M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 50% (7/14 milestone)
+## Tỉ lệ hoàn thành: 57% (8/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -96,13 +96,15 @@
   - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
   - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **M8 in progress 🟡 (9/10 done — Phase A done, Phase B 3/4):**
-  - Phase A ✅: T-065/T-062/T-063/T-064/T-060/T-061.
-  - ✅ **T-066** PostDetailPage + MetaPanel + useTrackView.
-  - ✅ **T-067** ImageCarousel full.
-  - ✅ **T-068** CommentForm + post-as-anon: textarea + as-toggle + useCreateComment optimistic prepend. 6 tests. Total **96 FE tests**.
-- **Next (M8 Phase B còn 1 task):**
-  - T-069 CommentItem + like + CommentList wire vào PostDetailPage
+- **M8 complete ✅ (10/10 done):**
+  - Phase A ✅: T-065 primitives, T-062 PostContent, T-063 ImageGrid, T-064 FileAttachments, T-060 FeedPage + foundation, T-061 PostCard full.
+  - Phase B ✅: T-066 PostDetailPage + MetaPanel + useTrackView, T-067 ImageCarousel, T-068 CommentForm post-as-anon, T-069 CommentItem + CommentList wire vào PostDetailPage.
+  - Total **103 FE tests pass** (BE 227 + FE 103 = 330 tests).
+- **Next:**
+  - M9 FE Create Post + Admin Dashboard (T-070→T-079)
+  - Hoặc M10 Login + auth flow (T-090→T-093) — wire useAuth thật
+  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log)
+  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
 
 ---
 

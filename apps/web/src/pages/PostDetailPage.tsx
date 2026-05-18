@@ -9,6 +9,8 @@ import { ImageCarousel } from '@/components/post/ImageCarousel';
 import { TagPill } from '@/components/shared/TagPill';
 import { LikeButton } from '@/components/feed/LikeButton';
 import { SaveButton } from '@/components/feed/SaveButton';
+import { CommentForm } from '@/components/comment/CommentForm';
+import { CommentList } from '@/components/comment/CommentList';
 import { ApiError } from '@/services/api/client';
 
 export default function PostDetailPage() {
@@ -98,14 +100,12 @@ export default function PostDetailPage() {
             </span>
           </div>
 
-          {/* Comments section placeholder — T-068 + T-069 sẽ wire CommentForm + CommentList */}
-          <section aria-label="Comments" className="mt-6">
-            <div className="mb-3 font-mono text-mono-lg text-cyan">
+          <section aria-label="Comments" className="mt-6 space-y-4">
+            <div className="font-mono text-mono-lg text-cyan">
               ❯ // comments [{post.counts.comments}]
             </div>
-            <div className="rounded-md border border-b2 bg-surf p-4 font-mono text-mono text-tm">
-              // comment form + list coming soon · T-068 / T-069
-            </div>
+            <CommentForm postId={post.id} />
+            <CommentList postId={post.id} />
           </section>
         </article>
 

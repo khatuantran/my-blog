@@ -150,7 +150,11 @@
   - Tests: 6 unit (bucketByDay helper, getStats 4 metrics, getMoodDistribution 7 zero-fill, getHeatmap 28 entries) + 9 integration (401/403/200 cho 3 endpoints + zero-fill verify). Total **104 unit + 121 e2e = 225 tests pass**.
 - [T-041] [P1] [F1] [BE] RealtimeGateway — Socket.io + rooms (`post:<id>`, `admin`) + lifecycle hooks - TODO
 - [T-042] [P1] [F1] [BE] Activity log persist (PostView, AnonymousSession update) - TODO
-- [T-043] [P2] [F1] [BE] Rate limiting (@nestjs/throttler) + per-endpoint limits - TODO
+- [T-043] [P2] [F1] [BE] Rate limiting (@nestjs/throttler) + per-endpoint limits - DONE (2026-05-18)
+  - Global ThrottlerModule 100/60s/IP + APP_GUARD. Per-endpoint `@Throttle({ default: { limit: 10, ttl: 60_000 } })` cho POST /auth/register, /auth/login, /posts/:id/comments, /posts/:id/like, /comments/:id/like.
+  - skipIf flag: `process.env.THROTTLE_DISABLED === '1'`. `.env.test` set `THROTTLE_DISABLED=1` để existing e2e không bị burst-fail. throttle.e2e-spec.ts opt-in (xoá flag trước createTestApp, restore sau).
+  - Map `ThrottlerException` → `code: 'RATE_LIMITED'` trong `HttpExceptionFilter`. Match `ERROR_CODE_CATALOG`.
+  - Tests: 2 integration (burst register 12 lần → request 11 trả 429; GET /posts 20 lần KHÔNG bị throttle vì dưới global limit). Total **104 unit + 123 e2e = 227 tests pass**.
 
 ### Backlog — M7: FE Layout
 

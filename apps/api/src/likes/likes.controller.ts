@@ -1,5 +1,6 @@
 import { Controller, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AnonymousId } from '../common/decorators/anonymous-id.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
@@ -16,6 +17,7 @@ export class LikesController {
   constructor(private readonly likes: LikesService) {}
 
   @Post('posts/:id/like')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle like cho post (optional auth, idempotent)' })
   @ApiResponse({ status: 200, type: ToggleLikeResponseDto })
@@ -28,6 +30,7 @@ export class LikesController {
   }
 
   @Post('comments/:id/like')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle like cho comment APPROVED (optional auth, idempotent)' })
   @ApiResponse({ status: 200, type: ToggleLikeResponseDto })

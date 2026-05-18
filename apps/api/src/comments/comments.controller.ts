@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
@@ -45,6 +46,7 @@ export class CommentsController {
   }
 
   @Post('posts/:id/comments')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Public()
   @UseGuards(JwtOptionalAuthGuard)
   @ApiOperation({ summary: 'Create comment (optional auth, default status APPROVED)' })

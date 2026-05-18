@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { ThrottlerException } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 
 interface ErrorBody {
@@ -32,7 +33,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let message = 'Internal server error';
     let details: unknown;
 
-    if (exception instanceof HttpException) {
+    if (exception instanceof ThrottlerException) {
+      code = 'RATE_LIMITED';
+      message = 'Quá nhiều request, vui lòng thử lại sau';
+    } else if (exception instanceof HttpException) {
       const res = exception.getResponse();
       if (typeof res === 'string') {
         message = res;

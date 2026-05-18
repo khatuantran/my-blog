@@ -77,6 +77,17 @@
 | `RATE_LIMITED`          | 429  | Vượt rate limit                                         |
 | `INTERNAL_ERROR`        | 500  | Server error (chi tiết log Sentry)                      |
 
+## Rate Limiting
+
+Default: **100 req / 60s / IP** global (memory storage, single-instance — Fly.io free tier).
+Per-endpoint override **10 req / 60s / IP** cho sensitive paths (NFR-04):
+
+- POST `/auth/register`, POST `/auth/login` (anti-bruteforce)
+- POST `/posts/:id/comments`
+- POST `/posts/:id/like`, POST `/comments/:id/like`
+
+Exceed → 429 `RATE_LIMITED`. Test env (`NODE_ENV=test`) skip throttle (existing e2e tests không bị fail vì burst).
+
 ## Endpoint Groups
 
 > Endpoints chi tiết (path, params, body, response schema, examples) ở [`contracts/openapi.yaml`](./contracts/openapi.yaml). Bảng dưới chỉ summary + auth + linked FR.

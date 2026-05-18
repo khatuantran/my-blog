@@ -6,6 +6,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-056** Design tokens alignment với design-file specs (M7 start): fix `glitch` keyframe → text-shadow chroma split (cyan/mag/purple/orange) + skewX transform match Feed.html:55-60 (thay vì translate đơn giản); thêm `scan-line` keyframe 6s linear infinite cho CRT vertical scan effect; bổ sung `::-webkit-scrollbar` rules (5px width, b2 thumb, bg track); thêm utility class `.sb-lbl` (section label `// label` + flex-1 hr line) trong `@layer components` cho aside/panel sections.
 - **T-002** Monorepo skeleton: `package.json` + `pnpm-workspace.yaml` + `turbo.json` + `.npmrc` + `.nvmrc` + `packages/`. Turborepo 2.9.14, pnpm 9.15.0, Node 24 LTS. Pipeline tasks build/dev/lint/test/typecheck.
 - **T-003** `docker-compose.yml`: 2x Postgres 16-alpine (`postgres-main` :5432 persistent volume, `postgres-test` :5433 tmpfs in-memory) + healthcheck.
 - **T-004** Scaffold `apps/api` NestJS skeleton: bootstrap (helmet/compression/cookie-parser/CORS/ValidationPipe/Swagger dev), `common/` (HttpExceptionFilter + Transform/Logging interceptors), `config/env.schema.ts` (Zod fail-fast validate), `prisma/` (nestjs-prisma + Placeholder model). NestJS 10.4, Prisma 5.22, @nestjs/swagger 7.4, helmet 8.

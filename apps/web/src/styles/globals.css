@@ -63,4 +63,31 @@
     background: var(--cyan);
     color: var(--bg);
   }
+
+  /* Scrollbars (match design-file) */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--b2);
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  /* Section label: `// label` + flex-1 hr line. Used in page asides + panels. */
+  .sb-lbl {
+    @apply mb-2 flex items-center gap-2 font-mono text-mono-xs text-tm;
+    letter-spacing: 0.05em;
+  }
+  .sb-lbl::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--b1);
+  }
 }

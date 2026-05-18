@@ -74,13 +74,24 @@ const config: Config = {
         blink: 'blink 530ms step-start infinite',
         shake: 'shake 400ms ease',
         'fade-up': 'fade-up 300ms ease',
+        'scan-line': 'scan-line 6s linear infinite',
       },
       keyframes: {
         glitch: {
-          '0%, 88%, 100%': { transform: 'translate(0)', opacity: '1' },
-          '90%': { transform: 'translate(-1px, 1px)', opacity: '0.85' },
-          '91%': { transform: 'translate(2px, -1px)', opacity: '1' },
-          '92%': { transform: 'translate(-1px, 1px)', opacity: '0.95' },
+          '0%, 87%, 100%': { textShadow: 'none', transform: 'none' },
+          '88%': {
+            textShadow: '2px 0 #FF6E96, -2px 0 #00FFE5',
+            transform: 'skewX(-2deg) translateX(-2px)',
+          },
+          '90%': {
+            textShadow: '-2px 0 #BB9AF7, 2px 0 #FF9E64',
+            transform: 'skewX(1deg) translateX(1px)',
+          },
+          '92%': { textShadow: 'none', transform: 'none' },
+        },
+        'scan-line': {
+          from: { transform: 'translateY(-100%)' },
+          to: { transform: 'translateY(100vh)' },
         },
         'pulse-status': {
           '0%, 100%': { opacity: '1', transform: 'scale(1)' },

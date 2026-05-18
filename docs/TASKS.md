@@ -170,7 +170,7 @@
 - [T-053] [P1] [F1] [FE] Sidebar (admin only, 220px sticky) - DROPPED (2026-05-18) — design refactor: global sidebar removed, không còn applicable
 - [T-054] [P2] [F1] [FE] RightPanel (mood distribution + activity heatmap + live visitors) - DROPPED (2026-05-18) — design refactor: rightpanel removed, content di chuyển sang Admin page (mood.distribution + activity.log)
 - [T-055] [P0] [F1] [FE] App router (React Router v7 config + lazy load + ProtectedRoute) - TODO
-- [T-056] [P0] [F1] [FE] Design tokens CSS variables in `styles/globals.css` + Tailwind config - TODO
+- [T-056] [P0] [F7] [FE] Design tokens CSS variables in `styles/globals.css` + Tailwind config - DONE (2026-05-18)
 
 ### Backlog — M8: FE Feed + Post Detail
 

@@ -3,10 +3,13 @@
   "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": "tests/.*\\.e2e-spec\\.ts$",
+  "testTimeout": 30000,
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/src/$1"
-  }
+  },
+  "globalSetup": "<rootDir>/tests/jest-global-setup.ts",
+  "globalTeardown": "<rootDir>/tests/jest-global-teardown.ts"
 }

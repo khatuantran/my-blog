@@ -11,7 +11,7 @@
 | M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done    | 2026-05-17  |
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done    | 2026-05-18  |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done    | 2026-05-18  |
-| M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |
+| M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | 🟡 Doing   |             |
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel)        | ⬜ Todo    |             |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo    |             |
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo    |             |
@@ -85,10 +85,11 @@
   - ✅ **T-030** LikesModule: 2 endpoints (POST /posts/:id/like + POST /comments/:id/like) optional auth qua JwtOptionalAuthGuard, toggle idempotent qua unique constraint, comment likes chỉ APPROVED. 11 unit + 10 integration.
   - ✅ **T-031** CommentsModule + admin moderation: 4 endpoints (GET role-aware, POST optional, DELETE admin, PATCH /:id/status admin). Status default APPROVED. Single controller no-base pattern. 15 unit + 19 integration.
   - ✅ **T-032** SavedModule bookmark: 2 endpoints auth-only (POST /posts/:id/save toggle + GET /me/saved paginated savedAt DESC). Reuse toPostView từ PostsService. 6 unit + 9 integration. Total **98 unit + 112 e2e = 210 tests pass**.
-- **Next (M6 — BE Admin + WebSocket):**
-  - T-040: AdminModule (stats/moods/users/comments pending/heatmap/visitors)
+- **M6 progress (1/4):**
+  - ✅ **T-040** AdminModule (stats / moods / heatmap): 3 endpoints aggregation admin-only. Helper `bucketByDay` UTC + zero-fill. Drop overlap T-014 (/admin/users + ban) + defer comments-pending/visitors. 6 unit + 9 integration. Total **104 unit + 121 e2e = 225 tests pass**.
+- **Next M6:**
   - T-041: RealtimeGateway Socket.io
-  - T-042: Activity log persist (PostView, AnonymousSession update)
+  - T-042: Activity log persist + /admin/visitors (gộp với AnonymousSession)
   - T-043: Rate limiting (@nestjs/throttler)
 
 ---

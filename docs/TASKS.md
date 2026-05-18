@@ -144,7 +144,10 @@
 
 ### Backlog — M6: BE Admin + WebSocket
 
-- [T-040] [P1] [F1] [BE] AdminModule — `/admin/stats`, `/admin/moods`, `/admin/users`, `/admin/comments/pending`, `/admin/heatmap`, `/admin/visitors` - TODO
+- [T-040] [P1] [F1] [BE] AdminModule — dashboard aggregations (stats / moods / heatmap) - DONE (2026-05-18)
+  - 3 endpoints admin-only: GET /admin/stats (4 metrics totals + sparkline 12 daily buckets + deltaToday), GET /admin/moods (zero-filled 7 moods), GET /admin/heatmap (28-day post creation count). Helper `bucketByDay(rows, days)` UTC-based + zero-fill missing.
+  - DROP /admin/users + /admin/users/:id/ban (overlap T-014), /admin/comments/pending (defer T-031 enhancement nếu cần cross-post badge), /admin/visitors (defer T-042 với AnonymousSession activity persist).
+  - Tests: 6 unit (bucketByDay helper, getStats 4 metrics, getMoodDistribution 7 zero-fill, getHeatmap 28 entries) + 9 integration (401/403/200 cho 3 endpoints + zero-fill verify). Total **104 unit + 121 e2e = 225 tests pass**.
 - [T-041] [P1] [F1] [BE] RealtimeGateway — Socket.io + rooms (`post:<id>`, `admin`) + lifecycle hooks - TODO
 - [T-042] [P1] [F1] [BE] Activity log persist (PostView, AnonymousSession update) - TODO
 - [T-043] [P2] [F1] [BE] Rate limiting (@nestjs/throttler) + per-endpoint limits - TODO

@@ -150,15 +150,13 @@
 
 ### Admin (`/admin/*`)
 
-| Method | Path                      | Auth  | FR               | Notes                                                                       |
-| ------ | ------------------------- | ----- | ---------------- | --------------------------------------------------------------------------- |
-| GET    | `/admin/stats`            | admin | FR-07.1          | 4 metrics (posts/likes/comments/views) + sparkline 12 buckets + delta today |
-| GET    | `/admin/moods`            | admin | FR-07.2          | Mood distribution count                                                     |
-| GET    | `/admin/users`            | admin | FR-07.3          | Users table data                                                            |
-| POST   | `/admin/users/:id/ban`    | admin | FR-01.5, FR-07.3 | Toggle role USER↔BANNED                                                     |
-| GET    | `/admin/comments/pending` | admin | FR-07.4          | Comments status PENDING                                                     |
-| GET    | `/admin/heatmap`          | admin | FR-09.3          | 28-day activity heatmap data                                                |
-| GET    | `/admin/visitors`         | admin | FR-09.2          | Live anonymous sessions snapshot                                            |
+| Method | Path             | Auth  | FR      | Notes                                                                                                                                                                                                          |
+| ------ | ---------------- | ----- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/admin/stats`   | admin | FR-07.1 | 4 metrics aggregation. Response 200 `{ posts, likes, comments, views }` mỗi field `{ total: number, sparkline: number[12] (daily buckets oldest→newest), deltaToday: number (today vs yesterday) }`. 401 / 403 |
+| GET    | `/admin/moods`   | admin | FR-07.2 | Mood distribution zero-filled. Response 200 `{ items: [{ mood, count }] }` — 7 entries (theo Mood enum), count=0 nếu không có post. 401 / 403                                                                  |
+| GET    | `/admin/heatmap` | admin | FR-09.3 | 28-day post creation heatmap. Response 200 `{ days: [{ date: 'YYYY-MM-DD', count }] }` — 28 entries (oldest→newest, zero-fill missing). 401 / 403                                                              |
+
+> Endpoints khác (defer/overlap): `GET /users` + `POST /users/:id/ban` đã có ở UsersModule (T-014); `/admin/comments/pending` defer (T-031 enhancement nếu cần cross-post badge); `/admin/visitors` defer T-042 với AnonymousSession activity persist.
 
 ## Pagination
 

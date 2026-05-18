@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'nestjs-prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
@@ -30,6 +31,7 @@ import { validateEnv } from './config/env.schema';
     LikesModule,
     CommentsModule,
     SavedModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

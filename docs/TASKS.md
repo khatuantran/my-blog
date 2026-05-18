@@ -194,7 +194,7 @@
 - [T-074] [P1] [F1] [FE] TagInput + per-tag color cycle - DONE (2026-05-18)
 - [T-075] [P1] [F1] [FE] PostPreview live (right pane) - DONE (2026-05-18)
 - [T-076] [P1] [F1] [FE] AdminPage — 4 StatCards + 2-col (mood/activity) + users table + comments moderation - TODO
-- [T-077] [P1] [F1] [FE] StatCard + Sparkline SVG - TODO
+- [T-077] [P1] [F1] [FE] StatCard + Sparkline SVG - DONE (2026-05-18)
 - [T-078] [P1] [F1] [FE] MoodBar + ActivityLog item - TODO
 - [T-079] [P1] [F1] [FE] UsersTable + ban/view actions - TODO
 - [T-080] [P1] [F1] [FE] CommentsModeration queue (approve/delete) - TODO

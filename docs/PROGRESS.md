@@ -103,8 +103,9 @@
 - **M9 Phase A complete ✅ (6/10 done):**
   - T-071 MoodPicker, T-072 MarkdownEditor + wrapSelection, T-073 UploadZone Cloudinary, T-074 TagInput, T-075 PostPreview.
   - ✅ **T-070** CreatePostPage assemble: 2-col split (editor flex-1 + preview 380px hidden < 900px) + sub-toolbar + 5 sections + useCreatePost POST /posts → navigate /post/:id + ⌘S/⌘↵ shortcuts + status state machine. 4 tests. Total **134 FE tests**.
-- **Next (M9 Phase B Admin Dashboard 4 tasks):**
-  - T-077 StatCard + Sparkline SVG
+- **M9 Phase B 1/4 done:**
+  - ✅ **T-077** Sparkline SVG + StatCard border-left + delta formatting. 7 tests. Total **141 FE tests**.
+- **Next (M9 Phase B còn 3 tasks):**
   - T-078 MoodBar + ActivityLog item + mock data
   - T-079 UsersTable + ban/unban
   - T-076 AdminPage assemble (close M9)

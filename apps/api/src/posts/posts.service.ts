@@ -10,7 +10,7 @@ import type { ListPostsDto } from './dto/list-posts.dto';
 // Re-export for backward compat (tests import from posts.service)
 export const normalizeTagName = normalizeTagNameImpl;
 
-const POST_INCLUDE = {
+export const POST_INCLUDE = {
   author: { select: { id: true, username: true, role: true, avatarUrl: true } },
   postTags: { include: { tag: true } },
   images: { orderBy: { order: 'asc' as const } },
@@ -18,7 +18,7 @@ const POST_INCLUDE = {
   _count: { select: { likes: true, comments: true } },
 } satisfies Prisma.PostInclude;
 
-type PostWithRelations = Prisma.PostGetPayload<{ include: typeof POST_INCLUDE }>;
+export type PostWithRelations = Prisma.PostGetPayload<{ include: typeof POST_INCLUDE }>;
 
 export interface PostView {
   id: string;

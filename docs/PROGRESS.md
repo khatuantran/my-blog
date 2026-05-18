@@ -10,7 +10,7 @@
 | M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done    | 2026-05-17  |
 | M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done    | 2026-05-17  |
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done    | 2026-05-18  |
-| M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | 🟡 Doing   |             |
+| M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done    | 2026-05-18  |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel)        | ⬜ Todo    |             |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo    |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo    |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo    |             |
 
-## Tỉ lệ hoàn thành: 29% (4/14 milestone)
+## Tỉ lệ hoàn thành: 36% (5/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -81,11 +81,15 @@
   - ✅ **T-022** FilesModule Cloudinary: POST /files/sign + DELETE /files/:id (admin). `CloudinaryService` wrapper + cascade Cloudinary cleanup hook PostsService.remove/update. Dep `cloudinary ^2.10`. 3 unit + 9 integration.
   - ✅ **T-023** TagsModule CRUD + color rotation: GET public top N + POST/PATCH/DELETE admin. `TAG_COLORS` palette 7 cyberpunk colors cycle theo `tag.count() % 7`. Refactor PostsService inline upsert → `TagsService.upsertMany(names, tx?)` transaction-aware. 16 unit + 18 integration.
   - Total **66 unit + 74 e2e = 140 tests pass**.
-- **M5 progress (2/3):**
+- **M5 complete ✅ (3/3):**
   - ✅ **T-030** LikesModule: 2 endpoints (POST /posts/:id/like + POST /comments/:id/like) optional auth qua JwtOptionalAuthGuard, toggle idempotent qua unique constraint, comment likes chỉ APPROVED. 11 unit + 10 integration.
-  - ✅ **T-031** CommentsModule + admin moderation: 4 endpoints (GET role-aware, POST optional, DELETE admin, PATCH /:id/status admin). Status default APPROVED. Single controller no-base pattern. 15 unit + 19 integration. Total **92 unit + 103 e2e = 195 tests pass**.
-- **Next:**
-  - T-032: SavedModule (`/posts/:id/save`, `/me/saved`)
+  - ✅ **T-031** CommentsModule + admin moderation: 4 endpoints (GET role-aware, POST optional, DELETE admin, PATCH /:id/status admin). Status default APPROVED. Single controller no-base pattern. 15 unit + 19 integration.
+  - ✅ **T-032** SavedModule bookmark: 2 endpoints auth-only (POST /posts/:id/save toggle + GET /me/saved paginated savedAt DESC). Reuse toPostView từ PostsService. 6 unit + 9 integration. Total **98 unit + 112 e2e = 210 tests pass**.
+- **Next (M6 — BE Admin + WebSocket):**
+  - T-040: AdminModule (stats/moods/users/comments pending/heatmap/visitors)
+  - T-041: RealtimeGateway Socket.io
+  - T-042: Activity log persist (PostView, AnonymousSession update)
+  - T-043: Rate limiting (@nestjs/throttler)
 
 ---
 

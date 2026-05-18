@@ -8,6 +8,7 @@ import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
 import { LikesModule } from './likes/likes.module';
 import { PostsModule } from './posts/posts.module';
+import { SavedModule } from './saved/saved.module';
 import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
 import { AnonymousIdMiddleware } from './common/middleware/anonymous-id.middleware';
@@ -28,6 +29,7 @@ import { validateEnv } from './config/env.schema';
     PostsModule,
     LikesModule,
     CommentsModule,
+    SavedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

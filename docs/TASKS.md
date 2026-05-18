@@ -137,7 +137,10 @@
   - DTOs: Create (content 1-2000, anonymousName? 1-50), UpdateStatus (IsIn APPROVED|REJECTED), Response (author summary OR anonymousName + likesCount).
   - Service: list filter `status=APPROVED` cho non-admin; create discriminate userId vs anonymousId (auth → ignore anonymousName).
   - Tests: 15 unit (list role-aware filter, create auth/anon discriminate, updateStatus, remove) + 19 integration (full coverage 401/403/204, cascade, ordering, validation). Total **92 unit + 103 e2e = 195 tests pass**.
-- [T-032] [P1] [F1] [BE] SavedModule (`/posts/:id/save`, `/me/saved`) - TODO
+- [T-032] [P1] [F1] [BE] SavedModule (`/posts/:id/save`, `/me/saved`) - DONE (2026-05-18)
+  - 2 endpoints AUTH ONLY: POST /posts/:id/save toggle bookmark (composite key userId_postId), GET /me/saved paginated saved posts (sort savedAt DESC, default limit 10 max 50). Reuse `toPostView` + `POST_INCLUDE` từ PostsService (đã export thêm 2 symbols).
+  - Tests: 6 unit (toggle 404/save/unsave, list empty/paginated/map fields) + 9 integration (auth 401, toggle on/off/on, 404, cascade Post delete xóa SavedPost, paginated 12 items, ordering DESC, isolation alice không thấy bob). Total **98 unit + 112 e2e = 210 tests pass**.
+  - **M5 milestone close ✅** (T-030 Likes + T-031 Comments + T-032 Saved).
 
 ### Backlog — M6: BE Admin + WebSocket
 

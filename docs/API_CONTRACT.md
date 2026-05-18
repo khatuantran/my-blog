@@ -127,10 +127,10 @@
 
 ### Saved (`/saved/*`)
 
-| Method | Path              | Auth | FR      | Notes            |
-| ------ | ----------------- | ---- | ------- | ---------------- |
-| GET    | `/me/saved`       | user | FR-03.3 | List bài đã save |
-| POST   | `/posts/:id/save` | user | FR-03.3 | Toggle           |
+| Method | Path              | Auth | FR      | Notes                                                                                                                                                                                  |
+| ------ | ----------------- | ---- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/me/saved`       | user | FR-03.3 | Paginated saved posts (sort savedAt DESC). Query `page` (default 1), `limit` (default 10, max 50). Response 200 `{ items: [{ ...Post, savedAt }], total, page, limit }`. 401 no cookie |
+| POST   | `/posts/:id/save` | user | FR-03.3 | Toggle bookmark. Response 200 `{ saved: boolean }`. 401 no cookie. 404 post                                                                                                            |
 
 ### Files (`/files/*`)
 

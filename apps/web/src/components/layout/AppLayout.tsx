@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
+import { CommandPalette } from '../command-palette/CommandPalette';
+import { useCommandPalette } from '@/hooks/use-command-palette';
 
 // Map URL path → terminal path label cho StatusBar.
 function pathLabel(pathname: string): string {
@@ -11,27 +14,34 @@ function pathLabel(pathname: string): string {
   return `~${pathname}`;
 }
 
-// Shell shared cho mọi page (trừ Auth). CommandPalette (T-052) wire ở task kế.
+// Shell shared cho mọi page (trừ Auth).
 export function AppLayout() {
   const { pathname } = useLocation();
+  const { open, setOpen, toggle } = useCommandPalette();
 
-  function handleOpenCommandPalette() {
-    // TODO(T-052): mở CommandPalette qua Zustand store.
-    if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
-      console.log('[AppLayout] open command palette (stub — wired in T-052)');
+  // Global ⌘K / Ctrl+K listener
+  useEffect(() => {
+    function handler(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        toggle();
+      }
     }
-  }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [toggle]);
 
   return (
     <div className="min-h-screen bg-bg text-tp font-sans antialiased">
-      <TopBar onOpenCommandPalette={handleOpenCommandPalette} />
+      <TopBar onOpenCommandPalette={() => setOpen(true)} />
 
       <main className="pt-[52px] pb-[28px] min-h-screen">
         <Outlet />
       </main>
 
       <StatusBar path={pathLabel(pathname)} />
+
+      <CommandPalette open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }

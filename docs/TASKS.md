@@ -166,7 +166,7 @@
 
 - [T-050] [P0] [F1] [FE] TopBar (logo + search + ⌘K hint + avatar dropdown) - DONE (2026-05-18)
 - [T-051] [P0] [F1] [FE] StatusBar (fixed bottom 28px terminal) - DONE (2026-05-18)
-- [T-052] [P1] [F1] [FE] CommandPalette (⌘K overlay với filter + keyboard nav) - TODO
+- [T-052] [P1] [F1] [FE] CommandPalette (⌘K overlay với filter + keyboard nav) - DONE (2026-05-18)
 - [T-053] [P1] [F1] [FE] Sidebar (admin only, 220px sticky) - DROPPED (2026-05-18) — design refactor: global sidebar removed, không còn applicable
 - [T-054] [P2] [F1] [FE] RightPanel (mood distribution + activity heatmap + live visitors) - DROPPED (2026-05-18) — design refactor: rightpanel removed, content di chuyển sang Admin page (mood.distribution + activity.log)
 - [T-055] [P0] [F1] [FE] App router (React Router v7 config + lazy load + ProtectedRoute) - DONE (2026-05-18)

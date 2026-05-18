@@ -12,7 +12,7 @@
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done               | 2026-05-18  |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
-| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ⬜ Todo               |             |
+| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo               |             |
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo               |             |
 | M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo               |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 43% (6/14 milestone — M6 closed partial)
+## Tỉ lệ hoàn thành: 50% (7/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -89,14 +89,16 @@
   - ✅ **T-040** AdminModule (stats / moods / heatmap): 3 endpoints aggregation admin-only. Helper `bucketByDay` UTC + zero-fill.
   - ✅ **T-043** Rate limiting (@nestjs/throttler): Global 100/60s/IP + per-endpoint @Throttle 10/min cho register/login/comments/likes (NFR-04). skipIf `THROTTLE_DISABLED=1` cho test. Map ThrottlerException → `RATE_LIMITED` 429. Total **104 unit + 123 e2e = 227 tests pass**.
   - 🟦 **T-041 + T-042 DEFERRED** — realtime stack (Socket.io gateway + activity log persist) gộp thành 1 phase riêng, có thể implement sau hoặc skip tuỳ scope.
-- **M7 in progress 🟡 (4/5 done):**
+- **M7 complete ✅ (5/5 done):**
   - ✅ **T-056** Design tokens align với design-file.
   - ✅ **T-055** App router + AppLayout/AuthLayout + ProtectedRoute + useAuth stub.
   - ✅ **T-050** TopBar: Logo glitch + search + ⌘K hint + Avatar dropdown 5 items.
-  - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections cách border-r. AppLayout map URL → terminal path label. Total **17 FE tests**.
+  - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
+  - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **Next (M7 còn 1 task):**
-  - T-052 CommandPalette ⌘K
+- **Next:**
+  - M8 FE Feed + Post Detail (T-060→T-066) — fetch posts/detail/comments thật từ BE
+  - Hoặc M10 Login + auth flow (T-090→T-093) — wire useAuth thật + ProtectedRoute hoạt động
 
 ---
 

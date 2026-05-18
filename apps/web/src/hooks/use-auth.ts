@@ -1,21 +1,20 @@
-// Auth hook stub — wire thật ở M10 (auth flow + Zustand store)
-// Hiện tại hardcode admin session để layout shell + ProtectedRoute hoạt động.
+import { useAuthStore } from '@/stores/auth-store';
+import type { AuthUser } from '@/services/api/auth';
 
-export type AuthUser = {
-  id: string;
-  username: string;
-  role: 'ADMIN' | 'USER';
-};
+export type { AuthUser };
 
 export type AuthState = {
   isAuthed: boolean;
+  isHydrating: boolean;
   user: AuthUser | null;
 };
 
 export function useAuth(): AuthState {
-  // TODO(M10): replace với Zustand store hydrated từ GET /auth/me cookie session.
+  const status = useAuthStore((s) => s.status);
+  const user = useAuthStore((s) => s.user);
   return {
-    isAuthed: true,
-    user: { id: 'stub-admin', username: 'admin', role: 'ADMIN' },
+    isAuthed: status === 'authed' && !!user,
+    isHydrating: status === 'idle' || status === 'hydrating',
+    user,
   };
 }

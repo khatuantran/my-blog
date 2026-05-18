@@ -6,6 +6,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { router } from './routes';
 import './lib/env'; // side-effect: validate VITE_* env on startup
 import './styles/globals.css';
+import { useAuthStore } from './stores/auth-store';
+
+// Kick off auth hydration ngay khi module load (before render).
+// Splash UI trong AppLayout sẽ cover cho đến khi resolve.
+void useAuthStore.getState().hydrate();
 
 const queryClient = new QueryClient({
   defaultOptions: {

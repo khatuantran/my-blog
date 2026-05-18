@@ -4,6 +4,8 @@ import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
 import { CommandPalette } from '../command-palette/CommandPalette';
 import { useCommandPalette } from '@/hooks/use-command-palette';
+import { useAuth } from '@/hooks/use-auth';
+import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 
 // Map URL path → terminal path label cho StatusBar.
 function pathLabel(pathname: string): string {
@@ -18,6 +20,7 @@ function pathLabel(pathname: string): string {
 export function AppLayout() {
   const { pathname } = useLocation();
   const { open, setOpen, toggle } = useCommandPalette();
+  const { isHydrating } = useAuth();
 
   // Global ⌘K / Ctrl+K listener
   useEffect(() => {
@@ -42,6 +45,19 @@ export function AppLayout() {
       <StatusBar path={pathLabel(pathname)} />
 
       <CommandPalette open={open} onClose={() => setOpen(false)} />
+
+      {isHydrating && (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Initializing session"
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-bg font-mono text-mono text-tm"
+        >
+          <span className="flex items-center gap-2">
+            <AsciiSpinner /> initializing session...
+          </span>
+        </div>
+      )}
     </div>
   );
 }

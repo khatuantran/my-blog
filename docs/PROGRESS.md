@@ -107,11 +107,13 @@
   - Phase A ✅ (T-070/T-071/T-072/T-073/T-074/T-075): Create Post page + 5 components + Cloudinary direct upload.
   - Phase B ✅ (T-076/T-077/T-078/T-079): Admin dashboard + StatCard/Sparkline + MoodBar + ActivityLogItem + UsersTable + AdminPage.
   - Total **155 FE tests pass** (BE 227 + FE 155 = **382 tests** project-wide).
-- **Next:**
-  - M10 Login + auth flow (T-090→T-093) — wire useAuth thật với cookie session
-  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log thật) — reopen T-041/T-042
-  - Hoặc M12 Testing E2E Playwright
-  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
+- **M10 in progress 🟡 (1/5 done):**
+  - ✅ **T-092** Auth foundation: Zustand store + 401 auto-refresh mutex + 5 service wrappers + 3 mutations + AppLayout splash overlay. 10 tests. Total **165 FE tests**.
+- **Next (M10 còn 4 tasks):**
+  - T-090 LoginPage terminal card
+  - T-093 ProtectedRoute hydrating-aware
+  - T-094 Avatar dropdown Logout wire
+  - T-091 RegisterPage skeleton (close M10)
 
 ---
 

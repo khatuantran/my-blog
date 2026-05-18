@@ -51,6 +51,13 @@ cp apps/web/.env.example apps/web/.env.local        # frontend (Vite convention)
 #   CLOUDINARY_API_SECRET="test-secret"
 #   CLOUDINARY_UPLOAD_PRESET="test_preset"
 
+# 3c. Playwright E2E (optional — chỉ cần khi chạy pnpm test:e2e:playwright):
+#   - BE phải start với env ALLOW_TEST_RESET=1 để bật POST /admin/test-reset
+#     (truncate volatile tables + reseed admin/admin1234 + user/user1234).
+#   - E2E_BASE_URL (default http://localhost:5173) + E2E_API_URL (default :3001)
+#     override khi chạy chống Vercel/Fly preview.
+#   - Lần đầu: `pnpm e2e:install` để fetch chromium browser.
+
 # 4. Start Postgres (main + test)
 docker compose up -d
 # Verify: docker ps -- nên thấy postgres-main + postgres-test

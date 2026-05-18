@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Mood } from '@prisma/client';
+import bcrypt from 'bcrypt';
 import { PrismaService } from 'nestjs-prisma';
 import type {
   HeatmapDayDto,
@@ -62,6 +63,34 @@ function metricFromRows(rows: { createdAt: Date }[], total: number): MetricBucke
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Truncate volatile tables + reseed admin/user fixtures cho E2E. */
+  async resetForE2E(): Promise<{ ok: true; users: string[] }> {
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.deleteMany({}),
+      this.prisma.postView.deleteMany({}),
+      this.prisma.commentLike.deleteMany({}),
+      this.prisma.like.deleteMany({}),
+      this.prisma.comment.deleteMany({}),
+      this.prisma.file.deleteMany({}),
+      this.prisma.image.deleteMany({}),
+      this.prisma.postTag.deleteMany({}),
+      this.prisma.savedPost.deleteMany({}),
+      this.prisma.post.deleteMany({}),
+      this.prisma.tag.deleteMany({}),
+      this.prisma.anonymousSession.deleteMany({}),
+      this.prisma.user.deleteMany({}),
+    ]);
+    const adminHash = await bcrypt.hash('admin1234', 10);
+    const userHash = await bcrypt.hash('user1234', 10);
+    await this.prisma.user.createMany({
+      data: [
+        { username: 'admin', passwordHash: adminHash, role: 'ADMIN', email: 'admin@e2e.local' },
+        { username: 'user', passwordHash: userHash, role: 'USER', email: 'user@e2e.local' },
+      ],
+    });
+    return { ok: true, users: ['admin', 'user'] };
+  }
 
   async getStats(): Promise<StatsResponseDto> {
     const windowStart = new Date(

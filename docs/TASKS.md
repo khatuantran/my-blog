@@ -85,8 +85,16 @@
   - Set/clear cookies tự động trong controller. JwtRefreshGuard cho refresh + logout. JwtAuthGuard cho /me.
   - Smoke test live ✓ 10 cases: health, register conflict (409), login (200 + cookies), me with/without cookie (200/401), refresh rotate (200), logout (204), refresh after revoke (401 REFRESH_REVOKED), wrong password (401 INVALID_CREDENTIALS)
   - Env schema: relax Cloudinary từ `.min(1)` → `.default('')` (chỉ required khi T-022 FilesModule)
-- [T-014] [P0] [F1] [BE] UsersModule — CRUD + ban endpoint - TODO
-- [T-015] [P1] [F1] [BE] RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware - TODO
+- [T-014] [P0] [F1] [BE] UsersModule — CRUD + ban endpoint - DONE (2026-05-17, gộp với T-015)
+  - UsersModule + UsersService + UsersController + 3 DTOs (Update/ListUsers/UserResponse + PaginatedUsers)
+  - 5 endpoints: GET /users (admin pagination + role filter), GET /users/:id (admin or self, email hidden cho others), PATCH /users/:id (admin or self, email/avatar), POST /users/:id/ban (admin, revoke tokens, not self/not admin), POST /users/:id/unban
+  - Smoke test live ✓ 10 cases: login admin/alice register, USER 403 FORBIDDEN_ROLE list, admin list 200, PATCH self 200, PATCH other 403, ban self 403, ban alice 200 (revoke tokens), alice refresh 401 REFRESH_REVOKED, unban 200
+- [T-015] [P1] [F1] [BE] RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware - DONE (2026-05-17, gộp với T-014)
+  - 4 decorators: @Public (IS_PUBLIC_KEY metadata cho future global guard) + @Roles (...Role[]) + @CurrentUser + @AnonymousId (extract `anon_id` cookie)
+  - RolesGuard (common/guards/) — read @Roles metadata, throw FORBIDDEN_ROLE
+  - JwtAuthGuard refactor: inject Reflector, check IS_PUBLIC_KEY → skip nếu @Public
+  - AnonymousIdMiddleware (common/middleware/) — issue cookie `anon_id` format hex `0x7F4A2C` nếu chưa có, 1 năm TTL, apply forRoutes('\*')
+  - common/index.ts barrel update; common/decorators/index.ts replace placeholder
 
 ### Backlog — M4: BE Posts + Files
 

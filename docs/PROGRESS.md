@@ -8,7 +8,7 @@
 | --- | --------------------------------------------------------------------------------- | ---------- | ----------- |
 | M1  | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done    | 2026-05-17  |
 | M2  | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done    | 2026-05-17  |
-| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | 🟡 Doing   |             |
+| M3  | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done    | 2026-05-17  |
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ⬜ Todo    |             |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ⬜ Todo    |             |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ⬜ Todo    |             |
@@ -21,7 +21,7 @@
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo    |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo    |             |
 
-## Tỉ lệ hoàn thành: 14% (2/14 milestone)
+## Tỉ lệ hoàn thành: 21% (3/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -61,13 +61,16 @@
   - —
 - **Blocked:**
   - —
-- **M3 progress (4/6 done):**
+- **M3 complete ✅ (6/6 done):**
   - ✅ T-010: Prisma schema 14 entities + first migration `20260517165932_init`
   - ✅ T-011: Seed scripts (admin + 3 sample posts/2 tags/1 anon comment; test seed admin only)
   - ✅ T-012 + T-013 (gộp): AuthModule full feature — service + 2 strategies + 2 guards + 5 endpoints + cookie httpOnly + refresh rotation DB hash. 10 smoke cases pass.
-- **Next (M3 remaining):**
-  - T-014: UsersModule (CRUD + ban)
-  - T-015: RolesGuard + @CurrentUser decorator + AnonymousIdMiddleware
+  - ✅ T-014 + T-015 (gộp): UsersModule (CRUD + ban/unban) + common infra (@Public/@Roles/@CurrentUser/@AnonymousId decorators + RolesGuard + AnonymousIdMiddleware + JwtAuthGuard Reflector-aware). 10 smoke cases pass.
+- **Next (M4):**
+  - T-020: PostsModule CRUD endpoints
+  - T-021: View tracking endpoint + 30min dedup
+  - T-022: FilesModule Cloudinary signed upload + delete
+  - T-023: TagsModule CRUD + color rotation
 
 ---
 

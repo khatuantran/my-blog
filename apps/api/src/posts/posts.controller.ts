@@ -15,13 +15,16 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
+import { AnonymousId } from '../common/decorators/anonymous-id.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
+import { JwtOptionalAuthGuard } from '../common/guards/jwt-optional-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CreatePostDto } from './dto/create-post.dto';
 import { ListPostsDto } from './dto/list-posts.dto';
 import { PaginatedPostsDto, PostResponseDto } from './dto/post-response.dto';
+import { TrackViewResponseDto } from './dto/track-view-response.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
 
@@ -64,6 +67,22 @@ export class PostsController {
   @ApiResponse({ status: 200, type: PostResponseDto })
   async update(@Param('id') id: string, @Body() dto: UpdatePostDto): Promise<PostResponseDto> {
     return this.posts.update(id, dto) as Promise<PostResponseDto>;
+  }
+
+  @Post(':id/view')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtOptionalAuthGuard)
+  @ApiOperation({
+    summary: 'Track view (public, optional auth, dedup 30min)',
+  })
+  @ApiResponse({ status: 200, type: TrackViewResponseDto })
+  async trackView(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser | undefined,
+    @AnonymousId() anonymousId: string | undefined,
+  ): Promise<TrackViewResponseDto> {
+    return this.posts.trackView(id, { userId: user?.sub, anonymousId });
   }
 
   @Delete(':id')

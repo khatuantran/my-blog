@@ -201,6 +201,66 @@ describe('Posts (e2e)', () => {
     });
   });
 
+  describe('POST /posts/:id/view', () => {
+    it('200 anonymous: counted=true + viewCount +1', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const agent = request.agent(app.getHttpServer());
+      // Prime anon_id cookie (set by middleware)
+      await agent.get('/posts').expect(200);
+      const res = await agent.post(`/posts/${post.id}/view`).expect(200);
+      expect(res.body.data.counted).toBe(true);
+      expect(res.body.data.viewCount).toBe(1);
+
+      const dbPost = await prisma.post.findUnique({ where: { id: post.id } });
+      expect(dbPost!.viewCount).toBe(1);
+    });
+
+    it('200 anonymous: dedup trong 30min → counted=false, viewCount giữ nguyên', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const agent = request.agent(app.getHttpServer());
+      await agent.get('/posts').expect(200);
+      await agent.post(`/posts/${post.id}/view`).expect(200);
+      const res = await agent.post(`/posts/${post.id}/view`).expect(200);
+      expect(res.body.data.counted).toBe(false);
+      expect(res.body.data.viewCount).toBe(1);
+
+      const views = await prisma.postView.count({ where: { postId: post.id } });
+      expect(views).toBe(1);
+    });
+
+    it('200 hai anonymous khác nhau → cả 2 đều counted=true', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const a1 = request.agent(app.getHttpServer());
+      const a2 = request.agent(app.getHttpServer());
+      await a1.get('/posts').expect(200);
+      await a2.get('/posts').expect(200);
+      await a1.post(`/posts/${post.id}/view`).expect(200);
+      const res = await a2.post(`/posts/${post.id}/view`).expect(200);
+      expect(res.body.data.counted).toBe(true);
+      expect(res.body.data.viewCount).toBe(2);
+    });
+
+    it('200 auth user: track theo userId, KHÔNG store anonymousId', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const res = await request(app.getHttpServer())
+        .post(`/posts/${post.id}/view`)
+        .set('Cookie', userCookies)
+        .expect(200);
+      expect(res.body.data.counted).toBe(true);
+
+      const view = await prisma.postView.findFirst({ where: { postId: post.id } });
+      expect(view!.userId).not.toBeNull();
+      expect(view!.anonymousId).toBeNull();
+    });
+
+    it('404 post không tồn tại', async () => {
+      const agent = request.agent(app.getHttpServer());
+      await agent.get('/posts').expect(200);
+      const res = await agent.post('/posts/cmp-unknown/view').expect(404);
+      expect(res.body.error.code).toBe('POST_NOT_FOUND');
+    });
+  });
+
   describe('DELETE /posts/:id', () => {
     it('401 no cookie', async () => {
       const post = await makePost(prisma, { authorId: adminId });

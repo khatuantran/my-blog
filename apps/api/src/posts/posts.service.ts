@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
 import type { CreatePostDto } from './dto/create-post.dto';
@@ -52,6 +52,8 @@ export function toPostView(post: PostWithRelations): PostView {
 export function normalizeTagName(raw: string): string {
   return raw.trim().toLowerCase().replace(/^#+/, '');
 }
+
+export const VIEW_DEDUP_WINDOW_MS = 30 * 60 * 1000;
 
 @Injectable()
 export class PostsService {
@@ -216,6 +218,59 @@ export class PostsService {
     });
 
     return toPostView(post);
+  }
+
+  async trackView(
+    id: string,
+    viewer: { userId?: string; anonymousId?: string },
+  ): Promise<{ viewCount: number; counted: boolean }> {
+    if (!viewer.userId && !viewer.anonymousId) {
+      throw new BadRequestException({
+        code: 'VIEWER_ID_REQUIRED',
+        message: 'Cần auth cookie hoặc anonymous cookie để track view',
+      });
+    }
+
+    const post = await this.prisma.post.findUnique({
+      where: { id },
+      select: { id: true, viewCount: true },
+    });
+    if (!post) {
+      throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
+    }
+
+    const dedupKey: Prisma.PostViewWhereInput = viewer.userId
+      ? { userId: viewer.userId }
+      : { anonymousId: viewer.anonymousId };
+
+    const recent = await this.prisma.postView.findFirst({
+      where: {
+        postId: id,
+        ...dedupKey,
+        viewedAt: { gte: new Date(Date.now() - VIEW_DEDUP_WINDOW_MS) },
+      },
+      select: { id: true },
+    });
+    if (recent) {
+      return { viewCount: post.viewCount, counted: false };
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.postView.create({
+        data: {
+          postId: id,
+          userId: viewer.userId ?? null,
+          anonymousId: viewer.userId ? null : (viewer.anonymousId ?? null),
+        },
+      });
+      return tx.post.update({
+        where: { id },
+        data: { viewCount: { increment: 1 } },
+        select: { viewCount: true },
+      });
+    });
+
+    return { viewCount: updated.viewCount, counted: true };
   }
 
   async remove(id: string): Promise<void> {

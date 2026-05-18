@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileType, Mood, Role } from '@prisma/client';
 import { PostsService, normalizeTagName } from '@/posts/posts.service';
 
@@ -10,6 +10,9 @@ type MockPrisma = {
     findUnique: jest.Mock;
     count: jest.Mock;
     delete: jest.Mock;
+  };
+  postView: {
+    findFirst: jest.Mock;
   };
   $transaction: jest.Mock;
 };
@@ -38,6 +41,7 @@ describe('PostsService', () => {
     postTag: { deleteMany: jest.Mock; createMany: jest.Mock };
     image: { deleteMany: jest.Mock; createMany: jest.Mock };
     file: { deleteMany: jest.Mock; createMany: jest.Mock };
+    postView: { create: jest.Mock };
   };
 
   beforeEach(async () => {
@@ -47,6 +51,7 @@ describe('PostsService', () => {
       postTag: { deleteMany: jest.fn(), createMany: jest.fn() },
       image: { deleteMany: jest.fn(), createMany: jest.fn() },
       file: { deleteMany: jest.fn(), createMany: jest.fn() },
+      postView: { create: jest.fn() },
     };
     prisma = {
       post: {
@@ -54,6 +59,9 @@ describe('PostsService', () => {
         findUnique: jest.fn(),
         count: jest.fn(),
         delete: jest.fn(),
+      },
+      postView: {
+        findFirst: jest.fn(),
       },
       $transaction: jest.fn((cb: (t: typeof tx) => Promise<unknown>) => cb(tx)),
     };
@@ -207,6 +215,60 @@ describe('PostsService', () => {
       await service.update('p1', { tags: [] });
       expect(tx.postTag.deleteMany).toHaveBeenCalledWith({ where: { postId: 'p1' } });
       expect(tx.postTag.createMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('trackView', () => {
+    it('throws BadRequestException nếu không có userId lẫn anonymousId', async () => {
+      await expect(service.trackView('p1', {})).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws NotFoundException nếu post không tồn tại', async () => {
+      prisma.post.findUnique.mockResolvedValue(null);
+      await expect(service.trackView('nope', { anonymousId: '0x123' })).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('counted=false khi recent view < 30min (anonymous)', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', viewCount: 5 });
+      prisma.postView.findFirst.mockResolvedValue({ id: 'pv1' });
+      const res = await service.trackView('p1', { anonymousId: '0x123' });
+      expect(res).toEqual({ viewCount: 5, counted: false });
+      expect(tx.postView.create).not.toHaveBeenCalled();
+    });
+
+    it('counted=true khi không có recent view (anonymous) — increment viewCount', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', viewCount: 5 });
+      prisma.postView.findFirst.mockResolvedValue(null);
+      tx.post.update.mockResolvedValue({ viewCount: 6 });
+      const res = await service.trackView('p1', { anonymousId: '0x123' });
+      expect(res).toEqual({ viewCount: 6, counted: true });
+      expect(tx.postView.create).toHaveBeenCalledWith({
+        data: { postId: 'p1', userId: null, anonymousId: '0x123' },
+      });
+      expect(tx.post.update).toHaveBeenCalledWith({
+        where: { id: 'p1' },
+        data: { viewCount: { increment: 1 } },
+        select: { viewCount: true },
+      });
+    });
+
+    it('auth user: dedup theo userId, KHÔNG store anonymousId vào PostView', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', viewCount: 10 });
+      prisma.postView.findFirst.mockResolvedValue(null);
+      tx.post.update.mockResolvedValue({ viewCount: 11 });
+      await service.trackView('p1', { userId: 'u1', anonymousId: '0x123' });
+      // dedup query phải dùng userId
+      expect(prisma.postView.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ postId: 'p1', userId: 'u1' }),
+        }),
+      );
+      // store: userId set, anonymousId null
+      expect(tx.postView.create).toHaveBeenCalledWith({
+        data: { postId: 'p1', userId: 'u1', anonymousId: null },
+      });
     });
   });
 

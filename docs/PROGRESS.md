@@ -75,10 +75,10 @@
 
 ### 2026-05-18 (Week 2)
 
-- **Done (M4 progress 1/4):**
-  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), DTOs đầy đủ (Create/Update/List/Response + nested Image/File inputs), Service auto-upsert Tag (normalize lowercase + strip `#`), `$transaction` cho create/update replace tags/images/files, hard delete cascade. Tests: 14 unit (mock Prisma) + 20 integration. Total 41 unit + 40 e2e = **81 tests pass**. View tracking defer T-021, Cloudinary signing defer T-022, Tag color rotation defer T-023.
+- **Done (M4 progress 2/4):**
+  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), DTOs đầy đủ (Create/Update/List/Response + nested Image/File inputs), Service auto-upsert Tag (normalize lowercase + strip `#`), `$transaction` cho create/update replace tags/images/files, hard delete cascade. Tests: 14 unit (mock Prisma) + 20 integration. Cloudinary signing defer T-022, Tag color rotation defer T-023.
+  - ✅ **T-021** View tracking POST /posts/:id/view: optional auth qua new `JwtOptionalAuthGuard` reusable. Dedup 30min theo userId (auth) hoặc anonymousId (anon). PostView record + viewCount increment trong `$transaction`. Response `{ viewCount, counted }`. 5 unit + 5 integration. Total **46 unit + 45 e2e = 91 tests pass**.
 - **Next:**
-  - T-021: View tracking + 30min dedup
   - T-022: FilesModule Cloudinary signed upload
   - T-023: TagsModule CRUD + color rotation
 

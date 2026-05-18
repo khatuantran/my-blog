@@ -110,7 +110,9 @@
   - Tests: 14 unit (posts.service.spec.ts mock Prisma) + 20 integration (posts.e2e-spec.ts cover auth 401/403, validation 400, 404, cascade delete).
   - Verify: typecheck ✓, lint ✓, test (41 unit + 40 e2e = 81 pass).
   - KHÔNG include view tracking (defer T-021), FilesModule Cloudinary signing (defer T-022), TagsModule color rotation (defer T-023).
-- [T-021] [P0] [F1] [BE] View tracking endpoint + dedup logic (30min window) - TODO
+- [T-021] [P0] [F1] [BE] View tracking endpoint + dedup logic (30min window) - DONE (2026-05-18)
+  - POST /posts/:id/view (optional auth via new `JwtOptionalAuthGuard` reusable cho T-030/T-031). Dedup theo userId (nếu auth) hoặc anonymousId (else) trong 30 phút. Response 200 `{ viewCount, counted }`. PostView record + `viewCount` increment trong `$transaction`.
+  - Tests: 5 unit (mock Prisma + PostView) + 5 integration (anonymous track/dedup, 2 anon khác track riêng, auth user prefer userId, 404). Total 46 unit + 45 e2e = 91 tests pass.
 - [T-022] [P0] [F1] [BE] FilesModule — Cloudinary signed upload `/files/sign` + delete - TODO
 - [T-023] [P1] [F1] [BE] TagsModule — CRUD + color rotation logic - TODO
 

@@ -81,7 +81,7 @@ apps/web/
 │   │   ├── LoginPage.tsx       (/auth/login)
 │   │   └── RegisterPage.tsx    (/auth/register)
 │   ├── components/
-│   │   ├── layout/             (TopBar, StatusBar, Sidebar, RightPanel)
+│   │   ├── layout/             (TopBar, StatusBar, AppLayout, AuthLayout, Logo)
 │   │   ├── post/               (PostCard, PostContent, ImageGrid, ImageCarousel, FileAttachments)
 │   │   ├── ui/                 (shadcn primitives: Button, Card, Input, Dialog, ...)
 │   │   ├── shared/             (MoodBadge, TagPill, Avatar, Sparkline, AsciiBar)

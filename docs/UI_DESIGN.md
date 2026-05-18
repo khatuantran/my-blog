@@ -104,48 +104,45 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 ### Layout
 
 ````
-┌─────────────────── TopBar (52px) ────────────────────┐
-├─────────┬──────────────────────────────┬─────────────┤
-│         │  // feed.posts · 42 total    │  // mood.   │
-│ Sidebar │  [Filter: All|😊|⚡|💭|😌|😢]│  distribution│
-│ (admin  │                              │  [mood bars]│
-│  only,  │  ┌───── PostCard ──────┐     │             │
-│  220px) │  │ A ~/admin [ADMIN]    │     │  // activity│
-│         │  │ #abc123 · 2h ago     │     │  .heatmap   │
-│ ~/nav   │  │ 😊 happy             │     │  [28-day]   │
-│ ❯ Feed  │  │                      │     │             │
-│   Saved │  │ <content markdown>   │     │  // live.   │
-│   Tags  │  │ ```code block```     │     │  visitors   │
-│   Admin │  │                      │     │  [sessions] │
-│         │  │ [image grid 2x2]     │     │             │
-│ 0xDEAD  │  │ // attachments [2]   │     │             │
-│ 0b1011… │  │ [PDF] doc.pdf 1.2MB↓ │     │             │
-│ pid:    │  │                      │     │             │
-│         │  │ #code #dev #debugging│     │             │
-│         │  │ ─────────────        │     │             │
-│         │  │ ❤24  💬5  🏷  ↗Share│     │             │
-│         │  └──────────────────────┘     │             │
-│         │                              │             │
-│         │  [more PostCards...]         │             │
-│         │  [⠋ loading posts...]        │             │
-│         │                              │             │
-├─────────┴──────────────────────────────┴─────────────┤
+┌─────────────────── TopBar (52px) ─────────────────────┐
+│                                                       │
+│         // feed.posts · 42 total                      │
+│         [Filter: All|😊|⚡|💭|😌|😢]   [Latest ▾]    │
+│                                                       │
+│         ┌──────── PostCard (max-w 820px) ─────────┐  │
+│         │ A ~/admin [ADMIN] · #abc123 · 2h ago    │  │
+│         │ 😊 happy                                 │  │
+│         │                                          │  │
+│         │ <content markdown>                       │  │
+│         │ ```code block```                         │  │
+│         │ [image grid 2x2]                         │  │
+│         │ // attachments [2]                       │  │
+│         │ [PDF] doc.pdf 1.2MB ↓                    │  │
+│         │ #code #dev #debugging                    │  │
+│         │ ─────────────                            │  │
+│         │ ❤24  💬5  🏷  ↗Share                    │  │
+│         └──────────────────────────────────────────┘  │
+│                                                       │
+│         [more PostCards...]                           │
+│         [⠋ loading posts...]                          │
+│                                                       │
+├───────────────────────────────────────────────────────┤
 └────────────────── StatusBar (28px) ───────────────────┘
 ````
 
+> **Note:** Feed page **không có Sidebar / RightPanel**. Mood filter pills nằm inline trên FilterBar; mood.distribution + activity.heatmap di chuyển sang Admin Dashboard. Feed area centered max-width 820px (theo design-file/MyBlog Feed.html).
+
 ### Components
 
-| Component                          | Source                          |
-| ---------------------------------- | ------------------------------- |
-| Sidebar (admin only)               | DESIGN_SYSTEM > Sidebar         |
-| FilterBar (mood pills + sort)      | DESIGN_SYSTEM > FilterBar       |
-| PostCard                           | DESIGN_SYSTEM > PostCard        |
-| ImageGrid                          | DESIGN_SYSTEM > ImageGrid       |
-| FileAttachments                    | DESIGN_SYSTEM > FileAttachments |
-| MoodBadge                          | DESIGN_SYSTEM > MoodBadge       |
-| TagPill                            | DESIGN_SYSTEM > TagPill         |
-| RightPanel (mood/heatmap/visitors) | DESIGN_SYSTEM > RightPanel      |
-| AsciiSpinner (loading)             | DESIGN_SYSTEM > AsciiSpinner    |
+| Component                     | Source                          |
+| ----------------------------- | ------------------------------- |
+| FilterBar (mood pills + sort) | DESIGN_SYSTEM > FilterBar       |
+| PostCard                      | DESIGN_SYSTEM > PostCard        |
+| ImageGrid                     | DESIGN_SYSTEM > ImageGrid       |
+| FileAttachments               | DESIGN_SYSTEM > FileAttachments |
+| MoodBadge                     | DESIGN_SYSTEM > MoodBadge       |
+| TagPill                       | DESIGN_SYSTEM > TagPill         |
+| AsciiSpinner (loading)        | DESIGN_SYSTEM > AsciiSpinner    |
 
 ### State machine
 
@@ -171,8 +168,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Responsive breakpoints
 
-- `<1100px`: ẩn RightPanel
-- `<768px`: ẩn Sidebar, padding main giảm `10px 12px`
+- `<768px`: padding main giảm `10px 12px`
 - `<640px` (mobile): PostCard padding giảm; image grid stack vertically nếu cần
 
 ### Real-time updates (FR-09)
@@ -180,7 +176,6 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - WS event `post:new` → prepend vào feed (with `fadeUp` animation)
 - WS event `like:new` → update like count cho PostCard `postId` match
 - WS event `online:count` → update TopBar/StatusBar online count
-- WS event `visitor:join/leave/update` → update RightPanel live visitors
 
 ---
 

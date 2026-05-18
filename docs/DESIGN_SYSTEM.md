@@ -112,12 +112,12 @@
 
 ### Breakpoint
 
-| Token     | Value        | Range                       |
-| --------- | ------------ | --------------------------- |
-| `mobile`  | `< 640px`    | base                        |
-| `tablet`  | `640-1024px` | `sm:` / `md:`               |
-| `desktop` | `> 1024px`   | `lg:`                       |
-| `wide`    | `> 1100px`   | `xl:` (hiển thị RightPanel) |
+| Token     | Value        | Range                              |
+| --------- | ------------ | ---------------------------------- |
+| `mobile`  | `< 640px`    | base                               |
+| `tablet`  | `640-1024px` | `sm:` / `md:`                      |
+| `desktop` | `> 1024px`   | `lg:`                              |
+| `wide`    | `> 1100px`   | `xl:` (page-specific wide layouts) |
 
 ### Motion
 
@@ -200,23 +200,7 @@ Toggle via Tweaks panel (dev tool, không document).
 - **A11y:** `role="dialog" aria-modal="true"`, items `role="option"`
 - **Tokens:** `--cyan` (selected highlight), JetBrains Mono text
 
-### Sidebar (admin only)
-
-- **Mục đích:** Left nav 220px, sticky `top: 52px`, height `calc(100vh - 80px)`
-- **Surface:** `--surf` + border-right `--b1`
-- **Nav items:** Feed (`❯` cursor when active, `--cyan`), Saved (⌘2), Tags, Admin (with `[ admin ]` orange badge, ⌘3)
-- **Bottom:** Hex deco `0xDEAD·BEEF·CAFE` etc trong `--td` text-mono-xs
-- **A11y:** `<aside aria-label="Primary navigation">`, nav items `role="link"`
-
-### RightPanel
-
-- **Mục đích:** Right side context panel 260px, sticky `top: 52px`, scrollable
-- **Surface:** `--surf` + border-left `--b1`
-- **Sections (cách `--b1` divider):**
-  - `// mood.distribution` — list of MoodBar entries
-  - `// activity.heatmap` — 28-day grid (7 col × 4 row), level 0-3 color (`--b1`, `--b2`, `--cyan35`, `--cyan90`)
-  - `// live.visitors` — list of session cards
-- **Responsive:** ẩn `<1100px`
+> **DROPPED — Sidebar + RightPanel:** Design refactor 2026-05-18. Global Sidebar (admin nav) và RightPanel (mood.distribution + activity.heatmap + live.visitors) đã bị bỏ. Aside content giờ là **page-specific**: mood.distribution + activity.log nằm trong Admin Dashboard page, post.meta/tags/share/related nằm trong Post Detail page, live.preview nằm trong Create Post page. Component primitives MoodBar / Activity Heatmap / Anonymous Visitor Card vẫn giữ cho consumer page reuse.
 
 ### PostCard
 

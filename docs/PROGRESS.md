@@ -12,7 +12,7 @@
 | M4  | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done               | 2026-05-18  |
 | M5  | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
-| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette, Sidebar, RightPanel)        | ⬜ Todo               |             |
+| M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ⬜ Todo               |             |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ⬜ Todo               |             |
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo               |             |
 | M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo               |             |

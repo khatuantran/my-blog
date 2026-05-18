@@ -96,13 +96,13 @@
   - ✅ **T-051** StatusBar: fixed-bottom 28px terminal-style. Path/info/build/online/version sections.
   - ✅ **T-052** CommandPalette ⌘K: portal overlay + 8 commands 3 groups + realtime filter + keyboard nav (↑↓/Enter/Esc) + global ⌘K listener trong AppLayout. Zustand store. Total **26 FE tests pass** (7 routes + 5 TopBar + 5 StatusBar + 9 CP).
   - Docs sync prep: drop global Sidebar/RightPanel; T-053 + T-054 DROPPED.
-- **M8 in progress 🟡 (8/10 done — Phase A done, Phase B 2/4):**
+- **M8 in progress 🟡 (9/10 done — Phase A done, Phase B 3/4):**
   - Phase A ✅: T-065/T-062/T-063/T-064/T-060/T-061.
   - ✅ **T-066** PostDetailPage + MetaPanel + useTrackView.
-  - ✅ **T-067** ImageCarousel full (prev/next round buttons + dot indicator role=tab + counter N/M + keyboard ArrowLeft/Right + wrap-around + onError fallback). 8 tests. Total **90 FE tests**.
-- **Next (M8 Phase B còn 2 tasks):**
-  - T-068 CommentForm + post-as-anon
-  - T-069 CommentItem + like + CommentList
+  - ✅ **T-067** ImageCarousel full.
+  - ✅ **T-068** CommentForm + post-as-anon: textarea + as-toggle + useCreateComment optimistic prepend. 6 tests. Total **96 FE tests**.
+- **Next (M8 Phase B còn 1 task):**
+  - T-069 CommentItem + like + CommentList wire vào PostDetailPage
 
 ---
 

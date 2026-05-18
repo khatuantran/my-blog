@@ -55,6 +55,11 @@
     - BE: `apps/api/src/config/env.schema.ts` → `validateEnv()` injected vào ConfigModule, fail-fast (T-004)
     - FE: `apps/web/src/lib/env.ts` → Zod parse `import.meta.env`, throw Error trên import (T-005)
   - `dotenv-safe` defer permanent — Zod cover cả existence + type/format (superset)
+- [T-009] [P1] [F7] [Infra] Setup openapi:generate workflow (NestJS Swagger → yaml + FE openapi-typescript) - TODO
+  - apps/api: add script `openapi:generate` boot NestJS standalone + dump SwaggerModule → `docs/contracts/openapi.yaml`
+  - apps/web: add dep `openapi-typescript` + script `openapi:types` generate `apps/web/src/types/api.ts`
+  - Verify: regenerate openapi.yaml cover /auth + /users + /posts (post-T-020) đầy đủ
+  - Blocks: FE typed API client (M7+)
 
 ### Backlog — M3: BE Auth + Users
 
@@ -98,7 +103,7 @@
 
 ### Backlog — M4: BE Posts + Files
 
-- [T-020] [P0] [F1] [BE] PostsModule — CRUD endpoints theo API_CONTRACT - DONE (2026-05-18)
+- [T-020] [P0] [F1] [BE] PostsModule — CRUD endpoints theo API_CONTRACT - DONE (2026-05-18, commit f43d415)
   - 5 endpoints: GET /posts (public, paginated + mood/tag filter), GET /posts/:id (public), POST /posts (admin), PATCH /posts/:id (admin), DELETE /posts/:id (admin, hard cascade).
   - DTOs: CreatePostDto (+ ImageInputDto, FileInputDto nested), UpdatePostDto (PartialType), ListPostsDto, PostResponseDto + PaginatedPostsDto.
   - Service: auto-upsert Tag (lowercase + strip `#`), `$transaction` cho create/update (atomic tag/image/file replace).

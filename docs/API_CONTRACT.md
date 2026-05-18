@@ -100,14 +100,14 @@
 
 ### Posts (`/posts/*`)
 
-| Method | Path              | Auth   | FR      | Notes                                                |
-| ------ | ----------------- | ------ | ------- | ---------------------------------------------------- |
-| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`                |
-| GET    | `/posts/:id`      | public | FR-04   | Increment viewCount (debounced)                      |
-| POST   | `/posts`          | admin  | FR-02   | Body: `{ content, mood, tags[], images[], files[] }` |
-| PATCH  | `/posts/:id`      | admin  | FR-02   | Partial update                                       |
-| DELETE | `/posts/:id`      | admin  | FR-02   | Cascade delete                                       |
-| POST   | `/posts/:id/view` | public | FR-04.5 | Track view (server enforces dedup)                   |
+| Method | Path              | Auth   | FR      | Notes                                                             |
+| ------ | ----------------- | ------ | ------- | ----------------------------------------------------------------- |
+| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`                             |
+| GET    | `/posts/:id`      | public | FR-04   | Trả về full post (view tracking via POST /posts/:id/view — T-021) |
+| POST   | `/posts`          | admin  | FR-02   | Body: `{ content, mood, tags[], images[], files[] }`              |
+| PATCH  | `/posts/:id`      | admin  | FR-02   | Partial update                                                    |
+| DELETE | `/posts/:id`      | admin  | FR-02   | Cascade delete                                                    |
+| POST   | `/posts/:id/view` | public | FR-04.5 | Track view (server enforces dedup)                                |
 
 ### Comments (`/comments/*`, `/posts/:id/comments`)
 
@@ -161,7 +161,8 @@
 
 - Cursor không dùng (đơn giản hóa) — page-based
 - Query: `?page=1&limit=10` (default `page=1, limit=10`, max `limit=50`)
-- Response `meta`: `{ page, limit, total, hasMore }`
+- Response `data`: `{ items, total, page, limit }` (envelope `{ data: { ... } }` từ TransformInterceptor)
+- FE tự tính `hasMore = page * limit < total` khi cần infinite scroll
 
 ## Versioning Policy
 

@@ -98,7 +98,13 @@
 
 ### Backlog — M4: BE Posts + Files
 
-- [T-020] [P0] [F1] [BE] PostsModule — CRUD endpoints theo API_CONTRACT - TODO
+- [T-020] [P0] [F1] [BE] PostsModule — CRUD endpoints theo API_CONTRACT - DONE (2026-05-18)
+  - 5 endpoints: GET /posts (public, paginated + mood/tag filter), GET /posts/:id (public), POST /posts (admin), PATCH /posts/:id (admin), DELETE /posts/:id (admin, hard cascade).
+  - DTOs: CreatePostDto (+ ImageInputDto, FileInputDto nested), UpdatePostDto (PartialType), ListPostsDto, PostResponseDto + PaginatedPostsDto.
+  - Service: auto-upsert Tag (lowercase + strip `#`), `$transaction` cho create/update (atomic tag/image/file replace).
+  - Tests: 14 unit (posts.service.spec.ts mock Prisma) + 20 integration (posts.e2e-spec.ts cover auth 401/403, validation 400, 404, cascade delete).
+  - Verify: typecheck ✓, lint ✓, test (41 unit + 40 e2e = 81 pass).
+  - KHÔNG include view tracking (defer T-021), FilesModule Cloudinary signing (defer T-022), TagsModule color rotation (defer T-023).
 - [T-021] [P0] [F1] [BE] View tracking endpoint + dedup logic (30min window) - TODO
 - [T-022] [P0] [F1] [BE] FilesModule — Cloudinary signed upload `/files/sign` + delete - TODO
 - [T-023] [P1] [F1] [BE] TagsModule — CRUD + color rotation logic - TODO

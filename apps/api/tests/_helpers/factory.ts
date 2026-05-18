@@ -1,5 +1,5 @@
 import { PrismaService } from 'nestjs-prisma';
-import { Role, type User } from '@prisma/client';
+import { Mood, Role, type Post, type User } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const TEST_PASSWORD = 'test-password-123';
@@ -22,6 +22,29 @@ export async function makeUser(
     },
   });
   return { ...user, rawPassword };
+}
+
+export async function makePost(
+  prisma: PrismaService,
+  opts: {
+    authorId: string;
+    content?: string;
+    mood?: Mood;
+    tagNames?: string[];
+  },
+): Promise<Post> {
+  const tagNames = opts.tagNames ?? [];
+  const tags = await Promise.all(
+    tagNames.map((name) => prisma.tag.upsert({ where: { name }, update: {}, create: { name } })),
+  );
+  return prisma.post.create({
+    data: {
+      content: opts.content ?? 'test post content',
+      mood: opts.mood ?? Mood.HAPPY,
+      authorId: opts.authorId,
+      postTags: { create: tags.map((t) => ({ tagId: t.id })) },
+    },
+  });
 }
 
 export { TEST_PASSWORD };

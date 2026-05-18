@@ -4,6 +4,7 @@ import { PrismaModule } from 'nestjs-prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { PostsModule } from './posts/posts.module';
 import { UsersModule } from './users/users.module';
 import { AnonymousIdMiddleware } from './common/middleware/anonymous-id.middleware';
 import { validateEnv } from './config/env.schema';
@@ -18,6 +19,7 @@ import { validateEnv } from './config/env.schema';
     PrismaModule.forRoot({ isGlobal: true }),
     AuthModule,
     UsersModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

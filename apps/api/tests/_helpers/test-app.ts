@@ -5,14 +5,35 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '@/app.module';
 import { HttpExceptionFilter } from '@/common/filters/http-exception.filter';
 import { TransformInterceptor } from '@/common/interceptors/transform.interceptor';
+import { CloudinaryService } from '@/files/cloudinary.service';
 
 export interface TestContext {
   app: INestApplication;
   prisma: PrismaService;
+  cloudinaryMock: {
+    signUpload: jest.Mock;
+    destroyMany: jest.Mock;
+  };
 }
 
 export async function createTestApp(): Promise<TestContext> {
-  const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  const cloudinaryMock = {
+    signUpload: jest.fn().mockReturnValue({
+      signature: 'stub-signature',
+      timestamp: 1715952000,
+      apiKey: 'test-key',
+      cloudName: 'test-cloud',
+      folder: 'myblog',
+      resourceType: 'image',
+      publicId: null,
+    }),
+    destroyMany: jest.fn().mockResolvedValue(undefined),
+  };
+
+  const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(CloudinaryService)
+    .useValue(cloudinaryMock)
+    .compile();
   const app = moduleRef.createNestApplication();
 
   app.use(cookieParser());
@@ -30,5 +51,5 @@ export async function createTestApp(): Promise<TestContext> {
   await app.init();
 
   const prisma = app.get(PrismaService);
-  return { app, prisma };
+  return { app, prisma, cloudinaryMock };
 }

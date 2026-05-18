@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileType, Mood, Role } from '@prisma/client';
+import { CloudinaryService } from '@/files/cloudinary.service';
 import { PostsService, normalizeTagName } from '@/posts/posts.service';
 
 type MockPrisma = {
@@ -35,6 +36,7 @@ const basePost = {
 describe('PostsService', () => {
   let service: PostsService;
   let prisma: MockPrisma;
+  let cloudinary: { signUpload: jest.Mock; destroyMany: jest.Mock };
   let tx: {
     tag: { upsert: jest.Mock };
     post: { create: jest.Mock; update: jest.Mock };
@@ -66,8 +68,17 @@ describe('PostsService', () => {
       $transaction: jest.fn((cb: (t: typeof tx) => Promise<unknown>) => cb(tx)),
     };
 
+    cloudinary = {
+      signUpload: jest.fn(),
+      destroyMany: jest.fn().mockResolvedValue(undefined),
+    };
+
     const moduleRef = await Test.createTestingModule({
-      providers: [PostsService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        PostsService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: CloudinaryService, useValue: cloudinary },
+      ],
     }).compile();
     service = moduleRef.get(PostsService);
   });
@@ -184,7 +195,7 @@ describe('PostsService', () => {
     });
 
     it('partial content update không touch tags/images/files', async () => {
-      prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
       tx.post.update.mockResolvedValue(basePost);
       await service.update('p1', { content: 'new content' });
       expect(tx.postTag.deleteMany).not.toHaveBeenCalled();
@@ -199,7 +210,7 @@ describe('PostsService', () => {
     });
 
     it('tags replace: delete old + upsert new', async () => {
-      prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
       tx.tag.upsert.mockResolvedValue({ id: 'tag-new', name: 'new', color: null });
       tx.post.update.mockResolvedValue(basePost);
       await service.update('p1', { tags: ['new'] });
@@ -210,7 +221,7 @@ describe('PostsService', () => {
     });
 
     it('tags empty array clears all tags', async () => {
-      prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
       tx.post.update.mockResolvedValue(basePost);
       await service.update('p1', { tags: [] });
       expect(tx.postTag.deleteMany).toHaveBeenCalledWith({ where: { postId: 'p1' } });
@@ -278,11 +289,27 @@ describe('PostsService', () => {
       await expect(service.remove('nope')).rejects.toThrow(NotFoundException);
     });
 
-    it('success: calls delete', async () => {
-      prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
+    it('success: calls delete + Cloudinary destroyMany với image + file publicIds', async () => {
+      prisma.post.findUnique.mockResolvedValue({
+        id: 'p1',
+        images: [{ publicId: 'img-1' }, { publicId: 'img-2' }],
+        files: [{ publicId: 'file-1' }],
+      });
       prisma.post.delete.mockResolvedValue(basePost);
       await service.remove('p1');
       expect(prisma.post.delete).toHaveBeenCalledWith({ where: { id: 'p1' } });
+      expect(cloudinary.destroyMany).toHaveBeenCalledWith([
+        { publicId: 'img-1', resourceType: 'image' },
+        { publicId: 'img-2', resourceType: 'image' },
+        { publicId: 'file-1', resourceType: 'raw' },
+      ]);
+    });
+
+    it('success: empty images/files → destroyMany với []', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', images: [], files: [] });
+      prisma.post.delete.mockResolvedValue(basePost);
+      await service.remove('p1');
+      expect(cloudinary.destroyMany).toHaveBeenCalledWith([]);
     });
   });
 });

@@ -113,7 +113,12 @@
 - [T-021] [P0] [F1] [BE] View tracking endpoint + dedup logic (30min window) - DONE (2026-05-18, commit 6820e97)
   - POST /posts/:id/view (optional auth via new `JwtOptionalAuthGuard` reusable cho T-030/T-031). Dedup theo userId (nếu auth) hoặc anonymousId (else) trong 30 phút. Response 200 `{ viewCount, counted }`. PostView record + `viewCount` increment trong `$transaction`.
   - Tests: 5 unit (mock Prisma + PostView) + 5 integration (anonymous track/dedup, 2 anon khác track riêng, auth user prefer userId, 404). Total 46 unit + 45 e2e = 91 tests pass.
-- [T-022] [P0] [F1] [BE] FilesModule — Cloudinary signed upload `/files/sign` + delete - TODO
+- [T-022] [P0] [F1] [BE] FilesModule — Cloudinary signed upload `/files/sign` + delete - DONE (2026-05-18)
+  - 2 endpoints: POST /files/sign (admin, body `{ resourceType, folder?, publicId? }`) + DELETE /files/:id (admin, hard delete DB + revoke Cloudinary). Dep: `cloudinary ^2.10`.
+  - `CloudinaryService` wrapper (sign upload via `cloudinary.utils.api_sign_request` + `destroyMany` best-effort, log fail). Inject `ConfigService<Env, true>`.
+  - **Cascade Cloudinary cleanup** hook vào `PostsService.remove()` (collect image+file publicIds trước cascade DB delete, destroy sau commit) và `PostsService.update()` (orphaned assets khi replace images/files).
+  - Test infra: `createTestApp()` override `CloudinaryService` provider với mock — không hit real Cloudinary API. Stub `.env.test` Cloudinary vars.
+  - Tests: 3 unit (FilesService) + 9 integration (sign auth/role/validate, delete cascade, post delete + patch replace verify destroyMany). Total **50 unit + 56 e2e = 106 tests pass**.
 - [T-023] [P1] [F1] [BE] TagsModule — CRUD + color rotation logic - TODO
 
 ### Backlog — M5: BE Interactions

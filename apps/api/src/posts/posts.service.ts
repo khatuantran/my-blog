@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
+import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
 import type { CreatePostDto } from './dto/create-post.dto';
 import type { UpdatePostDto } from './dto/update-post.dto';
 import type { ListPostsDto } from './dto/list-posts.dto';
@@ -59,7 +60,10 @@ export const VIEW_DEDUP_WINDOW_MS = 30 * 60 * 1000;
 export class PostsService {
   private readonly logger = new Logger(PostsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinary: CloudinaryService,
+  ) {}
 
   async list(
     query: ListPostsDto,
@@ -148,8 +152,15 @@ export class PostsService {
   }
 
   async update(id: string, dto: UpdatePostDto): Promise<PostView> {
-    // Pre-check existence to surface 404 before transaction work
-    const existing = await this.prisma.post.findUnique({ where: { id }, select: { id: true } });
+    // Pre-fetch existing publicIds for Cloudinary cleanup if images/files being replaced
+    const existing = await this.prisma.post.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        images: { select: { publicId: true } },
+        files: { select: { publicId: true } },
+      },
+    });
     if (!existing) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
@@ -157,6 +168,18 @@ export class PostsService {
     const tagsProvided = dto.tags !== undefined;
     const imagesProvided = dto.images !== undefined;
     const filesProvided = dto.files !== undefined;
+
+    const orphanedAssets: CloudinaryAsset[] = [];
+    if (imagesProvided) {
+      orphanedAssets.push(
+        ...existing.images.map((i) => ({ publicId: i.publicId, resourceType: 'image' as const })),
+      );
+    }
+    if (filesProvided) {
+      orphanedAssets.push(
+        ...existing.files.map((f) => ({ publicId: f.publicId, resourceType: 'raw' as const })),
+      );
+    }
 
     const post = await this.prisma.$transaction(async (tx) => {
       if (tagsProvided) {
@@ -217,6 +240,9 @@ export class PostsService {
       });
     });
 
+    // Best-effort Cloudinary cleanup after successful DB tx
+    await this.cloudinary.destroyMany(orphanedAssets);
+
     return toPostView(post);
   }
 
@@ -274,11 +300,23 @@ export class PostsService {
   }
 
   async remove(id: string): Promise<void> {
-    const existing = await this.prisma.post.findUnique({ where: { id }, select: { id: true } });
+    const existing = await this.prisma.post.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        images: { select: { publicId: true } },
+        files: { select: { publicId: true } },
+      },
+    });
     if (!existing) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
     await this.prisma.post.delete({ where: { id } });
+    // Best-effort Cloudinary cleanup after cascade delete
+    await this.cloudinary.destroyMany([
+      ...existing.images.map((i) => ({ publicId: i.publicId, resourceType: 'image' as const })),
+      ...existing.files.map((f) => ({ publicId: f.publicId, resourceType: 'raw' as const })),
+    ]);
     this.logger.log(`Post ${id} deleted`);
   }
 }

@@ -75,12 +75,12 @@
 
 ### 2026-05-18 (Week 2)
 
-- **Done (M4 progress 2/4):**
-  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), DTOs đầy đủ (Create/Update/List/Response + nested Image/File inputs), Service auto-upsert Tag (normalize lowercase + strip `#`), `$transaction` cho create/update replace tags/images/files, hard delete cascade. Tests: 14 unit (mock Prisma) + 20 integration. Cloudinary signing defer T-022, Tag color rotation defer T-023.
-  - ✅ **T-021** View tracking POST /posts/:id/view: optional auth qua new `JwtOptionalAuthGuard` reusable. Dedup 30min theo userId (auth) hoặc anonymousId (anon). PostView record + viewCount increment trong `$transaction`. Response `{ viewCount, counted }`. 5 unit + 5 integration. Total **46 unit + 45 e2e = 91 tests pass**.
+- **Done (M4 progress 3/4):**
+  - ✅ **T-020** PostsModule CRUD: 5 endpoints (GET list/detail public, POST/PATCH/DELETE admin), DTOs đầy đủ (Create/Update/List/Response + nested Image/File inputs), Service auto-upsert Tag (normalize lowercase + strip `#`), `$transaction` cho create/update replace tags/images/files, hard delete cascade. 14 unit + 20 integration.
+  - ✅ **T-021** View tracking POST /posts/:id/view: optional auth qua new `JwtOptionalAuthGuard` reusable. Dedup 30min theo userId/anonymousId. PostView record + viewCount increment trong `$transaction`. Response `{ viewCount, counted }`. 5 unit + 5 integration.
+  - ✅ **T-022** FilesModule Cloudinary: POST /files/sign + DELETE /files/:id (admin). `CloudinaryService` wrapper + cascade Cloudinary cleanup hook vào PostsService.remove() + update() (fix image/file leak từ T-020). `createTestApp` override CloudinaryService mock. Dep `cloudinary ^2.10`. 3 unit + 9 integration. Total **50 unit + 56 e2e = 106 tests pass**.
 - **Next:**
-  - T-022: FilesModule Cloudinary signed upload
-  - T-023: TagsModule CRUD + color rotation
+  - T-023: TagsModule CRUD + color rotation (M4 last task)
 
 ---
 

@@ -179,7 +179,7 @@
 - [T-062] [P0] [F1] [FE] PostContent markdown renderer (with code block syntax) - TODO
 - [T-063] [P0] [F1] [FE] ImageGrid (1/2/3+ layout) - TODO
 - [T-064] [P0] [F1] [FE] FileAttachments component - TODO
-- [T-065] [P0] [F1] [FE] MoodBadge + TagPill + Avatar shared components - TODO
+- [T-065] [P0] [F1] [FE] MoodBadge + TagPill + Avatar shared components - DONE (2026-05-18)
 - [T-066] [P0] [F1] [FE] PostDetailPage — breadcrumb + ImageCarousel + comment list + form + MetaPanel - TODO
 - [T-067] [P1] [F1] [FE] ImageCarousel (prev/next + dots + keyboard) - TODO
 - [T-068] [P1] [F1] [FE] CommentForm + post-as-anon toggle - TODO

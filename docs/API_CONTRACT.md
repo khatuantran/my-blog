@@ -100,14 +100,14 @@
 
 ### Posts (`/posts/*`)
 
-| Method | Path              | Auth   | FR      | Notes                                                             |
-| ------ | ----------------- | ------ | ------- | ----------------------------------------------------------------- |
-| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`                             |
-| GET    | `/posts/:id`      | public | FR-04   | Trả về full post (view tracking via POST /posts/:id/view — T-021) |
-| POST   | `/posts`          | admin  | FR-02   | Body: `{ content, mood, tags[], images[], files[] }`              |
-| PATCH  | `/posts/:id`      | admin  | FR-02   | Partial update                                                    |
-| DELETE | `/posts/:id`      | admin  | FR-02   | Cascade delete                                                    |
-| POST   | `/posts/:id/view` | public | FR-04.5 | Track view (server enforces dedup)                                |
+| Method | Path              | Auth   | FR      | Notes                                                                                      |
+| ------ | ----------------- | ------ | ------- | ------------------------------------------------------------------------------------------ |
+| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`                                                      |
+| GET    | `/posts/:id`      | public | FR-04   | Trả về full post (view tracking via POST /posts/:id/view — T-021)                          |
+| POST   | `/posts`          | admin  | FR-02   | Body: `{ content, mood, tags[], images[], files[] }`                                       |
+| PATCH  | `/posts/:id`      | admin  | FR-02   | Partial update                                                                             |
+| DELETE | `/posts/:id`      | admin  | FR-02   | Cascade delete                                                                             |
+| POST   | `/posts/:id/view` | public | FR-04.5 | Dedup 30min theo userId (auth) / anonymousId (anon). Response 200 `{ viewCount, counted }` |
 
 ### Comments (`/comments/*`, `/posts/:id/comments`)
 

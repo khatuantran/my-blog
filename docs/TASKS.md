@@ -191,7 +191,7 @@
 - [T-071] [P1] [F1] [FE] MoodPicker (7 emoji buttons) - DONE (2026-05-18)
 - [T-072] [P1] [F1] [FE] MarkdownEditor (textarea + toolbar B/I/code/h/link) - DONE (2026-05-18)
 - [T-073] [P1] [F1] [FE] UploadZone — drag-drop ảnh + file với progress - DONE (2026-05-18)
-- [T-074] [P1] [F1] [FE] TagInput + per-tag color cycle - TODO
+- [T-074] [P1] [F1] [FE] TagInput + per-tag color cycle - DONE (2026-05-18)
 - [T-075] [P1] [F1] [FE] PostPreview live (right pane) - TODO
 - [T-076] [P1] [F1] [FE] AdminPage — 4 StatCards + 2-col (mood/activity) + users table + comments moderation - TODO
 - [T-077] [P1] [F1] [FE] StatCard + Sparkline SVG - TODO

@@ -9,6 +9,7 @@ const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const CreatePostPage = lazy(() => import('./pages/CreatePostPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export const routes: RouteObject[] = [
@@ -38,7 +39,10 @@ export const routes: RouteObject[] = [
   },
   {
     element: <AuthLayout />,
-    children: [{ path: 'auth/login', element: <LoginPage /> }],
+    children: [
+      { path: 'auth/login', element: <LoginPage /> },
+      { path: 'auth/register', element: <RegisterPage /> },
+    ],
   },
 ];
 

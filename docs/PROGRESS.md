@@ -15,13 +15,13 @@
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
 | M9  | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
-| M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo               |             |
+| M10 | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
 | M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
 | M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ⬜ Todo               |             |
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 64% (9/14 milestone)
+## Tỉ lệ hoàn thành: 71% (10/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -107,11 +107,18 @@
   - Phase A ✅ (T-070/T-071/T-072/T-073/T-074/T-075): Create Post page + 5 components + Cloudinary direct upload.
   - Phase B ✅ (T-076/T-077/T-078/T-079): Admin dashboard + StatCard/Sparkline + MoodBar + ActivityLogItem + UsersTable + AdminPage.
   - Total **155 FE tests pass** (BE 227 + FE 155 = **382 tests** project-wide).
-- **M10 in progress 🟡 (4/5 done):**
-  - ✅ T-092 foundation, ✅ T-090 LoginPage, ✅ T-093 ProtectedRoute.
-  - ✅ **T-094** Avatar dropdown wire Logout (useLogout mutation + navigate /auth/login replace) + guest variant menu Login/Register + USER role ẩn admin-only items. Total **177 FE tests**.
-- **Next (M10 còn 1 task):**
-  - T-091 RegisterPage skeleton (close M10)
+- **M10 complete ✅ (5/5 done):**
+  - T-092 foundation auth store + 401 interceptor.
+  - T-090 LoginPage terminal card.
+  - T-093 ProtectedRoute hydrating-aware.
+  - T-094 Avatar dropdown wire Logout + guest variant.
+  - T-091 RegisterPage skeleton.
+  - Total **181 FE tests pass** (BE 227 + FE 181 = **408 tests** project-wide).
+- **Next:**
+  - M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042
+  - Hoặc M12 Testing E2E Playwright
+  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
+  - Hoặc M14 Monitoring (Sentry + Fly metrics)
 
 ---
 

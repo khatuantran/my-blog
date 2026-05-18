@@ -218,7 +218,7 @@
 ### Backlog — M12: Testing
 
 - [T-110] [P1] [F1] [BE] Unit tests Jest cho mọi service - DONE 2026-05-18
-- [T-111] [P1] [F1] [BE] Integration tests Supertest cho mọi endpoint - TODO
+- [T-111] [P1] [F1] [BE] Integration tests Supertest cho mọi endpoint - DONE 2026-05-18
 - [T-112] [P1] [F1] [FE] Unit tests Vitest cho hooks + services + validators - TODO
 - [T-113] [P1] [F1] [Both] E2E tests Playwright (E2E-01 → E2E-13) - TODO
 - [T-114] [P2] [F7] [Infra] CI GitHub Actions matrix (FE unit + BE unit + BE integration + E2E) - TODO

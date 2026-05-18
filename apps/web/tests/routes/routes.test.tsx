@@ -58,7 +58,8 @@ describe('App router', () => {
 
   it('renders CreatePostPage at /admin/create (admin role allowed)', async () => {
     renderAt('/admin/create');
-    expect(await screen.findByText(/create.post coming soon/i)).toBeInTheDocument();
+    expect(await screen.findByText('// mood')).toBeInTheDocument();
+    expect(screen.getByText('// content')).toBeInTheDocument();
   });
 
   it('renders LoginPage at /auth/login với AuthLayout (no shell)', async () => {

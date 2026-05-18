@@ -187,7 +187,7 @@
 
 ### Backlog — M9: FE Create Post + Admin
 
-- [T-070] [P1] [F1] [FE] CreatePostPage — split editor + preview pane + sub-toolbar - TODO
+- [T-070] [P1] [F1] [FE] CreatePostPage — split editor + preview pane + sub-toolbar - DONE (2026-05-18)
 - [T-071] [P1] [F1] [FE] MoodPicker (7 emoji buttons) - DONE (2026-05-18)
 - [T-072] [P1] [F1] [FE] MarkdownEditor (textarea + toolbar B/I/code/h/link) - DONE (2026-05-18)
 - [T-073] [P1] [F1] [FE] UploadZone — drag-drop ảnh + file với progress - DONE (2026-05-18)

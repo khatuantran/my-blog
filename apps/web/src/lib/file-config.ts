@@ -28,6 +28,13 @@ export function getFileConfig(type: string | null | undefined): FileMeta {
   return FILE_CFG[upper] ?? { ...DEFAULT_META, label: upper };
 }
 
+// Derive FileType từ extension/filename. Throw nếu không match supported types.
+export function deriveFileType(nameOrExt: string): FileType {
+  const ext = (nameOrExt.split('.').pop() ?? '').toUpperCase();
+  if (ext in FILE_CFG) return ext as FileType;
+  throw new Error(`Unsupported file type: ${nameOrExt}`);
+}
+
 // Format bytes → "1.2 MB" / "4 KB" / "120 B"
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

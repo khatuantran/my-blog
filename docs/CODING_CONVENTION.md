@@ -504,7 +504,7 @@ Kiểm trước khi merge mỗi feature/fix có touch endpoint hoặc data.
 - [ ] **XSS:** sanitize user-generated content (comment, anonymousName) bằng DOMPurify FE; CSP header `script-src 'self'`
 - [ ] **Auth check:** mọi admin endpoint có `@Roles('ADMIN')`; mọi `/admin/*` route FE check session
 - [ ] **IDOR:** Service layer check ownership (vd: chỉ admin xóa post của mình); KHÔNG trust client-sent IDs
-- [ ] **Secrets:** chỉ ở `.env.local` (gitignored) hoặc Vercel/Fly secrets — KHÔNG hardcode
+- [ ] **Secrets:** chỉ ở `apps/api/.env` / `apps/web/.env.local` (gitignored) hoặc Vercel/Fly secrets — KHÔNG hardcode
 - [ ] **Upload:** validate MIME + size limit ở Cloudinary upload preset + BE re-check
 - [ ] **CORS:** allow chỉ FE origin từ `CORS_ORIGIN` env, KHÔNG `*`
 - [ ] **Cookie:** `httpOnly`, `Secure` (prod), `SameSite=Strict` (prod) / `Lax` (dev)

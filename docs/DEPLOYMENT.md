@@ -311,7 +311,7 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 | Env target | How                                                 |
 | ---------- | --------------------------------------------------- |
 | Local FE   | `apps/web/.env.local` (VITE\_\* prefix)             |
-| Local BE   | `apps/api/.env.local`                               |
+| Local BE   | `apps/api/.env` (Prisma auto-read)                  |
 | Vercel FE  | Vercel Dashboard → Settings → Environment Variables |
 | Fly.io BE  | `fly secrets set KEY=value`                         |
 | Neon DB    | Connection string copied to Fly secrets             |

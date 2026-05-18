@@ -23,8 +23,8 @@ git clone <repo> myblog && cd myblog
 pnpm install
 
 # 2. Copy env templates (per app)
-cp apps/api/.env.example apps/api/.env.local
-cp apps/web/.env.example apps/web/.env.local
+cp apps/api/.env.example apps/api/.env              # backend (Prisma auto-read .env)
+cp apps/web/.env.example apps/web/.env.local        # frontend (Vite convention)
 
 # 3. Start Postgres (main + test)
 docker compose up -d

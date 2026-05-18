@@ -374,7 +374,7 @@ apps/api/
 ### Secret management
 
 - KHÔNG hardcode trong code
-- Local: `.env.local` (gitignored)
+- Local: `apps/api/.env` + `apps/web/.env.local` (gitignored)
 - Prod FE: Vercel Environment Variables UI
 - Prod BE: `fly secrets set KEY=value`
 - Rotation policy: rotate `JWT_SECRET` + `JWT_REFRESH_SECRET` mỗi 90 ngày (invalidate hết session — user phải re-login)

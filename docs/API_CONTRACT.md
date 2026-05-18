@@ -111,12 +111,12 @@
 
 ### Comments (`/comments/*`, `/posts/:id/comments`)
 
-| Method | Path                   | Auth     | FR      | Notes                                                |
-| ------ | ---------------------- | -------- | ------- | ---------------------------------------------------- |
-| GET    | `/posts/:id/comments`  | public   | FR-03.2 | Only APPROVED returned (PENDING/REJECTED admin only) |
-| POST   | `/posts/:id/comments`  | optional | FR-03.2 | Body: `{ content, anonymousName? }`                  |
-| DELETE | `/comments/:id`        | admin    | FR-03.4 |                                                      |
-| PATCH  | `/comments/:id/status` | admin    | FR-07.4 | Body: `{ status: APPROVED \| REJECTED }`             |
+| Method | Path                   | Auth                | FR      | Notes                                                                                                                                                                                                |
+| ------ | ---------------------- | ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/posts/:id/comments`  | public (role-aware) | FR-03.2 | Public/USER trả APPROVED only. Admin trả tất cả status + field `status`. Sort `createdAt ASC`. Response `{ items: [...] }`. 404 nếu post không tồn tại                                               |
+| POST   | `/posts/:id/comments`  | optional            | FR-03.2 | Body `{ content (1-2000), anonymousName? (1-50) }`. Auth → userId; anon → anonymousId cookie + optional anonymousName. Status default APPROVED. 201. 400 `VIEWER_ID_REQUIRED` nếu thiếu cả. 404 post |
+| DELETE | `/comments/:id`        | admin               | FR-03.4 | Hard delete + cascade CommentLike. 204. 404                                                                                                                                                          |
+| PATCH  | `/comments/:id/status` | admin               | FR-07.4 | Body `{ status: APPROVED \| REJECTED }` (PENDING không cho phép). Response 200 Comment. 404                                                                                                          |
 
 ### Likes (`/likes/*`)
 

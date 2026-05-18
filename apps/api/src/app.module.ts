@@ -4,6 +4,7 @@ import { PrismaModule } from 'nestjs-prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
 import { LikesModule } from './likes/likes.module';
 import { PostsModule } from './posts/posts.module';
@@ -26,6 +27,7 @@ import { validateEnv } from './config/env.schema';
     TagsModule,
     PostsModule,
     LikesModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -132,7 +132,11 @@
   - 2 endpoints: POST /posts/:id/like + POST /comments/:id/like (optional auth qua JwtOptionalAuthGuard từ T-021). Identity: userId (auth) hoặc anonymousId (anon). Toggle idempotent qua unique constraint schema. Comment likes chỉ APPROVED, PENDING/REJECTED → 404 (ẩn).
   - Helper `buildDedupKey()` reusable + `BadRequestException` `VIEWER_ID_REQUIRED` khi thiếu cả. Response 200 `{ liked, count }`.
   - Tests: 11 unit + 10 integration (toggle on/off anon, 2 anon riêng count=2, auth user prefer userId, cascade Post delete xóa Like, comment PENDING/REJECTED 404). Total **77 unit + 84 e2e = 161 tests pass**.
-- [T-031] [P1] [F1] [BE] CommentsModule + moderation status logic - TODO
+- [T-031] [P1] [F1] [BE] CommentsModule + moderation status logic - DONE (2026-05-18)
+  - 4 endpoints: GET /posts/:id/comments (public role-aware: USER chỉ APPROVED, admin tất cả status), POST optional auth (auth/anon với anonymousName, default APPROVED), DELETE admin (cascade CommentLike), PATCH /:id/status admin (APPROVED|REJECTED, PENDING không cho phép).
+  - DTOs: Create (content 1-2000, anonymousName? 1-50), UpdateStatus (IsIn APPROVED|REJECTED), Response (author summary OR anonymousName + likesCount).
+  - Service: list filter `status=APPROVED` cho non-admin; create discriminate userId vs anonymousId (auth → ignore anonymousName).
+  - Tests: 15 unit (list role-aware filter, create auth/anon discriminate, updateStatus, remove) + 19 integration (full coverage 401/403/204, cascade, ordering, validation). Total **92 unit + 103 e2e = 195 tests pass**.
 - [T-032] [P1] [F1] [BE] SavedModule (`/posts/:id/save`, `/me/saved`) - TODO
 
 ### Backlog — M6: BE Admin + WebSocket

@@ -14,14 +14,14 @@
 | M6  | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
 | M7  | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
 | M8  | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
-| M9  | Frontend — Create Post + Admin Dashboard                                          | ⬜ Todo               |             |
+| M9  | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
 | M10 | Frontend — Login + auth flow + protected routes                                   | ⬜ Todo               |             |
 | M11 | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
 | M12 | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ⬜ Todo               |             |
 | M13 | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14 | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 57% (8/14 milestone)
+## Tỉ lệ hoàn thành: 64% (9/14 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -103,11 +103,15 @@
 - **M9 Phase A complete ✅ (6/10 done):**
   - T-071 MoodPicker, T-072 MarkdownEditor + wrapSelection, T-073 UploadZone Cloudinary, T-074 TagInput, T-075 PostPreview.
   - ✅ **T-070** CreatePostPage assemble: 2-col split (editor flex-1 + preview 380px hidden < 900px) + sub-toolbar + 5 sections + useCreatePost POST /posts → navigate /post/:id + ⌘S/⌘↵ shortcuts + status state machine. 4 tests. Total **134 FE tests**.
-- **M9 Phase B 3/4 done (9/10 total):**
-  - ✅ T-077 Sparkline + StatCard, T-078 MoodBar + ActivityLogItem.
-  - ✅ **T-079** UsersTable + ban/unban admin actions (services/users + useUsersList + useToggleBan + types extend Role BANNED). 4 tests. Total **151 FE tests**.
-- **Next (M9 còn 1 task):**
-  - T-076 AdminPage assemble (close M9)
+- **M9 complete ✅ (10/10 done):**
+  - Phase A ✅ (T-070/T-071/T-072/T-073/T-074/T-075): Create Post page + 5 components + Cloudinary direct upload.
+  - Phase B ✅ (T-076/T-077/T-078/T-079): Admin dashboard + StatCard/Sparkline + MoodBar + ActivityLogItem + UsersTable + AdminPage.
+  - Total **155 FE tests pass** (BE 227 + FE 155 = **382 tests** project-wide).
+- **Next:**
+  - M10 Login + auth flow (T-090→T-093) — wire useAuth thật với cookie session
+  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log thật) — reopen T-041/T-042
+  - Hoặc M12 Testing E2E Playwright
+  - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon)
 
 ---
 

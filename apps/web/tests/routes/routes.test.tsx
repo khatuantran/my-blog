@@ -52,8 +52,24 @@ describe('App router', () => {
   });
 
   it('renders AdminPage at /admin (admin role allowed)', async () => {
+    mswServer.use(
+      http.get(`${API_URL}/admin/stats`, () =>
+        HttpResponse.json({
+          data: {
+            posts: { total: 0, sparkline: [], deltaToday: 0 },
+            likes: { total: 0, sparkline: [], deltaToday: 0 },
+            comments: { total: 0, sparkline: [], deltaToday: 0 },
+            views: { total: 0, sparkline: [], deltaToday: 0 },
+          },
+        }),
+      ),
+      http.get(`${API_URL}/admin/moods`, () => HttpResponse.json({ data: { items: [] } })),
+      http.get(`${API_URL}/users`, () =>
+        HttpResponse.json({ data: { items: [], total: 0, page: 1, limit: 20 } }),
+      ),
+    );
     renderAt('/admin');
-    expect(await screen.findByText(/admin.dashboard coming soon/i)).toBeInTheDocument();
+    expect((await screen.findAllByText('~/admin/dashboard')).length).toBeGreaterThan(0);
   });
 
   it('renders CreatePostPage at /admin/create (admin role allowed)', async () => {

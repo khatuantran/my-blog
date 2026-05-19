@@ -1,6 +1,6 @@
 # Progress Tracker
 
-## Trạng thái tổng: 🟡 Docs Foundation Phase
+## Trạng thái tổng: 🟢 Implementation Phase (80% — 12/15)
 
 ## Milestone
 
@@ -121,17 +121,16 @@
   - T-112 FE unit audit + use-like/use-save/saved.ts gap-fill (188 FE unit).
   - T-113 Playwright scaffolding + 13 specs (8 functional, 5 skip with reason) + `POST /admin/test-reset` endpoint env-gated.
   - T-114 GitHub Actions CI matrix 5 jobs (lint-typecheck + web-unit + api-unit + api-integration + e2e với postgres service + Playwright browser cache).
-- **M11.5 F2 spec ✅ (docs only, 17 tasks pending F1):**
-  - Add FR-10 Tags Module + FR-11 User Profile + FR-12 Full-text Search + FR-02.7 EmojiPicker + FR-04.6 sort + FR-05.2 copy-link wire + FR-07.4 moderation queue wire (REQUIREMENTS.md).
-  - Add UC-13/14/15 (REQUIREMENTS.md Use Cases).
-  - DATA_MODEL: User thêm title/bio/skills (Json `{name,color}[]`) + Tag thêm description/createdAt.
-  - API_CONTRACT: thêm `/auth/change-password`, `/users/by-username/:username`, `/users/:id/stats`, `/tags` query params + DELETE force, `/admin/comments` queue, `/search` endpoint.
-  - UI_DESIGN: Screen 7 Profile + Screen 8 Search + Screen 9 Tags + Screen 10 Saved + TopBar `hideSearch` prop + CommandPalette fix routes.
-  - DESIGN_SYSTEM: 10 components mới (EmojiPicker, EditProfileDrawer, SkillChipInput, TagCard, TagModal, BigSearchInput, FilterChip, ResultCard, HeatmapGrid, ProfileAvatar, StatSparkline, TabButtons, SegmentedToggle, ConfirmDialog).
-  - TASKS: M11.5 backlog 17 task (T-200..T-203 quick wins + T-210/211/212 Tags + T-220..T-223 Profile + T-230..T-234 Search + T-240 emoji).
+- **M11.5 complete ✅ (17/17 done, 2026-05-19):**
+  - Wave 1 quick wins: T-200 Copy link · T-201 sort dropdown · T-202 moderation queue · T-203 `/saved` route.
+  - Wave 2 Tags (FR-10): T-210 BE (description + sparkline + sort/q + force delete) · T-211 primitives · T-212 `/tags` page.
+  - Wave 3 Profile (FR-11): T-220 BE (title/bio/skills migration + by-username + stats + change-password) · T-221 ProfilePage + ProfileAvatar/HeatmapGrid · T-222 EditProfileDrawer + SkillChipInput · T-223 `/me` + nav wire.
+  - Wave 4 Search (FR-12): T-230 BE multi-table ILIKE + throttle · T-231 SearchPage + BigSearchInput + ResultCard · T-232 TopBar hideSearch · T-233 useRecentSearches · T-234 CommandPalette fix.
+  - Wave 5 Emoji (FR-02.7): T-240 EmojiPicker popover 4×16 + insertAt cursor.
+  - Tests: BE 119 unit + 161 integration + FE 285 unit = **565 total**.
+  - Commits range: `39e8e03` → `ff93b0c`.
 - **Next:**
-  - M11.5 F1 execute (pick task đầu tiên từ Wave 1 quick wins hoặc Wave 2 F2-A Tags).
-  - Hoặc M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042.
+  - M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042.
   - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon).
   - Hoặc M14 Monitoring (Sentry + Fly metrics).
 

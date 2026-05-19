@@ -225,7 +225,7 @@
 
 ### Backlog — M11.5: Tags / Profile / Search / Create Post enhance
 
-> F2 docs spec done 2026-05-18 (FR-10/11/12 + UC-13/14/15 + DATA_MODEL/API_CONTRACT/UI_DESIGN/DESIGN_SYSTEM updated). Tasks below pending F1 execute.
+> F2 docs spec done 2026-05-18 + F1 execute done 2026-05-19. M11.5 CLOSED 17/17 tasks (commits `39e8e03` → `ff93b0c`).
 
 #### Quick wins (parallel)
 
@@ -243,21 +243,21 @@
 #### F2-B: Profile + Edit Profile (FR-11)
 
 - [T-220] [P1] [F1] [BE] User.title/bio/skills migration (skills Json {name,color}[]) + PATCH /users/:id validators + GET /users/by-username/:username + GET /users/:id/stats + POST /auth/change-password (FR-11.6) - DONE 2026-05-19
-- [T-221] [P1] [F1] [FE] ProfileAvatar (rotating ring) + HeatmapGrid + StatSparkline + TabButtons + ProfilePage layout (hero + 4 tabs + sidebar) (FR-11.1/11.4/11.5) - TODO
-- [T-222] [P1] [F1] [FE] EditProfileDrawer + SkillChipInput + useUpdateProfile + useChangePassword mutations (FR-11.3) - TODO
-- [T-223] [P1] [F1] [FE] `/me` redirect + Avatar dropdown wire Profile link (FR-11.2) - TODO
+- [T-221] [P1] [F1] [FE] ProfileAvatar (rotating ring) + HeatmapGrid + StatSparkline + TabButtons + ProfilePage layout (hero + 4 tabs + sidebar) (FR-11.1/11.4/11.5) - DONE 2026-05-19
+- [T-222] [P1] [F1] [FE] EditProfileDrawer + SkillChipInput + useUpdateProfile + useChangePassword mutations (FR-11.3) - DONE 2026-05-19
+- [T-223] [P1] [F1] [FE] `/me` redirect + Avatar dropdown wire Profile link (FR-11.2) - DONE 2026-05-19
 
 #### F2-C: Search (FR-12)
 
-- [T-230] [P1] [F1] [BE] `GET /search?q=&type=&mood=&page=&limit=` endpoint — Postgres ILIKE multi-table + throttle 30/min/IP (FR-12.1/12.2/12.3) - TODO
-- [T-231] [P1] [F1] [FE] BigSearchInput + ResultCard với highlight match + SearchPage layout (hero + filter chips + grid + sidebar) (FR-12.4/12.6/12.7) - TODO
-- [T-232] [P1] [F1] [FE] TopBar `hideSearch` prop + form onSubmit navigate + AppLayout sniff `/search` route (FR-12.5) - TODO
-- [T-233] [P2] [F1] [FE] `useRecentSearches` hook (localStorage 10 FIFO dedupe) + recent + browse.tags sidebar wire (FR-12.6) - TODO
-- [T-234] [P2] [F1] [FE] CommandPalette commands.ts fix routes + thêm n-tags/n-profile entries (FR-08.4) - TODO
+- [T-230] [P1] [F1] [BE] `GET /search?q=&type=&mood=&page=&limit=` endpoint — Postgres ILIKE multi-table + throttle 30/min/IP (FR-12.1/12.2/12.3) - DONE 2026-05-19
+- [T-231] [P1] [F1] [FE] BigSearchInput + ResultCard với highlight match + SearchPage layout (hero + filter chips + grid + sidebar) (FR-12.4/12.6/12.7) - DONE 2026-05-19
+- [T-232] [P1] [F1] [FE] TopBar `hideSearch` prop + form onSubmit navigate + AppLayout sniff `/search` route (FR-12.5) - DONE 2026-05-19
+- [T-233] [P2] [F1] [FE] `useRecentSearches` hook (localStorage 10 FIFO dedupe) + recent + browse.tags sidebar wire (FR-12.6) - DONE 2026-05-19
+- [T-234] [P2] [F1] [FE] CommandPalette commands.ts fix routes + thêm n-tags/n-profile entries (FR-08.4) - DONE 2026-05-19
 
 #### F2-D: Create Post enhance (FR-02.7)
 
-- [T-240] [P2] [F1] [FE] EmojiPicker popover (4 tabs × 16 emoji) + insert-at-cursor wire trong MarkdownEditor 😀 button (FR-02.7) - TODO
+- [T-240] [P2] [F1] [FE] EmojiPicker popover (4 tabs × 16 emoji) + insert-at-cursor wire trong MarkdownEditor 😀 button (FR-02.7) - DONE 2026-05-19
 
 ### Backlog — M13: Deploy
 

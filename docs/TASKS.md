@@ -55,7 +55,7 @@
     - BE: `apps/api/src/config/env.schema.ts` → `validateEnv()` injected vào ConfigModule, fail-fast (T-004)
     - FE: `apps/web/src/lib/env.ts` → Zod parse `import.meta.env`, throw Error trên import (T-005)
   - `dotenv-safe` defer permanent — Zod cover cả existence + type/format (superset)
-- [T-009] [P1] [F7] [Infra] Setup openapi:generate workflow (NestJS Swagger → yaml + FE openapi-typescript) - TODO
+- [T-009] [P1] [F7] [Infra] Setup openapi:generate workflow (NestJS Swagger → yaml + FE openapi-typescript) - PARTIAL 2026-05-19 (A1+A3 done — scripts + CI drift check + docs; A2 cutover deferred → T-302)
   - apps/api: add script `openapi:generate` boot NestJS standalone + dump SwaggerModule → `docs/contracts/openapi.yaml`
   - apps/web: add dep `openapi-typescript` + script `openapi:types` generate `apps/web/src/types/api.ts`
   - Verify: regenerate openapi.yaml cover /auth + /users + /posts (post-T-020) đầy đủ
@@ -258,6 +258,10 @@
 #### F2-D: Create Post enhance (FR-02.7)
 
 - [T-240] [P2] [F1] [FE] EmojiPicker popover (4 tabs × 16 emoji) + insert-at-cursor wire trong MarkdownEditor 😀 button (FR-02.7) - DONE 2026-05-19
+
+### Backlog — Tech debt
+
+- [T-302] [P2] [F7] [Both] OpenAPI cutover — fix 15+ BE decorator gap (nullable string `type: String`, skills `[SkillItemDto]`, nested stats DTO, search response DTO) + build `api.aliases.ts` re-export layer + migrate 38 import site (auth/users/posts/comments/likes/saved/tags/admin/search) + delete hand-typed `api.ts`. Update CI drift check target từ `api.generated.ts` sang `api.ts`. Ước 6-9h. - TODO
 
 ### Backlog — M13: Deploy
 

@@ -217,6 +217,14 @@ Path alias: `@/*` → `src/*` cho mỗi app (cả `apps/web` và `apps/api`)
 - Conventional Commits format (xem [CLAUDE.md > Commit Convention](../CLAUDE.md))
 - Branch: trunk-based (commit `main` trực tiếp); exception: F4 Hotfix / Experiment / WIP qua đêm
 
+### OpenAPI contract sync
+
+- Khi sửa NestJS controller hoặc DTO (BE), chạy `pnpm openapi:sync` trước commit để cập nhật:
+  - `docs/contracts/openapi.yaml` (source of truth contract)
+  - `apps/web/src/types/api.generated.ts` (FE reference types — không import trực tiếp tới khi T-302 cutover)
+- CI có drift check: `git diff --exit-code` trên 2 file trên — sẽ fail PR nếu quên sync.
+- Hand-typed `apps/web/src/types/api.ts` vẫn là source FE đang dùng (cho tới khi T-302 cutover). Khi thêm endpoint mới, **vừa cập nhật BE DTO + chạy openapi:sync + vừa thêm type vào api.ts thủ công** để FE pick up.
+
 ---
 
 ## Frontend Conventions (`apps/web`)

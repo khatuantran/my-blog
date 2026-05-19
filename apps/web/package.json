@@ -14,7 +14,7 @@
     "test:unit": "vitest run --passWithNoTests",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",
-    "openapi:types": "openapi-typescript ../../docs/contracts/openapi.yaml -o src/types/api.generated.ts"
+    "openapi:types": "openapi-typescript ../../docs/contracts/openapi.yaml -o src/types/api.generated.ts && prettier --write src/types/api.generated.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",

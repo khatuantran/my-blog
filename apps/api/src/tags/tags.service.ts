@@ -36,19 +36,67 @@ export class TagsService {
   }
 
   async listPopular(query: ListTagsDto): Promise<{
-    items: { id: string; name: string; color: string | null; postCount: number }[];
+    items: {
+      id: string;
+      name: string;
+      color: string | null;
+      description: string | null;
+      postCount: number;
+      sparkline7d: number[];
+      createdAt: string;
+    }[];
   }> {
+    const orderBy: Prisma.TagOrderByWithRelationInput[] =
+      query.sort === 'name'
+        ? [{ name: 'asc' }]
+        : query.sort === 'recent'
+          ? [{ createdAt: 'desc' }, { name: 'asc' }]
+          : [{ posts: { _count: 'desc' } }, { name: 'asc' }];
+
+    const where: Prisma.TagWhereInput = query.q
+      ? { name: { contains: normalizeTagName(query.q), mode: 'insensitive' } }
+      : {};
+
     const rows = await this.prisma.tag.findMany({
+      where,
       take: query.limit,
       include: { _count: { select: { posts: true } } },
-      orderBy: [{ posts: { _count: 'desc' } }, { name: 'asc' }],
+      orderBy,
     });
+
+    if (rows.length === 0) return { items: [] };
+
+    // Sparkline7d: count post-with-tag mỗi ngày trong 7 ngày gần đây.
+    const now = new Date();
+    now.setUTCHours(0, 0, 0, 0);
+    const windowStart = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const tagIds = rows.map((t) => t.id);
+    const recentPostTags = await this.prisma.postTag.findMany({
+      where: {
+        tagId: { in: tagIds },
+        post: { createdAt: { gte: windowStart } },
+      },
+      select: { tagId: true, post: { select: { createdAt: true } } },
+    });
+    const buckets = new Map<string, number[]>(tagIds.map((id) => [id, [0, 0, 0, 0, 0, 0, 0]]));
+    for (const pt of recentPostTags) {
+      const dayOffset = Math.floor(
+        (pt.post.createdAt.getTime() - windowStart.getTime()) / (24 * 60 * 60 * 1000),
+      );
+      if (dayOffset < 0 || dayOffset > 6) continue;
+      const arr = buckets.get(pt.tagId);
+      if (arr) arr[dayOffset] += 1;
+    }
+
     return {
       items: rows.map((t) => ({
         id: t.id,
         name: t.name,
         color: t.color,
+        description: t.description,
         postCount: t._count.posts,
+        sparkline7d: buckets.get(t.id) ?? [0, 0, 0, 0, 0, 0, 0],
+        createdAt: t.createdAt.toISOString(),
       })),
     };
   }
@@ -69,7 +117,9 @@ export class TagsService {
       throw new ConflictException({ code: 'DUPLICATE_TAG', message: `Tag '${name}' đã tồn tại` });
     }
     const color = dto.color ?? this.pickColor(await this.prisma.tag.count());
-    return this.prisma.tag.create({ data: { name, color } });
+    return this.prisma.tag.create({
+      data: { name, color, description: dto.description ?? null },
+    });
   }
 
   async update(id: string, dto: UpdateTagDto): Promise<Tag> {
@@ -87,13 +137,22 @@ export class TagsService {
       data.name = name;
     }
     if (dto.color !== undefined) data.color = dto.color;
+    if (dto.description !== undefined) data.description = dto.description;
     return this.prisma.tag.update({ where: { id }, data });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, force = false): Promise<void> {
     await this.findById(id);
+    const postCount = await this.prisma.postTag.count({ where: { tagId: id } });
+    if (postCount > 0 && !force) {
+      throw new ConflictException({
+        code: 'TAG_IN_USE',
+        message: `Tag đang được dùng bởi ${postCount} post(s) — pass ?force=true để xóa`,
+        postCount,
+      });
+    }
     await this.prisma.tag.delete({ where: { id } });
-    this.logger.log(`Tag ${id} deleted`);
+    this.logger.log(`Tag ${id} deleted (force=${force}, postCount=${postCount})`);
   }
 
   /**

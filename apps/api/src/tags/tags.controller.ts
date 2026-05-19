@@ -24,7 +24,7 @@ import { UpdateTagDto } from './dto/update-tag.dto';
 import { TagsService } from './tags.service';
 
 function toTagResponse(tag: Tag): TagResponseDto {
-  return { id: tag.id, name: tag.name, color: tag.color };
+  return { id: tag.id, name: tag.name, color: tag.color, description: tag.description };
 }
 
 @ApiTags('tags')
@@ -60,9 +60,11 @@ export class TagsController {
   @Delete(':id')
   @Roles(Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete tag (admin only, cascade PostTag)' })
+  @ApiOperation({
+    summary: 'Delete tag (admin only). ?force=true để xóa khi tag đang được dùng',
+  })
   @ApiResponse({ status: 204 })
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.tags.remove(id);
+  async remove(@Param('id') id: string, @Query('force') force?: string): Promise<void> {
+    await this.tags.remove(id, force === 'true');
   }
 }

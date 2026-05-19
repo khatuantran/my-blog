@@ -168,9 +168,11 @@ model CommentLike {
 }
 
 model Tag {
-  id    String  @id @default(cuid())
-  name  String  @unique
-  color String?
+  id          String   @id @default(cuid())
+  name        String   @unique
+  color       String?
+  description String?
+  createdAt   DateTime @default(now())
 
   posts PostTag[]
 

@@ -15,4 +15,10 @@ export class CreateTagDto {
   @IsOptional()
   @IsHexColor()
   color?: string;
+
+  @ApiPropertyOptional({ example: 'Lập trình, debugging', maxLength: 280 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(280)
+  description?: string;
 }

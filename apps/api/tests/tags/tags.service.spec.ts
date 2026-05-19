@@ -14,6 +14,10 @@ type MockPrisma = {
     delete: jest.Mock;
     upsert: jest.Mock;
   };
+  postTag: {
+    findMany: jest.Mock;
+    count: jest.Mock;
+  };
 };
 
 describe('TagsService', () => {
@@ -31,6 +35,10 @@ describe('TagsService', () => {
         update: jest.fn(),
         delete: jest.fn(),
         upsert: jest.fn(),
+      },
+      postTag: {
+        findMany: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(0),
       },
     };
     const moduleRef = await Test.createTestingModule({
@@ -57,20 +65,78 @@ describe('TagsService', () => {
   });
 
   describe('listPopular', () => {
-    it('order by post count DESC + map _count to postCount', async () => {
+    it('default sort posts → orderBy posts _count DESC + sparkline7d shape', async () => {
+      const now = new Date();
       prisma.tag.findMany.mockResolvedValue([
-        { id: 't1', name: 'dev', color: '#00FFE5', _count: { posts: 5 } },
-        { id: 't2', name: 'life', color: '#FF6E96', _count: { posts: 2 } },
+        {
+          id: 't1',
+          name: 'dev',
+          color: '#00FFE5',
+          description: null,
+          createdAt: now,
+          _count: { posts: 5 },
+        },
       ]);
-      const res = await service.listPopular({ limit: 20 });
+      const res = await service.listPopular({ limit: 20, sort: 'posts' });
       expect(prisma.tag.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           take: 20,
           orderBy: [{ posts: { _count: 'desc' } }, { name: 'asc' }],
         }),
       );
-      expect(res.items[0]).toEqual({ id: 't1', name: 'dev', color: '#00FFE5', postCount: 5 });
-      expect(res.items[1].postCount).toBe(2);
+      expect(res.items[0]).toMatchObject({
+        id: 't1',
+        name: 'dev',
+        color: '#00FFE5',
+        postCount: 5,
+      });
+      expect(res.items[0].sparkline7d).toHaveLength(7);
+      expect(res.items[0].sparkline7d.every((n) => n === 0)).toBe(true);
+    });
+
+    it('sort=name → orderBy name asc', async () => {
+      prisma.tag.findMany.mockResolvedValue([]);
+      await service.listPopular({ limit: 20, sort: 'name' });
+      expect(prisma.tag.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: [{ name: 'asc' }] }),
+      );
+    });
+
+    it('sort=recent → orderBy createdAt desc', async () => {
+      prisma.tag.findMany.mockResolvedValue([]);
+      await service.listPopular({ limit: 20, sort: 'recent' });
+      expect(prisma.tag.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: [{ createdAt: 'desc' }, { name: 'asc' }],
+        }),
+      );
+    });
+
+    it('q query → name contains insensitive', async () => {
+      prisma.tag.findMany.mockResolvedValue([]);
+      await service.listPopular({ limit: 20, sort: 'posts', q: 'COD' });
+      expect(prisma.tag.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { name: { contains: 'cod', mode: 'insensitive' } },
+        }),
+      );
+    });
+  });
+
+  describe('remove force', () => {
+    it('throws ConflictException khi postCount > 0 + force=false', async () => {
+      prisma.tag.findUnique.mockResolvedValue({ id: 't1', name: 'used', color: '#x' });
+      prisma.postTag.count.mockResolvedValue(3);
+      await expect(service.remove('t1', false)).rejects.toThrow(ConflictException);
+      expect(prisma.tag.delete).not.toHaveBeenCalled();
+    });
+
+    it('force=true → delete bypass postCount check', async () => {
+      prisma.tag.findUnique.mockResolvedValue({ id: 't1', name: 'used', color: '#x' });
+      prisma.postTag.count.mockResolvedValue(3);
+      prisma.tag.delete.mockResolvedValue({});
+      await service.remove('t1', true);
+      expect(prisma.tag.delete).toHaveBeenCalledWith({ where: { id: 't1' } });
     });
   });
 
@@ -81,7 +147,7 @@ describe('TagsService', () => {
       prisma.tag.create.mockResolvedValue({ id: 't1', name: 'new', color: TAG_COLORS[1] });
       const res = await service.create({ name: '#NEW' });
       expect(prisma.tag.create).toHaveBeenCalledWith({
-        data: { name: 'new', color: TAG_COLORS[1] },
+        data: { name: 'new', color: TAG_COLORS[1], description: null },
       });
       expect(res.color).toBe(TAG_COLORS[1]);
     });
@@ -91,7 +157,7 @@ describe('TagsService', () => {
       prisma.tag.create.mockResolvedValue({ id: 't1', name: 'custom', color: '#ABCDEF' });
       await service.create({ name: 'custom', color: '#ABCDEF' });
       expect(prisma.tag.create).toHaveBeenCalledWith({
-        data: { name: 'custom', color: '#ABCDEF' },
+        data: { name: 'custom', color: '#ABCDEF', description: null },
       });
       expect(prisma.tag.count).not.toHaveBeenCalled();
     });

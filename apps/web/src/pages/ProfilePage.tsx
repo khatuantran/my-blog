@@ -9,6 +9,7 @@ import { qk } from '@/lib/query-keys';
 import { ProfileAvatar } from '@/components/shared/ProfileAvatar';
 import { HeatmapGrid } from '@/components/shared/HeatmapGrid';
 import { TabButtons } from '@/components/shared/TabButtons';
+import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { PostCard } from '@/components/feed/PostCard';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { TagPill } from '@/components/shared/TagPill';
@@ -34,6 +35,13 @@ export default function ProfilePage() {
   const canViewSaved = isSelf || isAdmin;
 
   const { data: stats } = useUserStats(user?.id);
+  const editing = params.get('edit') === '1';
+
+  function closeEditor() {
+    const next = new URLSearchParams(params);
+    next.delete('edit');
+    setParams(next, { replace: true });
+  }
 
   if (isLoading) {
     return (
@@ -247,6 +255,8 @@ export default function ProfilePage() {
           </Block>
         </aside>
       </div>
+
+      {isSelf && <EditProfileDrawer open={editing} user={user} onClose={closeEditor} />}
     </div>
   );
 }

@@ -130,7 +130,16 @@ describe('TopBar — authed USER (non-admin)', () => {
     expect(screen.queryByText('Create Post')).toBeNull();
     expect(screen.queryByText('Admin Dashboard')).toBeNull();
     expect(screen.getByText('Profile')).toBeInTheDocument();
+    expect(screen.getByText('Saved')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
     expect(screen.queryByText('[ ADMIN ]')).toBeNull();
+  });
+
+  it('Profile link wire → /me, Saved → /saved (T-223)', async () => {
+    const user = userEvent.setup();
+    renderTopBar();
+    await user.click(screen.getByRole('button', { name: /user menu/i }));
+    expect(screen.getByRole('menuitem', { name: /profile/i })).toHaveAttribute('href', '/me');
+    expect(screen.getByRole('menuitem', { name: /saved/i })).toHaveAttribute('href', '/saved');
   });
 });

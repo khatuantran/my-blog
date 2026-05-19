@@ -37,8 +37,8 @@ const AUTHED_MENU: MenuItem[] = [
     adminOnly: true,
   },
   { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur', adminOnly: true },
-  { icon: '🔧', label: 'System Settings', to: '#', color: 'yel' },
-  { icon: '👤', label: 'Profile', to: '#', color: 'tp', separatorBefore: true },
+  { icon: '🔖', label: 'Saved', to: '/saved', kbd: '⌘2', color: 'yel' },
+  { icon: '👤', label: 'Profile', to: '/me', color: 'tp', separatorBefore: true },
 ];
 
 const GUEST_MENU: MenuItem[] = [

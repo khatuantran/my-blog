@@ -1,5 +1,6 @@
-import { useRef } from 'react';
-import { wrapSelection } from '@/lib/insert-at-cursor';
+import { useRef, useState } from 'react';
+import { insertAt, wrapSelection } from '@/lib/insert-at-cursor';
+import { EmojiPicker } from './EmojiPicker';
 
 type Props = {
   value: string;
@@ -30,6 +31,7 @@ export function MarkdownEditor({
   minHeight = 280,
 }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null);
+  const [showEmoji, setShowEmoji] = useState(false);
 
   function applyWrap(before: string, after: string) {
     const ta = ref.current;
@@ -40,7 +42,21 @@ export function MarkdownEditor({
       selectionEnd,
     } = wrapSelection(value, ta.selectionStart, ta.selectionEnd, before, after);
     onChange(next);
-    // Restore selection sau React update
+    queueMicrotask(() => {
+      ta.focus();
+      ta.setSelectionRange(selectionStart, selectionEnd);
+    });
+  }
+
+  function applyEmoji(emoji: string) {
+    const ta = ref.current;
+    if (!ta) return;
+    const {
+      value: next,
+      selectionStart,
+      selectionEnd,
+    } = insertAt(value, ta.selectionStart, ta.selectionEnd, emoji);
+    onChange(next);
     queueMicrotask(() => {
       ta.focus();
       ta.setSelectionRange(selectionStart, selectionEnd);
@@ -49,7 +65,7 @@ export function MarkdownEditor({
 
   return (
     <div>
-      <div className="mb-2 flex flex-wrap gap-1">
+      <div className="relative mb-2 flex flex-wrap items-center gap-1">
         {TOOLBAR.map((btn) => (
           <button
             key={btn.label}
@@ -61,6 +77,16 @@ export function MarkdownEditor({
             {btn.label}
           </button>
         ))}
+        <button
+          type="button"
+          aria-label="Insert emoji"
+          aria-expanded={showEmoji}
+          onClick={() => setShowEmoji((v) => !v)}
+          className="rounded-sm border border-b2 bg-elev px-2 py-1 text-base transition-colors hover:border-b3"
+        >
+          😀
+        </button>
+        <EmojiPicker open={showEmoji} onSelect={applyEmoji} onClose={() => setShowEmoji(false)} />
       </div>
       <textarea
         ref={ref}

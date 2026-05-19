@@ -17,12 +17,12 @@
 | M9    | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
 | M10   | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
 | M11   | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
-| M11.5 | Tags / Profile / Search / Create Post enhance (F2 spec done — 17 tasks pending)   | ⬜ Todo               |             |
+| M11.5 | Tags / Profile / Search / Create Post enhance                                     | ✅ Done               | 2026-05-19  |
 | M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
 | M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 73% (11/15 milestone)
+## Tỉ lệ hoàn thành: 80% (12/15 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 

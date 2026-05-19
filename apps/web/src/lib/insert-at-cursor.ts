@@ -22,3 +22,15 @@ export function wrapSelection(
   const newEnd = newStart + selected.length;
   return { value, selectionStart: newStart, selectionEnd: newEnd };
 }
+
+/** Insert atomic text tại cursor position, replace selection nếu có. */
+export function insertAt(
+  current: string,
+  selectionStart: number,
+  selectionEnd: number,
+  text: string,
+): InsertResult {
+  const value = current.slice(0, selectionStart) + text + current.slice(selectionEnd);
+  const pos = selectionStart + text.length;
+  return { value, selectionStart: pos, selectionEnd: pos };
+}

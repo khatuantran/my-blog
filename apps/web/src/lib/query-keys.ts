@@ -34,4 +34,6 @@ export const qk = {
     list: (params: { sort?: string; q?: string; limit?: number } = {}) =>
       ['tags', 'list', params] as const,
   },
+  search: (params: { q?: string; type?: string; mood?: string } = {}) =>
+    ['search', params] as const,
 };

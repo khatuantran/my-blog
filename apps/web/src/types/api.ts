@@ -41,11 +41,36 @@ export type UpdateUserPayload = {
   skills?: Skill[];
 };
 
+export type SearchType = 'all' | 'posts' | 'files' | 'tags';
+
+export type SearchStats = {
+  totalPosts: number;
+  withImages: number;
+  withFiles: number;
+  savedCount: number;
+};
+
+export type SearchParams = {
+  q?: string;
+  type?: SearchType;
+  mood?: Mood;
+  page?: number;
+  limit?: number;
+};
+
 export type PaginatedUsers = {
   items: AdminUser[];
   total: number;
   page: number;
   limit: number;
+};
+
+// Search response — depends on PaginatedPosts (declared below).
+export type SearchResult = {
+  posts: PaginatedPosts;
+  files: { id: string; name: string; postId: string; type: string }[];
+  tags: { id: string; name: string; color: string | null }[];
+  stats: SearchStats;
 };
 
 export type CommentStatus = 'APPROVED' | 'PENDING' | 'REJECTED';

@@ -30,7 +30,7 @@ export default function TagsPage() {
   const [view, setView] = useState<ViewMode>('grid');
 
   const { data, isLoading, isError } = useTags({ sort, q: q || undefined, limit: 100 });
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
 
   // Modal state
   const [modal, setModal] = useState<{ variant: 'create' | 'edit'; initial?: Tag | null } | null>(

@@ -19,6 +19,8 @@ export const qk = {
   users: {
     all: ['users'] as const,
     list: (params: { page?: number; limit?: number } = {}) => ['users', 'list', params] as const,
+    byUsername: (username: string) => ['users', 'by-username', username] as const,
+    stats: (id: string) => ['users', 'stats', id] as const,
   },
   admin: {
     stats: ['admin', 'stats'] as const,

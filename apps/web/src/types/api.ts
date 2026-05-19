@@ -6,13 +6,39 @@ import type { FileType } from '@/lib/file-config';
 
 export type Role = 'ADMIN' | 'USER' | 'BANNED';
 
+export type Skill = { name: string; color: string };
+
 export type AdminUser = {
   id: string;
   username: string;
   email: string | null;
   role: Role;
   avatarUrl: string | null;
+  title?: string | null;
+  bio?: string | null;
+  skills?: Skill[];
   createdAt: string;
+};
+
+export type ProfileUser = AdminUser;
+
+export type ProfileStats = {
+  postsCount: number;
+  likesReceived: number;
+  commentsReceived: number;
+  viewsTotal: number;
+  streak: number;
+  heatmap28d: { date: string; count: number }[];
+  moodBreakdown: Record<Mood, number>;
+  tagsUsed: { name: string; color: string | null; count: number }[];
+};
+
+export type UpdateUserPayload = {
+  email?: string;
+  avatarUrl?: string;
+  title?: string;
+  bio?: string;
+  skills?: Skill[];
 };
 
 export type PaginatedUsers = {

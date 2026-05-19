@@ -1,8 +1,32 @@
 import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { Role, type User } from '@prisma/client';
+import { Mood, Prisma, Role, type User } from '@prisma/client';
 import type { ListUsersDto } from './dto/list-users.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const HEATMAP_DAYS = 28;
+
+function startOfDayUtc(d: Date): Date {
+  const out = new Date(d);
+  out.setUTCHours(0, 0, 0, 0);
+  return out;
+}
+
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+export type ProfileStats = {
+  postsCount: number;
+  likesReceived: number;
+  commentsReceived: number;
+  viewsTotal: number;
+  streak: number;
+  heatmap28d: { date: string; count: number }[];
+  moodBreakdown: Record<Mood, number>;
+  tagsUsed: { name: string; color: string | null; count: number }[];
+};
 
 @Injectable()
 export class UsersService {
@@ -33,6 +57,115 @@ export class UsersService {
     return user;
   }
 
+  async findByUsername(username: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { username } });
+    if (!user)
+      throw new NotFoundException({ code: 'USER_NOT_FOUND', message: 'User không tồn tại' });
+    return user;
+  }
+
+  async getStats(id: string): Promise<ProfileStats> {
+    await this.findById(id);
+
+    const today = startOfDayUtc(new Date());
+    const heatmapStart = new Date(today.getTime() - (HEATMAP_DAYS - 1) * DAY_MS);
+
+    const [
+      postsCount,
+      likesReceived,
+      commentsReceived,
+      viewsAgg,
+      recentPosts,
+      moodGroups,
+      tagRows,
+    ] = await Promise.all([
+      this.prisma.post.count({ where: { authorId: id } }),
+      this.prisma.like.count({ where: { post: { authorId: id } } }),
+      this.prisma.comment.count({ where: { post: { authorId: id } } }),
+      this.prisma.post.aggregate({
+        where: { authorId: id },
+        _sum: { viewCount: true },
+      }),
+      this.prisma.post.findMany({
+        where: { authorId: id, createdAt: { gte: heatmapStart } },
+        select: { createdAt: true },
+      }),
+      this.prisma.post.groupBy({
+        by: ['mood'],
+        where: { authorId: id },
+        _count: true,
+      }),
+      this.prisma.postTag.findMany({
+        where: { post: { authorId: id } },
+        select: { tag: { select: { name: true, color: true } } },
+      }),
+    ]);
+
+    // Heatmap 28d zero-fill
+    const heatmapCounts = new Map<string, number>();
+    for (const p of recentPosts) {
+      const key = isoDate(p.createdAt);
+      heatmapCounts.set(key, (heatmapCounts.get(key) ?? 0) + 1);
+    }
+    const heatmap28d: { date: string; count: number }[] = [];
+    for (let i = 0; i < HEATMAP_DAYS; i++) {
+      const d = new Date(heatmapStart.getTime() + i * DAY_MS);
+      const key = isoDate(d);
+      heatmap28d.push({ date: key, count: heatmapCounts.get(key) ?? 0 });
+    }
+
+    // Streak: distinct days liên tiếp ngược về quá khứ tính từ today.
+    const distinctDays = new Set<string>();
+    const allPostsForStreak = await this.prisma.post.findMany({
+      where: { authorId: id },
+      select: { createdAt: true },
+    });
+    for (const p of allPostsForStreak) distinctDays.add(isoDate(p.createdAt));
+    let streak = 0;
+    const cursor = new Date(today);
+    while (distinctDays.has(isoDate(cursor))) {
+      streak += 1;
+      cursor.setTime(cursor.getTime() - DAY_MS);
+    }
+
+    // Mood breakdown zero-fill 7 mood
+    const moodBreakdown: Record<Mood, number> = {
+      [Mood.HAPPY]: 0,
+      [Mood.EXCITED]: 0,
+      [Mood.THOUGHTFUL]: 0,
+      [Mood.CALM]: 0,
+      [Mood.SAD]: 0,
+      [Mood.GRATEFUL]: 0,
+      [Mood.ANGRY]: 0,
+    };
+    for (const g of moodGroups) {
+      moodBreakdown[g.mood] = g._count;
+    }
+
+    // Tags used top 8
+    const tagCounts = new Map<string, { color: string | null; count: number }>();
+    for (const pt of tagRows) {
+      const cur = tagCounts.get(pt.tag.name);
+      if (cur) cur.count += 1;
+      else tagCounts.set(pt.tag.name, { color: pt.tag.color, count: 1 });
+    }
+    const tagsUsed = [...tagCounts.entries()]
+      .map(([name, v]) => ({ name, color: v.color, count: v.count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
+    return {
+      postsCount,
+      likesReceived,
+      commentsReceived,
+      viewsTotal: viewsAgg._sum.viewCount ?? 0,
+      streak,
+      heatmap28d,
+      moodBreakdown,
+      tagsUsed,
+    };
+  }
+
   async update(
     targetId: string,
     requester: { sub: string; role: Role },
@@ -58,13 +191,17 @@ export class UsersService {
       }
     }
 
-    return this.prisma.user.update({
-      where: { id: targetId },
-      data: {
-        email: dto.email,
-        avatarUrl: dto.avatarUrl,
-      },
-    });
+    const data: Prisma.UserUpdateInput = {
+      email: dto.email,
+      avatarUrl: dto.avatarUrl,
+    };
+    if (dto.title !== undefined) data.title = dto.title;
+    if (dto.bio !== undefined) data.bio = dto.bio;
+    if (dto.skills !== undefined) {
+      data.skills = dto.skills as unknown as Prisma.InputJsonValue;
+    }
+
+    return this.prisma.user.update({ where: { id: targetId }, data });
   }
 
   async ban(targetId: string, requesterId: string): Promise<User> {

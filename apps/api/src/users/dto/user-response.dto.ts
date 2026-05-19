@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
+
+export type Skill = { name: string; color: string };
 
 export class UserResponseDto {
   @ApiProperty({ example: 'cmpa14i8t000010ldmv5j5att' })
@@ -16,6 +18,18 @@ export class UserResponseDto {
 
   @ApiProperty({ example: 'https://...cloudinary.../avatar.jpg', nullable: true })
   avatarUrl!: string | null;
+
+  @ApiPropertyOptional({ example: 'Full-stack Developer', nullable: true })
+  title?: string | null;
+
+  @ApiPropertyOptional({ example: 'Bio markdown...', nullable: true })
+  bio?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Skills array `[{ name, color }]`',
+    example: [{ name: 'TypeScript', color: '#7DCFFF' }],
+  })
+  skills?: Skill[];
 
   @ApiProperty({ example: '2026-05-17T16:59:32.000Z' })
   createdAt!: Date;

@@ -14,6 +14,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role, type User } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
@@ -22,6 +23,19 @@ import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginatedUsersDto, UserResponseDto } from './dto/user-response.dto';
 
+type Skill = { name: string; color: string };
+
+function parseSkills(value: unknown): Skill[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (v): v is Skill =>
+      typeof v === 'object' &&
+      v !== null &&
+      typeof (v as { name?: unknown }).name === 'string' &&
+      typeof (v as { color?: unknown }).color === 'string',
+  );
+}
+
 function toUserResponse(user: User): UserResponseDto {
   return {
     id: user.id,
@@ -29,8 +43,15 @@ function toUserResponse(user: User): UserResponseDto {
     email: user.email,
     role: user.role,
     avatarUrl: user.avatarUrl,
+    title: user.title ?? null,
+    bio: user.bio ?? null,
+    skills: parseSkills(user.skills),
     createdAt: user.createdAt,
   };
+}
+
+function toPublicUserResponse(user: User): UserResponseDto {
+  return { ...toUserResponse(user), email: null };
 }
 
 @ApiTags('users')
@@ -48,6 +69,20 @@ export class UsersController {
     return { items: items.map(toUserResponse), total, page, limit };
   }
 
+  @Public()
+  @Get('by-username/:username')
+  @ApiOperation({ summary: 'Public lookup by username (FR-11.1) — email hidden' })
+  async getByUsername(@Param('username') username: string): Promise<UserResponseDto> {
+    return toPublicUserResponse(await this.users.findByUsername(username));
+  }
+
+  @Public()
+  @Get(':id/stats')
+  @ApiOperation({ summary: 'Profile stats: posts/likes/views + streak + heatmap28d (FR-11.4)' })
+  getStats(@Param('id') id: string) {
+    return this.users.getStats(id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get user by id (admin hoặc self)' })
   @ApiResponse({ status: 200, type: UserResponseDto })
@@ -57,16 +92,15 @@ export class UsersController {
   ): Promise<UserResponseDto> {
     const isAdmin = requester.role === Role.ADMIN;
     const isSelf = requester.sub === id;
+    const u = await this.users.findById(id);
     if (!isAdmin && !isSelf) {
-      // Treat as not-found for privacy
-      const u = await this.users.findById(id);
-      return toUserResponse({ ...u, email: null }); // hide email cho non-admin/non-self
+      return toPublicUserResponse(u);
     }
-    return toUserResponse(await this.users.findById(id));
+    return toUserResponse(u);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update user (admin hoặc self) — email, avatarUrl' })
+  @ApiOperation({ summary: 'Update user (admin hoặc self) — email/avatar/title/bio/skills' })
   @ApiResponse({ status: 200, type: UserResponseDto })
   async update(
     @Param('id') id: string,

@@ -242,7 +242,7 @@
 
 #### F2-B: Profile + Edit Profile (FR-11)
 
-- [T-220] [P1] [F1] [BE] User.title/bio/skills migration (skills Json {name,color}[]) + PATCH /users/:id validators + GET /users/by-username/:username + GET /users/:id/stats + POST /auth/change-password (FR-11.6) - TODO
+- [T-220] [P1] [F1] [BE] User.title/bio/skills migration (skills Json {name,color}[]) + PATCH /users/:id validators + GET /users/by-username/:username + GET /users/:id/stats + POST /auth/change-password (FR-11.6) - DONE 2026-05-19
 - [T-221] [P1] [F1] [FE] ProfileAvatar (rotating ring) + HeatmapGrid + StatSparkline + TabButtons + ProfilePage layout (hero + 4 tabs + sidebar) (FR-11.1/11.4/11.5) - TODO
 - [T-222] [P1] [F1] [FE] EditProfileDrawer + SkillChipInput + useUpdateProfile + useChangePassword mutations (FR-11.3) - TODO
 - [T-223] [P1] [F1] [FE] `/me` redirect + Avatar dropdown wire Profile link (FR-11.2) - TODO

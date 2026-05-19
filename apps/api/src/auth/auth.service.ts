@@ -144,6 +144,33 @@ export class AuthService {
     return user;
   }
 
+  /** Verify current pw + update + revoke ALL active refresh tokens TRỪ current. */
+  async changePassword(
+    sub: string,
+    currentTid: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: sub } });
+    if (!user) throw new UnauthorizedException();
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      throw new UnauthorizedException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Current password sai',
+      });
+    }
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_COST);
+    await this.prisma.$transaction([
+      this.prisma.user.update({ where: { id: sub }, data: { passwordHash: newHash } }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId: sub, revokedAt: null, NOT: { id: currentTid } },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
+    this.logger.log(`User ${sub} changed password (kept tid=${currentTid})`);
+  }
+
   private async issueTokens(
     user: User,
     meta: { userAgent?: string; ipAddress?: string } = {},

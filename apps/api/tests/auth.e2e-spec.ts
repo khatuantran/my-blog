@@ -120,4 +120,80 @@ describe('Auth (e2e)', () => {
       expect(reuseRes.body.error.code).toBe('REFRESH_REVOKED');
     });
   });
+
+  describe('POST /auth/change-password', () => {
+    async function registerFresh(): Promise<{ username: string; cookies: string }> {
+      const username = `pwuser_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const reg = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send({ username, password: 'initial-pw' })
+        .expect(201);
+      return {
+        username,
+        cookies: extractCookies(reg.headers['set-cookie'] as unknown as string[]),
+      };
+    }
+
+    it('401 no cookie', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/change-password')
+        .send({ currentPassword: 'x', newPassword: 'newvalid8' })
+        .expect(401);
+    });
+
+    it('400 newPassword < 8 chars', async () => {
+      const { cookies } = await registerFresh();
+      await request(app.getHttpServer())
+        .post('/auth/change-password')
+        .set('Cookie', cookies)
+        .send({ currentPassword: 'initial-pw', newPassword: 'short' })
+        .expect(400);
+    });
+
+    it('401 INVALID_CREDENTIALS với current password sai', async () => {
+      const { cookies } = await registerFresh();
+      const res = await request(app.getHttpServer())
+        .post('/auth/change-password')
+        .set('Cookie', cookies)
+        .send({ currentPassword: 'wrong-pw', newPassword: 'newvalid8' })
+        .expect(401);
+      expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+    });
+
+    it('200 happy + current session kept + other sessions revoked + login với pw cũ fail', async () => {
+      const { username, cookies: cookiesA } = await registerFresh();
+
+      // Tạo session B song song bằng login lại
+      const loginB = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username, password: 'initial-pw' })
+        .expect(200);
+      const cookiesB = extractCookies(loginB.headers['set-cookie'] as unknown as string[]);
+
+      // Change pw từ session A
+      await request(app.getHttpServer())
+        .post('/auth/change-password')
+        .set('Cookie', cookiesA)
+        .send({ currentPassword: 'initial-pw', newPassword: 'new-secret-8' })
+        .expect(200);
+
+      // Session A vẫn dùng được (refresh hoạt động)
+      await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', cookiesA).expect(200);
+
+      // Session B bị revoke
+      await request(app.getHttpServer()).post('/auth/refresh').set('Cookie', cookiesB).expect(401);
+
+      // Login với pw cũ → 401
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username, password: 'initial-pw' })
+        .expect(401);
+
+      // Login với pw mới → 200 — username từ session A
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send({ username, password: 'new-secret-8' })
+        .expect(200);
+    });
+  });
 });

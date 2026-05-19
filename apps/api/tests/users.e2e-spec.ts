@@ -110,6 +110,123 @@ describe('Users (e2e)', () => {
         .expect(200);
       expect(res.body.data.email).toBe('alice-admin-set@e.com');
     });
+
+    it('200 self update title + bio + skills', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({
+          title: 'Full-stack Dev',
+          bio: 'Curious about everything',
+          skills: [
+            { name: 'TypeScript', color: '#7DCFFF' },
+            { name: 'React', color: '#00FFE5' },
+          ],
+        })
+        .expect(200);
+      expect(res.body.data.title).toBe('Full-stack Dev');
+      expect(res.body.data.bio).toBe('Curious about everything');
+      expect(res.body.data.skills).toHaveLength(2);
+    });
+
+    it('400 skills > 20 items rejected', async () => {
+      const skills = Array.from({ length: 21 }, (_, i) => ({
+        name: `s${i}`,
+        color: '#00FFE5',
+      }));
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ skills })
+        .expect(400);
+    });
+
+    it('400 skill color invalid hex rejected', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ skills: [{ name: 'TS', color: 'not-a-hex' }] })
+        .expect(400);
+    });
+
+    it('400 bio > 500 chars rejected', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ bio: 'x'.repeat(501) })
+        .expect(400);
+    });
+  });
+
+  describe('GET /users/by-username/:username', () => {
+    it('404 không tồn tại', async () => {
+      await request(app.getHttpServer()).get('/users/by-username/nope-user-xyz').expect(404);
+    });
+
+    it('200 public — email hidden', async () => {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { title: 'Dev', bio: 'hello', email: 'alice@e.com' },
+      });
+      const res = await request(app.getHttpServer()).get('/users/by-username/alice').expect(200);
+      expect(res.body.data.title).toBe('Dev');
+      expect(res.body.data.bio).toBe('hello');
+      expect(res.body.data.email).toBeNull();
+    });
+  });
+
+  describe('GET /users/:id/stats', () => {
+    it('404 user không tồn tại', async () => {
+      await request(app.getHttpServer()).get('/users/non-existent/stats').expect(404);
+    });
+
+    it('200 zero stats cho user không có post', async () => {
+      const res = await request(app.getHttpServer()).get(`/users/${userId}/stats`).expect(200);
+      expect(res.body.data.postsCount).toBe(0);
+      expect(res.body.data.likesReceived).toBe(0);
+      expect(res.body.data.commentsReceived).toBe(0);
+      expect(res.body.data.streak).toBe(0);
+      expect(res.body.data.heatmap28d).toHaveLength(28);
+      expect(res.body.data.moodBreakdown).toEqual({
+        HAPPY: 0,
+        EXCITED: 0,
+        THOUGHTFUL: 0,
+        CALM: 0,
+        SAD: 0,
+        GRATEFUL: 0,
+        ANGRY: 0,
+      });
+      expect(res.body.data.tagsUsed).toEqual([]);
+    });
+
+    it('200 stats aggregate posts + likes + mood + tags', async () => {
+      const post1 = await prisma.post.create({
+        data: { authorId: adminId, content: 'P1', mood: 'HAPPY', viewCount: 10 },
+      });
+      const post2 = await prisma.post.create({
+        data: { authorId: adminId, content: 'P2', mood: 'SAD', viewCount: 5 },
+      });
+      const tag = await prisma.tag.create({ data: { name: 'dev', color: '#00FFE5' } });
+      await prisma.postTag.create({ data: { postId: post1.id, tagId: tag.id } });
+      await prisma.like.create({ data: { postId: post1.id, anonymousId: 'a1' } });
+      await prisma.comment.create({
+        data: { postId: post1.id, anonymousId: 'a2', content: 'nice' },
+      });
+
+      const res = await request(app.getHttpServer()).get(`/users/${adminId}/stats`).expect(200);
+      expect(res.body.data.postsCount).toBe(2);
+      expect(res.body.data.likesReceived).toBe(1);
+      expect(res.body.data.commentsReceived).toBe(1);
+      expect(res.body.data.viewsTotal).toBe(15);
+      expect(res.body.data.moodBreakdown.HAPPY).toBe(1);
+      expect(res.body.data.moodBreakdown.SAD).toBe(1);
+      expect(res.body.data.streak).toBe(1);
+      expect(res.body.data.tagsUsed).toEqual([{ name: 'dev', color: '#00FFE5', count: 1 }]);
+      // Last bucket = today
+      expect(res.body.data.heatmap28d[27].count).toBe(2);
+      // Drop post-test data to avoid pollution
+      void post2;
+    });
   });
 
   describe('POST /users/:id/ban + unban', () => {

@@ -13,6 +13,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { AuthService, TokenPair } from './auth.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthUserDto } from './dto/auth-response.dto';
@@ -139,5 +140,17 @@ export class AuthController {
     const u = req.user as AuthenticatedUser;
     const user = await this.auth.me(u.sub);
     return toAuthUser(user);
+  }
+
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshGuard)
+  @ApiOperation({
+    summary: 'Change password (FR-11.3) — verify current + revoke other refresh tokens',
+  })
+  async changePassword(@Req() req: Request, @Body() dto: ChangePasswordDto) {
+    const ru = req.user as RefreshRequestUser;
+    await this.auth.changePassword(ru.sub, ru.tid, dto.currentPassword, dto.newPassword);
+    return { ok: true };
   }
 }

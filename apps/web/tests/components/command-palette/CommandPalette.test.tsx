@@ -92,4 +92,32 @@ describe('CommandPalette', () => {
     expect(navigateMock).toHaveBeenCalledWith('/admin/create');
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('Saved nav entry routes /saved (T-234)', async () => {
+    const user = userEvent.setup();
+    renderCP();
+    await user.click(screen.getByText('~/saved'));
+    expect(navigateMock).toHaveBeenCalledWith('/saved');
+  });
+
+  it('Tags nav entry routes /tags (T-234)', async () => {
+    const user = userEvent.setup();
+    renderCP();
+    await user.click(screen.getByText('~/tags'));
+    expect(navigateMock).toHaveBeenCalledWith('/tags');
+  });
+
+  it('Profile nav entry routes /me (T-234)', async () => {
+    const user = userEvent.setup();
+    renderCP();
+    await user.click(screen.getByText('~/profile'));
+    expect(navigateMock).toHaveBeenCalledWith('/me');
+  });
+
+  it('Search recent entry fix routes /search (T-234)', async () => {
+    const user = userEvent.setup();
+    renderCP();
+    await user.click(screen.getByText('Search posts'));
+    expect(navigateMock).toHaveBeenCalledWith('/search');
+  });
 });

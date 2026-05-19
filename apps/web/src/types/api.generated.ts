@@ -647,7 +647,7 @@ export interface components {
     ChangePasswordDto: {
       /** @example current-pw */
       currentPassword: string;
-      /** @example new-stronger-pw */
+      /** @example new-pw */
       newPassword: string;
     };
     ActivityActorDto: {

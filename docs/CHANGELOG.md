@@ -31,6 +31,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **T-303** Relax change-password validation (FR-11.3 amend, 2026-05-19): `ChangePasswordDto` simplify còn `@IsString + @MinLength(5)` cho cả `currentPassword` + `newPassword` (drop `MaxLength(128)` + min 1/8). FE EditProfileDrawer đồng bộ: client check `< 5`, label `(min 5)`, input `minLength={5}`. Test `auth.e2e` rename `400 < 8 chars` → `400 < 5 chars` (payload `'short'` → `'abcd'`). Motivation: validator chain over-spec sinh error verbose 6 dòng khi payload sai — UX xấu; chính sách 8-char không cần thiết cho personal blog. **Đây là change request (F2 amend FR), không phải bug** — FR-11.3 đã update ghi rõ amendment date.
+
 - **F2 spec for M11.6 — Activity Log (2026-05-19, docs only):** User-scope activity timeline với hybrid query (own actions + actions on own posts). Append-only ActivityLog denorm table, hook log vào posts/comments/likes/saved create events. F2 flow execute trên 6 doc:
   - `docs/REQUIREMENTS.md`: thêm FR-13 (5 sub-FR) + UC-16 + Glossary distinguish Activity admin-scope (FR-07.5) vs user-scope (FR-13).
   - `docs/DATA_MODEL.md`: model ActivityLog (actorId + type + targetType + targetId + targetOwnerId denorm + metadata Json? + createdAt) + 2 enum (ActivityType POST_CREATED/COMMENT_CREATED/LIKE_CREATED/SAVE_CREATED + ActivityTargetType POST/COMMENT) + 2 index. Migration `add_activity_log` (v0.3.1-alpha planned).

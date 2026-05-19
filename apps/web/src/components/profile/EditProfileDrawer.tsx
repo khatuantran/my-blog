@@ -75,8 +75,8 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
       setPwError('New password và confirm không khớp');
       return;
     }
-    if (newPw.length < 8) {
-      setPwError('New password tối thiểu 8 ký tự');
+    if (newPw.length < 5) {
+      setPwError('New password tối thiểu 5 ký tự');
       return;
     }
     pwMut.mutate(
@@ -188,13 +188,13 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
               className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
             />
           </Field>
-          <Field label="New password (min 8)">
+          <Field label="New password (min 5)">
             <input
               type="password"
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               autoComplete="new-password"
-              minLength={8}
+              minLength={5}
               className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
             />
           </Field>

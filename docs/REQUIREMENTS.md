@@ -381,7 +381,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 - **FR-11.1:** Public `/profile/:username` — hero (avatar rotating ring 88px + name + role badge + title + bio + stats inline `42 posts · 287 likes · 1.2k views`) + 4 tabs (Posts/Saved/Activity/About) + right sidebar (about + skills.top + mood.breakdown + activity.28d heatmap + tags.used).
 - **FR-11.2:** Self `/me` → redirect `/profile/:ownUsername`. Avatar dropdown link "Profile" wire đúng route.
-- **FR-11.3:** Self edit drawer (slide-in 420px) — sections: profile (title max 80, bio max 500 markdown, skills `{name,color}[]` chip input max 20) + security (POST /auth/change-password với current + new + confirm). Backdrop + Esc close.
+- **FR-11.3:** Self edit drawer (slide-in 420px) — sections: profile (title max 80, bio max 500 markdown, skills `{name,color}[]` chip input max 20) + security (POST /auth/change-password với current + new + confirm). Backdrop + Esc close. **Password validation: cả `currentPassword` + `newPassword` min 5 chars** (amended 2026-05-19 từ "newPassword min 8" sau T-303 — policy personal blog, không cần khắt khe).
 - **FR-11.4:** Stats endpoint `GET /users/:id/stats` trả: postsCount, likesReceived, commentsReceived, viewsTotal, streak (distinct post-created days liên tiếp), heatmap28d, moodBreakdown (zero-fill 7), tagsUsed (top 8).
 - **FR-11.5:** Saved tab visible CHỈ self/admin (privacy). Tab state qua `?tab=posts|saved|activity|about`.
 - **FR-11.6:** Backend migration: User thêm `title String?` (80) + `bio String? @db.Text` (500 markdown) + `skills Json @default("[]")` shape `{name,color}[]`. Endpoint mới `GET /users/by-username/:username` + `GET /users/:id/stats` + `POST /auth/change-password`.
@@ -389,6 +389,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Given user X có 42 posts → When vào `/profile/X` → Then hero stats hiển thị `42 posts`
   - Given self click Edit Profile → drawer mở, sửa title → submit → Then PATCH /users/:selfId thành công + drawer đóng + hero re-render
   - Given self click change password với current pw sai → Then 401 INVALID_CREDENTIALS, drawer giữ open
+  - Given self submit change password với newPassword 4 chars → Then 400 VALIDATION_ERROR (min 5)
   - Given guest xem `/profile/admin` → Then Saved tab KHÔNG hiện (chỉ Posts/Activity/About)
 - **Linked UCs:** UC-14
 - **Linked Tests:** E2E (defer add)

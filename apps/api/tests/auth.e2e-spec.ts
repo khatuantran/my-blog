@@ -141,12 +141,12 @@ describe('Auth (e2e)', () => {
         .expect(401);
     });
 
-    it('400 newPassword < 8 chars', async () => {
+    it('400 newPassword < 5 chars', async () => {
       const { cookies } = await registerFresh();
       await request(app.getHttpServer())
         .post('/auth/change-password')
         .set('Cookie', cookies)
-        .send({ currentPassword: 'initial-pw', newPassword: 'short' })
+        .send({ currentPassword: 'initial-pw', newPassword: 'abcd' })
         .expect(400);
     });
 

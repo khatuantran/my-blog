@@ -908,10 +908,11 @@ components:
         currentPassword:
           type: string
           example: current-pw
+          minLength: 5
         newPassword:
           type: string
-          example: new-stronger-pw
-          minLength: 8
+          example: new-pw
+          minLength: 5
       required:
         - currentPassword
         - newPassword

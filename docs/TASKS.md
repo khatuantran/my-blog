@@ -261,6 +261,8 @@
 
 ### Backlog — Tech debt
 
+- [T-303] [P2] [F1] [Both] Amend FR-11.3 — relax change-password validation min length 8 → 5 cho cả `currentPassword` + `newPassword` (drop `MaxLength(128)`). FE EditProfileDrawer đồng bộ label/check/minLength. Test auth.e2e rename `400 < 8 chars` → `400 < 5 chars`. Motivation: error verbose UX xấu + policy 8-char không cần thiết cho personal blog (change request, không phải bug). - DONE 2026-05-19
+
 - [T-302] [P2] [F7] [Both] OpenAPI cutover — fix 15+ BE decorator gap (nullable string `type: String`, skills `[SkillItemDto]`, nested stats DTO, search response DTO) + build `api.aliases.ts` re-export layer + migrate 38 import site (auth/users/posts/comments/likes/saved/tags/admin/search) + delete hand-typed `api.ts`. Update CI drift check target từ `api.generated.ts` sang `api.ts`. Ước 6-9h. - TODO
 
 ### Backlog — M11.6: Activity Log

@@ -116,7 +116,7 @@ Exceed → 429 `RATE_LIMITED`. Test env (`NODE_ENV=test`) skip throttle (existin
 
 | Method | Path              | Auth   | FR      | Notes                                                                                      |
 | ------ | ----------------- | ------ | ------- | ------------------------------------------------------------------------------------------ |
-| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`                                                      |
+| GET    | `/posts`          | public | FR-04   | Query: `page`, `limit`, `mood`, `tag`, `sort: latest\|oldest\|likes` (default `latest`)    |
 | GET    | `/posts/:id`      | public | FR-04   | Trả về full post (view tracking via POST /posts/:id/view — T-021)                          |
 | POST   | `/posts`          | admin  | FR-02   | Body: `{ content, mood, tags[], images[], files[] }`                                       |
 | PATCH  | `/posts/:id`      | admin  | FR-02   | Partial update                                                                             |

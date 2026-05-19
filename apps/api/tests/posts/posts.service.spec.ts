@@ -102,7 +102,7 @@ describe('PostsService', () => {
       prisma.post.findMany.mockResolvedValue([basePost]);
       prisma.post.count.mockResolvedValue(42);
 
-      const res = await service.list({ page: 2, limit: 10, mood: Mood.HAPPY });
+      const res = await service.list({ page: 2, limit: 10, mood: Mood.HAPPY, sort: 'latest' });
 
       expect(prisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -121,7 +121,7 @@ describe('PostsService', () => {
     it('normalizes tag filter (#dev → dev)', async () => {
       prisma.post.findMany.mockResolvedValue([]);
       prisma.post.count.mockResolvedValue(0);
-      await service.list({ page: 1, limit: 10, tag: '#Dev' });
+      await service.list({ page: 1, limit: 10, tag: '#Dev', sort: 'latest' });
       expect(prisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { postTags: { some: { tag: { name: 'dev' } } } },
@@ -132,8 +132,26 @@ describe('PostsService', () => {
     it('no where filter if neither mood nor tag', async () => {
       prisma.post.findMany.mockResolvedValue([]);
       prisma.post.count.mockResolvedValue(0);
-      await service.list({ page: 1, limit: 10 });
+      await service.list({ page: 1, limit: 10, sort: 'latest' });
       expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+    });
+
+    it('sort=likes → orderBy likes _count desc', async () => {
+      prisma.post.findMany.mockResolvedValue([]);
+      prisma.post.count.mockResolvedValue(0);
+      await service.list({ page: 1, limit: 10, sort: 'likes' });
+      expect(prisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { likes: { _count: 'desc' } } }),
+      );
+    });
+
+    it('sort=oldest → orderBy createdAt asc', async () => {
+      prisma.post.findMany.mockResolvedValue([]);
+      prisma.post.count.mockResolvedValue(0);
+      await service.list({ page: 1, limit: 10, sort: 'oldest' });
+      expect(prisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ orderBy: { createdAt: 'asc' } }),
+      );
     });
   });
 

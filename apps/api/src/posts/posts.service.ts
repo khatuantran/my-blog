@@ -76,11 +76,18 @@ export class PostsService {
       where.postTags = { some: { tag: { name: tagName } } };
     }
 
+    const orderBy: Prisma.PostOrderByWithRelationInput =
+      query.sort === 'oldest'
+        ? { createdAt: 'asc' }
+        : query.sort === 'likes'
+          ? { likes: { _count: 'desc' } }
+          : { createdAt: 'desc' };
+
     const [items, total] = await Promise.all([
       this.prisma.post.findMany({
         where,
         include: POST_INCLUDE,
-        orderBy: { createdAt: 'desc' },
+        orderBy,
         skip: (query.page - 1) * query.limit,
         take: query.limit,
       }),

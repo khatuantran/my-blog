@@ -63,6 +63,35 @@ describe('Posts (e2e)', () => {
       expect(res.body.data.items).toHaveLength(1);
       expect(res.body.data.items[0].tags[0].name).toBe('dev');
     });
+
+    it('200 sort=oldest → createdAt ASC', async () => {
+      const oldP = await makePost(prisma, { authorId: adminId, content: 'oldest' });
+      // ensure newer createdAt
+      await new Promise((r) => setTimeout(r, 20));
+      const newP = await makePost(prisma, { authorId: adminId, content: 'newest' });
+      const res = await request(app.getHttpServer()).get('/posts?sort=oldest').expect(200);
+      expect(res.body.data.items[0].id).toBe(oldP.id);
+      expect(res.body.data.items[1].id).toBe(newP.id);
+    });
+
+    it('200 sort=likes → orderBy likes _count desc', async () => {
+      const less = await makePost(prisma, { authorId: adminId, content: 'less liked' });
+      const more = await makePost(prisma, { authorId: adminId, content: 'more liked' });
+      await prisma.like.createMany({
+        data: [
+          { postId: more.id, userId: adminId },
+          { postId: more.id, anonymousId: 'anon-a' },
+          { postId: less.id, anonymousId: 'anon-b' },
+        ],
+      });
+      const res = await request(app.getHttpServer()).get('/posts?sort=likes').expect(200);
+      expect(res.body.data.items[0].id).toBe(more.id);
+      expect(res.body.data.items[1].id).toBe(less.id);
+    });
+
+    it('400 sort=invalid → rejected by validator', async () => {
+      await request(app.getHttpServer()).get('/posts?sort=foobar').expect(400);
+    });
   });
 
   describe('GET /posts/:id', () => {

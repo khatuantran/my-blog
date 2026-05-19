@@ -32,4 +32,39 @@ describe('FilterBar', () => {
     render(<FilterBar activeMood="EXCITED" total={10} onMoodFilter={vi.fn()} />);
     expect(screen.getByText(/filtered:.*excited/i)).toBeInTheDocument();
   });
+
+  it('Sort dropdown disabled khi không có onSortChange', () => {
+    render(<FilterBar activeMood={null} onMoodFilter={vi.fn()} />);
+    const btn = screen.getByRole('button', { name: /sort order/i });
+    expect(btn).toBeDisabled();
+  });
+
+  it('Sort dropdown — click button mở listbox với 3 options', async () => {
+    const user = userEvent.setup();
+    render(<FilterBar activeMood={null} onMoodFilter={vi.fn()} onSortChange={vi.fn()} />);
+    const btn = screen.getByRole('button', { name: /sort order/i });
+    expect(btn).toHaveTextContent(/latest/i);
+    await user.click(btn);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /latest/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /oldest/i })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /most liked/i })).toBeInTheDocument();
+  });
+
+  it('Click option → onSortChange với value + dropdown close', async () => {
+    const user = userEvent.setup();
+    const onSort = vi.fn();
+    render(<FilterBar activeMood={null} onMoodFilter={vi.fn()} onSortChange={onSort} />);
+    await user.click(screen.getByRole('button', { name: /sort order/i }));
+    await user.click(screen.getByRole('option', { name: /most liked/i }));
+    expect(onSort).toHaveBeenCalledWith('likes');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('Sort prop=likes → label hiển thị "Most liked"', () => {
+    render(
+      <FilterBar activeMood={null} sort="likes" onMoodFilter={vi.fn()} onSortChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: /sort order/i })).toHaveTextContent(/most liked/i);
+  });
 });

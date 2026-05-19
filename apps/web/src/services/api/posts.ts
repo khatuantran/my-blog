@@ -7,6 +7,7 @@ function toQuery(params: ListPostsParams): string {
   if (params.limit) qs.set('limit', String(params.limit));
   if (params.mood) qs.set('mood', params.mood);
   if (params.tag) qs.set('tag', params.tag);
+  if (params.sort && params.sort !== 'latest') qs.set('sort', params.sort);
   const s = qs.toString();
   return s ? `?${s}` : '';
 }

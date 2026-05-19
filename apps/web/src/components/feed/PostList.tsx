@@ -1,19 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { usePostsInfinite } from '@/hooks/queries/use-posts';
 import type { Mood } from '@/lib/mood-config';
-import type { Post } from '@/types/api';
+import type { Post, PostSort } from '@/types/api';
 import { AsciiSpinner } from './AsciiSpinner';
 import { PostListSkeleton } from './PostListSkeleton';
 import { PostCard } from './PostCard';
 
 type Props = {
   mood: Mood | null;
+  sort?: PostSort;
   onTotal?: (total: number) => void;
 };
 
-export function PostList({ mood, onTotal }: Props) {
+export function PostList({ mood, sort = 'latest', onTotal }: Props) {
   const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    usePostsInfinite({ mood: mood ?? undefined });
+    usePostsInfinite({ mood: mood ?? undefined, sort });
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   // Report total back to parent (FilterBar header).

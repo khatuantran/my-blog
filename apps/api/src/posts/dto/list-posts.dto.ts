@@ -1,7 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { Mood } from '@prisma/client';
+
+export const POST_SORT_VALUES = ['latest', 'oldest', 'likes'] as const;
+export type PostSort = (typeof POST_SORT_VALUES)[number];
 
 export class ListPostsDto {
   @ApiPropertyOptional({ example: 1, default: 1 })
@@ -29,4 +32,9 @@ export class ListPostsDto {
   @IsString()
   @MaxLength(50)
   tag?: string;
+
+  @ApiPropertyOptional({ enum: POST_SORT_VALUES, default: 'latest' })
+  @IsOptional()
+  @IsIn(POST_SORT_VALUES as unknown as string[])
+  sort: PostSort = 'latest';
 }

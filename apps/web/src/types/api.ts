@@ -84,11 +84,14 @@ export type PaginatedPosts = {
   limit: number;
 };
 
+export type PostSort = 'latest' | 'oldest' | 'likes';
+
 export type ListPostsParams = {
   page?: number;
   limit?: number;
   mood?: Mood;
   tag?: string;
+  sort?: PostSort;
 };
 
 export type Comment = {

@@ -140,6 +140,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/users/{id}/activity': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Activity timeline hybrid (FR-13) — self/admin only */
+    get: operations['ActivityController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users': {
     parameters: {
       query?: never;
@@ -632,6 +649,35 @@ export interface components {
       currentPassword: string;
       /** @example new-stronger-pw */
       newPassword: string;
+    };
+    ActivityActorDto: {
+      id: string;
+      username: string;
+      avatarUrl: string | null;
+    };
+    ActivityTargetDto: {
+      /** @enum {string} */
+      type: 'POST' | 'COMMENT';
+      id: string;
+      /** @description Truncate 80 chars, null nếu target deleted */
+      snippet: string | null;
+    };
+    ActivityItemDto: {
+      id: string;
+      /** @enum {string} */
+      type: 'POST_CREATED' | 'COMMENT_CREATED' | 'LIKE_CREATED' | 'SAVE_CREATED';
+      /** @enum {string} */
+      direction: 'OUTGOING' | 'INCOMING';
+      actor: components['schemas']['ActivityActorDto'];
+      target: components['schemas']['ActivityTargetDto'];
+      /** Format: date-time */
+      createdAt: string;
+    };
+    PaginatedActivityDto: {
+      items: components['schemas']['ActivityItemDto'][];
+      total: number;
+      page: number;
+      limit: number;
     };
     UserResponseDto: {
       /** @example cmpa14i8t000010ldmv5j5att */
@@ -1290,6 +1336,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ActivityController_list: {
+    parameters: {
+      query?: {
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedActivityDto'];
+        };
       };
     };
   };

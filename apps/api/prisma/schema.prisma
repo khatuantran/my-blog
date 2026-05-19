@@ -47,6 +47,18 @@ enum CommentStatus {
   REJECTED
 }
 
+enum ActivityType {
+  POST_CREATED
+  COMMENT_CREATED
+  LIKE_CREATED
+  SAVE_CREATED
+}
+
+enum ActivityTargetType {
+  POST
+  COMMENT
+}
+
 // ──────────────────────────────────────────────────────────
 // Models
 // ──────────────────────────────────────────────────────────
@@ -64,12 +76,14 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  commentLikes  CommentLike[]
-  savedPosts    SavedPost[]
-  refreshTokens RefreshToken[]
+  posts            Post[]
+  comments         Comment[]
+  likes            Like[]
+  commentLikes     CommentLike[]
+  savedPosts       SavedPost[]
+  refreshTokens    RefreshToken[]
+  actorActivities  ActivityLog[]    @relation("ActorActivities")
+  targetActivities ActivityLog[]    @relation("TargetOwnerActivities")
 }
 
 model Post {
@@ -241,4 +255,21 @@ model RefreshToken {
 
   @@index([userId])
   @@index([tokenHash])
+}
+
+model ActivityLog {
+  id            String             @id @default(cuid())
+  actorId       String
+  type          ActivityType
+  targetType    ActivityTargetType
+  targetId      String
+  targetOwnerId String?
+  metadata      Json?
+  createdAt     DateTime           @default(now())
+
+  actor       User  @relation("ActorActivities", fields: [actorId], references: [id], onDelete: Cascade)
+  targetOwner User? @relation("TargetOwnerActivities", fields: [targetOwnerId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt])
+  @@index([targetOwnerId, createdAt])
 }

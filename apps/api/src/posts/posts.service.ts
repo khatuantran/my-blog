@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
+import { ActivityService } from '../activity/activity.service';
 import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
 import { TagsService, normalizeTagName as normalizeTagNameImpl } from '../tags/tags.service';
 import type { CreatePostDto } from './dto/create-post.dto';
@@ -64,6 +65,7 @@ export class PostsService {
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
     private readonly tags: TagsService,
+    private readonly activity: ActivityService,
   ) {}
 
   async list(
@@ -149,6 +151,13 @@ export class PostsService {
     });
 
     this.logger.log(`Post ${post.id} created by ${authorId}`);
+    await this.activity.log({
+      actorId: authorId,
+      type: 'POST_CREATED',
+      targetType: 'POST',
+      targetId: post.id,
+      targetOwnerId: authorId,
+    });
     return toPostView(post);
   }
 

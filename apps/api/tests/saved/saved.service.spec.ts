@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { Mood, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { ActivityService } from '@/activity/activity.service';
 import { SavedService } from '@/saved/saved.service';
 
 type MockPrisma = {
@@ -46,7 +47,11 @@ describe('SavedService', () => {
       },
     };
     const moduleRef = await Test.createTestingModule({
-      providers: [SavedService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        SavedService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: ActivityService, useValue: { log: jest.fn() } },
+      ],
     }).compile();
     service = moduleRef.get(SavedService);
   });

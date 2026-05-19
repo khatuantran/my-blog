@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
+import { ActivityService } from '../activity/activity.service';
 import { POST_INCLUDE, toPostView, type PostView } from '../posts/posts.service';
 import type { ListSavedDto } from './dto/list-saved.dto';
 
@@ -11,12 +12,15 @@ export interface SavedPostView extends PostView {
 export class SavedService {
   private readonly logger = new Logger(SavedService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityService,
+  ) {}
 
   async toggleSave(userId: string, postId: string): Promise<{ saved: boolean }> {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true },
+      select: { id: true, authorId: true },
     });
     if (!post) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
@@ -34,6 +38,13 @@ export class SavedService {
     }
     await this.prisma.savedPost.create({ data: { userId, postId } });
     this.logger.log(`Saved created user=${userId} post=${postId}`);
+    await this.activity.log({
+      actorId: userId,
+      type: 'SAVE_CREATED',
+      targetType: 'POST',
+      targetId: postId,
+      targetOwnerId: post.authorId,
+    });
     return { saved: true };
   }
 

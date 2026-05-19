@@ -5,6 +5,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from 'nestjs-prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ActivityModule } from './activity/activity.module';
 import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
@@ -33,6 +34,7 @@ import { validateEnv } from './config/env.schema';
       skipIf: () => process.env.THROTTLE_DISABLED === '1',
     }),
     AuthModule,
+    ActivityModule,
     UsersModule,
     FilesModule,
     TagsModule,

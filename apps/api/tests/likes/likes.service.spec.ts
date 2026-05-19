@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommentStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { ActivityService } from '@/activity/activity.service';
 import { LikesService } from '@/likes/likes.service';
 
 type MockPrisma = {
@@ -43,7 +44,11 @@ describe('LikesService', () => {
       },
     };
     const moduleRef = await Test.createTestingModule({
-      providers: [LikesService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        LikesService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: ActivityService, useValue: { log: jest.fn() } },
+      ],
     }).compile();
     service = moduleRef.get(LikesService);
   });

@@ -116,6 +116,40 @@ paths:
           description: ''
       tags:
         - auth
+  /users/{id}/activity:
+    get:
+      operationId: ActivityController_list
+      summary: Activity timeline hybrid (FR-13) — self/admin only
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedActivityDto'
+      tags:
+        - users
   /users:
     get:
       operationId: UsersController_list
@@ -881,6 +915,87 @@ components:
       required:
         - currentPassword
         - newPassword
+    ActivityActorDto:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        avatarUrl:
+          type: string
+          nullable: true
+      required:
+        - id
+        - username
+        - avatarUrl
+    ActivityTargetDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - POST
+            - COMMENT
+        id:
+          type: string
+        snippet:
+          type: string
+          nullable: true
+          description: Truncate 80 chars, null nếu target deleted
+      required:
+        - type
+        - id
+        - snippet
+    ActivityItemDto:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - POST_CREATED
+            - COMMENT_CREATED
+            - LIKE_CREATED
+            - SAVE_CREATED
+        direction:
+          type: string
+          enum:
+            - OUTGOING
+            - INCOMING
+        actor:
+          $ref: '#/components/schemas/ActivityActorDto'
+        target:
+          $ref: '#/components/schemas/ActivityTargetDto'
+        createdAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - type
+        - direction
+        - actor
+        - target
+        - createdAt
+    PaginatedActivityDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActivityItemDto'
+        total:
+          type: number
+        page:
+          type: number
+        limit:
+          type: number
+      required:
+        - items
+        - total
+        - page
+        - limit
     UserResponseDto:
       type: object
       properties:

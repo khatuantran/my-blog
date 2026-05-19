@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CommentStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { ActivityService } from '../activity/activity.service';
 
 export interface Viewer {
   userId?: string;
@@ -30,12 +31,18 @@ function buildDedupKey(viewer: Viewer): DedupKey {
 export class LikesService {
   private readonly logger = new Logger(LikesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityService,
+  ) {}
 
   async togglePostLike(postId: string, viewer: Viewer): Promise<ToggleResult> {
     const key = buildDedupKey(viewer);
 
-    const post = await this.prisma.post.findUnique({ where: { id: postId }, select: { id: true } });
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
     if (!post) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
@@ -54,7 +61,17 @@ export class LikesService {
     }
 
     const count = await this.prisma.like.count({ where: { postId } });
-    return { liked: !existing, count };
+    const liked = !existing;
+    if (liked && key.userId) {
+      await this.activity.log({
+        actorId: key.userId,
+        type: 'LIKE_CREATED',
+        targetType: 'POST',
+        targetId: postId,
+        targetOwnerId: post.authorId,
+      });
+    }
+    return { liked, count };
   }
 
   async toggleCommentLike(commentId: string, viewer: Viewer): Promise<ToggleResult> {

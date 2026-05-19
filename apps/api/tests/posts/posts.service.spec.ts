@@ -2,6 +2,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileType, Mood, Role } from '@prisma/client';
+import { ActivityService } from '@/activity/activity.service';
 import { CloudinaryService } from '@/files/cloudinary.service';
 import { TagsService } from '@/tags/tags.service';
 import { PostsService, normalizeTagName } from '@/posts/posts.service';
@@ -84,6 +85,7 @@ describe('PostsService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: CloudinaryService, useValue: cloudinary },
         { provide: TagsService, useValue: tags },
+        { provide: ActivityService, useValue: { log: jest.fn() } },
       ],
     }).compile();
     service = moduleRef.get(PostsService);

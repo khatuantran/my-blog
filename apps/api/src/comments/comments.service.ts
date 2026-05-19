@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CommentStatus, Prisma, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
+import { ActivityService } from '../activity/activity.service';
 import type { CreateCommentDto } from './dto/create-comment.dto';
 import type { CommentResponseDto } from './dto/comment-response.dto';
 import type { ModeratableStatus } from './dto/update-status.dto';
@@ -42,7 +43,10 @@ function toCommentResponse(c: CommentWithRelations): CommentResponseDto {
 export class CommentsService {
   private readonly logger = new Logger(CommentsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly activity: ActivityService,
+  ) {}
 
   async listForAdmin(
     status: CommentStatus,
@@ -114,7 +118,7 @@ export class CommentsService {
 
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true },
+      select: { id: true, authorId: true },
     });
     if (!post) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
@@ -138,6 +142,15 @@ export class CommentsService {
     this.logger.log(
       `Comment ${comment.id} created on post ${postId} by ${viewer.userId ?? viewer.anonymousId}`,
     );
+    if (viewer.userId) {
+      await this.activity.log({
+        actorId: viewer.userId,
+        type: 'COMMENT_CREATED',
+        targetType: 'POST',
+        targetId: postId,
+        targetOwnerId: post.authorId,
+      });
+    }
     return toCommentResponse(comment);
   }
 

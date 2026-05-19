@@ -131,23 +131,17 @@
   - Tests: BE 119 unit + 161 integration + FE 285 unit = **565 total**.
   - Commits range: `39e8e03` → `ff93b0c`.
 - **M11.6 complete ✅ (2/2 done, 2026-05-19):**
-  - T-300 BE: migration `add_activity_log` + ActivityModule + 4 service hooks + GET /users/:id/activity. 7 unit + 8 integration = +15 BE tests (126 unit + 169 integration).
-  - T-301 FE: types + service + useUserActivity infinite query + ProfileActivityList + ProfilePage tab wire. 5 FE tests (+5 → 290).
+  - **F2 spec docs (6 file):** FR-13 Activity Log + UC-16 + Glossary admin vs user-scope (REQUIREMENTS); ActivityLog model + 2 enum + migration `add_activity_log` v0.3.1-alpha (DATA_MODEL); `GET /users/:id/activity` JwtAuthGuard + visibility + direction-aware response (API_CONTRACT); Profile Activity tab direction-aware text + infinite scroll + 403 fallback + deleted target degrade (UI_DESIGN); ProfileActivityItem variant của ActivityLogItem admin (DESIGN_SYSTEM); T-300 + T-301 backlog (TASKS).
+  - **F1 BE (T-300):** migration `add_activity_log` + ActivityModule (service + controller + DTO) + 4 service hooks (Posts/Comments/Likes/Saved create events, skip anonymous + skip unlike/unsave) + GET /users/:id/activity endpoint. 7 unit + 8 integration = +15 BE tests (126 unit + 169 integration).
+  - **F1 FE (T-301):** types thủ công trong api.ts (do T-302 deferred) + services/api/activity.ts + useUserActivity infinite query + qk.users.activity key + ProfileActivityList component + ProfilePage tab wire (canViewSaved gate). 5 FE tests (+5 → 290).
   - Tests total: 295 BE + 290 FE = **585 tests** (was 565).
-  - Commits range: `a7b45e8` (B2) + B3.
-- **M11.6 F2 spec done (docs, included above):**
-  - Add FR-13 Activity Log + UC-16 + Glossary distinction user-scope vs admin-scope (REQUIREMENTS.md).
-  - DATA_MODEL: ActivityLog model + 2 enum (ActivityType / ActivityTargetType) + migration `add_activity_log` (v0.3.1-alpha planned).
-  - API_CONTRACT: `GET /users/:id/activity` paginated (JwtAuthGuard + visibility check + direction-aware response).
-  - UI_DESIGN: Profile Activity tab expand với direction-aware text + infinite scroll + 403 fallback + deleted target handling.
-  - DESIGN_SYSTEM: ProfileActivityItem component (variant của ActivityLogItem admin).
-  - TASKS: M11.6 backlog T-300 (BE) + T-301 (FE).
-  - **T-009 partial:** OpenAPI auto-gen scripts + CI drift check done (Wave A1+A3). Wave A2 cutover defer → T-302 (~6-9h).
+  - Commits: `56f098d` (B1 F2 spec) + `a7b45e8` (B2 BE) + `4342973` (B3 FE).
+- **T-009 partial (2026-05-19):** OpenAPI auto-gen scripts + CI drift check done (Wave A1+A3, commits `a48e8ac` + `10ec012`). Wave A2 cutover defer → T-302 (~6-9h) khi rảnh.
 - **Next:**
-  - M11.6 F1 execute (T-300 BE → T-301 FE).
-  - Hoặc M11 Real-time integration (Socket.io + live visitors + admin activity broadcast).
+  - M11 Real-time integration (Socket.io + live visitors + admin activity broadcast) — reopen T-041/T-042.
   - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon).
   - Hoặc M14 Monitoring (Sentry + Fly metrics).
+  - Tech debt: T-302 OpenAPI cutover (fix 15+ BE decorator gap + aliases.ts + migrate 38 imports).
 
 ---
 

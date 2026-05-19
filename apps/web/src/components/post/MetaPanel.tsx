@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { TagPill } from '@/components/shared/TagPill';
 import type { Post } from '@/types/api';
 
@@ -9,12 +10,27 @@ const SHARE_TARGETS = [
   { icon: '📘', label: 'Facebook' },
   { icon: '🐦', label: 'X' },
   { icon: '✈️', label: 'Telegram' },
-  { icon: '🔗', label: 'Copy link' },
-];
+] as const;
 
-// Right column aside cho PostDetail. Sections: post.meta / tags / share / related (placeholder).
-// Match design-file/MyBlog Post Detail.html L213-291.
+function buildPostUrl(postId: string): string {
+  if (typeof window === 'undefined') return `/post/${postId}`;
+  return `${window.location.origin}/post/${postId}`;
+}
+
 export function MetaPanel({ post }: Props) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopyLink() {
+    const url = buildPostUrl(post.id);
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable (insecure context / permission) — silently skip toast
+    }
+  }
+
   return (
     <aside
       className="meta-panel hidden w-[280px] shrink-0 space-y-5 lg:block"
@@ -67,6 +83,20 @@ export function MetaPanel({ post }: Props) {
               <span>{s.label}</span>
             </button>
           ))}
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            aria-label="Copy post link"
+            aria-live="polite"
+            className={`flex items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-mono transition-colors ${
+              copied
+                ? 'border-grn/50 bg-grn/10 text-grn'
+                : 'border-b2 bg-elev text-ts hover:border-cyan/50 hover:text-cyan'
+            }`}
+          >
+            <span>{copied ? '✓' : '🔗'}</span>
+            <span>{copied ? '// link copied' : 'Copy link'}</span>
+          </button>
         </div>
       </div>
 

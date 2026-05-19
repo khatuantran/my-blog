@@ -229,7 +229,7 @@
 
 #### Quick wins (parallel)
 
-- [T-200] [P2] [F1] [FE] Wire `Copy link` button MetaPanel + toast (FR-05.2) - TODO
+- [T-200] [P2] [F1] [FE] Wire `Copy link` button MetaPanel + toast (FR-05.2) - DONE 2026-05-19
 - [T-201] [P2] [F1] [Both] FilterBar sort dropdown Latest/Oldest/Most liked + BE `GET /posts?sort=` (FR-04.6) - TODO
 - [T-202] [P2] [F1] [Both] Comment moderation queue UI + `GET /admin/comments?status=PENDING` (FR-07.4) - TODO
 - [T-203] [P2] [F1] [FE] `/saved` standalone route (authed only) + SavedPage layout (FR-03.3) - TODO

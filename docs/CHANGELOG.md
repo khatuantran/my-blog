@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Added
+
+- **T-200** Copy link button MetaPanel (M11.5 Wave 1 start): tách `🔗 Copy link` ra khỏi SHARE_TARGETS array → dedicated button với state local `copied: boolean`. Click → `navigator.clipboard.writeText(${origin}/post/${id})` → state flip `copied=true` 2000ms → render `✓ // link copied` text grn + bg grn 10% / border grn 50%. Try-catch silently skip nếu clipboard unavailable (insecure context). 3 unit tests (clicks success + writeText URL + label toggle / clipboard reject does NOT throw + label unchanged / 3 social + copy buttons render). Total **191 FE tests pass** (was 188).
+
 ### Changed
 
 - **F2 spec for M11.5 — Tags / Profile / Search / Create Post enhance (2026-05-18, docs only):** User update design files với 3 screen mới (Profile/Search/Tags) + Create Post emoji picker + Saved standalone route + TopBar search submit pattern. F2 (New Requirement) flow execute trên 6 doc:

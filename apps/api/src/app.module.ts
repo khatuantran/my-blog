@@ -12,6 +12,7 @@ import { FilesModule } from './files/files.module';
 import { LikesModule } from './likes/likes.module';
 import { PostsModule } from './posts/posts.module';
 import { SavedModule } from './saved/saved.module';
+import { SearchModule } from './search/search.module';
 import { TagsModule } from './tags/tags.module';
 import { UsersModule } from './users/users.module';
 import { AnonymousIdMiddleware } from './common/middleware/anonymous-id.middleware';
@@ -39,6 +40,7 @@ import { validateEnv } from './config/env.schema';
     LikesModule,
     CommentsModule,
     SavedModule,
+    SearchModule,
     AdminModule,
   ],
   controllers: [AppController],

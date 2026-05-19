@@ -634,11 +634,18 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Interactions
 
-- **Tab switching**: URL `?tab=posts|saved|activity|about` (default `posts`). Saved tab visible chỉ self/admin (privacy FR-11.5).
+- **Tab switching**: URL `?tab=posts|saved|activity|about` (default `posts`). Saved tab + **Activity tab** visible chỉ self/admin (privacy FR-11.5 + FR-13.3).
 - **Edit drawer**: Self click `[ ✎ Edit Profile ]` → drawer slide-in từ phải 420px, backdrop blur. Esc / outside-click close.
 - **Profile section submit**: PATCH /users/:selfId → cache invalidate `/users/by-username` + `/users/:id/stats`.
 - **Security section submit**: client-side check newPassword === confirm → POST /auth/change-password. Wrong current → 401 inline error, drawer giữ open.
 - **Stats sparkline**: hover heatmap cell → tooltip `{date} · {count} posts`.
+- **Activity tab** (FR-13):
+  - Fetch `GET /users/:id/activity?page=1&limit=20` via `useUserActivity` (`useInfiniteQuery`).
+  - List ProfileActivityItem: icon-left (📝 POST_CREATED / 💬 COMMENT_CREATED / 👍 LIKE_CREATED / 🔖 SAVE_CREATED) + middle text direction-aware (OUTGOING `You liked <snippet>` / INCOMING `<actor.username> commented on your post · <snippet>`) + relative time right.
+  - Click target snippet → navigate `/post/:id`. Nếu `snippet === null` (target deleted) → render `[deleted post]` text-tm, không link.
+  - Sentinel IntersectionObserver bottom → load next page (≤50 limit per page).
+  - Empty state `// no activity yet`.
+  - Error 403 (viewer ko phải self/admin) → render `// activity is private` defensive (tab đáng lý hidden, nhưng phòng URL force).
 
 ### Responsive
 

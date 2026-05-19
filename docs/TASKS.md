@@ -263,6 +263,13 @@
 
 - [T-302] [P2] [F7] [Both] OpenAPI cutover — fix 15+ BE decorator gap (nullable string `type: String`, skills `[SkillItemDto]`, nested stats DTO, search response DTO) + build `api.aliases.ts` re-export layer + migrate 38 import site (auth/users/posts/comments/likes/saved/tags/admin/search) + delete hand-typed `api.ts`. Update CI drift check target từ `api.generated.ts` sang `api.ts`. Ước 6-9h. - TODO
 
+### Backlog — M11.6: Activity Log
+
+> F2 docs spec done 2026-05-19 (FR-13 + UC-16 + DATA_MODEL + API_CONTRACT + UI_DESIGN + DESIGN_SYSTEM updated). Tasks below pending F1 execute.
+
+- [T-300] [P1] [F1] [BE] ActivityLog migration (`add_activity_log`) + ActivityModule (service + controller + DTO) + hook `ActivityService.log()` vào PostsService.create / CommentsService.create / LikesService.togglePostLike (only on like=true) / SavedService.toggleSave (only on save=true) + `GET /users/:id/activity` endpoint với JwtAuthGuard + visibility check self/admin. KHÔNG hook `toggleCommentLike` (FR-13.6 v1 skip). Tests: activity.service.spec.ts (5 unit case) + activity.e2e-spec.ts (200 self / 401 anon / 403 other / 200 admin / pagination). (FR-13.1/13.2/13.3/13.6) - TODO
+- [T-301] [P1] [F1] [FE] Thêm types ActivityLog vào hand-typed api.ts (ActivityType / ActivityTargetType / ActivityDirection / ActivityLogItem / PaginatedActivity — vì T-302 cutover deferred) + services/api/activity.ts (listUserActivity) + useUserActivity hook (useInfiniteQuery) + qk.users.activity query key + ProfileActivityList component (icon + direction-aware text + relative time + truncate snippet + 403 fallback + IntersectionObserver infinite scroll) + wire ProfilePage Activity tab (visibility self/admin). Test 5 case (empty / 4 type icon / OUTGOING vs INCOMING text / pagination MSW / 403 hint). (FR-13.1) - TODO
+
 ### Backlog — M13: Deploy
 
 - [T-120] [P1] [F7] [Infra] Setup Vercel project (FE) + connect GitHub - TODO

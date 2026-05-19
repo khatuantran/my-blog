@@ -18,11 +18,12 @@
 | M10   | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
 | M11   | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
 | M11.5 | Tags / Profile / Search / Create Post enhance                                     | ✅ Done               | 2026-05-19  |
+| M11.6 | Activity Log (user-scope timeline) — F2 spec + F1 BE/FE                           | 🟡 Doing              | 2026-05-19  |
 | M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
 | M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
 
-## Tỉ lệ hoàn thành: 80% (12/15 milestone)
+## Tỉ lệ hoàn thành: 75% (12/16 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -129,8 +130,17 @@
   - Wave 5 Emoji (FR-02.7): T-240 EmojiPicker popover 4×16 + insertAt cursor.
   - Tests: BE 119 unit + 161 integration + FE 285 unit = **565 total**.
   - Commits range: `39e8e03` → `ff93b0c`.
+- **M11.6 F2 spec ✅ (docs only, 2 tasks pending F1):**
+  - Add FR-13 Activity Log + UC-16 + Glossary distinction user-scope vs admin-scope (REQUIREMENTS.md).
+  - DATA_MODEL: ActivityLog model + 2 enum (ActivityType / ActivityTargetType) + migration `add_activity_log` (v0.3.1-alpha planned).
+  - API_CONTRACT: `GET /users/:id/activity` paginated (JwtAuthGuard + visibility check + direction-aware response).
+  - UI_DESIGN: Profile Activity tab expand với direction-aware text + infinite scroll + 403 fallback + deleted target handling.
+  - DESIGN_SYSTEM: ProfileActivityItem component (variant của ActivityLogItem admin).
+  - TASKS: M11.6 backlog T-300 (BE) + T-301 (FE).
+  - **T-009 partial:** OpenAPI auto-gen scripts + CI drift check done (Wave A1+A3). Wave A2 cutover defer → T-302 (~6-9h).
 - **Next:**
-  - M11 Real-time integration (Socket.io + live visitors + activity log) — reopen T-041/T-042.
+  - M11.6 F1 execute (T-300 BE → T-301 FE).
+  - Hoặc M11 Real-time integration (Socket.io + live visitors + admin activity broadcast).
   - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon).
   - Hoặc M14 Monitoring (Sentry + Fly metrics).
 

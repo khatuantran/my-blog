@@ -242,6 +242,27 @@ AnonymousSession (standalone — track guest)
 **Relations:** `belongsTo` User
 **Indexes:** `@@index([userId])`, `@@index([tokenHash])`
 
+### Entity ActivityLog (FR-13)
+
+| Field         | Type               | Constraints                        | Description                                                        |
+| ------------- | ------------------ | ---------------------------------- | ------------------------------------------------------------------ |
+| id            | String             | PK, cuid                           |                                                                    |
+| actorId       | String             | FK → User.id, ON DELETE CASCADE    | Người thực hiện action                                             |
+| type          | ActivityType       |                                    | POST_CREATED / COMMENT_CREATED / LIKE_CREATED / SAVE_CREATED       |
+| targetType    | ActivityTargetType |                                    | POST / COMMENT — polymorphic                                       |
+| targetId      | String             | (soft FK, không declared relation) | ID của Post/Comment — không cascade vì poly                        |
+| targetOwnerId | String?            | FK → User.id, ON DELETE CASCADE    | Denorm owner của target (post.authorId) — index hybrid query nhanh |
+| metadata      | Json?              |                                    | Field reserve cho future (vd anonymousSessionId nếu sau extend)    |
+| createdAt     | DateTime           | default(now())                     |                                                                    |
+
+**Relations:** `actor` belongsTo User (alias `ActorActivities`); `targetOwner` belongsTo? User (alias `TargetOwnerActivities`)
+**Indexes:** `@@index([actorId, createdAt])`, `@@index([targetOwnerId, createdAt])`
+**Notes:**
+
+- Append-only log: KHÔNG xoá khi target Post/Comment bị delete. UI degrade hiển thị `[deleted post]` nếu lookup target không có.
+- `targetId` không declared relation vì polymorphic (Post hoặc Comment). Hydrate qua manual lookup trong service.
+- Hybrid query Profile Activity: `WHERE actorId = :userId OR (targetOwnerId = :userId AND actorId != :userId)`.
+
 ## Enums
 
 ### Enum Role
@@ -266,6 +287,16 @@ Dùng cho: `File.type`
 Values: `PENDING`, `APPROVED`, `REJECTED`
 Dùng cho: `Comment.status`
 
+### Enum ActivityType (MỚI — FR-13)
+
+Values: `POST_CREATED`, `COMMENT_CREATED`, `LIKE_CREATED`, `SAVE_CREATED`
+Dùng cho: `ActivityLog.type`. KHÔNG log unlike/unsave events (append-only chỉ create).
+
+### Enum ActivityTargetType (MỚI — FR-13)
+
+Values: `POST`, `COMMENT`
+Dùng cho: `ActivityLog.targetType`. Polymorphic — `targetId` ref Post hoặc Comment tùy type.
+
 ## Prisma snippet (schema)
 
 ```prisma
@@ -281,10 +312,12 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role          { ADMIN USER BANNED }
-enum Mood          { HAPPY EXCITED THOUGHTFUL CALM SAD GRATEFUL ANGRY }
-enum FileType      { PDF DOC DOCX XLS XLSX TXT CSV }
-enum CommentStatus { PENDING APPROVED REJECTED }
+enum Role               { ADMIN USER BANNED }
+enum Mood               { HAPPY EXCITED THOUGHTFUL CALM SAD GRATEFUL ANGRY }
+enum FileType           { PDF DOC DOCX XLS XLSX TXT CSV }
+enum CommentStatus      { PENDING APPROVED REJECTED }
+enum ActivityType       { POST_CREATED COMMENT_CREATED LIKE_CREATED SAVE_CREATED }
+enum ActivityTargetType { POST COMMENT }
 
 model User {
   id            String        @id @default(cuid())
@@ -477,6 +510,23 @@ model RefreshToken {
   @@index([userId])
   @@index([tokenHash])
 }
+
+model ActivityLog {
+  id             String              @id @default(cuid())
+  actorId        String
+  type           ActivityType
+  targetType     ActivityTargetType
+  targetId       String                                 // soft FK polymorphic — không declared relation
+  targetOwnerId  String?
+  metadata       Json?
+  createdAt      DateTime            @default(now())
+
+  actor          User                @relation("ActorActivities", fields: [actorId], references: [id], onDelete: Cascade)
+  targetOwner    User?               @relation("TargetOwnerActivities", fields: [targetOwnerId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt])
+  @@index([targetOwnerId, createdAt])
+}
 ```
 
 ## Indexing Strategy (tổng hợp)
@@ -520,6 +570,14 @@ model RefreshToken {
 - **Backfill:** N/A — all new fields nullable hoặc have defaults; existing rows OK.
 - **Breaking:** None — purely additive.
 - **Linked:** FR-10 (Tag), FR-11 (User profile).
+
+### v0.3.1-alpha (planned) — Activity Log (M11.6)
+
+- **Planned migration:** `add_activity_log` (T-300)
+- **Added:** Model `ActivityLog` (id, actorId, type, targetType, targetId, targetOwnerId?, metadata?, createdAt) + enum `ActivityType` (POST_CREATED / COMMENT_CREATED / LIKE_CREATED / SAVE_CREATED) + enum `ActivityTargetType` (POST / COMMENT). 2 index `[actorId, createdAt]` + `[targetOwnerId, createdAt]`.
+- **Backfill:** N/A — empty table, log only from migration time forward (historical activity sẽ KHÔNG visible cho v1).
+- **Breaking:** None — purely additive.
+- **Linked:** FR-13 (Activity Log user-scope), UC-16.
 
 ---
 

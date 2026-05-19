@@ -27,6 +27,16 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **F2 spec for M11.6 — Activity Log (2026-05-19, docs only):** User-scope activity timeline với hybrid query (own actions + actions on own posts). Append-only ActivityLog denorm table, hook log vào posts/comments/likes/saved create events. F2 flow execute trên 6 doc:
+  - `docs/REQUIREMENTS.md`: thêm FR-13 (5 sub-FR) + UC-16 + Glossary distinguish Activity admin-scope (FR-07.5) vs user-scope (FR-13).
+  - `docs/DATA_MODEL.md`: model ActivityLog (actorId + type + targetType + targetId + targetOwnerId denorm + metadata Json? + createdAt) + 2 enum (ActivityType POST_CREATED/COMMENT_CREATED/LIKE_CREATED/SAVE_CREATED + ActivityTargetType POST/COMMENT) + 2 index. Migration `add_activity_log` (v0.3.1-alpha planned).
+  - `docs/API_CONTRACT.md`: `GET /users/:id/activity?page=&limit=` với JwtAuthGuard + visibility check (200 self/admin, 401 anon, 403 other, 404). Response items có `direction: 'OUTGOING' | 'INCOMING'` derived theo actor vs targetOwner.
+  - `docs/UI_DESIGN.md`: Profile Activity tab expand spec — direction-aware text template + infinite scroll IntersectionObserver + truncate snippet 80 + deleted target degrade `[deleted post]` + 403 defensive fallback.
+  - `docs/DESIGN_SYSTEM.md`: thêm component ProfileActivityItem (variant của ActivityLogItem admin, share base, prop `variant: 'admin' | 'profile'`).
+  - `docs/TASKS.md`: M11.6 backlog 2 task — T-300 (BE migration + ActivityModule + 4 service hook + endpoint) + T-301 (FE types thủ công vì T-302 deferred + useUserActivity + ProfileActivityList + wire ProfilePage Activity tab).
+  - `docs/PROGRESS.md`: thêm M11.6 row Doing, tổng milestone 12/16 (75%).
+  - **F2 STOP:** docs xong, chưa implement code. Sau khi user review F2 spec → F1 BE (T-300) → openapi:sync → F1 FE (T-301).
+
 - **F2 spec for M11.5 — Tags / Profile / Search / Create Post enhance (2026-05-18, docs only):** User update design files với 3 screen mới (Profile/Search/Tags) + Create Post emoji picker + Saved standalone route + TopBar search submit pattern. F2 (New Requirement) flow execute trên 6 doc:
   - `docs/REQUIREMENTS.md`: thêm FR-10 Tags Module / FR-11 User Profile / FR-12 Full-text Search + expand FR-02.7 emoji picker / FR-04.6 sort dropdown / FR-05.2 copy-link wire / FR-07.4 moderation queue / FR-08.4 CommandPalette nav fix. Thêm UC-13/14/15. Glossary: Skill, Heatmap. Traceability matrix thêm 3 row.
   - `docs/DATA_MODEL.md`: User.title (max 80) + User.bio (Text max 500 markdown) + User.skills (Json `{name,color}[]` max 20) + Tag.description (max 280) + Tag.createdAt. Migration `add_user_profile_fields_and_tag_description` planned (v0.3.0-alpha section).

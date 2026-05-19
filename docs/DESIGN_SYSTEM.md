@@ -565,6 +565,20 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Body:** warning text describing impact (vd `"5 posts use this tag. Are you sure?"`)
 - **Actions:** `[ Cancel ]` (close) + `[ Delete ]` (red, submit). Khi destructive action có dependency → double-confirm pattern (`[ Force Delete ]` second click)
 
+### ProfileActivityItem (Profile Activity tab — M11.6 FR-13)
+
+- **Layout:** flex-row, padding `space-2 space-3`, border-bottom `--b1` between items
+- **Icon (left, w 32px):** Map per `ActivityType` — 📝 POST_CREATED · 💬 COMMENT_CREATED · 👍 LIKE_CREATED · 🔖 SAVE_CREATED
+- **Middle (flex-1):** direction-aware text template:
+  - `direction === 'OUTGOING'` (actor là chính user): `You {verb} <target snippet>` (verb map: created post / commented on / liked / saved)
+  - `direction === 'INCOMING'` (others tương tác với content của user): `<actor.username> {verb} your post · <target snippet>`
+- **Snippet:** truncate 80 char, link tới `/post/:targetId`. Nếu snippet null (target deleted) → render `[deleted post]` text-tm, không link, cursor not-allowed.
+- **Right:** relative time mono-xs text-tm (`2m ago`, `5h ago`, `3d ago`).
+- **Hover:** bg `--elev` highlight nhẹ.
+- **Loading skeleton:** 3 row placeholder grayscale flex-row khi initial fetch.
+- **Empty state:** centered `// no activity yet · interact with posts to build history` text-tm.
+- **Reuse:** share base với existing `ActivityLogItem` (admin) — prop `variant: 'admin' | 'profile'` switch text template + visibility logic.
+
 ---
 
 ## Patterns

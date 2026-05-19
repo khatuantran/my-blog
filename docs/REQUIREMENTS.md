@@ -30,17 +30,17 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Glossary
 
-| Term            | Definition                                                                                                        |
-| --------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)               |
-| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                   |
-| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                  |
-| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                                       |
-| Activity        | Sự kiện như like/comment/save/new-session — hiển thị trong Admin activity log                                     |
-| Command Palette | Overlay ⌘K cho quick navigation/actions                                                                           |
-| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                               |
-| Skill           | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`) |
-| Heatmap         | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity      |
+| Term            | Definition                                                                                                                                                                                          |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)                                                                                                 |
+| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                                                                                                     |
+| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                                                                                                    |
+| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                                                                                                                         |
+| Activity        | Sự kiện như like/comment/save/new-session. **Admin-scope** (FR-07.5): toàn-cục real-time. **User-scope** (FR-13): per-user persistent log (POST/COMMENT/LIKE/SAVE created) cho Profile Activity tab |
+| Command Palette | Overlay ⌘K cho quick navigation/actions                                                                                                                                                             |
+| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                                                                                                                 |
+| Skill           | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`)                                                                                   |
+| Heatmap         | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity                                                                                        |
 
 ## Use Cases
 
@@ -225,6 +225,19 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Alternative:** Empty query → default browse view với stats only
 - **Postcondition:** Recent searches lưu localStorage (max 10, FIFO dedupe)
 
+### UC-16: User xem activity timeline (self/admin)
+
+- **Actor:** Authed user (self) hoặc Admin (xem bất kỳ user)
+- **Precondition:** Đã login + đứng tại `/profile/:username`
+- **Main flow:**
+  1. Click tab "Activity" trong ProfilePage (tab chỉ visible với self hoặc admin)
+  2. FE call `GET /users/:id/activity?page=1&limit=20`
+  3. List ProfileActivityItem hiển thị: icon per type + text direction-aware (OUTGOING `You liked <post snippet>` / INCOMING `<actor> commented on your post`) + relative time
+  4. Scroll xuống → IntersectionObserver sentinel → load page tiếp
+  5. Click vào target snippet → navigate `/post/:id`
+- **Alternative:** Target đã bị xoá → snippet = `[deleted post]`, link disabled
+- **Postcondition:** Activity timeline cập nhật real-time khi user/others tạo event mới (defer M11 WebSocket — v1 chỉ refresh khi reload)
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -396,6 +409,23 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Given empty q → Then trả `stats` toàn cục + `posts.items = []`
 - **Linked UCs:** UC-15
 - **Linked Tests:** E2E (defer add)
+
+### FR-13: Activity Log (User-scope)
+
+- **FR-13.1 Hybrid scope:** Hiển thị activity của user dưới 2 chiều — (a) OUTGOING: actions user làm (POST/COMMENT/LIKE/SAVE created); (b) INCOMING: actions người khác làm trên content của user (others LIKE/COMMENT/SAVE post user). KHÔNG log unlike/unsave/uncreate events.
+- **FR-13.2 Endpoint:** `GET /users/:id/activity?page=&limit=` paginated với default page=1, limit=20, max limit=50. Sort `createdAt DESC`.
+- **FR-13.3 Privacy:** Authed only. Self/admin → 200. Anonymous → 401. Other user (non-admin) → 403.
+- **FR-13.4 Append-only:** Log entry không xoá khi target deleted; UI degrade nếu target gone (snippet null, render `[deleted post]`).
+- **FR-13.5 Retention:** v1 vô hạn, cleanup policy defer (sau này có cron 90-day archive nếu cần).
+- **FR-13.6 v1 scope:** Hook log vào `PostsService.create`, `CommentsService.create`, `LikesService.togglePostLike` (only on like=true), `SavedService.toggleSave` (only on save=true). KHÔNG hook `toggleCommentLike` v1.
+- **Acceptance:**
+  - Given user A tạo post X → Then ActivityLog có 1 row {actor=A, type=POST_CREATED, targetOwner=A}
+  - Given user B like post của user A → Then ActivityLog có 1 row {actor=B, type=LIKE_CREATED, targetOwner=A}; `GET /users/A/activity` return row đó với direction=INCOMING
+  - Given anonymous → `GET /users/A/activity` → 401
+  - Given user C khác A và không admin → `GET /users/A/activity` → 403
+  - Given user A unlike post → KHÔNG xuất hiện row LIKE_DELETED (chỉ log create events)
+- **Linked UCs:** UC-16
+- **Linked Tests:** activity.service.spec.ts + activity.e2e-spec.ts + ProfileActivityList.test.tsx
 
 ## Non-Functional Requirements
 

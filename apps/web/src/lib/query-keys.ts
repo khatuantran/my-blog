@@ -24,5 +24,7 @@ export const qk = {
     stats: ['admin', 'stats'] as const,
     moods: ['admin', 'moods'] as const,
     heatmap: ['admin', 'heatmap'] as const,
+    comments: (params: { status?: string; page?: number; limit?: number } = {}) =>
+      ['admin', 'comments', params] as const,
   },
 };

@@ -44,6 +44,41 @@ export class CommentsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  async listForAdmin(
+    status: CommentStatus,
+    page: number,
+    limit: number,
+  ): Promise<{
+    items: (CommentResponseDto & { post: { id: string; content: string } })[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const where: Prisma.CommentWhereInput = { status };
+    const [rows, total] = await Promise.all([
+      this.prisma.comment.findMany({
+        where,
+        include: {
+          ...COMMENT_INCLUDE,
+          post: { select: { id: true, content: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.comment.count({ where }),
+    ]);
+    return {
+      items: rows.map((c) => ({
+        ...toCommentResponse(c),
+        post: { id: c.post.id, content: c.post.content.slice(0, 80) },
+      })),
+      total,
+      page,
+      limit,
+    };
+  }
+
   async list(
     postId: string,
     viewerRole: Role | undefined,

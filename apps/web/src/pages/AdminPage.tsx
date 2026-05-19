@@ -3,6 +3,7 @@ import { StatCard } from '@/components/admin/StatCard';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { ActivityLogItem } from '@/components/admin/ActivityLogItem';
 import { UsersTable } from '@/components/admin/UsersTable';
+import { ModerationQueue } from '@/components/admin/ModerationQueue';
 import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 import { useAdminStats, useAdminMoods } from '@/hooks/queries/use-admin-stats';
 import { ACTIVITY_LOG_MOCK } from '@/mocks/activity-log';
@@ -135,12 +136,10 @@ export default function AdminPage() {
         <UsersTable />
       </section>
 
-      {/* Comments moderation placeholder */}
+      {/* Comments moderation */}
       <section>
         <div className="sb-lbl">// comments.moderation</div>
-        <div className="rounded-md border border-b2 bg-surf p-4 font-mono text-mono text-tm">
-          // pending moderation queue · wire khi BE admin cross-post endpoint sẵn
-        </div>
+        <ModerationQueue />
       </section>
     </div>
   );

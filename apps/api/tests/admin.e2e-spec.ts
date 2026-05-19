@@ -120,4 +120,77 @@ describe('Admin (e2e)', () => {
       expect(last.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
   });
+
+  describe('GET /admin/comments', () => {
+    it('401 no cookie', async () => {
+      await request(app.getHttpServer()).get('/admin/comments').expect(401);
+    });
+
+    it('403 USER role', async () => {
+      await request(app.getHttpServer())
+        .get('/admin/comments')
+        .set('Cookie', userCookies)
+        .expect(403);
+    });
+
+    it('200 admin default status=PENDING + truncate post.content 80 chars', async () => {
+      const post = await makePost(prisma, {
+        authorId: adminId,
+        content: 'P'.repeat(120),
+      });
+      await makeComment(prisma, {
+        postId: post.id,
+        anonymousId: 'a1',
+        content: 'pending one',
+        status: 'PENDING',
+      });
+      await makeComment(prisma, {
+        postId: post.id,
+        anonymousId: 'a2',
+        content: 'approved one',
+        status: 'APPROVED',
+      });
+
+      const res = await request(app.getHttpServer())
+        .get('/admin/comments')
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0].content).toBe('pending one');
+      expect(res.body.data.items[0].post.content).toHaveLength(80);
+      expect(res.body.data.total).toBe(1);
+    });
+
+    it('200 admin filter status=APPROVED', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      await makeComment(prisma, {
+        postId: post.id,
+        anonymousId: 'a1',
+        content: 'pending',
+        status: 'PENDING',
+      });
+      await makeComment(prisma, {
+        postId: post.id,
+        anonymousId: 'a2',
+        content: 'approved',
+        status: 'APPROVED',
+      });
+
+      const res = await request(app.getHttpServer())
+        .get('/admin/comments?status=APPROVED')
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(res.body.data.items).toHaveLength(1);
+      expect(res.body.data.items[0].status).toBe('APPROVED');
+    });
+
+    it('400 status invalid value', async () => {
+      await request(app.getHttpServer())
+        .get('/admin/comments?status=BOGUS')
+        .set('Cookie', adminCookies)
+        .expect(400);
+    });
+  });
 });

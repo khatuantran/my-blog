@@ -96,9 +96,9 @@ describe('AdminPage', () => {
     });
   });
 
-  it('renders UsersTable + comments.moderation placeholder', async () => {
+  it('renders UsersTable + comments.moderation section header', async () => {
     renderAt('/admin');
     expect(await screen.findByText('~/admin')).toBeInTheDocument();
-    expect(screen.getByText(/pending moderation queue.*wire khi BE/i)).toBeInTheDocument();
+    expect(screen.getByText('// comments.moderation')).toBeInTheDocument();
   });
 });

@@ -8,6 +8,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const CreatePostPage = lazy(() => import('./pages/CreatePostPage'));
+const SavedPage = lazy(() => import('./pages/SavedPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -18,6 +19,14 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: 'post/:id', element: <PostDetailPage /> },
+      {
+        path: 'saved',
+        element: (
+          <ProtectedRoute>
+            <SavedPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: 'admin',
         element: (

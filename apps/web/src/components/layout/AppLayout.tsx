@@ -36,7 +36,7 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-bg text-tp font-sans antialiased">
-      <TopBar onOpenCommandPalette={() => setOpen(true)} />
+      <TopBar onOpenCommandPalette={() => setOpen(true)} hideSearch={pathname === '/search'} />
 
       <main className="pt-[52px] pb-[28px] min-h-screen">
         <Outlet />

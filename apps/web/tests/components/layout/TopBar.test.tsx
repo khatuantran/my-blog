@@ -17,13 +17,13 @@ vi.mock('react-router', async () => {
   return { ...actual, useNavigate: () => navigateSpy };
 });
 
-function renderTopBar(onOpen = vi.fn()) {
+function renderTopBar(onOpen = vi.fn(), props: { hideSearch?: boolean } = {}) {
   return {
     onOpen,
     ...render(
       <QueryClientProvider client={createTestQueryClient()}>
         <MemoryRouter>
-          <TopBar onOpenCommandPalette={onOpen} />
+          <TopBar onOpenCommandPalette={onOpen} hideSearch={props.hideSearch} />
         </MemoryRouter>
       </QueryClientProvider>,
     ),
@@ -141,5 +141,28 @@ describe('TopBar — authed USER (non-admin)', () => {
     await user.click(screen.getByRole('button', { name: /user menu/i }));
     expect(screen.getByRole('menuitem', { name: /profile/i })).toHaveAttribute('href', '/me');
     expect(screen.getByRole('menuitem', { name: /saved/i })).toHaveAttribute('href', '/saved');
+  });
+
+  it('hideSearch=true → search input not rendered (T-232)', () => {
+    renderTopBar(vi.fn(), { hideSearch: true });
+    expect(screen.queryByRole('search')).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(/search posts, tags, users/i)).not.toBeInTheDocument();
+  });
+
+  it('search submit → navigate /search?q=encoded (T-232)', () => {
+    renderTopBar();
+    const input = screen.getByPlaceholderText(/search posts, tags, users/i);
+    fireEvent.change(input, { target: { value: 'cyberpunk' } });
+    const form = screen.getByRole('search');
+    fireEvent.submit(form);
+    expect(navigateSpy).toHaveBeenCalledWith('/search?q=cyberpunk');
+  });
+
+  it('search submit với trimmed empty → no navigate', () => {
+    renderTopBar();
+    const input = screen.getByPlaceholderText(/search posts, tags, users/i);
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.submit(screen.getByRole('search'));
+    expect(navigateSpy).not.toHaveBeenCalled();
   });
 });

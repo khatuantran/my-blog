@@ -6,6 +6,7 @@ import { useLogout } from '@/hooks/mutations/use-logout';
 
 type Props = {
   onOpenCommandPalette: () => void;
+  hideSearch?: boolean;
 };
 
 type ColorKey = 'cyan' | 'pur' | 'yel' | 'tp' | 'red';
@@ -46,12 +47,21 @@ const GUEST_MENU: MenuItem[] = [
   { icon: '✨', label: 'Register', to: '/auth/register', color: 'pur' },
 ];
 
-export function TopBar({ onOpenCommandPalette }: Props) {
+export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
   const navigate = useNavigate();
   const { user, isAuthed } = useAuth();
   const logoutMutation = useLogout();
   const [showMenu, setShowMenu] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
+
+  function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const q = searchInput.trim();
+    if (!q) return;
+    navigate(`/search?q=${encodeURIComponent(q)}`);
+    setSearchInput('');
+  }
   const initial = (user?.username[0] ?? '?').toUpperCase();
   const isAdmin = user?.role === 'ADMIN';
   const menuItems = isAuthed ? AUTHED_MENU.filter((i) => !i.adminOnly || isAdmin) : GUEST_MENU;
@@ -81,28 +91,36 @@ export function TopBar({ onOpenCommandPalette }: Props) {
       <Logo />
 
       {/* Search — centered absolute */}
-      <div className="absolute left-1/2 -translate-x-1/2 w-[440px] max-w-[calc(100vw-260px)] z-[1] hidden md:block">
-        <span
-          aria-hidden="true"
-          className="absolute left-[10px] top-1/2 -translate-y-1/2 text-tm text-[13px] pointer-events-none"
+      {!hideSearch && (
+        <form
+          onSubmit={handleSearchSubmit}
+          role="search"
+          className="absolute left-1/2 -translate-x-1/2 w-[440px] max-w-[calc(100vw-260px)] z-[1] hidden md:block"
         >
-          ⌕
-        </span>
-        <input
-          type="search"
-          aria-label="Search posts, tags, users"
-          placeholder="~$ search posts, tags, users..."
-          className="w-full bg-bg border border-b2 text-ts font-mono text-[13px] pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
-        />
-        <button
-          type="button"
-          onClick={onOpenCommandPalette}
-          aria-label="Open command palette (⌘K)"
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-mono-xs text-tm bg-elev border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer whitespace-nowrap hover:text-tp hover:border-b3"
-        >
-          ⌘K
-        </button>
-      </div>
+          <span
+            aria-hidden="true"
+            className="absolute left-[10px] top-1/2 -translate-y-1/2 text-tm text-[13px] pointer-events-none"
+          >
+            ⌕
+          </span>
+          <input
+            type="search"
+            aria-label="Search posts, tags, users"
+            placeholder="~$ search posts, tags, users..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="w-full bg-bg border border-b2 text-ts font-mono text-[13px] pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
+          />
+          <button
+            type="button"
+            onClick={onOpenCommandPalette}
+            aria-label="Open command palette (⌘K)"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-mono-xs text-tm bg-elev border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer whitespace-nowrap hover:text-tp hover:border-b3"
+          >
+            ⌘K
+          </button>
+        </form>
+      )}
 
       {/* Right cluster */}
       <div className="flex items-center gap-2.5 ml-auto shrink-0">

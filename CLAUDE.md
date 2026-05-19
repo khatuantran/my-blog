@@ -78,6 +78,16 @@ Nếu không rõ loại → dùng `AskUserQuestion` hỏi user.
 - Task **thêm component UI mới** (vd: thêm `Tooltip`) → F1 (code + DESIGN_SYSTEM.md spec mới).
 - Task **đổi design token** → F1 nếu kèm code change / F5 nếu pure refactor token (xem DESIGN_SYSTEM.md Token Change Policy).
 - Task **migrate breaking** (vd: NestJS 10→11) → F7 + có thể spawn F1/F5 con.
+- **KHÔNG tin keyword của user — luôn tự verify flow đúng:**
+  - User có thể dùng "fix bug", "đây là bug", "lỗi" theo nghĩa thông tục (= "vấn đề"), KHÔNG có nghĩa scenario thực sự là F3. Tương tự "thêm feature" có thể là F2 (FR chưa có) hoặc F5 refactor (code tương đương đã có).
+  - **BẮT BUỘC chạy test phân biệt trước khi pick flow** — KHÔNG follow keyword của user mù quáng. Cụ thể cho Bug vs Change Request:
+    - Test: "Code hiện tại có match spec hiện tại (REQUIREMENTS.md AC + CHANGELOG entries) không?"
+    - **Match** → user muốn đổi spec → **F2 amend FR** (clarify → update FR/AC → API_CONTRACT/UI_DESIGN → task F1 → execute). Commit `feat:` hoặc `refactor:`. CHANGELOG `Changed`. KHÔNG log BUGS.md.
+    - **Không match** (code thật sự sai vs spec đã định) → **F3 Bug Fix** (log BUGS.md + regression test). Commit `fix:` + `Fixes: BUG-XXX`. CHANGELOG `Fixed`.
+  - Pattern tương tự cho các flow khác (vd: "thêm validation" có thể là F1 nếu FR đã ghi / F2 nếu FR chưa ghi; "tối ưu performance" có thể là F5 refactor / F3 nếu vi phạm NFR đo lường được).
+  - **Khi test phân biệt nói khác keyword của user → BẮT BUỘC ngắt và propose flow đúng** qua `AskUserQuestion`. KHÔNG tự xếp loại theo từ user dùng.
+  - Vd: user nói "fix bug change password validation quá khắt khe" — test phân biệt: FR-11.3 đã ghi "min 8 chars" → code match spec → đây là **F2 change request** (đổi policy), không phải F3. Phải propose F2 amend flow rồi mới execute.
+  - **Reductio rhetorical question** ("đây là bug sao không gợi ý SDD?") thường là **thử phán đoán** chứ không phải xác nhận. Đọc implicit intent, không react theo surface text.
 
 ### Mọi task PHẢI note `Affected layer`
 

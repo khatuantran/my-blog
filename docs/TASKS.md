@@ -238,7 +238,7 @@
 
 - [T-210] [P1] [F1] [BE] Tag.description + Tag.createdAt migration + PATCH/POST description + GET /tags response postCount + sparkline7d + sort/q query params + DELETE force=true (FR-10) - DONE 2026-05-19
 - [T-211] [P1] [F1] [FE] TagCard + TagModal + ConfirmDialog + FilterChip + SegmentedToggle primitives (FR-10.3/10.4) - DONE 2026-05-19
-- [T-212] [P1] [F1] [FE] `/tags` route page — 4 stat cards + toolbar + grid/list views + admin-conditional CRUD wire (FR-10.1/10.2) - TODO
+- [T-212] [P1] [F1] [FE] `/tags` route page — 4 stat cards + toolbar + grid/list views + admin-conditional CRUD wire (FR-10.1/10.2) - DONE 2026-05-19
 
 #### F2-B: Profile + Edit Profile (FR-11)
 

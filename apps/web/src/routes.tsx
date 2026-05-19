@@ -9,6 +9,7 @@ const PostDetailPage = lazy(() => import('./pages/PostDetailPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const CreatePostPage = lazy(() => import('./pages/CreatePostPage'));
 const SavedPage = lazy(() => import('./pages/SavedPage'));
+const TagsPage = lazy(() => import('./pages/TagsPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -27,6 +28,7 @@ export const routes: RouteObject[] = [
           </ProtectedRoute>
         ),
       },
+      { path: 'tags', element: <TagsPage /> },
       {
         path: 'admin',
         element: (

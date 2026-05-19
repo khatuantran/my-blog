@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useSearch } from '@/hooks/queries/use-search';
+import { useRecentSearches } from '@/hooks/use-recent-searches';
 import { BigSearchInput } from '@/components/search/BigSearchInput';
 import { ResultCard } from '@/components/search/ResultCard';
 import { FilterChip } from '@/components/shared/FilterChip';
@@ -51,6 +52,13 @@ export default function SearchPage() {
     type: urlType,
     mood: urlMood,
   });
+
+  const { items: recent, add: addRecent, clear: clearRecent } = useRecentSearches();
+  useEffect(() => {
+    if (urlQ && data && (data.posts.total > 0 || data.tags.length > 0 || data.files.length > 0)) {
+      addRecent(urlQ);
+    }
+  }, [urlQ, data, addRecent]);
 
   const isThrottled = isError && (error as { status?: number } | null)?.status === 429;
 
@@ -183,6 +191,41 @@ export default function SearchPage() {
           <StatBox label="With images" value={data?.stats.withImages ?? 0} color="pur" />
           <StatBox label="With files" value={data?.stats.withFiles ?? 0} color="red" />
           <StatBox label="Saved" value={data?.stats.savedCount ?? 0} color="yel" />
+
+          {recent.length > 0 && (
+            <div className="rounded-md border border-b2 bg-surf p-3">
+              <div className="mb-2 flex items-center justify-between font-mono text-mono-xs text-tm">
+                <span>// recent.searches</span>
+                <button
+                  type="button"
+                  onClick={clearRecent}
+                  aria-label="Clear recent searches"
+                  className="text-td hover:text-red"
+                >
+                  clear
+                </button>
+              </div>
+              <ul className="space-y-1">
+                {recent.map((q) => (
+                  <li key={q}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInput(q);
+                        const next = new URLSearchParams(params);
+                        next.set('q', q);
+                        setParams(next, { replace: true });
+                      }}
+                      className="block w-full truncate text-left font-mono text-mono-xs text-ts hover:text-cyan"
+                    >
+                      <span className="text-td">• </span>
+                      {q}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </aside>
       </div>
     </div>

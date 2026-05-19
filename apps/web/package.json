@@ -14,7 +14,7 @@
     "test:unit": "vitest run --passWithNoTests",
     "test:ui": "vitest --ui",
     "typecheck": "tsc --noEmit",
-    "openapi:types": "echo 'defer M3+ khi BE có routes' && exit 0"
+    "openapi:types": "openapi-typescript ../../docs/contracts/openapi.yaml -o src/types/api.generated.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.0",
@@ -42,6 +42,7 @@
     "autoprefixer": "^10.4.20",
     "jsdom": "^25.0.1",
     "msw": "^2.6",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",

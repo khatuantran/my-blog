@@ -21,6 +21,7 @@
     "test:e2e:playwright": "playwright test",
     "e2e:install": "playwright install chromium --with-deps",
     "typecheck": "turbo run typecheck",
+    "openapi:sync": "pnpm --filter api openapi:gen && pnpm --filter web openapi:types",
     "clean": "turbo run clean && rm -rf node_modules",
     "prepare": "husky"
   },

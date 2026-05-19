@@ -1,34 +1,1787 @@
-openapi: 3.0.3
+# Auto-generated từ NestJS Swagger. KHÔNG edit thủ công.
+# Regen: pnpm openapi:sync
+openapi: 3.0.0
+paths:
+  /:
+    get:
+      operationId: AppController_ping
+      summary: Root ping
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - meta
+  /health:
+    get:
+      operationId: AppController_health
+      summary: Liveness health check
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - meta
+  /auth/register:
+    post:
+      operationId: AuthController_register
+      summary: Register new user
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserDto'
+      tags:
+        - auth
+  /auth/login:
+    post:
+      operationId: AuthController_login
+      summary: Login with username + password
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserDto'
+      tags:
+        - auth
+  /auth/refresh:
+    post:
+      operationId: AuthController_refresh
+      summary: Rotate refresh token + issue new access
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserDto'
+      tags:
+        - auth
+  /auth/logout:
+    post:
+      operationId: AuthController_logout
+      summary: Revoke refresh + clear cookies
+      parameters: []
+      responses:
+        '204':
+          description: ''
+      tags:
+        - auth
+  /auth/me:
+    get:
+      operationId: AuthController_me
+      summary: Current authenticated user
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthUserDto'
+      tags:
+        - auth
+  /auth/change-password:
+    post:
+      operationId: AuthController_changePassword
+      summary: Change password (FR-11.3) — verify current + revoke other refresh tokens
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - auth
+  /users:
+    get:
+      operationId: UsersController_list
+      summary: List users (admin only)
+      parameters:
+        - name: role
+          required: false
+          in: query
+          schema:
+            enum:
+              - ADMIN
+              - USER
+              - BANNED
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsersDto'
+      tags:
+        - users
+  /users/by-username/{username}:
+    get:
+      operationId: UsersController_getByUsername
+      summary: Public lookup by username (FR-11.1) — email hidden
+      parameters:
+        - name: username
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - users
+  /users/{id}/stats:
+    get:
+      operationId: UsersController_getStats
+      summary: 'Profile stats: posts/likes/views + streak + heatmap28d (FR-11.4)'
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - users
+  /users/{id}:
+    get:
+      operationId: UsersController_get
+      summary: Get user by id (admin hoặc self)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+      tags:
+        - users
+    patch:
+      operationId: UsersController_update
+      summary: Update user (admin hoặc self) — email/avatar/title/bio/skills
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+      tags:
+        - users
+  /users/{id}/ban:
+    post:
+      operationId: UsersController_ban
+      summary: Ban user (admin only) — set role BANNED + revoke refresh tokens
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+      tags:
+        - users
+  /users/{id}/unban:
+    post:
+      operationId: UsersController_unban
+      summary: Unban user (admin only) — set role USER
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDto'
+      tags:
+        - users
+  /files/sign:
+    post:
+      operationId: FilesController_signUpload
+      summary: Issue Cloudinary signed upload params (admin only)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUploadDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedUploadParamsDto'
+      tags:
+        - files
+  /files/{id}:
+    delete:
+      operationId: FilesController_remove
+      summary: Delete file (admin only) — DB record + revoke Cloudinary asset
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - files
+  /tags:
+    get:
+      operationId: TagsController_list
+      summary: List popular tags (public, top N by postCount DESC)
+      parameters:
+        - name: sort
+          required: false
+          in: query
+          schema:
+            default: posts
+            enum:
+              - name
+              - posts
+              - recent
+            type: string
+        - name: q
+          required: false
+          in: query
+          description: Substring filter on tag name
+          schema:
+            example: cod
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PopularTagsResponseDto'
+      tags:
+        - tags
+    post:
+      operationId: TagsController_create
+      summary: Create tag (admin only) — auto-assign color nếu thiếu
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTagDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponseDto'
+      tags:
+        - tags
+  /tags/{id}:
+    patch:
+      operationId: TagsController_update
+      summary: Update tag (admin only)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTagDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagResponseDto'
+      tags:
+        - tags
+    delete:
+      operationId: TagsController_remove
+      summary: Delete tag (admin only). ?force=true để xóa khi tag đang được dùng
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: force
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - tags
+  /posts:
+    get:
+      operationId: PostsController_list
+      summary: List posts (public, paginated, optional mood/tag filter)
+      parameters:
+        - name: mood
+          required: false
+          in: query
+          schema:
+            enum:
+              - HAPPY
+              - EXCITED
+              - THOUGHTFUL
+              - CALM
+              - SAD
+              - GRATEFUL
+              - ANGRY
+            type: string
+        - name: tag
+          required: false
+          in: query
+          description: 'Tag name (with or without # prefix)'
+          schema:
+            example: dev
+            type: string
+        - name: sort
+          required: false
+          in: query
+          schema:
+            default: latest
+            enum:
+              - latest
+              - oldest
+              - likes
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPostsDto'
+      tags:
+        - posts
+    post:
+      operationId: PostsController_create
+      summary: Create post (admin only)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponseDto'
+      tags:
+        - posts
+  /posts/{id}:
+    get:
+      operationId: PostsController_get
+      summary: Get post by id (public)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponseDto'
+      tags:
+        - posts
+    patch:
+      operationId: PostsController_update
+      summary: Update post (admin only, partial)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResponseDto'
+      tags:
+        - posts
+    delete:
+      operationId: PostsController_remove
+      summary: Delete post (admin only, hard delete with cascade)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - posts
+  /posts/{id}/view:
+    post:
+      operationId: PostsController_trackView
+      summary: Track view (public, optional auth, dedup 30min)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackViewResponseDto'
+      tags:
+        - posts
+  /posts/{id}/like:
+    post:
+      operationId: LikesController_togglePost
+      summary: Toggle like cho post (optional auth, idempotent)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToggleLikeResponseDto'
+      tags:
+        - likes
+  /comments/{id}/like:
+    post:
+      operationId: LikesController_toggleComment
+      summary: Toggle like cho comment APPROVED (optional auth, idempotent)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToggleLikeResponseDto'
+      tags:
+        - likes
+  /posts/{id}/comments:
+    get:
+      operationId: CommentsController_list
+      summary: 'List comments (public role-aware: USER chỉ APPROVED, admin tất cả status)'
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentsListResponseDto'
+      tags:
+        - comments
+    post:
+      operationId: CommentsController_create
+      summary: Create comment (optional auth, default status APPROVED)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponseDto'
+      tags:
+        - comments
+  /comments/{id}:
+    delete:
+      operationId: CommentsController_remove
+      summary: Delete comment (admin only, cascade CommentLike)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - comments
+  /comments/{id}/status:
+    patch:
+      operationId: CommentsController_updateStatus
+      summary: Moderate status (admin only) — APPROVED | REJECTED
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentStatusDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResponseDto'
+      tags:
+        - comments
+  /posts/{id}/save:
+    post:
+      operationId: SavedController_toggle
+      summary: Toggle bookmark (auth user only, idempotent)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToggleSaveResponseDto'
+      tags:
+        - saved
+  /me/saved:
+    get:
+      operationId: SavedController_list
+      summary: List saved posts của current user (paginated, sort savedAt DESC)
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSavedDto'
+      tags:
+        - saved
+  /search:
+    get:
+      operationId: SearchController_query
+      summary: Full-text search Postgres ILIKE multi-table (FR-12.1)
+      parameters:
+        - name: q
+          required: false
+          in: query
+          description: Search query (empty → stats only)
+          schema:
+            example: cyberpunk
+            type: string
+        - name: type
+          required: false
+          in: query
+          schema:
+            default: all
+            enum:
+              - all
+              - posts
+              - files
+              - tags
+            type: string
+        - name: mood
+          required: false
+          in: query
+          schema:
+            enum:
+              - HAPPY
+              - EXCITED
+              - THOUGHTFUL
+              - CALM
+              - SAD
+              - GRATEFUL
+              - ANGRY
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - search
+  /admin/test-reset:
+    post:
+      operationId: AdminController_testReset
+      summary: Reset DB + reseed test fixtures (E2E only, env-gated)
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+        - admin
+  /admin/stats:
+    get:
+      operationId: AdminController_stats
+      summary: 4 metrics aggregation + 12-day sparkline + delta today
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponseDto'
+      tags:
+        - admin
+  /admin/moods:
+    get:
+      operationId: AdminController_moods
+      summary: Mood distribution zero-filled 7 moods
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoodsResponseDto'
+      tags:
+        - admin
+  /admin/comments:
+    get:
+      operationId: AdminController_listComments
+      summary: Cross-post comment moderation queue (FR-07.4)
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            default: PENDING
+            enum:
+              - PENDING
+              - APPROVED
+              - REJECTED
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - admin
+  /admin/heatmap:
+    get:
+      operationId: AdminController_heatmap
+      summary: 28-day post creation heatmap
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatmapResponseDto'
+      tags:
+        - admin
 info:
   title: MyBlog API
-  description: |
-    REST API cho MyBlog — single source of truth (auto-generated từ NestJS qua `@nestjs/swagger`).
-
-    **Placeholder hiện tại** — sẽ được tự động generate sau khi backend scaffold + setup `@nestjs/swagger`.
-    Trong khi đó, narrative spec ở [`docs/API_CONTRACT.md`](../API_CONTRACT.md).
-  version: 0.1.0-alpha
-  contact:
-    name: MyBlog
+  description: REST + WebSocket contract — auto-generated from NestJS Swagger
+  version: 0.2.0-alpha
+  contact: {}
+tags: []
 servers:
   - url: http://localhost:3001
-    description: Local dev (Docker)
+    description: Local dev
   - url: https://myblog-api.fly.dev
-    description: Production (Fly.io)
-
-# ──────────────────────────────────────────────────────────
-# NOTE: Sau khi scaffold backend, file này được sinh tự động.
-# Generate command (sau khi setup BE):
-#   pnpm --filter api openapi:generate
-# FE generate TS types:
-#   pnpm --filter web openapi:types
-# ──────────────────────────────────────────────────────────
-
-paths: {}
-
+    description: Production
 components:
-  schemas: {}
   securitySchemes:
-    cookieAuth:
+    cookie:
       type: apiKey
       in: cookie
       name: access_token
+  schemas:
+    RegisterDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: kha
+          minLength: 3
+          maxLength: 32
+        password:
+          type: string
+          example: strong-password-123
+          minLength: 8
+        email:
+          type: string
+          example: kha@example.com
+      required:
+        - username
+        - password
+    AuthUserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa14i8t000010ldmv5j5att
+        username:
+          type: string
+          example: kha
+        email:
+          type: object
+          example: kha@example.com
+          nullable: true
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+            - BANNED
+          example: ADMIN
+        avatarUrl:
+          type: object
+          example: https://...cloudinary.../avatar.jpg
+          nullable: true
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+      required:
+        - id
+        - username
+        - email
+        - role
+        - avatarUrl
+        - createdAt
+    LoginDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: kha
+        password:
+          type: string
+          example: strong-password-123
+      required:
+        - username
+        - password
+    ChangePasswordDto:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          example: current-pw
+        newPassword:
+          type: string
+          example: new-stronger-pw
+          minLength: 8
+      required:
+        - currentPassword
+        - newPassword
+    UserResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa14i8t000010ldmv5j5att
+        username:
+          type: string
+          example: kha
+        email:
+          type: object
+          example: kha@example.com
+          nullable: true
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+            - BANNED
+          example: USER
+        avatarUrl:
+          type: object
+          example: https://...cloudinary.../avatar.jpg
+          nullable: true
+        title:
+          type: object
+          example: Full-stack Developer
+          nullable: true
+        bio:
+          type: object
+          example: Bio markdown...
+          nullable: true
+        skills:
+          description: Skills array `[{ name, color }]`
+          example:
+            - name: TypeScript
+              color: '#7DCFFF'
+          type: array
+          items:
+            type: string
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+      required:
+        - id
+        - username
+        - email
+        - role
+        - avatarUrl
+        - createdAt
+    PaginatedUsersDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponseDto'
+        total:
+          type: number
+          example: 42
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 20
+      required:
+        - items
+        - total
+        - page
+        - limit
+    SkillItemDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: TypeScript
+        color:
+          type: string
+          example: '#7DCFFF'
+      required:
+        - name
+        - color
+    UpdateUserDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: kha@example.com
+        avatarUrl:
+          type: string
+          example: https://res.cloudinary.com/.../avatar.jpg
+        title:
+          type: string
+          example: Full-stack Developer
+          maxLength: 80
+        bio:
+          type: string
+          example: Bio markdown...
+          maxLength: 500
+        skills:
+          description: Skills array — max 20 items
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillItemDto'
+    SignUploadDto:
+      type: object
+      properties:
+        folder:
+          type: string
+          example: myblog/posts
+          description: 'Cloudinary folder (default: myblog)'
+        publicId:
+          type: string
+          example: post-abc-image-1
+          description: Optional public_id override
+        resourceType:
+          type: string
+          enum:
+            - image
+            - raw
+          example: image
+          description: image cho PNG/JPG/WebP, raw cho PDF/DOC/...
+      required:
+        - resourceType
+    SignedUploadParamsDto:
+      type: object
+      properties:
+        signature:
+          type: string
+          example: abc123signaturehash
+        timestamp:
+          type: number
+          example: 1715952000
+        apiKey:
+          type: string
+          example: '123456789012345'
+        cloudName:
+          type: string
+          example: my-cloud
+        folder:
+          type: string
+          example: myblog/posts
+        resourceType:
+          type: string
+          enum:
+            - image
+            - raw
+          example: image
+        publicId:
+          type: object
+          example: post-abc-image-1
+          nullable: true
+      required:
+        - signature
+        - timestamp
+        - apiKey
+        - cloudName
+        - folder
+        - resourceType
+        - publicId
+    PopularTagDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa1tag00010ldmv5j5att
+        name:
+          type: string
+          example: dev
+        color:
+          type: object
+          example: '#00FFE5'
+          nullable: true
+        description:
+          type: object
+          example: Lập trình, debugging
+          nullable: true
+        postCount:
+          type: number
+          example: 5
+        sparkline7d:
+          example:
+            - 0
+            - 1
+            - 2
+            - 1
+            - 0
+            - 3
+            - 1
+          description: Last 7 days post-with-tag count
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          example: '2026-05-19T00:00:00.000Z'
+      required:
+        - id
+        - name
+        - color
+        - postCount
+        - sparkline7d
+        - createdAt
+    PopularTagsResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PopularTagDto'
+      required:
+        - items
+    CreateTagDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: dev
+          description: 'Tag name (auto-normalize lowercase + strip #)'
+        color:
+          type: string
+          example: '#00FFE5'
+          description: Hex color, auto-assign từ palette nếu thiếu
+        description:
+          type: string
+          example: Lập trình, debugging
+          maxLength: 280
+      required:
+        - name
+    TagResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa1tag00010ldmv5j5att
+        name:
+          type: string
+          example: dev
+        color:
+          type: object
+          example: '#00FFE5'
+          nullable: true
+        description:
+          type: object
+          example: Lập trình, debugging
+          nullable: true
+      required:
+        - id
+        - name
+        - color
+    UpdateTagDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: dev
+          description: 'Tag name (auto-normalize lowercase + strip #)'
+        color:
+          type: string
+          example: '#00FFE5'
+          description: Hex color, auto-assign từ palette nếu thiếu
+        description:
+          type: string
+          example: Lập trình, debugging
+          maxLength: 280
+    PostAuthorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa14i8t000010ldmv5j5att
+        username:
+          type: string
+          example: kha
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+            - BANNED
+          example: ADMIN
+        avatarUrl:
+          type: object
+          example: https://...avatar.jpg
+          nullable: true
+      required:
+        - id
+        - username
+        - role
+        - avatarUrl
+    PostTagDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa1tg00000010ldmv5j5att
+        name:
+          type: string
+          example: dev
+        color:
+          type: object
+          example: '#7AF7FF'
+          nullable: true
+      required:
+        - id
+        - name
+        - color
+    PostImageDto:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        publicId:
+          type: string
+        width:
+          type: number
+          example: 1920
+        height:
+          type: number
+          example: 1080
+        order:
+          type: number
+          example: 0
+      required:
+        - id
+        - url
+        - publicId
+        - width
+        - height
+        - order
+    PostFileDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - PDF
+            - DOC
+            - DOCX
+            - XLS
+            - XLSX
+            - TXT
+            - CSV
+        size:
+          type: number
+          example: 102400
+        url:
+          type: string
+        publicId:
+          type: string
+      required:
+        - id
+        - name
+        - type
+        - size
+        - url
+        - publicId
+    PostCountsDto:
+      type: object
+      properties:
+        likes:
+          type: number
+          example: 5
+        comments:
+          type: number
+          example: 3
+      required:
+        - likes
+        - comments
+    PostResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa1post00010ldmv5j5att
+        content:
+          type: string
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+        viewCount:
+          type: number
+          example: 0
+        author:
+          $ref: '#/components/schemas/PostAuthorDto'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostTagDto'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostImageDto'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostFileDto'
+        counts:
+          $ref: '#/components/schemas/PostCountsDto'
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+        updatedAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+      required:
+        - id
+        - content
+        - mood
+        - viewCount
+        - author
+        - tags
+        - images
+        - files
+        - counts
+        - createdAt
+        - updatedAt
+    PaginatedPostsDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResponseDto'
+        total:
+          type: number
+          example: 42
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 10
+      required:
+        - items
+        - total
+        - page
+        - limit
+    ImageInputDto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://res.cloudinary.com/.../img.jpg
+        publicId:
+          type: string
+          example: myblog/posts/abc123
+        width:
+          type: number
+          example: 1920
+        height:
+          type: number
+          example: 1080
+        order:
+          type: number
+          example: 0
+          default: 0
+      required:
+        - url
+        - publicId
+        - width
+        - height
+    FileInputDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: report.pdf
+        type:
+          type: string
+          enum:
+            - PDF
+            - DOC
+            - DOCX
+            - XLS
+            - XLSX
+            - TXT
+            - CSV
+          example: PDF
+        size:
+          type: number
+          example: 102400
+        url:
+          type: string
+          example: https://res.cloudinary.com/.../report.pdf
+        publicId:
+          type: string
+          example: myblog/files/report-xyz
+      required:
+        - name
+        - type
+        - size
+        - url
+        - publicId
+    CreatePostDto:
+      type: object
+      properties:
+        content:
+          type: string
+          example: Hôm nay code rất vui...
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+          example: HAPPY
+        tags:
+          example:
+            - '#dev'
+            - '#life'
+          description: 'Tag names (with or without # prefix). Auto-create if not exists.'
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageInputDto'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInputDto'
+      required:
+        - content
+        - mood
+    UpdatePostDto:
+      type: object
+      properties:
+        content:
+          type: string
+          example: Hôm nay code rất vui...
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+          example: HAPPY
+        tags:
+          example:
+            - '#dev'
+            - '#life'
+          description: 'Tag names (with or without # prefix). Auto-create if not exists.'
+          type: array
+          items:
+            type: string
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageInputDto'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileInputDto'
+    TrackViewResponseDto:
+      type: object
+      properties:
+        viewCount:
+          type: number
+          example: 42
+          description: Tổng viewCount sau khi (có thể) increment
+        counted:
+          type: boolean
+          example: true
+          description: true nếu view được tính (record mới); false nếu bị dedup trong 30 phút
+      required:
+        - viewCount
+        - counted
+    ToggleLikeResponseDto:
+      type: object
+      properties:
+        liked:
+          type: boolean
+          example: true
+          description: Trạng thái sau toggle
+        count:
+          type: number
+          example: 5
+          description: Tổng số like của post/comment sau toggle
+      required:
+        - liked
+        - count
+    CommentAuthorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa-user-1
+        username:
+          type: string
+          example: kha
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
+            - BANNED
+          example: USER
+        avatarUrl:
+          type: object
+          example: https://.../avatar.jpg
+          nullable: true
+      required:
+        - id
+        - username
+        - role
+        - avatarUrl
+    CommentResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa-comment-1
+        postId:
+          type: string
+          example: cmpa-post-1
+        content:
+          type: string
+          example: Bài hay quá!
+        status:
+          type: string
+          enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+          example: APPROVED
+        author:
+          nullable: true
+          description: null nếu anonymous
+          allOf:
+            - $ref: '#/components/schemas/CommentAuthorDto'
+        anonymousName:
+          type: object
+          example: Khách qua đường
+          nullable: true
+        likesCount:
+          type: number
+          example: 3
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-18T10:00:00.000Z'
+      required:
+        - id
+        - postId
+        - content
+        - status
+        - author
+        - anonymousName
+        - likesCount
+        - createdAt
+    CommentsListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponseDto'
+      required:
+        - items
+    CreateCommentDto:
+      type: object
+      properties:
+        content:
+          type: string
+          example: Bài viết rất hay!
+          minLength: 1
+          maxLength: 2000
+        anonymousName:
+          type: string
+          example: Khách qua đường
+          description: Tên hiển thị cho anonymous (ignored nếu auth)
+          minLength: 1
+          maxLength: 50
+      required:
+        - content
+    UpdateCommentStatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - REJECTED
+          example: APPROVED
+          description: PENDING không cho phép via PATCH — chỉ APPROVED | REJECTED
+      required:
+        - status
+    ToggleSaveResponseDto:
+      type: object
+      properties:
+        saved:
+          type: boolean
+          example: true
+          description: Trạng thái bookmark sau toggle
+      required:
+        - saved
+    SavedPostDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cmpa1post00010ldmv5j5att
+        content:
+          type: string
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+        viewCount:
+          type: number
+          example: 0
+        author:
+          $ref: '#/components/schemas/PostAuthorDto'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostTagDto'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostImageDto'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostFileDto'
+        counts:
+          $ref: '#/components/schemas/PostCountsDto'
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+        updatedAt:
+          format: date-time
+          type: string
+          example: '2026-05-17T16:59:32.000Z'
+        savedAt:
+          format: date-time
+          type: string
+          example: '2026-05-18T10:00:00.000Z'
+          description: Thời điểm save bài
+      required:
+        - id
+        - content
+        - mood
+        - viewCount
+        - author
+        - tags
+        - images
+        - files
+        - counts
+        - createdAt
+        - updatedAt
+        - savedAt
+    PaginatedSavedDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SavedPostDto'
+        total:
+          type: number
+          example: 12
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 10
+      required:
+        - items
+        - total
+        - page
+        - limit
+    MetricBucketDto:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 42
+        sparkline:
+          example:
+            - 0
+            - 1
+            - 0
+            - 3
+            - 2
+            - 1
+            - 4
+            - 0
+            - 2
+            - 1
+            - 3
+            - 5
+          type: array
+          items:
+            type: number
+        deltaToday:
+          type: number
+          example: 3
+          description: count today - count yesterday
+      required:
+        - total
+        - sparkline
+        - deltaToday
+    StatsResponseDto:
+      type: object
+      properties:
+        posts:
+          $ref: '#/components/schemas/MetricBucketDto'
+        likes:
+          $ref: '#/components/schemas/MetricBucketDto'
+        comments:
+          $ref: '#/components/schemas/MetricBucketDto'
+        views:
+          $ref: '#/components/schemas/MetricBucketDto'
+      required:
+        - posts
+        - likes
+        - comments
+        - views
+    MoodCountDto:
+      type: object
+      properties:
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+          example: HAPPY
+        count:
+          type: number
+          example: 5
+      required:
+        - mood
+        - count
+    MoodsResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MoodCountDto'
+      required:
+        - items
+    HeatmapDayDto:
+      type: object
+      properties:
+        date:
+          type: string
+          example: '2026-05-18'
+        count:
+          type: number
+          example: 3
+      required:
+        - date
+        - count
+    HeatmapResponseDto:
+      type: object
+      properties:
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeatmapDayDto'
+      required:
+        - days

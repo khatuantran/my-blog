@@ -31,6 +31,15 @@
     },
     "clean": {
       "cache": false
+    },
+    "openapi:gen": {
+      "inputs": ["src/**/*.ts", "scripts/dump-openapi.ts"],
+      "outputs": ["../../docs/contracts/openapi.yaml"]
+    },
+    "openapi:types": {
+      "dependsOn": ["api#openapi:gen"],
+      "inputs": ["../../docs/contracts/openapi.yaml"],
+      "outputs": ["src/types/api.generated.ts"]
     }
   }
 }

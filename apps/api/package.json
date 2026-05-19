@@ -20,7 +20,8 @@
     "prisma:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:seed:test": "dotenv -e .env.test -- tsx prisma/seed-test.ts",
-    "test:e2e:migrate": "dotenv -e .env.test -- prisma migrate deploy"
+    "test:e2e:migrate": "dotenv -e .env.test -- prisma migrate deploy",
+    "openapi:gen": "ts-node -r tsconfig-paths/register scripts/dump-openapi.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -58,11 +59,13 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.0.0",
     "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^6.0.2",
     "dotenv-cli": "^8.0.0",
     "jest": "^29.7.0",
+    "js-yaml": "^4.1.1",
     "prisma": "^5.22.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",

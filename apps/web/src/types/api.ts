@@ -212,6 +212,31 @@ export type ToggleLikeResponse = {
   count: number;
 };
 
+export type ActivityType = 'POST_CREATED' | 'COMMENT_CREATED' | 'LIKE_CREATED' | 'SAVE_CREATED';
+export type ActivityTargetType = 'POST' | 'COMMENT';
+export type ActivityDirection = 'OUTGOING' | 'INCOMING';
+
+export type ActivityItem = {
+  id: string;
+  type: ActivityType;
+  direction: ActivityDirection;
+  actor: { id: string; username: string; avatarUrl: string | null };
+  target: { type: ActivityTargetType; id: string; snippet: string | null };
+  createdAt: string;
+};
+
+export type PaginatedActivity = {
+  items: ActivityItem[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type ListActivityParams = {
+  page?: number;
+  limit?: number;
+};
+
 export type ToggleSaveResponse = {
   saved: boolean;
 };

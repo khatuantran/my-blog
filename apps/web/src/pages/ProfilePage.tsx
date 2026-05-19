@@ -10,6 +10,7 @@ import { ProfileAvatar } from '@/components/shared/ProfileAvatar';
 import { HeatmapGrid } from '@/components/shared/HeatmapGrid';
 import { TabButtons } from '@/components/shared/TabButtons';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
+import { ProfileActivityList } from '@/components/profile/ProfileActivityList';
 import { PostCard } from '@/components/feed/PostCard';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { TagPill } from '@/components/shared/TagPill';
@@ -138,7 +139,7 @@ export default function ProfilePage() {
             tabs={[
               { value: 'posts', label: 'Posts' },
               { value: 'saved', label: 'Saved', hidden: !canViewSaved },
-              { value: 'activity', label: 'Activity' },
+              { value: 'activity', label: 'Activity', hidden: !canViewSaved },
               { value: 'about', label: 'About' },
             ]}
             onChange={changeTab}
@@ -147,9 +148,9 @@ export default function ProfilePage() {
           <div className="mt-4">
             {tab === 'posts' && <PostsTab userId={user.id} />}
             {tab === 'saved' && canViewSaved && <SavedTab />}
-            {tab === 'activity' && (
-              <div className="rounded-md border border-b2 bg-surf p-4 font-mono text-mono-xs text-tm">
-                // activity log · wire khi M11 realtime mở
+            {tab === 'activity' && canViewSaved && (
+              <div className="rounded-md border border-b2 bg-surf p-4">
+                <ProfileActivityList userId={user.id} />
               </div>
             )}
             {tab === 'about' && (

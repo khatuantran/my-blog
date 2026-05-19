@@ -37,6 +37,39 @@ export type PostTag = {
   color: string | null;
 };
 
+export type Tag = {
+  id: string;
+  name: string;
+  color: string | null;
+  description?: string | null;
+};
+
+export type TagWithStats = Tag & {
+  postCount: number;
+  sparkline7d: number[];
+  createdAt: string;
+};
+
+export type TagSort = 'name' | 'posts' | 'recent';
+
+export type ListTagsParams = {
+  limit?: number;
+  sort?: TagSort;
+  q?: string;
+};
+
+export type ListTagsResponse = {
+  items: TagWithStats[];
+};
+
+export type CreateTagPayload = {
+  name: string;
+  color?: string;
+  description?: string;
+};
+
+export type UpdateTagPayload = Partial<CreateTagPayload>;
+
 export type PostImage = {
   id: string;
   url: string;

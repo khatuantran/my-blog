@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❯_ myblog · feed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+/* ── Variables ──────────────────────────────────────────────── */
+:root {
+  --bg:     #0A0E1A;
+  --surf:   #11151F;
+  --elev:   #1A1F2E;
+  --over:   #232936;
+  --b1:     #1F2A3A;
+  --b2:     #2A3548;
+  --b3:     #3D4A63;
+  --tp:     #E6EDF3;
+  --ts:     #A0AEC0;
+  --tm:     #8B96AA;
+  --cyan:   #00FFE5;
+  --mag:    #FF6E96;
+  --pur:    #BB9AF7;
+  --grn:    #9ECE6A;
+  --yel:    #E0AF68;
+  --ora:    #FF9E64;
+  --red:    #F7768E;
+  --blu:    #7DCFFF;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  background-image: radial-gradient(circle, #2A354822 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--tp);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+/* CRT scanline */
+body::after {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.028) 2px, rgba(0,0,0,0.028) 4px);
+  pointer-events: none; z-index: 9999; transition: opacity 0.3s;
+}
+body.no-crt::after { opacity: 0; }
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes glitch {
+  0%,87%,100% { text-shadow:none; transform:none; }
+  88% { text-shadow: 2px 0 #FF6E96, -2px 0 #00FFE5; transform:skewX(-2deg) translateX(-2px); }
+  90% { text-shadow:-2px 0 #BB9AF7,  2px 0 #FF9E64; transform:skewX(1deg)  translateX(1px);  }
+  92% { text-shadow:none; transform:none; }
+}
+@keyframes pulse    { 0%,100%{opacity:.7;} 50%{opacity:1; filter:drop-shadow(0 0 3px currentColor);} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes scanLine { from{transform:translateY(-100%)} to{transform:translateY(100vh)} }
+
+/* ── Scrollbars ─────────────────────────────────────────────── */
+::-webkit-scrollbar        { width:5px; height:5px; }
+::-webkit-scrollbar-track  { background:var(--bg); }
+::-webkit-scrollbar-thumb  { background:var(--b2); border-radius:3px; }
+
+/* ── Section labels ─────────────────────────────────────────── */
+.sb-lbl {
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--tm);
+  letter-spacing:.05em; margin-bottom:8px;
+  display:flex; align-items:center; gap:8px;
+}
+.sb-lbl::after { content:''; flex:1; height:1px; background:var(--b1); }
+
+/* ── Navigation ─────────────────────────────────────────────── */
+.nav-item {
+  display:flex; align-items:center; gap:8px; padding:5px 4px;
+  cursor:pointer; border-radius:4px; color:var(--ts); transition:all .15s; margin-bottom:1px;
+}
+.nav-item:hover { color:var(--tp); background:var(--elev); }
+.nav-act { color:var(--cyan) !important; }
+
+/* ── Mood rows ──────────────────────────────────────────────── */
+.mood-hover:hover { background:var(--elev) !important; }
+
+/* ── Post card ──────────────────────────────────────────────── */
+.post-card {
+  background:var(--surf); border:1px solid var(--b2); border-radius:8px;
+  padding:16px 18px; margin-bottom:12px; transition:all .2s; animation:fadeUp .3s ease both;
+  position:relative; overflow:hidden;
+}
+.post-card:hover { border-color:rgba(0,255,229,.45); box-shadow:0 0 24px rgba(0,255,229,.1), 0 4px 24px rgba(0,0,0,.3); }
+.post-card.glow-hi:hover { box-shadow:0 0 40px rgba(0,255,229,.22), 0 8px 32px rgba(0,0,0,.4); }
+.post-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,255,229,.35),transparent);
+  opacity:0; transition:opacity .2s;
+}
+.post-card:hover::before { opacity:1; }
+
+/* ── Action buttons ─────────────────────────────────────────── */
+.act-btn {
+  display:flex; align-items:center; gap:4px; padding:5px 10px;
+  border-radius:5px; border:none; background:transparent; color:var(--tm);
+  cursor:pointer; transition:all .15s; font-family:'JetBrains Mono',monospace; font-size:12px;
+}
+.act-btn:hover { color:var(--tp); background:var(--elev); }
+.act-btn.liked { color:var(--mag); }
+.act-btn.saved { color:var(--yel); }
+
+/* ── Filter buttons ─────────────────────────────────────────── */
+.flt-btn {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  padding:5px 12px; border:1px solid var(--b2); border-radius:4px;
+  background:var(--elev); color:var(--ts); cursor:pointer; transition:all .15s;
+}
+.flt-btn:hover { border-color:var(--b3); color:var(--tp); }
+.flt-btn.flt-act { border-color:rgba(0,255,229,.5); color:var(--cyan); background:rgba(0,255,229,.08); box-shadow:0 0 8px rgba(0,255,229,.15); }
+
+/* ── Search ─────────────────────────────────────────────────── */
+.srch-inp {
+  width:100%; background:var(--bg); border:1px solid var(--b2); color:var(--ts);
+  font-family:'JetBrains Mono',monospace; font-size:13px;
+  padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s;
+}
+.srch-inp:focus { border-color:var(--cyan); box-shadow:0 0 14px rgba(0,255,229,.22); color:var(--tp); }
+.srch-inp::placeholder { color:var(--tm); font-style:italic; }
+
+/* ── Command palette items ──────────────────────────────────── */
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover,.cp-item.cp-sel { background:rgba(0,255,229,.08); }
+
+/* ── Misc ───────────────────────────────────────────────────── */
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.sc-hover:hover { box-shadow:0 0 16px rgba(0,255,229,.12); }
+.code-bl {
+  font-family:'JetBrains Mono',monospace; font-size:12px; background:#070A14;
+  border:1px solid var(--b2); border-left:2px solid rgba(158,206,106,.4);
+  border-radius:6px; padding:10px 14px; color:var(--grn); margin:8px 0;
+  overflow-x:auto; line-height:1.6; white-space:pre;
+}
+
+/* ── Logo glitch ────────────────────────────────────────────── */
+.logo-txt { animation:glitch 9s infinite; display:inline-block; }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:1100px) { .rp { display:none !important; } }
+@media(max-width:768px)  { .sb { display:none !important; } .feed-pad { padding:10px 12px !important; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── Post content renderer ──────────────────────────────────────
+function PostContent({ content }) {
+  const segs = [];
+  let rest = content;
+  while (rest.length) {
+    const ci = rest.indexOf('```');
+    if (ci === -1) { segs.push({ t:'text', v:rest }); break; }
+    if (ci > 0) segs.push({ t:'text', v:rest.slice(0, ci) });
+    const ce = rest.indexOf('```', ci+3);
+    const code = rest.slice(ci+3, ce<0?undefined:ce).replace(/^[a-z]+\n/,'');
+    segs.push({ t:'code', v:code });
+    rest = ce < 0 ? '' : rest.slice(ce+3);
+  }
+  return (
+    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'#C9D1D9', marginBottom:'12px' }}>
+      {segs.map((s,i) =>
+        s.t === 'code'
+          ? <pre key={i} className="code-bl">{s.v.trim()}</pre>
+          : s.v.split('\n\n').map((p,j) =>
+              p.trim() ? <p key={`${i}-${j}`} style={{ marginBottom:'8px' }}>{p.trim()}</p> : null
+            )
+      )}
+    </div>
+  );
+}
+
+// ── Post Card ──────────────────────────────────────────────────
+function PostCard({ post, glowLevel, delay }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes);
+  const [saved, setSaved] = useState(post.saved);
+  const mood = MOOD_CFG[post.mood];
+  const tagColor = n => TAGS_DATA.find(t => t.name === n)?.color || '#00FFE5';
+  const cls = `post-card${glowLevel==='high'?' glow-hi':''}`;
+
+  return (
+    <div className={cls} style={{ animationDelay:`${delay||0}ms` }} data-screen-label={`post-${post.id}`}>
+      {/* Post ID corner deco */}
+      <span style={{ position:'absolute', top:'10px', right:'14px', fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#2A3548' }}>#{post.id}</span>
+
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'flex-start', gap:'10px', marginBottom:'12px' }}>
+        <div style={{ width:'36px', height:'36px', borderRadius:'50%', border:'2px solid #00FFE5',
+          background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center',
+          justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700,
+          fontSize:'14px', color:'#00FFE5', flexShrink:0, boxShadow:'0 0 10px rgba(0,255,229,.2)' }}>
+          A
+        </div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'3px', flexWrap:'wrap' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', fontWeight:600, color:'#7DCFFF' }}>~/admin</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6450', borderRadius:'2px', padding:'0 4px' }}>[ ADMIN ]</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#63707F' }}>·</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{post.ts}</span>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
+            <span style={{ color:'#9ECE6A', fontSize:'8px' }} className="pulse">●</span>
+            <span style={{ fontSize:'11px', color:'#8B96AA' }}>{post.time}</span>
+          </div>
+        </div>
+        <MoodBadge mood={post.mood} />
+      </div>
+
+      {/* Content */}
+      <PostContent content={post.content} />
+
+      {/* Images */}
+      <ImageGrid count={post.images} />
+
+      {/* File attachments */}
+      <FileAttachments files={post.files} />
+
+      {/* Tags */}
+      {post.tags.length > 0 && (
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'12px' }}>
+          {post.tags.map(tag => <TagPill key={tag} name={tag} color={tagColor(tag)} />)}
+        </div>
+      )}
+
+      {/* Divider */}
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#1F2A3A', marginBottom:'10px', letterSpacing:'2px', overflow:'hidden', whiteSpace:'nowrap' }}>
+        ────────────────────────────────────────
+      </div>
+
+      {/* Actions */}
+      <div style={{ display:'flex', gap:'2px', alignItems:'center' }}>
+        <button className={`act-btn${liked?' liked':''}`}
+          onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}
+          style={liked?{color:'#FF6E96',textShadow:'0 0 8px #FF6E9660'}:{}}>
+          <span style={{ fontSize:'14px' }}>{liked?'❤':'♡'}</span>
+          <span>{likes}</span>
+        </button>
+        <button className="act-btn">
+          <span style={{ fontSize:'14px' }}>💬</span>
+          <span>{post.comments}</span>
+        </button>
+        <button className={`act-btn${saved?' saved':''}`} onClick={() => setSaved(!saved)}>
+          <span style={{ fontSize:'14px' }}>{saved?'🔖':'🏷'}</span>
+        </button>
+        <button className="act-btn">
+          <span>↗</span>
+          <span>Share</span>
+        </button>
+        <div style={{ marginLeft:'auto' }}>
+          <button className="act-btn">⋯</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Filter Bar ─────────────────────────────────────────────────
+function FilterBar({ activeMood, onMoodFilter }) {
+  const moodFilters = ['HAPPY','EXCITED','THOUGHTFUL','CALM','SAD'];
+  return (
+    <div style={{ marginBottom:'16px' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'8px', display:'flex', alignItems:'center', gap:'10px' }}>
+        <span>// feed.posts · 42 total</span>
+        {activeMood && (
+          <span style={{ color:MOOD_CFG[activeMood]?.color }}>
+            · filtered: {MOOD_CFG[activeMood]?.emoji} {MOOD_CFG[activeMood]?.label}
+          </span>
+        )}
+      </div>
+      <div style={{ display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center' }}>
+        <button className={`flt-btn${!activeMood?' flt-act':''}`} onClick={() => onMoodFilter(null)}>All</button>
+        {moodFilters.map(m => {
+          const c = MOOD_CFG[m], isA = activeMood === m;
+          return (
+            <button key={m} className={`flt-btn${isA?' flt-act':''}`}
+              style={isA ? { borderColor:`${c.color}70`, color:c.color, background:`${c.color}10`, boxShadow:`0 0 8px ${c.color}20` } : {}}
+              onClick={() => onMoodFilter(isA?null:m)}>
+              {c.emoji} {c.label}
+            </button>
+          );
+        })}
+        <button className="flt-btn" style={{ marginLeft:'auto' }}>Latest ▾</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Command Palette ────────────────────────────────────────────
+function CommandPalette({ onClose }) {
+  const [query, setQuery] = useState('');
+  const inputRef = useRef(null);
+
+  const cmds = [
+    { g:'recent',   icon:'📡', label:'Go to feed',       href:'MyBlog Feed.html',         desc:'~/feed',         keys:['⌘','G'] },
+    { g:'recent',   icon:'🔍', label:'Search posts',     href:'#',                        desc:'~/search',       keys:['/']     },
+    { g:'recent',   icon:'✏️',  label:'Create new post',  href:'MyBlog Create Post.html',  desc:'~/admin/create', keys:['⌘','N'] },
+    { g:'navigate', icon:'🏠', label:'~/feed',           href:'MyBlog Feed.html',         desc:'Home feed',      keys:['⌘','1'] },
+    { g:'navigate', icon:'🔖', label:'~/saved',          href:'#',                        desc:'Saved posts',    keys:['⌘','2'] },
+    { g:'navigate', icon:'⚙️', label:'~/admin',          href:'MyBlog Admin.html',        desc:'Admin dashboard',keys:['⌘','3'] },
+    { g:'actions',  icon:'🌙', label:'Toggle theme',     href:'#',                        desc:null,             keys:['⌘','T'] },
+    { g:'actions',  icon:'🚪', label:'Logout',           href:'MyBlog Login.html',        desc:null,             keys:['⌘','Q'] },
+  ];
+  const filtered = query
+    ? cmds.filter(c => c.label.toLowerCase().includes(query.toLowerCase()) || c.desc?.toLowerCase().includes(query.toLowerCase()))
+    : cmds;
+  const groups = [...new Set(filtered.map(c => c.g))];
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    const h = e => { if (e.key==='Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.72)', backdropFilter:'blur(6px)', zIndex:200, display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:'100px', animation:'fadeUp .15s ease' }}
+      onClick={e => e.target===e.currentTarget && onClose()}>
+      <div style={{ width:'560px', maxWidth:'90vw', background:'#1A1F2E', border:'1px solid rgba(0,255,229,.35)', borderRadius:'10px', overflow:'hidden', boxShadow:'0 0 40px rgba(0,255,229,.15),0 24px 64px rgba(0,0,0,.6)' }}>
+
+        {/* Input */}
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'14px 16px', borderBottom:'1px solid #2A3548' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#00FFE5', flexShrink:0 }}>~$</span>
+          <input ref={inputRef} value={query} onChange={e=>setQuery(e.target.value)}
+            placeholder="type a command or search..."
+            style={{ flex:1, background:'transparent', border:'none', outline:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#E6EDF3' }} />
+          <button onClick={onClose} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer' }}>Esc</button>
+        </div>
+
+        {/* Results */}
+        <div style={{ maxHeight:'340px', overflowY:'auto' }}>
+          {groups.map(g => (
+            <div key={g}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', padding:'10px 16px 4px', letterSpacing:'.05em' }}>// {g}</div>
+              {filtered.filter(c=>c.g===g).map((cmd,i) => (
+                <a key={i} href={cmd.href} style={{ textDecoration:'none' }} className="cp-item">
+                  <div style={{ width:'28px', height:'28px', borderRadius:'5px', background:'#232936', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', flexShrink:0 }}>{cmd.icon}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:'13px', color:'#E6EDF3' }}>{cmd.label}</div>
+                    {cmd.desc && <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{cmd.desc}</div>}
+                  </div>
+                  <div style={{ display:'flex', gap:'3px' }}>
+                    {cmd.keys.map((k,ki) => (
+                      <span key={ki} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#A0AEC0', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'1px 5px' }}>{k}</span>
+                    ))}
+                  </div>
+                </a>
+              ))}
+            </div>
+          ))}
+          {filtered.length === 0 && (
+            <div style={{ padding:'24px', textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA' }}>
+              // no results for "{query}"
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding:'8px 16px', borderTop:'1px solid #1F2A3A', display:'flex', gap:'16px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>
+          <span>↑↓ navigate</span><span>↵ select</span><span>Esc close</span>
+          <span style={{ marginLeft:'auto' }}>// command.palette v1</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Top Bar ────────────────────────────────────────────────────
+function TopBar({ onOpenCP }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+  useEffect(() => {
+    const h = e => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const menuItems = [
+    { icon:'✏️', label:'Create Post',      href:'MyBlog Create Post.html', desc:'⌘N', color:'#00FFE5', sep:false },
+    { icon:'⚙️', label:'Admin Dashboard',  href:'MyBlog Admin.html',       desc:'⌘3', color:'#BB9AF7', sep:false },
+    { icon:'🏷', label:'Manage Tags',      href:'MyBlog Tags.html',        desc:null,  color:'#E0AF68', sep:false },
+    { icon:'🔧', label:'System Settings',  href:'#',                       desc:null,  color:'#9ECE6A', sep:false },
+    { icon:'👤', label:'Profile',           href:'MyBlog Profile.html',     desc:null,  color:'#A0AEC0', sep:true  },
+    { icon:'🚪', label:'Logout',            href:'MyBlog Login.html',       desc:'⌘Q', color:'#F7768E', sep:false },
+  ];
+  return (
+    <header style={{ position:'fixed', top:0, left:0, right:0, height:'52px', background:'rgba(17,21,31,.96)', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 20px', zIndex:100, backdropFilter:'blur(8px)' }}>
+
+      {/* Logo — brand mark */}
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', cursor:'pointer', userSelect:'none', flexShrink:0 }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" style={{ flexShrink:0, display:'block' }}>
+          <polyline points="8,3 3,12 8,21" stroke="#00FFE5" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+          <polyline points="16,3 21,12 16,21" stroke="#BB9AF7" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'16px', letterSpacing:'-0.04em', lineHeight:1 }}>
+          <span style={{ color:'#E6EDF3' }}>kha</span><span style={{ color:'#00FFE5' }}>.</span><span style={{ color:'#A0AEC0', fontWeight:500 }}>blog</span>
+        </div>
+      </div>
+
+      {/* Search — centered */}
+      <div style={{ position:'absolute', left:'50%', transform:'translateX(-50%)', width:'440px', zIndex:1 }}>
+        <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#8B96AA', fontSize:'13px', pointerEvents:'none' }}>⌕</span>
+        <input className="srch-inp" placeholder="~$ search posts, tags, users..." onClick={() => window.location.href='MyBlog Search.html'} readOnly style={{ cursor:'pointer' }} />
+        <button onClick={onOpenCP} style={{ position:'absolute', right:'6px', top:'50%', transform:'translateY(-50%)', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer', whiteSpace:'nowrap' }}>⌘K</button>
+      </div>
+
+      {/* Right */}
+      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginLeft:'auto', flexShrink:0 }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px' }}>[ v0.1.0 ]</span>
+        <span style={{ display:'flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#9ECE6A' }}>
+          <span className="pulse" style={{ fontSize:'8px', color:'#9ECE6A' }}>●</span> 3
+        </span>
+        {/* Avatar + dropdown */}
+        <div ref={menuRef} style={{ position:'relative' }}>
+          <div onClick={() => setShowMenu(!showMenu)}
+            style={{ width:'32px', height:'32px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5', cursor:'pointer', boxShadow:showMenu?'0 0 18px rgba(0,255,229,.4)':'0 0 12px rgba(0,255,229,.25)', transition:'box-shadow .15s', position:'relative' }}>
+            A
+            <span style={{ position:'absolute', bottom:'-1px', right:'-1px', width:'8px', height:'8px', background:'#9ECE6A', borderRadius:'50%', border:'1.5px solid #11151F', boxShadow:'0 0 5px #9ECE6A' }} />
+          </div>
+          {showMenu && (
+            <div style={{ position:'absolute', top:'42px', right:0, background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderRadius:'8px', minWidth:'210px', padding:'6px', zIndex:200, boxShadow:'0 0 30px rgba(0,255,229,.1),0 12px 40px rgba(0,0,0,.6)', animation:'fadeUp .15s ease' }}>
+              <div style={{ padding:'8px 10px 10px', borderBottom:'1px solid #2A3548', marginBottom:'4px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <div style={{ width:'28px', height:'28px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', color:'#00FFE5', fontWeight:700 }}>A</div>
+                  <div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF' }}>~/admin</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', marginTop:'1px' }}>[ ADMIN ]</div>
+                  </div>
+                </div>
+              </div>
+              {menuItems.map((item, i) => (
+                <React.Fragment key={i}>
+                  {item.sep && <div style={{ height:'1px', background:'#2A3548', margin:'4px 0' }} />}
+                  <a href={item.href} className="cp-item" style={{ borderRadius:'5px', textDecoration:'none' }}>
+                    <span style={{ fontSize:'14px' }}>{item.icon}</span>
+                    <span style={{ flex:1, fontSize:'13px', color:item.color==='#A0AEC0'?'#E6EDF3':item.color }}>{item.label}</span>
+                    {item.desc && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{item.desc}</span>}
+                  </a>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ── Status Bar ─────────────────────────────────────────────────
+function StatusBar() {
+  const sep = { padding:'0 14px', color:'#8B96AA', borderRight:'1px solid #1F2A3A', height:'100%', display:'flex', alignItems:'center', whiteSpace:'nowrap' };
+  return (
+    <div style={{ position:'fixed', bottom:0, left:0, right:0, height:'28px', background:'#070A14', borderTop:'1px solid #1F2A3A', display:'flex', alignItems:'center', zIndex:100, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', overflow:'hidden' }}>
+      <span style={{ ...sep, color:'#00FFE5', background:'rgba(0,255,229,.07)' }}>~/feed</span>
+      <span style={sep}><span className="pulse" style={{ color:'#9ECE6A', fontSize:'8px', marginRight:'5px' }}>●</span> 42 posts</span>
+      <span style={{ ...sep, color:'#566176' }}>──────</span>
+      <span style={sep}>last sync: 14:32</span>
+      <span style={sep}>build: a1b2c3</span>
+      <span style={{ ...sep, color:'#566176' }}>──────</span>
+      <span style={sep}>sort: latest</span>
+      <div style={{ marginLeft:'auto', display:'flex', height:'100%' }}>
+        <span style={{ ...sep, color:'#9ECE6A', borderLeft:'1px solid #1F2A3A', borderRight:'none' }}>
+          <span className="pulse" style={{ fontSize:'8px', marginRight:'5px' }}>●</span> 3 online
+        </span>
+        <span style={{ padding:'0 14px', color:'#8B96AA', borderLeft:'1px solid #1F2A3A', height:'100%', display:'flex', alignItems:'center' }}>[ v0.1.0 ]</span>
+      </div>
+    </div>
+  );
+}
+
+// ── ASCII Spinner ─────────────────────────────────────────────
+function AsciiSpinner() {
+  const frames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+  const [f, setF] = useState(0);
+  useEffect(() => { const iv = setInterval(() => setF(n => (n+1)%frames.length), 80); return () => clearInterval(iv); }, []);
+  return <span>{frames[f]}</span>;
+}
+
+// ── Feed ───────────────────────────────────────────────────────
+function Feed({ activeMood, onMoodFilter, glowLevel }) {
+  const allPosts = activeMood ? POSTS_DATA.filter(p => p.mood === activeMood) : POSTS_DATA;
+  const [shown, setShown] = useState(2);
+  const [loading, setLoading] = useState(false);
+  const sentinelRef = useRef(null);
+  const hasMore = shown < allPosts.length;
+
+  useEffect(() => { setShown(2); }, [activeMood]);
+
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore && !loading) {
+        setLoading(true);
+        setTimeout(() => { setShown(s => Math.min(s + 2, allPosts.length)); setLoading(false); }, 700);
+      }
+    }, { rootMargin: '120px' });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [hasMore, loading, allPosts.length]);
+
+  const visible = allPosts.slice(0, shown);
+  return (
+    <main style={{ flex:1, padding:'16px 24px', minWidth:0 }} className="feed-pad">
+      <div style={{ maxWidth:'820px', margin:'0 auto' }}>
+      <FilterBar activeMood={activeMood} onMoodFilter={onMoodFilter} />
+      {visible.length === 0
+        ? (
+          <div style={{ textAlign:'center', padding:'60px 20px', fontFamily:"'JetBrains Mono',monospace" }}>
+            <div style={{ fontSize:'40px', marginBottom:'12px', opacity:.3 }}>◐</div>
+            <div style={{ color:'#8B96AA', marginBottom:'6px' }}>// no posts matching filter</div>
+            <div style={{ color:'#566176', fontSize:'11px' }}>$ cd ../feed && ls -la --all-moods</div>
+          </div>
+        )
+        : visible.map((p, i) => <PostCard key={p.id} post={p} glowLevel={glowLevel} delay={i * 60} />)
+      }
+      {/* Sentinel */}
+      <div ref={sentinelRef} style={{ padding:'20px 0', display:'flex', justifyContent:'center', alignItems:'center', minHeight:'40px' }}>
+        {loading && (
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', display:'flex', alignItems:'center', gap:'8px' }}>
+            <AsciiSpinner /> loading posts...
+          </span>
+        )}
+        {!hasMore && visible.length > 0 && (
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>
+            // end of feed · {allPosts.length} posts loaded
+          </span>
+        )}
+      </div>
+      </div>
+    </main>
+  );
+}
+
+// ── Tweaks Panel ───────────────────────────────────────────────
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"glowIntensity":"low","crtEffect":true}/*EDITMODE-END*/;
+
+function TweaksPanelInline({ tweaks, setTweak, onClose }) {
+  const btn = (active, onClick, label) => (
+    <button onClick={onClick} style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', padding:'4px 0', borderRadius:'4px', cursor:'pointer', background:active?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${active?'#00FFE580':'#2A3548'}`, color:active?'#00FFE5':'#A0AEC0' }}>
+      {label}
+    </button>
+  );
+  return (
+    <div style={{ position:'fixed', bottom:'40px', right:'16px', width:'240px', background:'#1A1F2E', border:'1px solid rgba(0,255,229,.3)', borderRadius:'10px', padding:'16px', zIndex:300, boxShadow:'0 0 30px rgba(0,255,229,.12),0 12px 40px rgba(0,0,0,.5)' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', marginBottom:'14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <span>// Tweaks</span>
+        <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'16px', lineHeight:1 }}>×</button>
+      </div>
+      {/* Glow */}
+      <div style={{ marginBottom:'12px' }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'6px' }}>glow.intensity</div>
+        <div style={{ display:'flex', gap:'4px' }}>
+          {['low','medium','high'].map(g => btn(tweaks.glowIntensity===g, ()=>setTweak('glowIntensity',g), g))}
+        </div>
+      </div>
+      {/* CRT */}
+      <div style={{ marginBottom:'12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>crt.scanline</span>
+        <button onClick={()=>setTweak('crtEffect',!tweaks.crtEffect)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', padding:'3px 12px', borderRadius:'4px', cursor:'pointer', background:tweaks.crtEffect?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${tweaks.crtEffect?'#00FFE580':'#2A3548'}`, color:tweaks.crtEffect?'#00FFE5':'#8B96AA' }}>
+          {tweaks.crtEffect?'ON':'OFF'}
+        </button>
+      </div>
+
+    </div>
+  );
+}
+
+// ── App ────────────────────────────────────────────────────────
+function App() {
+  const [activeMood, setActiveMood] = useState(null);
+  const [showCP, setShowCP] = useState(false);
+  const [tweaks, setTweaks] = useState(TWEAK_DEFAULTS);
+  const [showTweaks, setShowTweaks] = useState(false);
+
+  useEffect(() => {
+    const h = e => {
+      if (e.data?.type === '__activate_edit_mode')   setShowTweaks(true);
+      if (e.data?.type === '__deactivate_edit_mode') setShowTweaks(false);
+    };
+    window.addEventListener('message', h);
+    window.parent.postMessage({ type:'__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', h);
+  }, []);
+
+  useEffect(() => {
+    const h = e => {
+      if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); setShowCP(c=>!c); }
+    };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('no-crt', !tweaks.crtEffect);
+  }, [tweaks.crtEffect]);
+
+  const setTweak = (key, val) => {
+    const u = { ...tweaks, [key]:val };
+    setTweaks(u);
+    window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ [key]:val } }, '*');
+  };
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+      <div style={{ display:'flex', marginTop:'52px', minHeight:'calc(100vh - 52px - 28px)', paddingBottom:'28px' }}>
+        <Feed activeMood={activeMood} onMoodFilter={setActiveMood} glowLevel={tweaks.glowIntensity} />
+      </div>
+      <StatusBar />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+      {showTweaks && (
+        <TweaksPanelInline tweaks={tweaks} setTweak={setTweak}
+          onClose={() => { setShowTweaks(false); window.parent.postMessage({ type:'__edit_mode_dismissed' }, '*'); }} />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>
+</body>
+</html>

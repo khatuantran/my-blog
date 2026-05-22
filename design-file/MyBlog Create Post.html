@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · create post</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body { background:#0A0E1A; background-image:radial-gradient(circle,#2A354822 1px,transparent 1px); background-size:24px 24px; color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden; }
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse  { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.fade-up { animation:fadeUp .15s ease; }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.editor-area { width:100%; background:#070A14; border:1px solid #2A3548; color:#C9D1D9; font-family:'JetBrains Mono',monospace; font-size:14px; padding:14px; border-radius:6px; outline:none; resize:none; min-height:240px; line-height:1.7; transition:border-color .15s; }
+.editor-area:focus { border-color:#00FFE5; box-shadow:0 0 12px rgba(0,255,229,.1); }
+.editor-area::placeholder { color:#8B96AA; }
+.tag-inp { background:transparent; border:none; outline:none; font-family:'JetBrains Mono',monospace; font-size:12px; color:#C9D1D9; min-width:100px; }
+.tag-inp::placeholder { color:#8B96AA; }
+.btn-publish { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; color:#0A0E1A; background:#00FFE5; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; box-shadow:0 0 14px rgba(0,255,229,.3); }
+.btn-publish:hover { background:#00FFE5cc; box-shadow:0 0 22px rgba(0,255,229,.5); }
+.btn-draft { font-family:'JetBrains Mono',monospace; font-size:12px; color:#8B96AA; background:#1A1F2E; border:1px solid #2A3548; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; }
+.btn-draft:hover { color:#E6EDF3; border-color:#3D4A63; }
+.toolbar-btn { background:transparent; border:1px solid #2A3548; border-radius:4px; color:#8B96AA; cursor:pointer; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:12px; transition:all .15s; }
+.toolbar-btn:hover { color:#E6EDF3; border-color:#3D4A63; background:#1A1F2E; }
+@keyframes dashedPulse { 0%,100%{border-color:#2A3548} 50%{border-color:#3D4A63} }
+.upload-zone { border:2px dashed #2A3548; border-radius:8px; padding:28px 20px; text-align:center; cursor:pointer; transition:all .15s; animation:dashedPulse 2s ease-in-out infinite; }
+.upload-zone:hover { border-color:#00FFE580; background:rgba(0,255,229,.03); }
+@media(max-width:900px) { .preview-col { display:none !important; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const MOOD_LIST = ['HAPPY','SAD','EXCITED','THOUGHTFUL','GRATEFUL','ANGRY','CALM'];
+const TAG_COLORS = ['#00FFE5','#FF6E96','#BB9AF7','#9ECE6A','#E0AF68','#FF9E64','#7DCFFF'];
+
+function TagBadge({ name, color, onRemove }) {
+  return (
+    <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color, background:`${color}15`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', userSelect:'none' }}>
+      {name}
+      <span onClick={onRemove} style={{ cursor:'pointer', opacity:.7, fontSize:'12px', lineHeight:1, marginLeft:'2px' }}>×</span>
+    </span>
+  );
+}
+
+function ImageThumb({ idx, onRemove }) {
+  const cfgs = [{ bg:'#081420', acc:'#00FFE5' },{ bg:'#1A0A1E', acc:'#BB9AF7' },{ bg:'#081A0C', acc:'#9ECE6A' }];
+  const c = cfgs[idx % 3];
+  return (
+    <div style={{ position:'relative', width:'60px', height:'60px', borderRadius:'6px', overflow:'hidden', background:`repeating-linear-gradient(135deg,${c.bg} 0px,${c.bg} 6px,${c.acc}15 6px,${c.acc}15 12px)`, flexShrink:0 }}>
+      <button onClick={onRemove} style={{ position:'absolute', top:'2px', right:'2px', background:'rgba(10,14,26,.8)', border:'none', borderRadius:'50%', width:'16px', height:'16px', color:'#F7768E', cursor:'pointer', fontSize:'10px', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×</button>
+    </div>
+  );
+}
+
+function PostPreview({ mood, content, tags, imageCount }) {
+  const m = MOOD_CFG[mood] || MOOD_CFG.HAPPY;
+  const segs = [];
+  let rest = (content || '').slice(0, 300);
+  while (rest.length) {
+    const ci = rest.indexOf('```');
+    if (ci === -1) { segs.push({ t:'text', v:rest }); break; }
+    if (ci > 0) segs.push({ t:'text', v:rest.slice(0, ci) });
+    const ce = rest.indexOf('```', ci+3);
+    segs.push({ t:'code', v:rest.slice(ci+3, ce<0?undefined:ce).replace(/^[a-z]+\n/,'') });
+    rest = ce<0?'':rest.slice(ce+3);
+  }
+  return (
+    <div style={{ background:'#11151F', border:'1px solid rgba(0,255,229,.2)', borderRadius:'8px', padding:'16px', boxShadow:'0 0 20px rgba(0,255,229,.05)' }}>
+      <div style={{ display:'flex', alignItems:'flex-start', gap:'10px', marginBottom:'12px' }}>
+        <div style={{ width:'34px', height:'34px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5', flexShrink:0 }}>A</div>
+        <div style={{ flex:1 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'2px' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6440', borderRadius:'2px', padding:'0 3px' }}>[ ADMIN ]</span>
+          </div>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>just now</span>
+        </div>
+        <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${m.color}18`, border:`1px solid ${m.color}50`, borderRadius:'4px', padding:'2px 8px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:m.color }}>{m.emoji} {m.label}</span>
+      </div>
+      {content ? (
+        <div style={{ fontSize:'13px', lineHeight:'1.65', color:'#C9D1D9', marginBottom:'10px' }}>
+          {segs.map((s,i) => s.t==='code'
+            ? <pre key={i} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', background:'#070A14', border:'1px solid #2A3548', borderLeft:'2px solid rgba(158,206,106,.4)', borderRadius:'5px', padding:'8px 12px', color:'#9ECE6A', margin:'6px 0', overflowX:'auto', whiteSpace:'pre', lineHeight:'1.6' }}>{s.v.trim()}</pre>
+            : s.v.split('\n\n').map((p,j) => p.trim() ? <p key={`${i}-${j}`} style={{ marginBottom:'6px' }}>{p.trim()}</p> : null)
+          )}
+          {content.length > 300 && <span style={{ color:'#8B96AA', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>...</span>}
+        </div>
+      ) : (
+        <div style={{ color:'#566176', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontStyle:'italic', marginBottom:'10px' }}>// content preview will appear here...</div>
+      )}
+      {imageCount > 0 && (
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'3px', height:'80px', borderRadius:'5px', overflow:'hidden', marginBottom:'10px' }}>
+          {Array.from({length:Math.min(imageCount,3)}).map((_,i) => {
+            const cfgs=[{bg:'#081420',acc:'#00FFE5'},{bg:'#1A0A1E',acc:'#BB9AF7'},{bg:'#081A0C',acc:'#9ECE6A'}];
+            const c=cfgs[i%3];
+            return <div key={i} style={{ background:`repeating-linear-gradient(135deg,${c.bg} 0,${c.bg} 6px,${c.acc}12 6px,${c.acc}12 12px)` }} />;
+          })}
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'5px', marginBottom:'10px' }}>
+          {tags.map(t => <span key={t.name} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:t.color, background:`${t.color}15`, border:`1px solid ${t.color}40`, borderRadius:'4px', padding:'1px 7px' }}>{t.name}</span>)}
+        </div>
+      )}
+      <div style={{ display:'flex', gap:'2px', paddingTop:'8px', borderTop:'1px solid #1A1F2E' }}>
+        {['♡ 0','💬 0','🏷','↗'].map(a => (
+          <span key={a} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', padding:'4px 8px' }}>{a}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CreatePost() {
+  const [mood, setMood]         = useState('HAPPY');
+  const [content, setContent]   = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags]         = useState([]);
+  const [images, setImages]     = useState([]);
+  const [fileList, setFileList] = useState([]);
+  const [showCP, setShowCP]     = useState(false);
+  const [published, setPublished] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
+  const editorRef = React.useRef(null);
+
+  // Insert text at cursor position
+  const insertAtCursor = (text) => {
+    const el = editorRef.current;
+    if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    const next = content.slice(0, start) + text + content.slice(end);
+    setContent(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start + text.length, start + text.length);
+    });
+  };
+
+  // Wrap selected text with prefix/suffix
+  const wrapSelection = (prefix, suffix = prefix, placeholder = 'text') => {
+    const el = editorRef.current;
+    if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd;
+    const sel = content.slice(start, end) || placeholder;
+    const next = content.slice(0, start) + prefix + sel + suffix + content.slice(end);
+    setContent(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      el.setSelectionRange(start + prefix.length, start + prefix.length + sel.length);
+    });
+  };
+
+  const TOOLBAR = [
+    { label:'B',       title:'Bold (⌘B)',       action:() => wrapSelection('**', '**', 'bold text'), mono:true, weight:'700' },
+    { label:'I',       title:'Italic (⌘I)',      action:() => wrapSelection('*', '*', 'italic'), mono:false, italic:true },
+    { label:'</>',     title:'Inline code',      action:() => wrapSelection('`', '`', 'code'), mono:true },
+    { label:'``` ```', title:'Code block',       action:() => wrapSelection('```\n', '\n```', 'code here'), mono:true },
+    { label:'H1',      title:'Heading',          action:() => insertAtCursor('\n# '), mono:true },
+    { label:'H2',      title:'Subheading',       action:() => insertAtCursor('\n## '), mono:true },
+    { label:'—',       title:'Divider',          action:() => insertAtCursor('\n---\n'), mono:true },
+    { label:'• list',  title:'Bullet list',      action:() => insertAtCursor('\n- item\n- item\n'), mono:true },
+    { label:'link',    title:'Hyperlink',        action:() => wrapSelection('[', '](url)', 'link text'), mono:true },
+  ];
+
+  const EMOJI_GROUPS = [
+    { label:'faces', emojis:['😊','😂','🤔','😅','😭','🥹','😍','🤩','😎','😏','🫡','🥲','😤','😠','🙄','🤯'] },
+    { label:'hands', emojis:['👋','✌️','🤙','👍','👎','🙏','💪','🤝','✨','❤️','🔥','💯','⚡','🎉','🚀','💡'] },
+    { label:'dev',   emojis:['💻','⌨️','🖥️','🖱️','📱','🔧','⚙️','🐛','🧪','📦','🔑','🛡️','⚠️','✅','❌','🔄'] },
+    { label:'nature',emojis:['☕','🍵','🌙','☀️','🌧️','🌈','🌊','🔮','💎','🎯','🎨','📸','🎵','📚','🗒️','📌'] },
+  ];
+
+  // Keyboard shortcuts
+  const handleKeyDown = (e) => {
+    if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('  '); return; }
+    if (e.metaKey || e.ctrlKey) {
+      if (e.key === 'b') { e.preventDefault(); wrapSelection('**', '**', 'bold'); }
+      if (e.key === 'i') { e.preventDefault(); wrapSelection('*', '*', 'italic'); }
+      if (e.key === 'e') { e.preventDefault(); wrapSelection('`', '`', 'code'); }
+      if (e.key === 'k') { e.preventDefault(); wrapSelection('[', '](url)', 'link'); }
+    }
+  };
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const addTag = () => {
+    const name = tagInput.trim().replace(/^#?/, '#').toLowerCase();
+    if (!name || name === '#' || tags.find(t=>t.name===name)) { setTagInput(''); return; }
+    const color = TAG_COLORS[tags.length % TAG_COLORS.length];
+    setTags([...tags, { name, color }]);
+    setTagInput('');
+  };
+
+  const addImage = () => { if (images.length < 10) setImages([...images, images.length]); };
+
+  const handlePublish = () => {
+    setPublished(true);
+    setTimeout(() => { window.location.href = 'MyBlog Feed.html'; }, 1200);
+  };
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+
+      {/* Sub-toolbar */}
+      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'44px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 20px', gap:'12px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>
+        <span style={{ color:'#8B96AA' }}>~/admin/create-post</span>
+        <span style={{ color:'#566176' }}>──</span>
+        <span style={{ color:'#E0AF68' }}>● draft · unsaved</span>
+        <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+          <button className="btn-draft" onClick={() => {}}>⌘S Save Draft</button>
+          <button className="btn-publish" onClick={handlePublish}>
+            {published ? '✓ Published!' : '⌘↵ Publish'}
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display:'flex', marginTop:'96px', height:'calc(100vh - 96px - 28px)', overflow:'hidden' }}>
+
+        {/* ── EDITOR ── */}
+        <div style={{ flex:1, padding:'20px 24px', overflowY:'auto', borderRight:'1px solid #1F2A3A', display:'flex', flexDirection:'column', gap:'18px' }}>
+
+          {/* Mood picker */}
+          <div>
+            <div className="sb-lbl">// mood</div>
+            <div style={{ display:'flex', gap:'8px', flexWrap:'wrap' }}>
+              {MOOD_LIST.map(m => {
+                const c = MOOD_CFG[m]; const isA = mood===m;
+                return (
+                  <button key={m} onClick={() => setMood(m)} title={c.label}
+                    style={{ width:'42px', height:'42px', borderRadius:'8px', border:`2px solid ${isA ? c.color : '#2A3548'}`, background: isA ? `${c.color}18` : '#1A1F2E', fontSize:'20px', cursor:'pointer', transition:'all .15s', boxShadow: isA ? `0 0 14px ${c.color}50` : 'none', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    {c.emoji}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div style={{ position:'relative' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px' }}>
+              <div className="sb-lbl" style={{ marginBottom:0, flex:1 }}>// content</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{content.length} chars · ⌘B bold · ⌘I italic · ⌘E code · Tab indent</div>
+            </div>
+
+            {/* Toolbar */}
+            <div style={{ display:'flex', gap:'4px', flexWrap:'nowrap', overflowX:'auto', padding:'6px 8px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', alignItems:'center', scrollbarWidth:'none', marginBottom:'6px' }}>
+              {TOOLBAR.map((t, i) => (
+                <button key={i} onClick={t.action} title={t.title} className="toolbar-btn"
+                  style={{ fontFamily:t.mono?"'JetBrains Mono',monospace":'inherit', fontWeight:t.weight||'400', fontStyle:t.italic?'italic':'normal', fontSize:'11px' }}>
+                  {t.label}
+                </button>
+              ))}
+              <div style={{ width:'1px', height:'18px', background:'#2A3548', margin:'0 2px' }} />
+              {/* Emoji button */}
+              <button onClick={() => setShowEmoji(!showEmoji)} title="Insert emoji"
+                className="toolbar-btn"
+                style={{ fontSize:'14px', background:showEmoji?'rgba(0,255,229,.12)':'transparent', borderColor:showEmoji?'rgba(0,255,229,.4)':'#2A3548', color:showEmoji?'#00FFE5':'#8B96AA' }}>
+                🙂
+              </button>
+            </div>
+
+            {/* Emoji picker */}
+            {showEmoji && (
+              <div style={{ position:'absolute', top:'70px', right:0, zIndex:50, background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderRadius:'8px', padding:'12px', boxShadow:'0 8px 32px rgba(0,0,0,.5)', width:'300px' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'8px' }}>// emoji.picker · click to insert</div>
+                {EMOJI_GROUPS.map(g => (
+                  <div key={g.label} style={{ marginBottom:'8px' }}>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginBottom:'4px' }}>{g.label}</div>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:'2px' }}>
+                      {g.emojis.map(em => (
+                        <button key={em} onClick={() => { insertAtCursor(em); setShowEmoji(false); }}
+                          style={{ width:'28px', height:'28px', background:'transparent', border:'1px solid transparent', borderRadius:'5px', cursor:'pointer', fontSize:'16px', display:'flex', alignItems:'center', justifyContent:'center', transition:'all .1s' }}
+                          onMouseEnter={e => { e.target.style.background='#232936'; e.target.style.borderColor='#2A3548'; }}
+                          onMouseLeave={e => { e.target.style.background='transparent'; e.target.style.borderColor='transparent'; }}>
+                          {em}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Textarea */}
+            <textarea
+              ref={editorRef}
+              className="editor-area"
+              value={content}
+              onChange={e => setContent(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`~$ start writing...\n\nTip: ⌘B bold · ⌘I italic · ⌘E inline code · ⌘K link · Tab indent`}
+            />
+          </div>
+
+          {/* Images */}
+          <div>
+            <div className="sb-lbl">// images <span style={{ color:'#566176' }}>({images.length}/10)</span></div>
+            {images.length < 10 && (
+              <div className="upload-zone" onClick={addImage}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', marginBottom:'4px' }}>❯ drag & drop or click to upload</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>PNG, JPG, WebP · max 5MB each</div>
+              </div>
+            )}
+            {images.length > 0 && (
+              <div style={{ display:'flex', gap:'8px', marginTop:'10px', flexWrap:'wrap' }}>
+                {images.map((_, i) => (
+                  <ImageThumb key={i} idx={i} onRemove={() => setImages(images.filter((_,j)=>j!==i))} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Files */}
+          <div>
+            <div className="sb-lbl">// files <span style={{ color:'#566176' }}>({fileList.length}/20)</span></div>
+            <div className="upload-zone" onClick={() => {
+              const types = [['report-draft.pdf','pdf','2.1 MB'],['notes.docx','docx','840 KB'],['data.xlsx','xlsx','156 KB'],['readme.txt','txt','4 KB']];
+              const pick = types[fileList.length % types.length];
+              if(fileList.length < 20) setFileList([...fileList, { name:pick[0], type:pick[1], size:pick[2] }]);
+            }} style={{ padding:'16px 20px' }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', marginBottom:'3px' }}>❯ drag & drop docs, PDFs, spreadsheets...</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>PDF · DOC · DOCX · XLS · XLSX · TXT · CSV · max 20MB each</div>
+            </div>
+            {fileList.length > 0 && (
+              <div style={{ display:'flex', flexDirection:'column', gap:'4px', marginTop:'10px' }}>
+                {fileList.map((f, i) => {
+                  const cfgMap = { pdf:'#F7768E', docx:'#7DCFFF', doc:'#7DCFFF', xlsx:'#9ECE6A', xls:'#9ECE6A', txt:'#A0AEC0', csv:'#E0AF68' };
+                  const color = cfgMap[f.type] || '#8B96AA';
+                  const label = f.type.toUpperCase();
+                  return (
+                    <div key={i} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'7px 12px', background:'#0A0E1A', border:`1px solid ${color}28`, borderRadius:'6px', borderLeft:`2px solid ${color}70` }}>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 5px', flexShrink:0 }}>{label}</span>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
+                      <button onClick={() => setFileList(fileList.filter((_,j)=>j!==i))} style={{ background:'none', border:'none', color:'#F7768E', cursor:'pointer', fontSize:'14px', lineHeight:1, flexShrink:0 }}>×</button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Tags */}
+          <div>
+            <div className="sb-lbl">// tags</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', padding:'10px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', alignItems:'center', minHeight:'44px' }}>
+              {tags.map(t => <TagBadge key={t.name} name={t.name} color={t.color} onRemove={() => setTags(tags.filter(x=>x.name!==t.name))} />)}
+              <input className="tag-inp" value={tagInput} onChange={e=>setTagInput(e.target.value)}
+                onKeyDown={e => { if (e.key==='Enter'||e.key===','||e.key===' ') { e.preventDefault(); addTag(); } }}
+                placeholder="❯ add tag..." />
+            </div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'4px' }}>Press Enter, comma or space to add</div>
+          </div>
+        </div>
+
+        {/* ── PREVIEW ── */}
+        <div className="preview-col" style={{ width:'380px', minWidth:'380px', padding:'20px', overflowY:'auto', background:'#0A0E1A' }}>
+          <div className="sb-lbl">// live.preview</div>
+          <PostPreview mood={mood} content={content} tags={tags} imageCount={images.length} />
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'10px', textAlign:'center' }}>
+            // preview updates in real-time
+          </div>
+        </div>
+      </div>
+
+      <StatusBar path="~/admin/create-post" info="● draft · unsaved" />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(CreatePost));
+</script>
+</body>
+</html>

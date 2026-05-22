@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body { background:#0A0E1A; background-image:radial-gradient(circle,#2A354822 1px,transparent 1px); background-size:24px 24px; color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden; }
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse    { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+@keyframes liveDot  { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.4);opacity:1} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.live-dot { animation:liveDot 1.5s ease-in-out infinite; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.fade-up { animation:fadeUp .15s ease; }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.stat-card { background:#11151F; border:1px solid #2A3548; border-radius:8px; padding:14px 16px; transition:all .2s; cursor:pointer; position:relative; overflow:hidden; }
+.stat-card:hover { border-color:rgba(0,255,229,.3); box-shadow:0 0 20px rgba(0,255,229,.06); }
+.tbl-row { display:grid; padding:10px 14px; border-bottom:1px solid #1A1F2E; align-items:center; transition:background .1s; }
+.tbl-row:hover { background:#1A1F2E; }
+.tbl-hd { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; }
+.tbl-cell { font-family:'JetBrains Mono',monospace; font-size:12px; color:#C9D1D9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.act-ghost { font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 8px; border-radius:4px; border:1px solid; cursor:pointer; background:transparent; transition:all .15s; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const USERS = [
+  { username:'@admin',  role:'ADMIN', last:'now',    posts:42, status:'online' },
+  { username:'@user1',  role:'USER',  last:'2m ago', posts:0,  status:'online' },
+  { username:'@user2',  role:'USER',  last:'1h ago', posts:0,  status:'idle'   },
+  { username:'Anon#7',  role:'ANON',  last:'5m ago', posts:0,  status:'online' },
+  { username:'@user3',  role:'USER',  last:'3h ago', posts:0,  status:'offline'},
+];
+
+const MOD_COMMENTS = [
+  { id:1, user:'@user1',  post:'abc123', text:'Relatable quá! Mình cũng từng mất 2 ngày vì typo 😭', time:'1h ago',  status:'approved' },
+  { id:2, user:'Anon#7',  post:'xyz789', text:'Cảm ơn bạn đã chia sẻ kiến thức!', time:'45m ago', status:'approved' },
+  { id:3, user:'@user2',  post:'def456', text:'Cursor AI thật sự là game changer. Dùng thử 1 tuần rồi không quay lại được.', time:'20m ago', status:'pending'  },
+  { id:4, user:'Anon#11', post:'ghi012', text:'Bài viết hay quá, subscribe ngay!', time:'5m ago',  status:'pending'  },
+];
+
+const ACTIVITY_LOG = [
+  { icon:'❤', msg:'@user1 liked post #abc123',     time:'2m ago',  color:'#FF6E96' },
+  { icon:'💬', msg:'Anon#7 commented on #xyz789',  time:'5m ago',  color:'#7DCFFF' },
+  { icon:'🔖', msg:'@user2 saved post #abc123',    time:'12m ago', color:'#E0AF68' },
+  { icon:'❤', msg:'@user3 liked post #def456',     time:'18m ago', color:'#FF6E96' },
+  { icon:'👤', msg:'New anonymous session Anon#11',time:'22m ago', color:'#BB9AF7' },
+  { icon:'💬', msg:'@user1 commented on #def456',  time:'25m ago', color:'#7DCFFF' },
+];
+
+function Sparkline({ data, color = '#00FFE5', width = 80, height = 22 }) {
+  const max = Math.max(...data), min = Math.min(...data), range = max-min||1, p = 2;
+  const pts = data.map((v,i) => `${(i/(data.length-1))*width},${height-p-((v-min)/range)*(height-p*2)}`).join(' ');
+  const gid = `spk${color.replace(/[^a-zA-Z0-9]/g,'')}`;
+  const lx = width, ly = height-p-((data[data.length-1]-min)/range)*(height-p*2);
+  return (
+    <svg width={width} height={height} style={{ display:'block', overflow:'visible' }}>
+      <defs><linearGradient id={gid} x1="0" x2="1"><stop offset="0%" stopColor={color} stopOpacity=".2"/><stop offset="100%" stopColor={color} stopOpacity="1"/></linearGradient></defs>
+      <polyline points={pts} fill="none" stroke={`url(#${gid})`} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+      <circle cx={lx} cy={ly} r="2.5" fill={color} style={{ filter:`drop-shadow(0 0 3px ${color})` }}/>
+    </svg>
+  );
+}
+
+function MoodBar({ label, emoji, count, total, color }) {
+  const pct = Math.round((count/total)*100);
+  return (
+    <div style={{ marginBottom:'10px' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
+          <span style={{ fontSize:'13px' }}>{emoji}</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color }}>{label}</span>
+        </div>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{count} · {pct}%</span>
+      </div>
+      <div style={{ height:'4px', background:'#1A1F2E', borderRadius:'2px' }}>
+        <div style={{ height:'100%', width:`${pct}%`, background:`linear-gradient(90deg,${color}80,${color})`, borderRadius:'2px', boxShadow:`0 0 6px ${color}60`, transition:'width .4s ease' }} />
+      </div>
+    </div>
+  );
+}
+
+function AdminDashboard() {
+  const [modComments, setModComments] = useState(MOD_COMMENTS);
+  const [bannedUsers, setBannedUsers] = useState([]);
+  const [showCP, setShowCP] = useState(false);
+  const total = MOOD_STATS.reduce((s,m)=>s+m.count, 0);
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const stats = [
+    { label:'POSTS',    value:'42',   delta:'+5',  key:'posts',    color:'#00FFE5' },
+    { label:'LIKES',    value:'287',  delta:'+24', key:'likes',    color:'#FF6E96' },
+    { label:'COMMENTS', value:'64',   delta:'+3',  key:'comments', color:'#BB9AF7' },
+    { label:'VIEWS',    value:'1.2k', delta:'+89', key:'views',    color:'#9ECE6A' },
+  ];
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+
+      {/* Admin sub-bar */}
+      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'40px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 20px', gap:'16px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>
+        <span style={{ color:'#8B96AA' }}>~/admin/dashboard</span>
+        <span style={{ color:'#566176' }}>──</span>
+        <span style={{ display:'flex', alignItems:'center', gap:'5px', color:'#9ECE6A' }}>
+          <span className="live-dot" style={{ width:'7px', height:'7px', borderRadius:'50%', background:'#9ECE6A', display:'inline-block' }} />
+          live mode
+        </span>
+        <span style={{ color:'#566176' }}>last update: 14:32</span>
+        <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+          <a href="MyBlog Create Post.html" style={{ textDecoration:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.35)', borderRadius:'5px', padding:'4px 12px' }}>✏️ New Post</a>
+          <a href="MyBlog Tags.html" style={{ textDecoration:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#E0AF68', background:'rgba(224,175,104,.08)', border:'1px solid rgba(224,175,104,.35)', borderRadius:'5px', padding:'4px 12px' }}>🏷 Tags</a>
+        </div>
+      </div>
+
+      <div style={{ marginTop:'92px', padding:'20px 24px', paddingBottom:'40px', maxWidth:'1400px', margin:'92px auto 0', animation:'fadeUp .3s ease' }}>
+
+        {/* Stats row */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'24px' }}>
+          {stats.map(s => (
+            <div key={s.label} className="stat-card" style={{ borderLeft:`3px solid ${s.color}` }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'10px' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#8B96AA', letterSpacing:'.08em' }}>{s.label}</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:s.color }}>{s.delta} today</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+                <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:'28px', fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</span>
+                <Sparkline data={SPARKLINES[s.key]} color={s.color} width={80} height={24} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 2-col layout */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'16px', marginBottom:'16px' }}>
+
+          {/* Mood distribution */}
+          <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'16px' }}>
+            <div className="sb-lbl">// mood.distribution <span style={{ color:'#566176', marginLeft:'4px' }}>{total} posts</span></div>
+            {MOOD_STATS.map(m => {
+              const c = MOOD_CFG[m.mood];
+              return <MoodBar key={m.mood} label={c.label} emoji={c.emoji} count={m.count} total={total} color={c.color} />;
+            })}
+          </div>
+
+          {/* Activity log */}
+          <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'16px', overflowY:'auto', maxHeight:'320px' }}>
+            <div className="sb-lbl">// activity.log</div>
+            {ACTIVITY_LOG.map((a,i) => (
+              <div key={i} style={{ display:'flex', gap:'10px', padding:'8px 0', borderBottom:'1px solid #1A1F2E', alignItems:'flex-start' }}>
+                <span style={{ fontSize:'14px', flexShrink:0 }}>{a.icon}</span>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:'12px', color:'#C9D1D9', lineHeight:'1.4' }}>{a.msg}</div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>{a.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Users table */}
+        <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', marginBottom:'16px', overflow:'hidden' }}>
+          <div style={{ padding:'14px 16px', borderBottom:'1px solid #1F2A3A' }}>
+            <div className="sb-lbl" style={{ marginBottom:0 }}>// users.table <span style={{ color:'#566176', marginLeft:'4px' }}>{USERS.length} total</span></div>
+          </div>
+          {/* Header */}
+          <div className="tbl-row" style={{ gridTemplateColumns:'2fr 1fr 1.5fr 1fr 1.5fr', background:'#0A0E1A', borderBottom:'1px solid #2A3548' }}>
+            {['Username','Role','Last seen','Posts','Actions'].map(h => (
+              <span key={h} className="tbl-hd">{h}</span>
+            ))}
+          </div>
+          {/* Rows */}
+          {USERS.map(u => {
+            const isBanned = bannedUsers.includes(u.username);
+            const dotColor = u.status==='online'?'#9ECE6A':u.status==='idle'?'#E0AF68':'#566176';
+            return (
+              <div key={u.username} className="tbl-row" style={{ gridTemplateColumns:'2fr 1fr 1.5fr 1fr 1.5fr', opacity:isBanned?.5:1 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span style={{ color:dotColor, fontSize:'8px' }}>●</span>
+                  <span className="tbl-cell" style={{ color: u.role==='ADMIN'?'#00FFE5':u.role==='ANON'?'#BB9AF7':'#C9D1D9' }}>{u.username}</span>
+                </div>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color: u.role==='ADMIN'?'#FF9E64':u.role==='ANON'?'#BB9AF7':'#8B96AA', border:`1px solid ${u.role==='ADMIN'?'#FF9E6450':'#2A3548'}`, borderRadius:'2px', padding:'1px 5px', width:'fit-content' }}>[ {u.role} ]</span>
+                <span className="tbl-cell" style={{ color:'#8B96AA' }}>{u.last}</span>
+                <span className="tbl-cell">{u.posts}</span>
+                <div style={{ display:'flex', gap:'6px' }}>
+                  {u.role !== 'ADMIN' && (
+                    <button className="act-ghost"
+                      onClick={() => setBannedUsers(isBanned ? bannedUsers.filter(x=>x!==u.username) : [...bannedUsers, u.username])}
+                      style={{ color:isBanned?'#9ECE6A':'#F7768E', borderColor:isBanned?'#9ECE6A50':'#F7768E50' }}>
+                      {isBanned ? 'Unban' : 'Ban'}
+                    </button>
+                  )}
+                  <button className="act-ghost" style={{ color:'#7DCFFF', borderColor:'#7DCFFF50' }}>View</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Comments moderation */}
+        <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', overflow:'hidden' }}>
+          <div style={{ padding:'14px 16px', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', gap:'10px' }}>
+            <div className="sb-lbl" style={{ marginBottom:0, flex:1 }}>// comments.moderation</div>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#E0AF68', background:'rgba(224,175,104,.1)', border:'1px solid rgba(224,175,104,.3)', borderRadius:'3px', padding:'2px 7px' }}>
+              {modComments.filter(c=>c.status==='pending').length} pending
+            </span>
+          </div>
+          {modComments.map(c => (
+            <div key={c.id} className="tbl-row" style={{ display:'flex', gap:'12px', padding:'12px 16px', borderBottom:'1px solid #1A1F2E', alignItems:'flex-start' }}>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'4px' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF' }}>{c.user}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176' }}>on #{c.post}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginLeft:'auto' }}>{c.time}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color: c.status==='pending'?'#E0AF68':'#9ECE6A', background: c.status==='pending'?'rgba(224,175,104,.1)':'rgba(158,206,106,.1)', border:`1px solid ${c.status==='pending'?'rgba(224,175,104,.3)':'rgba(158,206,106,.3)'}`, borderRadius:'3px', padding:'1px 5px' }}>
+                    {c.status}
+                  </span>
+                </div>
+                <p style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.4', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{c.text}</p>
+              </div>
+              <div style={{ display:'flex', gap:'6px', flexShrink:0 }}>
+                {c.status === 'pending' && (
+                  <button className="act-ghost" onClick={() => setModComments(modComments.map(x=>x.id===c.id?{...x,status:'approved'}:x))}
+                    style={{ color:'#9ECE6A', borderColor:'#9ECE6A50' }}>✓ Approve</button>
+                )}
+                <button className="act-ghost" onClick={() => setModComments(modComments.filter(x=>x.id!==c.id))}
+                  style={{ color:'#F7768E', borderColor:'#F7768E50' }}>✕ Delete</button>
+              </div>
+            </div>
+          ))}
+          {modComments.length === 0 && (
+            <div style={{ padding:'24px', textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#566176' }}>
+              // no comments to moderate
+            </div>
+          )}
+        </div>
+      </div>
+
+      <StatusBar path="~/admin/dashboard" info="● live mode" />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(AdminDashboard));
+</script>
+</body>
+</html>

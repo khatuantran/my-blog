@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · ~/auth/login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body {
+  background:#0A0E1A;
+  background-image: radial-gradient(circle, #2A354822 1px, transparent 1px);
+  background-size:24px 24px;
+  color:#E6EDF3; font-family:'JetBrains Mono',monospace;
+  display:flex; align-items:center; justify-content:center; min-height:100vh;
+}
+body::after {
+  content:''; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px);
+  pointer-events:none; z-index:9999;
+}
+@keyframes scanCard { 0%{top:-100%} 100%{top:200%} }
+@keyframes blink    { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+@keyframes pulse    { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.inp {
+  width:100%; background:#070A14; border:1px solid #2A3548; color:#E6EDF3;
+  font-family:'JetBrains Mono',monospace; font-size:14px;
+  padding:10px 12px 10px 32px; border-radius:6px; outline:none; transition:all .15s;
+}
+.inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.2); }
+.inp::placeholder { color:#8B96AA; }
+.btn-primary {
+  width:100%; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600;
+  color:#00FFE5; background:rgba(0,255,229,.08); border:1px solid rgba(0,255,229,.4);
+  border-radius:6px; padding:11px; cursor:pointer; transition:all .15s;
+  box-shadow:0 0 12px rgba(0,255,229,.12);
+}
+.btn-primary:hover { background:rgba(0,255,229,.14); box-shadow:0 0 20px rgba(0,255,229,.2); }
+.btn-primary:disabled { color:#8B96AA; background:#1A1F2E; border-color:#2A3548; box-shadow:none; cursor:default; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+const SPIN = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+
+function Login() {
+  const [user, setUser]       = useState('');
+  const [pass, setPass]       = useState('');
+  const [showPw, setShowPw]   = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState('');
+  const [frame, setFrame]     = useState(0);
+  const [blink, setBlink]     = useState(true);
+  const [shaking, setShaking] = useState(false);
+
+  useEffect(() => { const iv = setInterval(() => setBlink(b=>!b), 530); return () => clearInterval(iv); }, []);
+  useEffect(() => {
+    if (!loading) return;
+    const iv = setInterval(() => setFrame(f=>(f+1)%SPIN.length), 80);
+    return () => clearInterval(iv);
+  }, [loading]);
+
+  const fail = msg => {
+    setLoading(false); setError(msg);
+    setShaking(true); setTimeout(() => setShaking(false), 450);
+  };
+
+  const submit = e => {
+    e.preventDefault();
+    if (!user.trim() || !pass) return fail('[ERROR] all fields required');
+    setError(''); setLoading(true);
+    setTimeout(() => {
+      if (user === 'admin' && pass === 'admin') window.location.href = 'MyBlog Feed.html';
+      else fail('[ERROR] invalid credentials · hint: admin / admin');
+    }, 1800);
+  };
+
+  return (
+    <div style={{ width:'100%', maxWidth:'420px', padding:'20px', animation:'fadeUp .35s ease' }}>
+
+      {/* Card */}
+      <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'12px', overflow:'hidden',
+        boxShadow:'0 0 50px rgba(0,255,229,.07),0 20px 60px rgba(0,0,0,.55)',
+        animation:shaking?'shake .4s ease':undefined, position:'relative' }}>
+
+        {/* Moving scan line */}
+        <div style={{ position:'absolute', left:0, right:0, height:'2px', background:'linear-gradient(90deg,transparent,rgba(0,255,229,.18),transparent)', animation:'scanCard 4s linear infinite', zIndex:2, pointerEvents:'none' }} />
+
+        {/* Terminal header */}
+        <div style={{ background:'#0A0E1A', borderBottom:'1px solid #1F2A3A', padding:'14px 18px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'6px' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24"><polyline points="8,3 3,12 8,21" stroke="#00FFE5" strokeWidth="2.5" fill="none" strokeLinecap="round"/><polyline points="16,3 21,12 16,21" stroke="#BB9AF7" strokeWidth="2.5" fill="none" strokeLinecap="round"/></svg>
+            <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'14px', letterSpacing:'-0.03em' }}>
+              <span style={{ color:'#E6EDF3' }}>kha</span><span style={{ color:'#00FFE5' }}>.</span><span style={{ color:'#A0AEC0', fontWeight:500 }}>blog</span>
+            </span>
+            <span style={{ fontSize:'10px', color:'#566176', marginLeft:'4px' }}>v0.1.0</span>
+          </div>
+          <div style={{ fontSize:'12px', color:'#8B96AA' }}>
+            ~/auth/login<span style={{ color:'#00FFE5', opacity:blink?1:0 }}>_</span>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={submit} style={{ padding:'22px 20px 26px' }}>
+          <div style={{ fontSize:'10px', color:'#8B96AA', marginBottom:'18px' }}>// authenticate to continue</div>
+
+          {/* Username */}
+          <div style={{ marginBottom:'14px' }}>
+            <div style={{ fontSize:'10px', color:'#8B96AA', marginBottom:'6px' }}>username</div>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#00FFE5', fontSize:'12px' }}>❯</span>
+              <input className="inp" type="text" value={user} onChange={e=>setUser(e.target.value)} placeholder="enter username..." autoComplete="username" autoFocus />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div style={{ marginBottom:'20px' }}>
+            <div style={{ fontSize:'10px', color:'#8B96AA', marginBottom:'6px' }}>password</div>
+            <div style={{ position:'relative' }}>
+              <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#00FFE5', fontSize:'12px' }}>❯</span>
+              <input className="inp" type={showPw?'text':'password'} value={pass} onChange={e=>setPass(e.target.value)} placeholder="enter password..." style={{ paddingRight:'42px' }} />
+              <button type="button" onClick={() => setShowPw(!showPw)}
+                style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'13px', lineHeight:1 }}>
+                {showPw ? '🙈' : '👁'}
+              </button>
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div style={{ fontSize:'12px', color:'#F7768E', marginBottom:'14px', padding:'8px 12px', background:'rgba(247,118,142,.08)', border:'1px solid rgba(247,118,142,.3)', borderRadius:'5px' }}>
+              {error}
+            </div>
+          )}
+
+          {/* Submit */}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? `[ ${SPIN[frame]} AUTHENTICATING... ]` : '[ AUTHENTICATE ↵ ]'}
+          </button>
+
+          {/* Divider */}
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', margin:'18px 0 14px' }}>
+            <div style={{ flex:1, height:'1px', background:'#1F2A3A' }} />
+            <span style={{ fontSize:'10px', color:'#566176' }}>── or ──</span>
+            <div style={{ flex:1, height:'1px', background:'#1F2A3A' }} />
+          </div>
+
+          {/* Anonymous */}
+          <a href="MyBlog Feed.html" style={{ display:'block', textAlign:'center', textDecoration:'none', fontSize:'12px', color:'#BB9AF7', padding:'9px', borderRadius:'6px', border:'1px solid rgba(187,154,247,.2)', background:'rgba(187,154,247,.05)', transition:'all .15s' }}>
+            Continue as anonymous →
+          </a>
+
+          {/* Register link */}
+          <div style={{ marginTop:'16px', textAlign:'center', fontSize:'11px', color:'#566176' }}>
+            // no account? <a href="#" style={{ color:'#7DCFFF', textDecoration:'none' }}>❯ register here</a>
+          </div>
+        </form>
+      </div>
+
+      {/* Bottom mini status */}
+      <div style={{ display:'flex', justifyContent:'space-between', marginTop:'14px', fontSize:'10px', color:'#566176' }}>
+        <span><span className="pulse" style={{ color:'#9ECE6A', fontSize:'7px' }}>●</span> connected to server</span>
+        <span>build: a1b2c3</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Login));
+</script>
+</body>
+</html>

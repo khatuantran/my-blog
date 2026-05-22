@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · ~/search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body {
+  background:#0A0E1A;
+  background-image:radial-gradient(circle,#2A354822 1px,transparent 1px);
+  background-size:24px 24px;
+  color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden;
+}
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse    { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+@keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.fade-up { animation:fadeUp .2s ease both; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.result-card { background:#11151F; border:1px solid #2A3548; border-radius:8px; padding:16px 18px; margin-bottom:10px; transition:all .2s; cursor:pointer; position:relative; overflow:hidden; }
+.result-card:hover { border-color:rgba(0,255,229,.4); box-shadow:0 0 20px rgba(0,255,229,.08); }
+.result-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(0,255,229,.3),transparent); opacity:0; transition:opacity .2s; }
+.result-card:hover::before { opacity:1; }
+.filter-chip { font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 12px; border:1px solid #2A3548; border-radius:4px; background:#1A1F2E; color:#8B96AA; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.filter-chip:hover { border-color:#3D4A63; color:#C9D1D9; }
+.filter-chip.active { color:#00FFE5; border-color:rgba(0,255,229,.5); background:rgba(0,255,229,.08); box-shadow:0 0 8px rgba(0,255,229,.12); }
+.big-search { width:100%; background:#11151F; border:1px solid #2A3548; color:#E6EDF3; font-family:'JetBrains Mono',monospace; font-size:18px; padding:14px 56px; border-radius:8px; outline:none; transition:all .2s; }
+.big-search:focus { border-color:#00FFE5; box-shadow:0 0 24px rgba(0,255,229,.18); }
+.big-search::placeholder { color:#3D4A63; }
+mark { background:rgba(0,255,229,.2); color:#00FFE5; border-radius:2px; padding:0 2px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef, useMemo } = React;
+
+// ── Extended mock data ─────────────────────────────────────────
+const ALL_POSTS = [
+  ...POSTS_DATA,
+  {
+    id:'jkl345', time:'3d ago', ts:'[2026-05-15 11:00]', mood:'GRATEFUL',
+    content:'Cảm ơn community đã support trong 1 năm qua. Từ con số 0, giờ blog đã có hơn 1000 lượt xem mỗi tháng. Mỗi comment, mỗi like đều là động lực cực lớn 🙏',
+    images:0, files:[], tags:['#life','#grateful','#blog'], likes:56, comments:9, saved:false,
+  },
+  {
+    id:'mno678', time:'5d ago', ts:'[2026-05-13 16:30]', mood:'EXCITED',
+    content:'Vừa setup xong homelab với Proxmox + Docker Swarm. Self-hosted toàn bộ: Gitea, Nextcloud, Portainer, monitoring stack (Grafana + Prometheus). Chi phí: 0đ/tháng 🎉',
+    images:3, files:[{ name:'homelab-setup.pdf', type:'pdf', size:'4.2 MB' }],
+    tags:['#devops','#selfhosted','#homelab'], likes:38, comments:14, saved:true,
+  },
+];
+
+const RECENT_SEARCHES = ['react hooks', '#code', 'deploy', 'cursor ai', '#books'];
+
+// Highlight matching text
+function Highlight({ text, query }) {
+  if (!query.trim()) return <span>{text}</span>;
+  const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'));
+  return (
+    <span>
+      {parts.map((p, i) =>
+        p.toLowerCase() === query.toLowerCase()
+          ? <mark key={i}>{p}</mark>
+          : <span key={i}>{p}</span>
+      )}
+    </span>
+  );
+}
+
+// ── Result card ────────────────────────────────────────────────
+function ResultCard({ post, query, delay }) {
+  const mood = MOOD_CFG[post.mood];
+  const tagColor = n => TAGS_DATA.find(t=>t.name===n)?.color||'#00FFE5';
+  const preview = post.content.replace(/```[\s\S]*?```/g,'[code]').replace(/[#*`]/g,'').trim();
+
+  return (
+    <a href="MyBlog Post Detail.html" style={{ textDecoration:'none' }}>
+      <div className="result-card fade-up" style={{ animationDelay:`${delay}ms` }}>
+        {/* Top row */}
+        <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px', flexWrap:'wrap' }}>
+          <div style={{ width:'26px', height:'26px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', color:'#00FFE5', fontWeight:700, flexShrink:0 }}>A</div>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6440', borderRadius:'2px', padding:'0 4px' }}>[ ADMIN ]</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>·</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{post.ts}</span>
+          <span style={{ marginLeft:'auto', display:'inline-flex', alignItems:'center', gap:'4px', background:`${mood.color}18`, border:`1px solid ${mood.color}50`, borderRadius:'4px', padding:'2px 8px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:mood.color }}>
+            {mood.emoji} {mood.label}
+          </span>
+        </div>
+        {/* Content preview */}
+        <p style={{ fontSize:'14px', color:'#C9D1D9', lineHeight:'1.6', marginBottom:'10px',
+          display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+          <Highlight text={preview.slice(0,200)} query={query} />
+        </p>
+        {/* Tags + stats */}
+        <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap' }}>
+          {post.tags.map(t => (
+            <span key={t} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:tagColor(t), background:`${tagColor(t)}15`, border:`1px solid ${tagColor(t)}40`, borderRadius:'3px', padding:'1px 6px' }}>
+              <Highlight text={t} query={query} />
+            </span>
+          ))}
+          {post.files?.length > 0 && (
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#F7768E', background:'rgba(247,118,142,.1)', border:'1px solid rgba(247,118,142,.3)', borderRadius:'3px', padding:'1px 6px' }}>
+              📎 {post.files.length} file{post.files.length>1?'s':''}
+            </span>
+          )}
+          <span style={{ marginLeft:'auto', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', display:'flex', gap:'10px' }}>
+            <span>♡ {post.likes}</span>
+            <span>💬 {post.comments}</span>
+          </span>
+        </div>
+        {/* Post ID */}
+        <span style={{ position:'absolute', top:'10px', right:'14px', fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#2A3548' }}>#{post.id}</span>
+      </div>
+    </a>
+  );
+}
+
+// ── Search Page ─────────────────────────────────────────────────
+function SearchPage() {
+  const [query, setQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeMood, setActiveMood] = useState(null);
+  const [showCP, setShowCP] = useState(false);
+  const [blink, setBlink] = useState(true);
+  const inputRef = useRef(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { const iv = setInterval(()=>setBlink(b=>!b), 530); return ()=>clearInterval(iv); }, []);
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey)&&e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  // Search logic
+  const results = useMemo(() => {
+    let posts = ALL_POSTS;
+    if (activeMood) posts = posts.filter(p => p.mood === activeMood);
+    if (activeFilter === 'saved') posts = posts.filter(p => p.saved);
+    if (activeFilter === 'files') posts = posts.filter(p => p.files?.length > 0);
+    if (!query.trim()) return posts;
+    const q = query.toLowerCase();
+    return posts.filter(p =>
+      p.content.toLowerCase().includes(q) ||
+      p.tags.some(t => t.toLowerCase().includes(q)) ||
+      p.mood.toLowerCase().includes(q) ||
+      p.files?.some(f => f.name.toLowerCase().includes(q))
+    );
+  }, [query, activeFilter, activeMood]);
+
+  const isEmpty = query.trim() === '';
+  const noResults = !isEmpty && results.length === 0;
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} hideSearch={true} />
+
+      <div style={{ marginTop:'52px', paddingBottom:'28px' }}>
+        {/* ── Search hero ── */}
+        <div style={{ background:'linear-gradient(180deg,#0F1525 0%,#0A0E1A 100%)', borderBottom:'1px solid #1F2A3A', padding:'36px 0 0' }}>
+          <div style={{ maxWidth:'760px', margin:'0 auto', padding:'0 24px 28px' }}>
+            {/* Label */}
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', marginBottom:'10px', display:'flex', alignItems:'center', gap:'8px' }}>
+              <span>~/search</span>
+              <span style={{ color:'#566176' }}>──</span>
+              <span style={{ color:'#8B96AA' }}>full-text across posts, tags, files</span>
+            </div>
+
+            {/* Big search input */}
+            <div style={{ position:'relative', marginBottom:'16px' }}>
+              <span style={{ position:'absolute', left:'18px', top:'50%', transform:'translateY(-50%)', fontFamily:"'JetBrains Mono',monospace", fontSize:'18px', color:'#00FFE5', pointerEvents:'none' }}>❯</span>
+              <input
+                ref={inputRef}
+                className="big-search"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="search posts, #tags, files..."
+              />
+              {query && (
+                <button onClick={() => setQuery('')}
+                  style={{ position:'absolute', right:'52px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'18px', lineHeight:1 }}>×</button>
+              )}
+              <button onClick={() => setShowCP(true)}
+                style={{ position:'absolute', right:'6px', top:'50%', transform:'translateY(-50%)', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer', whiteSpace:'nowrap' }}>⌘K</button>
+            </div>
+
+            {/* Filter row */}
+            <div style={{ display:'flex', gap:'6px', flexWrap:'wrap', alignItems:'center' }}>
+              {[['all','All'],['saved','Saved'],['files','Has Files']].map(([k,l]) => (
+                <button key={k} className={`filter-chip${activeFilter===k?' active':''}`} onClick={() => setActiveFilter(k)}>{l}</button>
+              ))}
+              <div style={{ width:'1px', height:'18px', background:'#2A3548', margin:'0 2px' }} />
+              {Object.entries(MOOD_CFG).map(([key, c]) => (
+                <button key={key}
+                  className={`filter-chip${activeMood===key?' active':''}`}
+                  onClick={() => setActiveMood(activeMood===key?null:key)}
+                  style={activeMood===key ? { borderColor:`${c.color}60`, color:c.color, background:`${c.color}10`, boxShadow:`0 0 6px ${c.color}20` } : {}}>
+                  {c.emoji}
+                </button>
+              ))}
+              {(query||activeFilter!=='all'||activeMood) && (
+                <button onClick={() => { setQuery(''); setActiveFilter('all'); setActiveMood(null); }}
+                  style={{ marginLeft:'auto', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#F7768E', background:'rgba(247,118,142,.08)', border:'1px solid rgba(247,118,142,.25)', borderRadius:'4px', padding:'4px 10px', cursor:'pointer' }}>
+                  ✕ clear
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Results ── */}
+        <div style={{ display:'flex', maxWidth:'1300px', margin:'0 auto' }}>
+          {/* Main results */}
+          <main style={{ flex:1, padding:'24px 28px', minWidth:0 }}>
+
+            {/* Empty state — no query */}
+            {isEmpty && (
+              <div style={{ animation:'fadeUp .3s ease' }}>
+                {/* Recent searches */}
+                <div style={{ marginBottom:'28px' }}>
+                  <div className="sb-lbl">// recent.searches</div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                    {RECENT_SEARCHES.map(s => (
+                      <button key={s} onClick={() => setQuery(s)}
+                        style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', background:'#11151F', border:'1px solid #2A3548', borderRadius:'6px', padding:'7px 14px', cursor:'pointer', transition:'all .15s', display:'flex', alignItems:'center', gap:'6px' }}>
+                        <span style={{ color:'#566176', fontSize:'10px' }}>↺</span>{s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* All tags */}
+                <div style={{ marginBottom:'28px' }}>
+                  <div className="sb-lbl">// browse.tags</div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                    {TAGS_DATA.map(t => (
+                      <button key={t.name} onClick={() => setQuery(t.name)}
+                        style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:t.color, background:`${t.color}10`, border:`1px solid ${t.color}40`, borderRadius:'6px', padding:'7px 14px', cursor:'pointer', transition:'all .15s', display:'flex', alignItems:'center', gap:'8px' }}>
+                        {t.name}
+                        <span style={{ fontSize:'10px', color:'#566176' }}>{t.count}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* All posts preview */}
+                <div>
+                  <div className="sb-lbl">// all.posts <span style={{ color:'#566176', marginLeft:'4px' }}>{ALL_POSTS.length} total</span></div>
+                  {ALL_POSTS.map((p,i) => <ResultCard key={p.id} post={p} query="" delay={i*50} />)}
+                </div>
+              </div>
+            )}
+
+            {/* Results found */}
+            {!isEmpty && !noResults && (
+              <div>
+                <div className="sb-lbl">
+                  // results
+                  <span style={{ color:'#00FFE5', marginLeft:'2px' }}>{results.length}</span>
+                  <span style={{ color:'#566176', marginLeft:'2px' }}>for "{query}"</span>
+                </div>
+                {results.map((p,i) => <ResultCard key={p.id} post={p} query={query} delay={i*50} />)}
+              </div>
+            )}
+
+            {/* No results */}
+            {noResults && (
+              <div style={{ textAlign:'center', padding:'60px 20px', animation:'fadeUp .3s ease' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'32px', color:'#2A3548', marginBottom:'16px', lineHeight:1 }}>
+                  ◎
+                </div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', marginBottom:'8px' }}>
+                  // no results for "{query}"
+                </div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginBottom:'20px' }}>
+                  $ grep -r "{query}" ./posts --no-results
+                </div>
+                <div style={{ display:'flex', gap:'8px', justifyContent:'center', flexWrap:'wrap' }}>
+                  <button onClick={() => setQuery('')}
+                    style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'5px', padding:'6px 14px', cursor:'pointer' }}>
+                    ← clear search
+                  </button>
+                  {RECENT_SEARCHES.slice(0,3).map(s => (
+                    <button key={s} onClick={() => setQuery(s)}
+                      style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#11151F', border:'1px solid #2A3548', borderRadius:'5px', padding:'6px 14px', cursor:'pointer' }}>
+                      try "{s}"
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* ── Right sidebar ── */}
+          <aside style={{ width:'260px', minWidth:'260px', padding:'24px 18px', borderLeft:'1px solid #1F2A3A' }}
+            className="rp">
+
+            {/* Search stats */}
+            <div style={{ marginBottom:'20px' }}>
+              <div className="sb-lbl">// search.stats</div>
+              {[
+                { label:'Total posts', value:ALL_POSTS.length, color:'#00FFE5' },
+                { label:'With images', value:ALL_POSTS.filter(p=>p.images>0).length, color:'#BB9AF7' },
+                { label:'With files',  value:ALL_POSTS.filter(p=>p.files?.length>0).length, color:'#F7768E' },
+                { label:'Saved',       value:ALL_POSTS.filter(p=>p.saved).length, color:'#E0AF68' },
+              ].map(s => (
+                <div key={s.label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 0', borderBottom:'1px solid #1A1F2E' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{s.label}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', fontWeight:600, color:s.color }}>{s.value}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Mood filter shortcuts */}
+            <div style={{ marginBottom:'20px' }}>
+              <div className="sb-lbl">// filter.by.mood</div>
+              {Object.entries(MOOD_CFG).map(([key, c]) => {
+                const count = ALL_POSTS.filter(p=>p.mood===key).length;
+                const isA = activeMood === key;
+                return (
+                  <div key={key} onClick={() => setActiveMood(isA?null:key)}
+                    style={{ display:'flex', alignItems:'center', gap:'8px', padding:'6px 8px', borderRadius:'5px', cursor:'pointer', marginBottom:'2px',
+                      background:isA?`${c.color}10`:'transparent', borderLeft:`2px solid ${isA?c.color:'transparent'}`,
+                      transition:'all .15s' }}>
+                    <span style={{ fontSize:'13px' }}>{c.emoji}</span>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:isA?c.color:'#8B96AA', flex:1 }}>{c.label}</span>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Popular tags */}
+            <div>
+              <div className="sb-lbl">// popular.tags</div>
+              {TAGS_DATA.map(t => (
+                <div key={t.name} onClick={() => setQuery(t.name)}
+                  style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'6px 8px', borderRadius:'5px', cursor:'pointer', marginBottom:'2px', transition:'background .15s' }}
+                  onMouseEnter={e=>e.currentTarget.style.background='#1A1F2E'}
+                  onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:t.color }}>{t.name}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{t.count}</span>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <StatusBar path="~/search" info={query ? `${results.length} results for "${query}"` : `${ALL_POSTS.length} posts indexed`} />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(SearchPage));
+</script>
+</body>
+</html>

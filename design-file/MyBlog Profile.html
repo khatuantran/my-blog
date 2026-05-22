@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · ~/profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body {
+  background:#0A0E1A;
+  background-image:radial-gradient(circle,#2A354822 1px,transparent 1px);
+  background-size:24px 24px;
+  color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden;
+}
+body::after {
+  content:''; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px);
+  pointer-events:none; z-index:9999;
+}
+@keyframes fadeUp   { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+@keyframes pulse    { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+@keyframes glitch {
+  0%,87%,100%{ text-shadow:none; transform:none; }
+  88%{ text-shadow:2px 0 #FF6E96,-2px 0 #00FFE5; transform:skewX(-2deg) translateX(-2px); }
+  90%{ text-shadow:-2px 0 #BB9AF7,2px 0 #FF9E64;  transform:skewX(1deg) translateX(1px); }
+  92%{ text-shadow:none; transform:none; }
+}
+@keyframes borderRotate {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(360deg); }
+}
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.glitch { animation:glitch 8s infinite; display:inline-block; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.fade-up { animation:fadeUp .25s ease; }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.tab-btn { font-family:'JetBrains Mono',monospace; font-size:12px; padding:6px 16px; border:none; background:transparent; color:#8B96AA; cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.tab-btn.active { color:#00FFE5; border-bottom-color:#00FFE5; }
+.tab-btn:hover:not(.active) { color:#C9D1D9; }
+.post-mini { background:#11151F; border:1px solid #2A3548; border-radius:8px; padding:14px 16px; transition:all .2s; cursor:pointer; animation:fadeUp .3s ease both; }
+.post-mini:hover { border-color:rgba(0,255,229,.4); box-shadow:0 0 18px rgba(0,255,229,.08); }
+.post-mini::before { content:''; display:block; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(0,255,229,.3),transparent); opacity:0; transition:opacity .2s; }
+.post-mini:hover::before { opacity:1; }
+.skill-badge { font-family:'JetBrains Mono',monospace; font-size:11px; padding:4px 10px; border-radius:4px; border:1px solid; display:inline-flex; align-items:center; gap:5px; }
+.edit-inp { width:100%; background:#070A14; border:1px solid #2A3548; color:#E6EDF3; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 12px; border-radius:6px; outline:none; transition:all .15s; }
+.edit-inp:focus { border-color:#00FFE5; box-shadow:0 0 10px rgba(0,255,229,.15); }
+.edit-inp::placeholder { color:#8B96AA; }
+.edit-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:5px; display:block; }
+@keyframes slideIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:none} }
+@media(max-width:1024px) { .right-col { display:none !important; } }
+@media(max-width:768px) { .profile-hero { flex-direction:column !important; align-items:flex-start !important; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── Profile data ────────────────────────────────────────────────
+const PROFILE = {
+  name: 'Trần Tuấn Kha',
+  handle: '~/tuankha',
+  role: 'ADMIN',
+  born: 2001,
+  title: 'Full-stack Developer',
+  bio: 'Yêu code, yêu cà phê, yêu viết lách. Thích build những thứ nhỏ nhưng có ý nghĩa.\nSpecialized in React, Node.js, và mọi thứ liên quan đến web.',
+  location: 'Hà Nội, Việt Nam',
+  joined: '2024-01',
+  github: 'github.com/tuankha',
+  website: 'kha.blog',
+  stats: { posts:42, likes:287, comments:64, views:1240, streak:12 },
+};
+
+const SKILLS = [
+  { name:'TypeScript', color:'#7DCFFF' },
+  { name:'React',      color:'#00FFE5' },
+  { name:'Node.js',    color:'#9ECE6A' },
+  { name:'Next.js',    color:'#E6EDF3' },
+  { name:'PostgreSQL', color:'#BB9AF7' },
+  { name:'Docker',     color:'#7DCFFF' },
+  { name:'Prisma',     color:'#FF6E96' },
+  { name:'Tailwind',   color:'#00FFE5' },
+  { name:'Redis',      color:'#F7768E' },
+  { name:'Git',        color:'#E0AF68' },
+];
+
+// 28-day contribution heatmap
+const HEAT = [0,1,2,1,3,2,0, 1,3,2,3,1,0,2, 3,2,1,3,2,3,1, 0,2,3,2,1,2,3];
+const heatColor = v => ['#1A1F2E','#2A3548','#00FFE535','#00FFE590'][v];
+const DAY_LABELS = ['M','T','W','T','F','S','S'];
+
+// Sparkline for profile stats
+function StatSparkline({ data, color }) {
+  const max = Math.max(...data), min = Math.min(...data), range = max-min||1, p = 2, w = 60, h = 20;
+  const pts = data.map((v,i) => `${(i/(data.length-1))*w},${h-p-((v-min)/range)*(h-p*2)}`).join(' ');
+  const gid = `psp${color.replace(/[^a-zA-Z0-9]/g,'')}`;
+  return (
+    <svg width={w} height={h} style={{ display:'block', overflow:'visible', flexShrink:0 }}>
+      <defs><linearGradient id={gid} x1="0" x2="1"><stop offset="0%" stopColor={color} stopOpacity=".2"/><stop offset="100%" stopColor={color} stopOpacity="1"/></linearGradient></defs>
+      <polyline points={pts} fill="none" stroke={`url(#${gid})`} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+      <circle cx={w} cy={h-p-((data[data.length-1]-min)/range)*(h-p*2)} r="2.5" fill={color} style={{ filter:`drop-shadow(0 0 3px ${color})` }}/>
+    </svg>
+  );
+}
+
+// ── Avatar ──────────────────────────────────────────────────────
+function ProfileAvatar({ size = 80 }) {
+  return (
+    <div style={{ position:'relative', width:size, height:size, flexShrink:0 }}>
+      {/* Rotating neon ring */}
+      <svg width={size} height={size} style={{ position:'absolute', top:0, left:0, animation:'borderRotate 8s linear infinite', zIndex:1, pointerEvents:'none' }}>
+        <circle cx={size/2} cy={size/2} r={size/2-2} fill="none"
+          stroke="url(#avatarGrad)" strokeWidth="2" strokeDasharray="6 4" />
+        <defs>
+          <linearGradient id="avatarGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#00FFE5" stopOpacity="0.8"/>
+            <stop offset="50%" stopColor="#BB9AF7" stopOpacity="0.4"/>
+            <stop offset="100%" stopColor="#FF6E96" stopOpacity="0.6"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      {/* Avatar body */}
+      <div style={{ position:'absolute', top:4, left:4, right:4, bottom:4, borderRadius:'50%',
+        background:'linear-gradient(135deg,#00FFE518,#BB9AF718)', border:'2px solid #00FFE5',
+        display:'flex', alignItems:'center', justifyContent:'center', zIndex:2,
+        boxShadow:'0 0 20px rgba(0,255,229,.2), inset 0 0 20px rgba(0,255,229,.05)' }}>
+        <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:size/3, color:'#00FFE5',
+          textShadow:'0 0 20px rgba(0,255,229,.8)' }}>K</span>
+      </div>
+      {/* Online dot */}
+      <div style={{ position:'absolute', bottom:4, right:4, width:12, height:12, background:'#9ECE6A',
+        borderRadius:'50%', border:'2px solid #0A0E1A', zIndex:3,
+        boxShadow:'0 0 8px #9ECE6A', animation:'pulse 2s ease-in-out infinite' }} />
+    </div>
+  );
+}
+
+// ── Post mini card ───────────────────────────────────────────────
+function PostMiniCard({ post, delay }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes);
+  const mood = MOOD_CFG[post.mood];
+  const tagColor = n => TAGS_DATA.find(t=>t.name===n)?.color||'#00FFE5';
+  return (
+    <div className="post-mini" style={{ position:'relative', animationDelay:`${delay}ms` }}>
+      <span style={{ position:'absolute', top:'10px', right:'12px', fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#2A3548' }}>#{post.id}</span>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{post.ts}</span>
+        <span style={{ marginLeft:'auto' }}>
+          <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${mood.color}18`, border:`1px solid ${mood.color}50`, borderRadius:'4px', padding:'2px 7px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:mood.color }}>
+            {mood.emoji} {mood.label}
+          </span>
+        </span>
+      </div>
+      {/* Content preview */}
+      <p style={{ fontSize:'14px', lineHeight:'1.6', color:'#C9D1D9', marginBottom:'10px',
+        display:'-webkit-box', WebkitLineClamp:3, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+        {post.content.replace(/```[\s\S]*?```/g,'[code]').replace(/[#*`]/g,'').trim()}
+      </p>
+      {/* Images indicator */}
+      {post.images > 0 && (
+        <div style={{ display:'flex', gap:'4px', marginBottom:'10px' }}>
+          {Array.from({length:Math.min(post.images,3)}).map((_,i) => {
+            const cfgs=[{bg:'#081420',acc:'#00FFE5'},{bg:'#1A0A1E',acc:'#BB9AF7'},{bg:'#081A0C',acc:'#9ECE6A'}];
+            const c=cfgs[i%3];
+            return <div key={i} style={{ width:'40px', height:'30px', borderRadius:'4px', flexShrink:0, background:`repeating-linear-gradient(135deg,${c.bg} 0,${c.bg} 5px,${c.acc}15 5px,${c.acc}15 10px)` }} />;
+          })}
+          {post.images > 3 && <div style={{ width:'40px', height:'30px', borderRadius:'4px', background:'#1A1F2E', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>+{post.images-3}</div>}
+        </div>
+      )}
+      {/* Tags */}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:'5px', marginBottom:'10px' }}>
+        {post.tags.map(t => <span key={t} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:tagColor(t), background:`${tagColor(t)}15`, border:`1px solid ${tagColor(t)}40`, borderRadius:'3px', padding:'1px 6px' }}>{t}</span>)}
+      </div>
+      {/* Actions */}
+      <div style={{ display:'flex', gap:'2px', alignItems:'center', paddingTop:'8px', borderTop:'1px solid #1A1F2E' }}>
+        <button onClick={e=>{e.stopPropagation();setLiked(!liked);setLikes(liked?likes-1:likes+1)}}
+          style={{ display:'flex', alignItems:'center', gap:'4px', padding:'4px 8px', borderRadius:'4px', border:'none', background:'transparent', color:liked?'#FF6E96':'#8B96AA', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', transition:'all .15s' }}>
+          <span>{liked?'❤':'♡'}</span><span>{likes}</span>
+        </button>
+        <button style={{ display:'flex', alignItems:'center', gap:'4px', padding:'4px 8px', borderRadius:'4px', border:'none', background:'transparent', color:'#8B96AA', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>
+          💬 {post.comments}
+        </button>
+        <a href={`MyBlog Post Detail.html`} style={{ marginLeft:'auto', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#00FFE5', textDecoration:'none', padding:'4px 8px', border:'1px solid rgba(0,255,229,.25)', borderRadius:'4px', transition:'all .15s' }}>
+          read →
+        </a>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Profile Drawer ──────────────────────────────────────────
+function EditProfileDrawer({ profile, onSave, onClose }) {
+  const [form, setForm] = useState({ ...profile });
+  const [skills, setSkills] = useState(SKILLS.map(s => s.name));
+  const [skillInput, setSkillInput] = useState('');
+  const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const SKILL_COLORS = ['#7DCFFF','#00FFE5','#9ECE6A','#E6EDF3','#BB9AF7','#FF6E96','#E0AF68','#FF9E64'];
+  const addSkill = () => {
+    const s = skillInput.trim();
+    if (s && !skills.includes(s)) setSkills([...skills, s]);
+    setSkillInput('');
+  };
+
+  // Lock body scroll when drawer open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:300, display:'flex', justifyContent:'flex-end' }}>
+      <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,.7)', backdropFilter:'blur(6px)', zIndex:0 }} onClick={onClose} />
+      <div style={{ position:'relative', zIndex:1, width:'480px', maxWidth:'95vw', height:'100vh', background:'#11151F', borderLeft:'1px solid rgba(0,255,229,.2)', overflowY:'auto', animation:'slideIn .25s ease', boxShadow:'-20px 0 60px rgba(0,0,0,.8)' }}>
+        {/* Header */}
+        <div style={{ position:'sticky', top:0, background:'#11151F', borderBottom:'1px solid #1F2A3A', padding:'16px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', zIndex:2 }}>
+          <div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', marginBottom:'2px' }}>// edit.profile</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>~/settings/profile</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'22px', lineHeight:1 }}>×</button>
+        </div>
+        <div style={{ padding:'20px' }}>
+          {/* Avatar */}
+          <div style={{ marginBottom:'20px', display:'flex', alignItems:'center', gap:'16px', padding:'14px', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'8px' }}>
+            <ProfileAvatar size={56} />
+            <div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#C9D1D9', marginBottom:'6px' }}>profile photo</div>
+              <button style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'4px', padding:'4px 12px', cursor:'pointer' }}>↑ Upload</button>
+            </div>
+          </div>
+          {/* Basic info */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px', display:'flex', alignItems:'center', gap:'8px' }}>// basic.info <span style={{ flex:1, height:'1px', background:'#1F2A3A', display:'inline-block' }} /></div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'10px' }}>
+            <div><label className="edit-lbl">FULL NAME</label><input className="edit-inp" value={form.name||''} onChange={e=>upd('name',e.target.value)} /></div>
+            <div><label className="edit-lbl">HANDLE</label><input className="edit-inp" value={form.handle||''} onChange={e=>upd('handle',e.target.value)} /></div>
+          </div>
+          <div style={{ marginBottom:'10px' }}><label className="edit-lbl">TITLE</label><input className="edit-inp" value={form.title||''} onChange={e=>upd('title',e.target.value)} /></div>
+          <div style={{ marginBottom:'18px' }}><label className="edit-lbl">BIO</label><textarea className="edit-inp" rows={3} value={form.bio||''} onChange={e=>upd('bio',e.target.value)} style={{ resize:'vertical', lineHeight:'1.6' }} /></div>
+          {/* Links */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px', display:'flex', alignItems:'center', gap:'8px' }}>// contact.links <span style={{ flex:1, height:'1px', background:'#1F2A3A', display:'inline-block' }} /></div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'18px' }}>
+            {[['LOCATION','location'],['BORN YEAR','born'],['GITHUB','github'],['WEBSITE','website']].map(([lbl,key]) => (
+              <div key={key}><label className="edit-lbl">{lbl}</label><input className="edit-inp" value={form[key]||''} onChange={e=>upd(key,e.target.value)} /></div>
+            ))}
+          </div>
+          {/* Skills */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px', display:'flex', alignItems:'center', gap:'8px' }}>// skills.stack <span style={{ flex:1, height:'1px', background:'#1F2A3A', display:'inline-block' }} /></div>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', padding:'10px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', marginBottom:'6px', minHeight:'44px' }}>
+            {skills.map((s,i) => {
+              const color = SKILL_COLORS[i % SKILL_COLORS.length];
+              return (
+                <span key={s} style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color, background:`${color}15`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px' }}>
+                  {s}<span onClick={() => setSkills(skills.filter(x=>x!==s))} style={{ cursor:'pointer', opacity:.6, fontSize:'12px', lineHeight:1 }}>×</span>
+                </span>
+              );
+            })}
+            <input value={skillInput} onChange={e=>setSkillInput(e.target.value)}
+              onKeyDown={e=>{if(e.key==='Enter'||e.key===','){ e.preventDefault(); addSkill(); }}}
+              placeholder="❯ add skill..."
+              style={{ background:'transparent', border:'none', outline:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', minWidth:'90px' }} />
+          </div>
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginBottom:'18px' }}>Enter or comma to add</div>
+          {/* Password */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px', display:'flex', alignItems:'center', gap:'8px' }}>// security <span style={{ flex:1, height:'1px', background:'#1F2A3A', display:'inline-block' }} /></div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+            <div><label className="edit-lbl">NEW PASSWORD</label><input className="edit-inp" type="password" placeholder="••••••••" /></div>
+            <div><label className="edit-lbl">CONFIRM</label><input className="edit-inp" type="password" placeholder="••••••••" /></div>
+          </div>
+          {/* Actions */}
+          <div style={{ display:'flex', gap:'10px', paddingTop:'12px', borderTop:'1px solid #1F2A3A' }}>
+            <button onClick={() => { onSave(form); onClose(); }}
+              style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', fontWeight:600, color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'6px', padding:'10px', cursor:'pointer', boxShadow:'0 0 14px rgba(0,255,229,.3)' }}>
+              ✓ Save Changes
+            </button>
+            <button onClick={onClose}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'10px 20px', cursor:'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Profile Page ────────────────────────────────────────────
+function ProfilePage() {
+  const [profile, setProfile] = useState(PROFILE);
+  const [showEdit, setShowEdit] = useState(false);
+  const [activeTab, setActiveTab] = useState('posts');
+  const [showCP, setShowCP] = useState(false);
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const statCards = [
+    { label:'POSTS',    value:'42',   delta:'+5 mo',   color:'#00FFE5', spark:[5,8,12,7,15,18,14,10,16,20,18,22] },
+    { label:'LIKES',    value:'287',  delta:'+24 mo',  color:'#FF6E96', spark:[20,35,28,45,62,50,58,44,70,85,72,90] },
+    { label:'VIEWS',    value:'1.2k', delta:'+89 mo',  color:'#9ECE6A', spark:[100,180,150,220,310,280,350,290,420,510,480,560] },
+    { label:'STREAK',   value:'12d',  delta:'current', color:'#E0AF68', spark:[1,1,2,3,4,5,6,7,8,9,10,12] },
+  ];
+
+  const totalHeat = HEAT.reduce((a,b)=>a+b,0);
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+
+      <div style={{ marginTop:'52px', paddingBottom:'28px' }}>
+        {/* ── Hero banner ── */}
+        <div style={{ background:'linear-gradient(180deg,#0F1525 0%,#0A0E1A 100%)', borderBottom:'1px solid #1F2A3A', padding:'32px 32px 0', position:'relative', overflow:'hidden' }}>
+          {/* Hex deco background */}
+          <div style={{ position:'absolute', top:'10px', right:'20px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#1A1F2E', lineHeight:'1.8', userSelect:'none', pointerEvents:'none' }}>
+            <div>0xDEAD·BEEF·00FF·E5CA</div>
+            <div>0b11001010·10110101·1</div>
+            <div>UID: 1000 · GID: 1000</div>
+            <div>PID: 3141 · PPID: 1</div>
+          </div>
+
+          {/* Profile info */}
+          <div className="profile-hero" style={{ display:'flex', alignItems:'flex-end', gap:'24px', marginBottom:'24px' }}>
+            <ProfileAvatar size={88} />
+
+            <div style={{ flex:1, minWidth:0 }}>
+              {/* Name + role */}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px', flexWrap:'wrap', marginBottom:'4px' }}>
+                <h1 className="glitch" style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'26px', letterSpacing:'-0.03em', color:'#E6EDF3' }}>
+                  {profile.name}
+                </h1>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#FF9E64', border:'1px solid #FF9E6450', borderRadius:'3px', padding:'1px 6px', background:'rgba(255,158,100,.06)' }}>[ ADMIN ]</span>
+              </div>
+              {/* Handle */}
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#00FFE5', marginBottom:'6px', display:'flex', alignItems:'center', gap:'10px' }}>
+                <span>{PROFILE.handle}</span>
+                <span style={{ color:'#566176' }}>·</span>
+                <span style={{ color:'#8B96AA', fontSize:'11px' }}>{PROFILE.title}</span>
+                <span style={{ color:'#566176' }}>·</span>
+                <span style={{ color:'#8B96AA', fontSize:'11px' }}>born {PROFILE.born}</span>
+              </div>
+              {/* Bio */}
+              <p style={{ fontSize:'13px', color:'#A0AEC0', lineHeight:'1.6', marginBottom:'10px', maxWidth:'560px' }}>
+                {PROFILE.bio.split('\n').map((l,i) => <span key={i}>{l}{i===0&&<br/>}</span>)}
+              </p>
+              {/* Meta row */}
+              <div style={{ display:'flex', gap:'16px', flexWrap:'wrap', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
+                <span>📍 {PROFILE.location}</span>
+                <span>📅 joined {PROFILE.joined}</span>
+                <a href="#" style={{ color:'#7DCFFF', textDecoration:'none' }}>⌗ {PROFILE.github}</a>
+                <a href="#" style={{ color:'#00FFE5', textDecoration:'none' }}>🌐 {PROFILE.website}</a>
+              </div>
+            </div>
+
+            {/* Edit / follow buttons */}
+            <div style={{ display:'flex', gap:'8px', flexShrink:0, paddingBottom:'4px' }}>
+              <a href="MyBlog Create Post.html" style={{ textDecoration:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'6px', padding:'8px 18px', cursor:'pointer', boxShadow:'0 0 14px rgba(0,255,229,.3)' }}>
+                ✏️ New Post
+              </a>
+              <button onClick={() => setShowEdit(true)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'8px 14px', cursor:'pointer' }}>
+                ⚙️ Settings
+              </button>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display:'flex', gap:'0', borderTop:'1px solid #1F2A3A' }}>
+            {[
+              { key:'posts',    label:'Posts',    count:42 },
+              { key:'saved',    label:'Saved',    count:8  },
+              { key:'activity', label:'Activity', count:null },
+              { key:'about',    label:'About',    count:null },
+            ].map(t => (
+              <button key={t.key} className={`tab-btn${activeTab===t.key?' active':''}`} onClick={() => setActiveTab(t.key)}>
+                {t.label}
+                {t.count !== null && <span style={{ marginLeft:'6px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:activeTab===t.key?'#00FFE5':'#566176', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'3px', padding:'0 5px' }}>{t.count}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Content area ── */}
+        <div style={{ display:'flex', gap:'0', maxWidth:'1400px', margin:'0 auto' }}>
+          {/* Main */}
+          <main style={{ flex:1, padding:'24px 28px', minWidth:0 }} className="fade-up">
+
+            {/* POSTS tab */}
+            {activeTab === 'posts' && (
+              <>
+                {/* Stats row */}
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'24px' }}>
+                  {statCards.map(s => (
+                    <div key={s.label} style={{ background:'#11151F', border:'1px solid #2A3548', borderLeft:`3px solid ${s.color}`, borderRadius:'7px', padding:'12px 14px' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'8px' }}>
+                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#8B96AA', letterSpacing:'.08em' }}>{s.label}</span>
+                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:s.color }}>{s.delta}</span>
+                      </div>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end' }}>
+                        <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:'22px', fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</span>
+                        <StatSparkline data={s.spark} color={s.color} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="sb-lbl">// posts.all <span style={{ color:'#566176', marginLeft:'4px' }}>42 total · sorted by latest</span></div>
+                <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+                  {POSTS_DATA.map((p,i) => <PostMiniCard key={p.id} post={p} delay={i*60} />)}
+                </div>
+              </>
+            )}
+
+            {/* SAVED tab */}
+            {activeTab === 'saved' && (
+              <>
+                <div className="sb-lbl">// saved.posts <span style={{ color:'#566176', marginLeft:'4px' }}>8 items</span></div>
+                <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+                  {POSTS_DATA.filter(p=>p.saved).map((p,i) => <PostMiniCard key={p.id} post={p} delay={i*60} />)}
+                </div>
+              </>
+            )}
+
+            {/* ACTIVITY tab */}
+            {activeTab === 'activity' && (
+              <>
+                <div className="sb-lbl">// contribution.activity <span style={{ color:'#566176', marginLeft:'4px' }}>last 28 days · {totalHeat} commits</span></div>
+                {/* Heatmap large */}
+                <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'20px', marginBottom:'20px' }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'4px', marginBottom:'4px' }}>
+                    {DAY_LABELS.map((d,i) => <div key={i} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', textAlign:'center' }}>{d}</div>)}
+                  </div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'4px', marginBottom:'10px' }}>
+                    {HEAT.map((v,i) => (
+                      <div key={i} title={`${v} post${v!==1?'s':''}`}
+                        style={{ height:'18px', borderRadius:'3px', background:heatColor(v), cursor:'default',
+                          boxShadow:v>1?`0 0 5px ${heatColor(v)}`:undefined }} />
+                    ))}
+                  </div>
+                  <div style={{ display:'flex', justifyContent:'flex-end', alignItems:'center', gap:'5px' }}>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176' }}>less</span>
+                    {[0,1,2,3].map(v => <div key={v} style={{ width:'11px', height:'11px', borderRadius:'2px', background:heatColor(v) }} />)}
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176' }}>more</span>
+                  </div>
+                </div>
+                {/* Recent activity list */}
+                <div className="sb-lbl">// recent.actions</div>
+                {ACTIVITY.map((a,i) => (
+                  <div key={i} style={{ display:'flex', gap:'10px', padding:'10px 0', borderBottom:'1px solid #1A1F2E', alignItems:'flex-start' }}>
+                    <span style={{ color:'#00FFE5', fontSize:'10px', marginTop:'2px', flexShrink:0 }}>❯</span>
+                    <div>
+                      <div style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.4' }}>
+                        <span style={{ color:'#7DCFFF', fontFamily:"'JetBrains Mono',monospace" }}>{a.user}</span>
+                        {' '}{a.type==='like'?'liked':a.type==='comment'?'commented on':'saved'}{' '}
+                        <span style={{ color:'#8B96AA' }}>{a.target}</span>
+                      </div>
+                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>{a.time}</div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* ABOUT tab */}
+            {activeTab === 'about' && (
+              <>
+                <div className="sb-lbl">// about.me</div>
+                {/* Bio card */}
+                <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'20px', marginBottom:'16px' }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px' }}>// bio</div>
+                  <p style={{ fontSize:'14px', color:'#C9D1D9', lineHeight:'1.75' }}>
+                    {PROFILE.bio.split('\n').map((l,i) => <span key={i}>{l}{i===0&&<><br/><br/></>}</span>)}
+                  </p>
+                </div>
+
+                {/* Skills */}
+                <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'20px', marginBottom:'16px' }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'12px' }}>// skills.stack</div>
+                  <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+                    {SKILLS.map(s => (
+                      <span key={s.name} className="skill-badge" style={{ color:s.color, borderColor:`${s.color}40`, background:`${s.color}0F`, boxShadow:`0 0 8px ${s.color}15` }}>
+                        <span style={{ fontSize:'8px' }}>❯</span>{s.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Info grid */}
+                <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'20px' }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'12px' }}>// profile.info</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' }}>
+                    {[
+                      ['Full name', PROFILE.name],
+                      ['Handle', PROFILE.handle],
+                      ['Role', '[ ADMIN ]'],
+                      ['Born', PROFILE.born],
+                      ['Location', PROFILE.location],
+                      ['Joined', PROFILE.joined],
+                      ['GitHub', PROFILE.github],
+                      ['Website', PROFILE.website],
+                    ].map(([k,v]) => (
+                      <div key={k} style={{ padding:'10px 12px', background:'#1A1F2E', borderRadius:'6px', border:'1px solid #2A3548' }}>
+                        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginBottom:'4px', letterSpacing:'.06em' }}>{k.toUpperCase()}</div>
+                        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9' }}>{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </main>
+
+          {/* Right sidebar */}
+          <aside className="right-col" style={{ width:'280px', minWidth:'280px', padding:'24px 20px', borderLeft:'1px solid #1F2A3A' }}>
+
+            {/* Skills quick view */}
+            <div style={{ marginBottom:'20px' }}>
+              <div className="sb-lbl">// skills.top</div>
+              <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
+                {SKILLS.slice(0,6).map(s => (
+                  <span key={s.name} className="skill-badge" style={{ color:s.color, borderColor:`${s.color}40`, background:`${s.color}0F`, fontSize:'10px' }}>
+                    <span style={{ fontSize:'7px' }}>❯</span>{s.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Mood breakdown */}
+            <div style={{ marginBottom:'20px' }}>
+              <div className="sb-lbl">// mood.breakdown</div>
+              {MOOD_STATS.slice(0,5).map(m => {
+                const c = MOOD_CFG[m.mood];
+                const pct = Math.round((m.count / MOOD_STATS.reduce((s,x)=>s+x.count,0)) * 100);
+                return (
+                  <div key={m.mood} style={{ marginBottom:'7px' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
+                      <span style={{ fontSize:'12px' }}>{c.emoji} <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:c.color }}>{c.label}</span></span>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{pct}%</span>
+                    </div>
+                    <div style={{ height:'3px', background:'#1A1F2E', borderRadius:'2px' }}>
+                      <div style={{ height:'100%', width:`${pct}%`, background:c.color, borderRadius:'2px', boxShadow:`0 0 4px ${c.color}60` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Heatmap mini */}
+            <div style={{ marginBottom:'20px' }}>
+              <div className="sb-lbl">// activity.28d <span style={{ color:'#566176', marginLeft:'2px' }}>{totalHeat}</span></div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'3px', marginBottom:'3px' }}>
+                {DAY_LABELS.map((d,i) => <div key={i} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'8px', color:'#566176', textAlign:'center' }}>{d}</div>)}
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'3px' }}>
+                {HEAT.map((v,i) => <div key={i} style={{ height:'12px', borderRadius:'2px', background:heatColor(v) }} />)}
+              </div>
+            </div>
+
+            {/* Tags used */}
+            <div>
+              <div className="sb-lbl">// tags.used</div>
+              {TAGS_DATA.map(t => (
+                <div key={t.name} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'4px 0', borderBottom:'1px solid #1A1F2E' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:t.color }}>{t.name}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{t.count} posts</span>
+                </div>
+              ))}
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <StatusBar path="~/profile/tuankha" info="42 posts · 287 likes" />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+      {showEdit && (
+        <EditProfileDrawer
+          profile={profile}
+          onSave={f => setProfile(p => ({ ...p, ...f }))}
+          onClose={() => setShowEdit(false)}
+        />
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(ProfilePage));
+</script>
+</body>
+</html>

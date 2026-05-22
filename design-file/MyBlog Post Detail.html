@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · post detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body {
+  background:#0A0E1A;
+  background-image:radial-gradient(circle,#2A354822 1px,transparent 1px);
+  background-size:24px 24px; color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden;
+}
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse  { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.fade-up { animation:fadeUp .15s ease; }
+.act-btn { display:flex; align-items:center; gap:5px; padding:6px 12px; border-radius:5px; border:none; background:transparent; color:#8B96AA; cursor:pointer; transition:all .15s; font-family:'JetBrains Mono',monospace; font-size:12px; }
+.act-btn:hover { color:#E6EDF3; background:#1A1F2E; }
+.act-btn.liked { color:#FF6E96; }
+.act-btn.saved { color:#E0AF68; }
+.share-btn { display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:5px; border:1px solid #2A3548; background:#1A1F2E; color:#A0AEC0; cursor:pointer; font-size:12px; font-family:'JetBrains Mono',monospace; transition:all .15s; white-space:nowrap; }
+.share-btn:hover { color:#E6EDF3; border-color:#3D4A63; }
+.comment-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#E6EDF3; font-family:'Inter',sans-serif; font-size:13px; padding:10px 12px; border-radius:6px; outline:none; transition:all .15s; resize:none; }
+.comment-inp:focus { border-color:#00FFE5; box-shadow:0 0 10px rgba(0,255,229,.15); }
+.comment-inp::placeholder { color:#8B96AA; }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+@media(max-width:1024px) { .meta-panel { display:none !important; } }
+@media(max-width:768px)  { .topbar-search { display:none !important; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const POST = {
+  id:'abc123', ts:'[2026-05-17 12:30]', time:'2h ago', mood:'HAPPY',
+  content:`Hôm nay deploy xong feature mới sau 3 ngày debug liên tục. Cái bug khó chịu nhất hóa ra chỉ là một dòng typo trong config file — đau lòng hơn là đã mất 3 ngày để tìm ra 😅\n\nĐây là đoạn code lỗi:\n\`\`\`js\n// Bug: sai tên biến env\nconst secret = process.env.AUTH_SERCET; // typo!\n\n// Fix: \nconst secret = process.env.AUTH_SECRET; // correct\n\`\`\`\n\nLesson learned quan trọng:\n- Luôn double-check tên biến environment\n- Viết test cho auth flow ngay từ đầu\n- Đừng debug lúc 2 giờ sáng 😂\n\nNhưng cảm giác sau khi fix được bug stubborn nhất project — không có gì sánh được. Feature giờ đã live trên prod!`,
+  images:4, tags:['#code','#dev','#debugging','#nodejs'], likes:24, comments:5, views:142, saved:false,
+};
+
+const COMMENTS = [
+  { id:1, user:'@user1', text:'Relatable quá! Mình cũng từng mất 2 ngày vì một typo tương tự 😭', time:'1h ago', likes:3, isAnon:false },
+  { id:2, user:'Anon#7', text:'Cảm ơn bạn đã chia sẻ! AUTH_SERCET vs AUTH_SECRET — classic mistake 😄', time:'45m ago', likes:1, isAnon:true },
+  { id:3, user:'@user2', text:'Tip nhỏ: dùng `dotenv-safe` để validate env vars khi start app, sẽ catch lỗi này ngay lập tức.', time:'20m ago', likes:5, isAnon:false },
+];
+
+function PostContent({ content }) {
+  const segs = [];
+  let rest = content;
+  while (rest.length) {
+    const ci = rest.indexOf('```');
+    if (ci === -1) { segs.push({ t:'text', v:rest }); break; }
+    if (ci > 0) segs.push({ t:'text', v:rest.slice(0, ci) });
+    const ce = rest.indexOf('```', ci+3);
+    segs.push({ t:'code', v:rest.slice(ci+3, ce<0?undefined:ce).replace(/^[a-z]+\n/,'') });
+    rest = ce<0?'':rest.slice(ce+3);
+  }
+  return (
+    <div style={{ fontSize:'15px', lineHeight:'1.75', color:'#C9D1D9' }}>
+      {segs.map((s,i) => s.t==='code'
+        ? <pre key={i} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', background:'#070A14', border:'1px solid #2A3548', borderLeft:'2px solid rgba(158,206,106,.5)', borderRadius:'6px', padding:'12px 16px', color:'#9ECE6A', margin:'14px 0', overflowX:'auto', lineHeight:'1.6', whiteSpace:'pre' }}>{s.v.trim()}</pre>
+        : s.v.split('\n\n').map((p,j) => p.trim() ? <p key={`${i}-${j}`} style={{ marginBottom:'12px' }}>{p.trim()}</p> : null)
+      )}
+    </div>
+  );
+}
+
+function ImageCarousel({ count }) {
+  const [cur, setCur] = useState(0);
+  if (!count) return null;
+  const cfgs = [
+    { bg:'#081420', acc:'#00FFE5', lbl:'deploy screenshot' },
+    { bg:'#1A0A1E', acc:'#BB9AF7', lbl:'terminal output' },
+    { bg:'#081A0C', acc:'#9ECE6A', lbl:'git diff view' },
+    { bg:'#1E0C08', acc:'#FF9E64', lbl:'prod dashboard' },
+  ];
+  const c = cfgs[cur % cfgs.length];
+  return (
+    <div style={{ marginBottom:'20px' }}>
+      <div style={{ position:'relative', height:'280px', borderRadius:'8px', overflow:'hidden', background:`repeating-linear-gradient(135deg,${c.bg} 0px,${c.bg} 7px,${c.acc}10 7px,${c.acc}10 14px)` }}>
+        <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'8px' }}>
+          <span style={{ fontSize:'28px', opacity:.3 }}>⬡</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", color:c.acc, opacity:.5, fontSize:'11px' }}>{c.lbl}</span>
+        </div>
+        {cur > 0 && <button onClick={() => setCur(cur-1)} style={{ position:'absolute', left:'12px', top:'50%', transform:'translateY(-50%)', background:'rgba(10,14,26,.75)', border:'1px solid #2A3548', borderRadius:'6px', color:'#E6EDF3', cursor:'pointer', padding:'6px 10px', fontSize:'14px', backdropFilter:'blur(4px)' }}>←</button>}
+        {cur < count-1 && <button onClick={() => setCur(cur+1)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'rgba(10,14,26,.75)', border:'1px solid #2A3548', borderRadius:'6px', color:'#E6EDF3', cursor:'pointer', padding:'6px 10px', fontSize:'14px', backdropFilter:'blur(4px)' }}>→</button>}
+        <div style={{ position:'absolute', bottom:'10px', left:'50%', transform:'translateX(-50%)', display:'flex', gap:'5px' }}>
+          {Array.from({length:count}).map((_,i) => (
+            <div key={i} onClick={() => setCur(i)} style={{ width:i===cur?'16px':'6px', height:'6px', borderRadius:'3px', background:i===cur?'#00FFE5':'#2A3548', cursor:'pointer', transition:'all .2s', boxShadow:i===cur?'0 0 6px #00FFE5':undefined }} />
+          ))}
+        </div>
+      </div>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginTop:'6px', textAlign:'right' }}>{cur+1}/{count}</div>
+    </div>
+  );
+}
+
+function CommentItem({ c }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(c.likes);
+  return (
+    <div style={{ padding:'14px 0', borderBottom:'1px solid #1F2A3A' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'8px' }}>
+        <div style={{ width:'28px', height:'28px', borderRadius:'50%', border:'1.5px solid #2A3548', background: c.isAnon?'#1A1F2E':'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color: c.isAnon?'#8B96AA':'#00FFE5', flexShrink:0 }}>
+          {c.isAnon ? '?' : c.user[1].toUpperCase()}
+        </div>
+        <div>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color: c.isAnon?'#8B96AA':'#7DCFFF' }}>{c.user}</span>
+          {c.isAnon && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginLeft:'6px' }}>[ anon ]</span>}
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginLeft:'8px' }}>{c.time}</span>
+        </div>
+      </div>
+      <p style={{ fontSize:'14px', color:'#C9D1D9', lineHeight:'1.65', marginBottom:'8px', marginLeft:'36px' }}>{c.text}</p>
+      <div style={{ marginLeft:'36px', display:'flex', gap:'4px' }}>
+        <button className={`act-btn${liked?' liked':''}`} onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}>
+          <span>{liked?'❤':'♡'}</span><span>{likes}</span>
+        </button>
+        <button className="act-btn">↩ Reply</button>
+      </div>
+    </div>
+  );
+}
+
+function PostDetail() {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(POST.likes);
+  const [saved, setSaved] = useState(POST.saved);
+  const [comment, setComment] = useState('');
+  const [asAnon, setAsAnon] = useState(false);
+  const [anonName, setAnonName] = useState('');
+  const [showCP, setShowCP] = useState(false);
+  const mood = MOOD_CFG[POST.mood];
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey) && e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+      <div style={{ display:'flex', marginTop:'52px', minHeight:'calc(100vh - 80px)', paddingBottom:'28px' }}>
+
+        {/* Main */}
+        <main style={{ flex:1, padding:'20px 32px', minWidth:0, maxWidth:'820px', margin:'0 auto' }} className="fade-up">
+
+          {/* Breadcrumb */}
+          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'20px', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA' }}>
+            <a href="MyBlog Feed.html" style={{ color:'#00FFE5', textDecoration:'none', display:'flex', alignItems:'center', gap:'4px' }}>← feed</a>
+            <span style={{ color:'#566176' }}>/</span>
+            <span>~/post/{POST.id}</span>
+          </div>
+
+          {/* Post header */}
+          <div style={{ display:'flex', alignItems:'flex-start', gap:'12px', marginBottom:'16px' }}>
+            <div style={{ width:'40px', height:'40px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'16px', color:'#00FFE5', flexShrink:0, boxShadow:'0 0 12px rgba(0,255,229,.2)' }}>A</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap', marginBottom:'4px' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', fontWeight:600, color:'#7DCFFF' }}>~/admin</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6450', borderRadius:'2px', padding:'0 4px' }}>[ ADMIN ]</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>·</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{POST.ts}</span>
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${mood.color}18`, border:`1px solid ${mood.color}50`, borderRadius:'4px', padding:'2px 9px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:mood.color, boxShadow:`0 0 8px ${mood.color}25` }}>
+                  {mood.emoji} {mood.label}
+                </span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{POST.time}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <PostContent content={POST.content} />
+
+          {/* Image carousel */}
+          <ImageCarousel count={POST.images} />
+
+          {/* Tags */}
+          <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', marginBottom:'16px' }}>
+            {POST.tags.map(tag => {
+              const t = TAGS_DATA.find(x=>x.name===tag); const color = t?.color||'#00FFE5';
+              return <span key={tag} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color, background:`${color}15`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', cursor:'pointer' }}>{tag}</span>;
+            })}
+          </div>
+
+          {/* Actions */}
+          <div style={{ display:'flex', gap:'2px', alignItems:'center', padding:'12px 0', borderTop:'1px solid #1F2A3A', borderBottom:'1px solid #1F2A3A', marginBottom:'24px' }}>
+            <button className={`act-btn${liked?' liked':''}`} onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}>
+              <span style={{ fontSize:'16px' }}>{liked?'❤':'♡'}</span><span>{likes}</span>
+            </button>
+            <button className="act-btn"><span style={{ fontSize:'16px' }}>💬</span><span>{POST.comments}</span></button>
+            <button className={`act-btn${saved?' saved':''}`} onClick={() => setSaved(!saved)}>
+              <span style={{ fontSize:'16px' }}>{saved?'🔖':'🏷'}</span>
+            </button>
+            <button className="act-btn"><span>↗</span><span>Share</span></button>
+            <div style={{ marginLeft:'auto', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', display:'flex', gap:'12px' }}>
+              <span>👁 {POST.views} views</span>
+            </div>
+          </div>
+
+          {/* Comments */}
+          <div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#E6EDF3', marginBottom:'16px', display:'flex', alignItems:'center', gap:'8px' }}>
+              <span style={{ color:'#00FFE5' }}>❯</span>
+              <span>// comments</span>
+              <span style={{ color:'#566176' }}>[{POST.comments}]</span>
+            </div>
+
+            {/* Comment form */}
+            <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', padding:'14px', marginBottom:'20px' }}>
+              <textarea className="comment-inp" rows={3} value={comment} onChange={e=>setComment(e.target.value)} placeholder="// add a comment..." />
+              <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'10px' }}>
+                {asAnon ? (
+                  <input value={anonName} onChange={e=>setAnonName(e.target.value)} placeholder="your name (optional)"
+                    style={{ flex:1, background:'#0A0E1A', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', padding:'6px 10px', borderRadius:'5px', outline:'none' }} />
+                ) : (
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF', flex:1 }}>as: ~/admin</span>
+                )}
+                <button onClick={() => setAsAnon(!asAnon)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'4px', padding:'5px 10px', cursor:'pointer' }}>
+                  {asAnon ? 'use account' : 'post as anon'}
+                </button>
+                <button style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.35)', borderRadius:'5px', padding:'6px 16px', cursor:'pointer' }}>
+                  ↵ Send
+                </button>
+              </div>
+            </div>
+
+            {/* Comment list */}
+            {COMMENTS.map(c => <CommentItem key={c.id} c={c} />)}
+          </div>
+        </main>
+
+        {/* Meta panel */}
+        <aside className="meta-panel" style={{ width:'260px', minWidth:'260px', background:'#11151F', borderLeft:'1px solid #1F2A3A', padding:'20px 16px', position:'sticky', top:'52px', height:'calc(100vh - 52px - 28px)', overflowY:'auto' }}>
+
+          <div style={{ marginBottom:'20px' }}>
+            <div className="sb-lbl">// post.meta</div>
+            {[['ID', POST.id], ['Views', POST.views], ['Likes', likes], ['Comments', POST.comments]].map(([k,v]) => (
+              <div key={k} style={{ display:'flex', justifyContent:'space-between', padding:'5px 0', borderBottom:'1px solid #1A1F2E' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{k}</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#E6EDF3' }}>{v}</span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginBottom:'20px' }}>
+            <div className="sb-lbl">// tags</div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'5px' }}>
+              {POST.tags.map(tag => { const t = TAGS_DATA.find(x=>x.name===tag); const col = t?.color||'#00FFE5';
+                return <span key={tag} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:col, background:`${col}15`, border:`1px solid ${col}40`, borderRadius:'4px', padding:'2px 7px' }}>{tag}</span>;
+              })}
+            </div>
+          </div>
+
+          <div style={{ marginBottom:'20px' }}>
+            <div className="sb-lbl">// share</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+              {[['Facebook','#1877F2'],['X (Twitter)','#E6EDF3'],['Telegram','#2AABEE'],['Copy link','#00FFE5']].map(([label, color]) => (
+                <button key={label} className="share-btn" style={{ color }}>
+                  <span style={{ fontSize:'12px' }}>{label === 'Copy link' ? '🔗' : label === 'Facebook' ? '📘' : label === 'Telegram' ? '✈️' : '🐦'}</span>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="sb-lbl">// related</div>
+            {POSTS_DATA.filter(p=>p.id!==POST.id).slice(0,2).map(p => {
+              const m = MOOD_CFG[p.mood];
+              return (
+                <a key={p.id} href="#" style={{ textDecoration:'none', display:'block', padding:'10px', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', marginBottom:'8px', transition:'border-color .15s' }}
+                  className="cp-item" style={{ textDecoration:'none', display:'block', padding:'10px', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', marginBottom:'8px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:'5px', marginBottom:'4px' }}>
+                    <span style={{ fontSize:'11px' }}>{m.emoji}</span>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:m.color }}>{m.label}</span>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginLeft:'auto' }}>{p.time}</span>
+                  </div>
+                  <p style={{ fontSize:'12px', color:'#C9D1D9', lineHeight:'1.4' }}>{p.content.slice(0,80)}…</p>
+                </a>
+              );
+            })}
+          </div>
+        </aside>
+      </div>
+
+      <StatusBar path={`~/post/${POST.id}`} info={`${POST.views} views · ${POST.comments} comments`} />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(PostDetail));
+</script>
+</body>
+</html>

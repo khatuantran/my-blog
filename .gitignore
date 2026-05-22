@@ -50,6 +50,3 @@ Thumbs.db
 # Misc
 *.tgz
 .cache/
-
-# Design source (reference-only, không commit — xem CLAUDE.md / docs/DESIGN_SYSTEM.md)
-design-file/

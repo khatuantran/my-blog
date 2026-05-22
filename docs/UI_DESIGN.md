@@ -2,7 +2,7 @@
 
 > **Focus:** screen-level wireframes + user flow + interaction spec.
 > Design tokens + component primitives: [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md).
-> Spec source (HTML/JSX prototype): [`design-file/`](../design-file/) — single source of truth cho mọi visual.
+> Reference trực quan (HTML/JSX prototype): [`design-file/`](../design-file/) — bộ prototype **tham khảo**, đối chiếu khi cần (không phải source of truth). Spec visual chính thức là chính `UI_DESIGN.md` + `DESIGN_SYSTEM.md`.
 > FR mapping: [REQUIREMENTS.md > Use Cases](./REQUIREMENTS.md).
 
 ## Design Principles

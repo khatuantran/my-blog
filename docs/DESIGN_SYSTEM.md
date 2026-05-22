@@ -1,7 +1,7 @@
 # Design System
 
 > **Single source of truth** cho design tokens + component primitives.
-> Spec authoritative: [`design-file/`](../design-file/) HTML/JSX prototype.
+> Reference trực quan: [`design-file/`](../design-file/) HTML/JSX prototype — **tham khảo** (đối chiếu khi cần), không authoritative. Token spec chính thức là chính file này.
 > Mọi screen wireframe ở [UI_DESIGN.md](./UI_DESIGN.md) PHẢI dùng token/component từ đây.
 
 ## Theme: Cyberpunk / Terminal (Dark-only)
@@ -893,7 +893,7 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 - **Added shadow:** cyan glow system (sm/md/lg/xl)
 - **Mood colors changed:** all 7 mood colors updated theo design source (HAPPY yellow #FFD93D, EXCITED orange #FF9E64, ...)
 - **Mood emoji:** EXCITED 🎉 → ⚡
-- **Related:** ADR-008 (OpenAPI), design-file/ as source of truth
+- **Related:** ADR-008 (OpenAPI), design-file/ (reference prototype — tham khảo)
 
 ---
 

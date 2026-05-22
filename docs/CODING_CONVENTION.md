@@ -209,7 +209,7 @@ Path alias: `@/*` → `src/*` cho mỗi app (cả `apps/web` và `apps/api`)
   - `eslint-plugin-import` (order)
   - `eslint-plugin-jsx-a11y` (FE)
 - **Prettier:** `semi: true, singleQuote: true, printWidth: 100, trailingComma: 'all'`
-- **Pre-commit:** husky + lint-staged → run `eslint --fix` + `prettier --write` trên staged files
+- **Pre-commit:** husky + lint-staged → run `eslint --fix` + `prettier --write` trên staged files. Config ở `lint-staged.config.mjs` (root) — KHÔNG ở `package.json`. `design-file/` được filter ra khỏi mọi task lint/format (eslint đã ignore trong `eslint.config.mjs`; tránh `--max-warnings=0` fail trên file ignored)
 - **CI:** `pnpm lint` + `pnpm format:check` PHẢI pass
 
 ### Git

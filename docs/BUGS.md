@@ -38,7 +38,7 @@ _(Trống)_
 - **Actual:** <hành vi thực tế>
 - **Screenshot/log:** <link hoặc paste log/screenshot/video>
 - **Root cause:** <điền khi tìm ra — F3 step 4, F4 phase B>
-- **Fix:** <commit hash / PR khi đã fix>
+- **Fix:** <mô tả fix — KHÔNG cần commit hash, git log là source (CLAUDE.md F3 step 7); tra qua `git log --grep "BUG-XXX"`>
 - **Regression test:** <file path test reproduce bug — BẮT BUỘC theo CLAUDE.md Testing Rules>
 - **Lesson learned (optional):** <nếu là architectural issue, add ADR vào ARCHITECTURE.md>
 ```

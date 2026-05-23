@@ -1,0 +1,39 @@
+{
+  "skill_name": "myblog-docs-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Implement T-305: thêm endpoint GET /api/notifications cho user. BE layer, NestJS.",
+      "expected_output": "Claude reads PROGRESS.md, TASKS.md, BUGS.md first. Reports session status. Classifies as F1. Runs pre-flight — checks TASKS.md entry, REQUIREMENTS.md FR, DATA_MODEL.md, API_CONTRACT.md. Blocks if API_CONTRACT not updated yet.",
+      "assertions": [
+        "reads PROGRESS.md before coding",
+        "reports session status with task/bug/milestone info",
+        "classifies flow as F1",
+        "checks API_CONTRACT.md in pre-flight",
+        "blocks coding if API_CONTRACT missing endpoint spec"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Sửa bug: change password form không validate min length. Fix luôn đi.",
+      "expected_output": "Claude runs code-match-spec test against REQUIREMENTS.md before classifying. If spec says min 8 chars and user wants to relax to 5, classifies as F2 (change request), NOT F3. Asks user to confirm flow before proceeding.",
+      "assertions": [
+        "reads REQUIREMENTS.md to check spec before classifying as bug",
+        "does NOT blindly classify as F3 from keyword 'sửa bug'",
+        "asks user to confirm F2 vs F3 if ambiguous",
+        "reports session status first"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Thêm ProfileCard component vào trang profile. UI change.",
+      "expected_output": "Claude reports session status. Classifies F1 (FE layer). Pre-flight checks DESIGN_SYSTEM.md for component spec — if missing, BLOCKS and says must add spec to DESIGN_SYSTEM.md first.",
+      "assertions": [
+        "checks DESIGN_SYSTEM.md in pre-flight for new UI component",
+        "blocks coding if component spec not in DESIGN_SYSTEM.md",
+        "reads UI_DESIGN.md to understand screen context",
+        "identifies layer as FE"
+      ]
+    }
+  ]
+}

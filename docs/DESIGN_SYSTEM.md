@@ -55,24 +55,27 @@
 
 ### Typography
 
-| Token          | Family         | Size    | Weight  | Line height | Use                                          |
-| -------------- | -------------- | ------- | ------- | ----------- | -------------------------------------------- |
-| `text-brand`   | Space Grotesk  | 16px    | 700     | 1           | Logo "kha.blog" (letter-spacing -0.04em)     |
-| `text-display` | Space Grotesk  | 28px    | 700     | 1           | Stat card value                              |
-| `text-h1`      | Space Grotesk  | 22px    | 600     | 1.3         | Page title hero                              |
-| `text-h2`      | Space Grotesk  | 18px    | 600     | 1.4         | Section heading                              |
-| `text-h3`      | Inter          | 14px    | 600     | 1.4         | Card title                                   |
-| `text-body`    | Inter          | 14-16px | 400     | 1.65        | Body text (post content 15px, regular 14px)  |
-| `text-small`   | Inter          | 12-13px | 400     | 1.5         | Caption, meta                                |
-| `text-xs`      | Inter          | 10-11px | 400     | 1.4         | Microcopy                                    |
-| `text-mono-lg` | JetBrains Mono | 14px    | 400/500 | 1.6         | Terminal text input, code block (large)      |
-| `text-mono`    | JetBrains Mono | 12px    | 400/500 | 1.5         | UI labels, timestamps, button text           |
-| `text-mono-sm` | JetBrains Mono | 10-11px | 400/500 | 1.4         | Section labels `// section.name`, status bar |
-| `text-mono-xs` | JetBrains Mono | 9px     | 400     | 1.3         | Badges, IDs (hex), corner deco               |
+| Token          | Family         | Size    | Weight  | Line height | Use                                                                     |
+| -------------- | -------------- | ------- | ------- | ----------- | ----------------------------------------------------------------------- |
+| `text-brand`   | Space Grotesk  | 16px    | 700     | 1           | Logo "kha.blog" (letter-spacing -0.04em)                                |
+| `text-display` | Space Grotesk  | 28px    | 700     | 1           | Stat card value                                                         |
+| `text-h1`      | Space Grotesk  | 22px    | 600     | 1.3         | Page title hero                                                         |
+| `text-h2`      | Space Grotesk  | 18px    | 600     | 1.4         | Section heading                                                         |
+| `text-h3`      | Inter          | 14px    | 600     | 1.4         | Card title                                                              |
+| `text-body`    | Inter          | 14-16px | 400     | 1.65        | Body text (post content 15px, regular 14px)                             |
+| `text-small`   | Inter          | 12-13px | 400     | 1.5         | Caption, meta                                                           |
+| `text-xs`      | Inter          | 10-11px | 400     | 1.4         | Microcopy                                                               |
+| `text-mono-lg` | JetBrains Mono | 14px    | 400/500 | 1.6         | Terminal text input, code block (large)                                 |
+| `text-mono-md` | JetBrains Mono | 13px    | 400/500 | 1.5         | Secondary mono body (dense table, post meta)                            |
+| `text-mono`    | JetBrains Mono | 12px    | 400/500 | 1.5         | UI labels, timestamps, button text                                      |
+| `text-mono-sm` | JetBrains Mono | 11px    | 400/500 | 1.4         | Section labels `// section.name`, role badges (`[ ADMIN ]`), status bar |
+| `text-mono-xs` | JetBrains Mono | 9px     | 400     | 1.3         | Hex IDs corner deco (`#a1b2c3`) only — NOT role badges                  |
 
 **Italic** style: `text-mono` italic 400 cho placeholder + `// quote` style.
 
 **v2 design refinement (M11.7):** Design v2 chọn upper bound của token ranges (UI label 11px thay 10px; mono text 13px thay 12px; body content 15px thay 14px) để dễ đọc. Editor Create Post chuyển từ JetBrains Mono → **Inter** cho phần content prose (UI chrome vẫn mono).
+
+**Implementation note (M11.8 — 2026-05-25):** 7 base tokens (`text-mono-md 13px` + `text-body 15px` + `text-small 13px` + `text-h1 22px` + `text-h2 18px` + `text-h3 14px` + `text-display 28px`) đã được spec đầy đủ trong table trên nhưng FE tailwind config trước đây chỉ implement 4 mono variants. Audit M11.8 phát hiện 18 font-size drift items across 8 implemented screens. Full FE migration via T-360 screen audit sweep. v2.1 variant tokens (`text-h1-hero 26`, `text-input-hero 18`, `text-display-sm 24`, `text-mono-tiny 7-8`, `text-display-glyph 32-48`) vẫn TODO trong T-360 chính.
 
 ### Spacing (4px base)
 

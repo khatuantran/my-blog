@@ -279,3 +279,59 @@ export type ListActivityParams = {
 export type ToggleSaveResponse = {
   saved: boolean;
 };
+
+// Notification types (FR-14)
+export type NotificationType = 'REACTION' | 'COMMENT' | 'REPLY' | 'SHARE';
+
+export type NotificationActor = {
+  id: string;
+  username: string;
+  avatarUrl: string | null;
+};
+
+export type NotificationMetadata = {
+  reactionType?: string;
+};
+
+export type NotificationItem = {
+  id: string;
+  type: NotificationType;
+  actor: NotificationActor | null;
+  targetType: string;
+  targetId: string;
+  postId?: string;
+  read: boolean;
+  metadata?: NotificationMetadata;
+  createdAt: string;
+};
+
+export type NotificationListResponse = {
+  items: NotificationItem[];
+  total: number;
+  page: number;
+  limit: number;
+  unreadCount: number;
+};
+
+export type UnreadCountResponse = {
+  count: number;
+};
+
+export type MarkReadResponse = {
+  id: string;
+  read: boolean;
+};
+
+export type MarkAllReadResponse = {
+  updated: number;
+};
+
+export type BulkDeleteNotificationsResponse = {
+  deleted: number;
+};
+
+export type ListNotificationsParams = {
+  filter?: 'all' | 'unread';
+  page?: number;
+  limit?: number;
+};

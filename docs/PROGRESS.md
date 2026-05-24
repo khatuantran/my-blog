@@ -41,6 +41,7 @@
   - T-311: BE NotificationsModule + createNotification() — hooks into ReactionsService (REACTION) + CommentsService (COMMENT), best-effort try-catch — 125 unit pass, tsc clean.
   - T-312: BE Notifications 6 REST endpoints (list/unread-count/mark-read/mark-all/delete/bulk-delete) — 186 e2e pass, tsc clean.
   - T-317: Reactions FE + BE PostView extend (myReaction + topReactions[3] viewer-aware aggregator) — ReactionPicker + ReactionList modal + ReactionButton (replace LikeButton); PostCounts.likes → reactions. 8 FE tests + 3 BE e2e tests added; openapi:sync run. Totals: BE 125 unit + 189 e2e + FE 300 unit = **614 tests**.
+  - T-313: FE NotificationBell primitive — bell icon + unread badge (pulsing, 99+) + dropdown 360px (header, tabs All/Unread, time-grouped list, footer view-all link); `useUnreadCount()` polling 30s; wired into TopBar (authed-only). 6 FE tests; global MSW defaults added for notification endpoints. Totals: FE 306 unit = **619 tests**.
 
 ### 2026-05-17 (Week 1)
 

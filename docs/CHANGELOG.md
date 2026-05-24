@@ -6,6 +6,18 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-313** NotificationBell FE primitive (M11.7, FR-14.3, FE-only):
+  - `types/api.ts` — new types: `NotificationType`, `NotificationActor`, `NotificationMetadata`, `NotificationItem`, `NotificationListResponse`, `UnreadCountResponse`, `MarkReadResponse`, `MarkAllReadResponse`, `BulkDeleteNotificationsResponse`, `ListNotificationsParams`.
+  - `services/api/notifications.ts` (NEW) — 6 functions wrapping notification REST endpoints: `listNotifications`, `getUnreadCount`, `markNotificationRead`, `markAllNotificationsRead`, `deleteNotification`, `bulkDeleteNotifications`.
+  - `lib/query-keys.ts` — adds `qk.notifications.all`, `qk.notifications.list(params)`, `qk.notifications.unreadCount`.
+  - `hooks/queries/use-notifications.ts` (NEW) — `useNotifications(params)` via `useQuery`.
+  - `hooks/queries/use-unread-count.ts` (NEW) — `useUnreadCount()` with `refetchInterval: 30s`, enabled when authed.
+  - `hooks/mutations/use-notification-mutations.ts` (NEW) — `useMarkNotificationRead`, `useMarkAllNotificationsRead`, `useDeleteNotification` (all invalidate `qk.notifications.all`).
+  - `components/layout/NotificationBell.tsx` (NEW) — composite: bell button + badge (bg-mag, `animate-pulse-status`, 99+) + dropdown 360px (header with unread count + mark-all-read button, segmented tab All/Unread, time-grouped list rows with AvatarSm/verb/relative-time/unread dot, footer "view all → /notifications" link). Click outside + Esc close. Click row → `useMarkNotificationRead` + navigate target.
+  - `components/layout/TopBar.tsx` — wires `<NotificationBell />` before Avatar dropdown (authed-only).
+  - `tests/_helpers/msw-server.ts` — adds 2 default MSW handlers (notifications/unread-count + notifications list) so all existing tests with TopBar continue to pass without stub noise.
+  - **Tests:** `tests/components/layout/NotificationBell.test.tsx` (6 case — badge hidden count=0 / badge text count>0 / badge 99+ count>99 / dropdown toggle + click-outside close / tab switch All→Unread / click item nav+mark-read). Totals: **FE 306 unit tests pass, tsc + lint clean**.
+
 - **T-317** Reactions FE + BE PostView extend (M11.7, FR-16.4/16.5, Both):
   - **BE:** `posts.service.ts` — new helper `buildReactionMetaMap(prisma, postIds, viewer?)` — single `prisma.reaction.groupBy({by:['postId','type']})` + viewer-aware `findMany` → returns `Map<postId, {topReactions[3], myReaction}>`. `toPostView` extended with 2nd arg `meta?: ReactionMeta` (default empty). `list()`/`findById()` now accept `viewer?: PostsViewer` and pass meta into mapping. `search.service.ts` also takes `viewer` for posts results.
   - **BE controllers:** `posts.controller.ts` GET `/posts` + GET `/posts/:id` now wrap `JwtOptionalAuthGuard` and pass `{userId, anonymousId}`; `search.controller.ts` same pattern. `posts/dto/post-response.dto.ts`: `PostResponseDto` adds `topReactions: ReactionType[]` + `myReaction: ReactionType | null`.

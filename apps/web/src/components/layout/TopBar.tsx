@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Logo } from './Logo';
+import { NotificationBell } from './NotificationBell';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout } from '@/hooks/mutations/use-logout';
 
@@ -130,6 +131,9 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
         <span className="flex items-center gap-1 font-mono text-mono-sm text-grn">
           <span className="animate-pulse-status text-[8px]">●</span> 3
         </span>
+
+        {/* Notification bell — authed only */}
+        {isAuthed && <NotificationBell />}
 
         {/* Avatar + dropdown */}
         <div ref={menuRef} className="relative">

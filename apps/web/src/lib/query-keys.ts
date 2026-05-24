@@ -1,7 +1,12 @@
 // Centralized TanStack Query key factory.
 // Convention: `[domain, action, ...params]`. Invalidate qua prefix.
 
-import type { ListActivityParams, ListPostsParams, ListReactionsParams } from '@/types/api';
+import type {
+  ListActivityParams,
+  ListNotificationsParams,
+  ListPostsParams,
+  ListReactionsParams,
+} from '@/types/api';
 
 export const qk = {
   posts: {
@@ -41,4 +46,9 @@ export const qk = {
   },
   search: (params: { q?: string; type?: string; mood?: string } = {}) =>
     ['search', params] as const,
+  notifications: {
+    all: ['notifications'] as const,
+    list: (params: ListNotificationsParams = {}) => ['notifications', 'list', params] as const,
+    unreadCount: ['notifications', 'unread-count'] as const,
+  },
 };

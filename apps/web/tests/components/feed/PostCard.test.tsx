@@ -11,8 +11,14 @@ const API_URL = 'http://localhost:3001';
 
 beforeEach(() => {
   mswServer.use(
-    http.post(`${API_URL}/posts/:id/like`, () =>
-      HttpResponse.json({ data: { liked: true, count: 1 } }),
+    http.post(`${API_URL}/posts/:id/reactions`, () =>
+      HttpResponse.json({
+        data: {
+          type: 'LIKE',
+          totalCounts: { LIKE: 1, LOVE: 0, HAHA: 0, WOW: 0, SAD: 0, ANGRY: 0 },
+          topThree: ['LIKE'],
+        },
+      }),
     ),
     http.post(`${API_URL}/posts/:id/save`, () => HttpResponse.json({ data: { saved: true } })),
   );
@@ -23,7 +29,8 @@ describe('PostCard', () => {
     const post = makePost({
       id: 'p1',
       content: 'hello world',
-      counts: { likes: 5, comments: 3 },
+      counts: { reactions: 5, comments: 3 },
+      topReactions: ['LIKE', 'LOVE'],
       tags: [{ id: 't1', name: 'code', color: '#00FFE5' }],
     });
     render(
@@ -33,28 +40,25 @@ describe('PostCard', () => {
     );
     expect(screen.getByText('~/admin')).toBeInTheDocument();
     expect(screen.getByText('hello world')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument(); // like count
+    expect(screen.getByText('5')).toBeInTheDocument(); // reaction count
     expect(screen.getByText('3')).toBeInTheDocument(); // comment count
     expect(screen.getByText('#code')).toBeInTheDocument();
   });
 
-  it('click like → optimistic update count++', async () => {
+  it('click react → optimistic LIKE applied + aria-pressed=true', async () => {
     const user = userEvent.setup();
-    const post = makePost({ id: 'p1', counts: { likes: 5, comments: 0 }, liked: false });
+    const post = makePost({ id: 'p1', counts: { reactions: 5, comments: 0 }, myReaction: null });
     render(
       <TestProviders>
         <PostCard post={post} />
       </TestProviders>,
     );
-    const likeBtn = screen.getByRole('button', { name: /like post/i });
-    expect(likeBtn).toHaveAttribute('aria-pressed', 'false');
+    const reactBtn = screen.getByTestId('reaction-button-p1');
+    expect(reactBtn).toHaveAttribute('aria-pressed', 'false');
 
-    await user.click(likeBtn);
+    await user.click(reactBtn);
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /unlike post/i })).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      );
+      expect(screen.getByTestId('reaction-button-p1')).toHaveAttribute('aria-pressed', 'true');
     });
   });
 
@@ -74,7 +78,7 @@ describe('PostCard', () => {
   });
 
   it('comment link navigates to /post/:id', () => {
-    const post = makePost({ id: 'abc123', counts: { likes: 0, comments: 7 } });
+    const post = makePost({ id: 'abc123', counts: { reactions: 0, comments: 7 } });
     render(
       <TestProviders>
         <PostCard post={post} />

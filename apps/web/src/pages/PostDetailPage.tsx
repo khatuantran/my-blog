@@ -7,7 +7,7 @@ import { FileAttachments } from '@/components/post/FileAttachments';
 import { MetaPanel } from '@/components/post/MetaPanel';
 import { ImageCarousel } from '@/components/post/ImageCarousel';
 import { TagPill } from '@/components/shared/TagPill';
-import { LikeButton } from '@/components/feed/LikeButton';
+import { ReactionButton } from '@/components/feed/ReactionButton';
 import { SaveButton } from '@/components/feed/SaveButton';
 import { CommentForm } from '@/components/comment/CommentForm';
 import { CommentList } from '@/components/comment/CommentList';
@@ -77,7 +77,12 @@ export default function PostDetailPage() {
 
           {/* Actions */}
           <div className="mb-6 flex items-center gap-1">
-            <LikeButton postId={post.id} liked={!!post.liked} count={post.counts.likes} />
+            <ReactionButton
+              postId={post.id}
+              myReaction={post.myReaction}
+              topReactions={post.topReactions}
+              count={post.counts.reactions}
+            />
             <button
               type="button"
               className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"

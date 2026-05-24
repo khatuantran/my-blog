@@ -39,7 +39,7 @@ describe('PostDetailPage', () => {
           data: makePost({
             id: 'abc123',
             content: 'detail body',
-            counts: { likes: 24, comments: 5 },
+            counts: { reactions: 24, comments: 5 },
             viewCount: 142,
             tags: [{ id: 't1', name: 'code', color: '#00FFE5' }],
           }),

@@ -1611,6 +1611,34 @@ components:
             $ref: '#/components/schemas/PostFileDto'
         counts:
           $ref: '#/components/schemas/PostCountsDto'
+        topReactions:
+          type: array
+          description: Top 3 reaction types by count (desc). Empty if no reactions.
+          example:
+            - LIKE
+            - LOVE
+            - HAHA
+          items:
+            type: string
+            enum:
+              - LIKE
+              - LOVE
+              - HAHA
+              - WOW
+              - SAD
+              - ANGRY
+        myReaction:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+          nullable: true
+          description: Viewer reaction on this post; null if no viewer or not reacted.
+          example: LIKE
         createdAt:
           format: date-time
           type: string
@@ -1629,6 +1657,8 @@ components:
         - images
         - files
         - counts
+        - topReactions
+        - myReaction
         - createdAt
         - updatedAt
     PaginatedPostsDto:
@@ -1959,6 +1989,34 @@ components:
             $ref: '#/components/schemas/PostFileDto'
         counts:
           $ref: '#/components/schemas/PostCountsDto'
+        topReactions:
+          type: array
+          description: Top 3 reaction types by count (desc). Empty if no reactions.
+          example:
+            - LIKE
+            - LOVE
+            - HAHA
+          items:
+            type: string
+            enum:
+              - LIKE
+              - LOVE
+              - HAHA
+              - WOW
+              - SAD
+              - ANGRY
+        myReaction:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+          nullable: true
+          description: Viewer reaction on this post; null if no viewer or not reacted.
+          example: LIKE
         createdAt:
           format: date-time
           type: string
@@ -1982,6 +2040,8 @@ components:
         - images
         - files
         - counts
+        - topReactions
+        - myReaction
         - createdAt
         - updatedAt
         - savedAt

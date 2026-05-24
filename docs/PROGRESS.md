@@ -40,6 +40,7 @@
   - T-310: BE Notifications migration — NotificationType enum + Notification model + 2 indexes — 123 unit pass, tsc clean.
   - T-311: BE NotificationsModule + createNotification() — hooks into ReactionsService (REACTION) + CommentsService (COMMENT), best-effort try-catch — 125 unit pass, tsc clean.
   - T-312: BE Notifications 6 REST endpoints (list/unread-count/mark-read/mark-all/delete/bulk-delete) — 186 e2e pass, tsc clean.
+  - T-317: Reactions FE + BE PostView extend (myReaction + topReactions[3] viewer-aware aggregator) — ReactionPicker + ReactionList modal + ReactionButton (replace LikeButton); PostCounts.likes → reactions. 8 FE tests + 3 BE e2e tests added; openapi:sync run. Totals: BE 125 unit + 189 e2e + FE 300 unit = **614 tests**.
 
 ### 2026-05-17 (Week 1)
 
@@ -166,8 +167,8 @@
     - TASKS M11.7: 17 task T-310→T-334 (Foundation 1 + Reactions 2 + Notifications 6 + Admin Posts 4 + Polish 4)
 - **Done thêm (2026-05-24):**
   - ✅ T-330 Foundation refresh — typography CSS vars v2 (`--fs-ui` 11px / `--fs-ui-text` 13px / `--fs-body` 15px) + Tailwind 5-tier max-width screens (`mx-980/760/640/480/420`) + StatusBadge component (variant `post`, palette PUBLISHED/DRAFT/ARCHIVED) + `status-config.ts`. Tests: 2 file (6 case) pass. M11.7 Foundation cleared cho downstream task.
-- **Doing:** M11.7 F1 — next BE Reactions T-316.
-- **Next:** F1 order: BE Reactions T-316 → BE Notifications T-310/311/312 → openapi:sync → FE Reactions T-317 → FE Notifications T-313/314 → BE Admin Posts T-320 → FE Admin Posts T-321/322/323 → Polish T-331/332/333/334. WS realtime T-315 defer-able.
+- **Doing:** M11.7 F1 — 6/17 done (Foundation + BE Reactions + BE Notifications + FE Reactions T-317).
+- **Next:** F1 order remaining: FE Notifications T-313/314 → BE Admin Posts T-320 → FE Admin Posts T-321/322/323 → Polish T-331/332/333/334. WS realtime T-315 defer-able.
 
 ---
 

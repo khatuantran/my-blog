@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
-import { POST_INCLUDE, toPostView, type PostView } from '../posts/posts.service';
+import {
+  POST_INCLUDE,
+  buildReactionMetaMap,
+  toPostView,
+  type PostView,
+  type PostsViewer,
+} from '../posts/posts.service';
 import type { SearchDto } from './dto/search.dto';
 
 export type SearchStats = {
@@ -22,7 +28,8 @@ export type SearchResult = {
 export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async search(query: SearchDto, viewerUserId?: string): Promise<SearchResult> {
+  async search(query: SearchDto, viewer?: PostsViewer): Promise<SearchResult> {
+    const viewerUserId = viewer?.userId;
     const q = (query.q ?? '').trim();
     const includePosts = query.type === 'all' || query.type === 'posts';
     const includeFiles = query.type === 'all' || query.type === 'files';
@@ -73,7 +80,17 @@ export class SearchService {
         }),
         this.prisma.post.count({ where }),
       ]);
-      posts = { items: rows.map(toPostView), total, page: query.page, limit: query.limit };
+      const metaMap = await buildReactionMetaMap(
+        this.prisma,
+        rows.map((r) => r.id),
+        viewer,
+      );
+      posts = {
+        items: rows.map((r) => toPostView(r, metaMap.get(r.id))),
+        total,
+        page: query.page,
+        limit: query.limit,
+      };
     }
 
     // Files: ILIKE on name

@@ -17,6 +17,10 @@ type MockPrisma = {
   postView: {
     findFirst: jest.Mock;
   };
+  reaction: {
+    groupBy: jest.Mock;
+    findMany: jest.Mock;
+  };
   $transaction: jest.Mock;
 };
 
@@ -67,6 +71,10 @@ describe('PostsService', () => {
       },
       postView: {
         findFirst: jest.fn(),
+      },
+      reaction: {
+        groupBy: jest.fn().mockResolvedValue([]),
+        findMany: jest.fn().mockResolvedValue([]),
       },
       $transaction: jest.fn((cb: (t: typeof tx) => Promise<unknown>) => cb(tx)),
     };

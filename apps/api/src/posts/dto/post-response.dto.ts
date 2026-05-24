@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FileType, Mood, Role } from '@prisma/client';
+import { FileType, Mood, ReactionType, Role } from '@prisma/client';
 
 export class PostAuthorDto {
   @ApiProperty({ example: 'cmpa14i8t000010ldmv5j5att' })
@@ -101,6 +101,22 @@ export class PostResponseDto {
 
   @ApiProperty({ type: PostCountsDto })
   counts!: PostCountsDto;
+
+  @ApiProperty({
+    enum: ReactionType,
+    isArray: true,
+    description: 'Top 3 reaction types by count (desc). Empty if no reactions.',
+    example: ['LIKE', 'LOVE', 'HAHA'],
+  })
+  topReactions!: ReactionType[];
+
+  @ApiProperty({
+    enum: ReactionType,
+    nullable: true,
+    description: 'Viewer reaction on this post; null if no viewer or not reacted.',
+    example: 'LIKE',
+  })
+  myReaction!: ReactionType | null;
 
   @ApiProperty({ example: '2026-05-17T16:59:32.000Z' })
   createdAt!: Date;

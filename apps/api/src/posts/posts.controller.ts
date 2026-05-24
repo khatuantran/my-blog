@@ -36,18 +36,34 @@ export class PostsController {
 
   @Get()
   @Public()
+  @UseGuards(JwtOptionalAuthGuard)
   @ApiOperation({ summary: 'List posts (public, paginated, optional mood/tag filter)' })
   @ApiResponse({ status: 200, type: PaginatedPostsDto })
-  async list(@Query() query: ListPostsDto): Promise<PaginatedPostsDto> {
-    return this.posts.list(query) as Promise<PaginatedPostsDto>;
+  async list(
+    @Query() query: ListPostsDto,
+    @CurrentUser() user: AuthenticatedUser | undefined,
+    @AnonymousId() anonymousId: string | undefined,
+  ): Promise<PaginatedPostsDto> {
+    return this.posts.list(query, {
+      userId: user?.sub,
+      anonymousId,
+    }) as Promise<PaginatedPostsDto>;
   }
 
   @Get(':id')
   @Public()
+  @UseGuards(JwtOptionalAuthGuard)
   @ApiOperation({ summary: 'Get post by id (public)' })
   @ApiResponse({ status: 200, type: PostResponseDto })
-  async get(@Param('id') id: string): Promise<PostResponseDto> {
-    return this.posts.findById(id) as Promise<PostResponseDto>;
+  async get(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser | undefined,
+    @AnonymousId() anonymousId: string | undefined,
+  ): Promise<PostResponseDto> {
+    return this.posts.findById(id, {
+      userId: user?.sub,
+      anonymousId,
+    }) as Promise<PostResponseDto>;
   }
 
   @Post()

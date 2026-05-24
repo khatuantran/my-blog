@@ -1052,6 +1052,21 @@ export interface components {
       files: components['schemas']['PostFileDto'][];
       counts: components['schemas']['PostCountsDto'];
       /**
+       * @description Top 3 reaction types by count (desc). Empty if no reactions.
+       * @example [
+       *       "LIKE",
+       *       "LOVE",
+       *       "HAHA"
+       *     ]
+       */
+      topReactions: ('LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY')[];
+      /**
+       * @description Viewer reaction on this post; null if no viewer or not reacted.
+       * @example LIKE
+       * @enum {string|null}
+       */
+      myReaction: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY' | null;
+      /**
        * Format: date-time
        * @example 2026-05-17T16:59:32.000Z
        */
@@ -1236,6 +1251,21 @@ export interface components {
       images: components['schemas']['PostImageDto'][];
       files: components['schemas']['PostFileDto'][];
       counts: components['schemas']['PostCountsDto'];
+      /**
+       * @description Top 3 reaction types by count (desc). Empty if no reactions.
+       * @example [
+       *       "LIKE",
+       *       "LOVE",
+       *       "HAHA"
+       *     ]
+       */
+      topReactions: ('LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY')[];
+      /**
+       * @description Viewer reaction on this post; null if no viewer or not reacted.
+       * @example LIKE
+       * @enum {string|null}
+       */
+      myReaction: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY' | null;
       /**
        * Format: date-time
        * @example 2026-05-17T16:59:32.000Z

@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, ReactionType } from '@prisma/client';
 import { ActivityService } from '../activity/activity.service';
 import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
 import { TagsService, normalizeTagName as normalizeTagNameImpl } from '../tags/tags.service';
@@ -21,6 +21,13 @@ export const POST_INCLUDE = {
 
 export type PostWithRelations = Prisma.PostGetPayload<{ include: typeof POST_INCLUDE }>;
 
+export interface ReactionMeta {
+  topReactions: ReactionType[];
+  myReaction: ReactionType | null;
+}
+
+const EMPTY_REACTION_META: ReactionMeta = { topReactions: [], myReaction: null };
+
 export interface PostView {
   id: string;
   content: string;
@@ -31,11 +38,16 @@ export interface PostView {
   images: PostWithRelations['images'];
   files: PostWithRelations['files'];
   counts: { reactions: number; comments: number };
+  topReactions: ReactionType[];
+  myReaction: ReactionType | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export function toPostView(post: PostWithRelations): PostView {
+export function toPostView(
+  post: PostWithRelations,
+  meta: ReactionMeta = EMPTY_REACTION_META,
+): PostView {
   return {
     id: post.id,
     content: post.content,
@@ -50,9 +62,67 @@ export function toPostView(post: PostWithRelations): PostView {
     images: post.images,
     files: post.files,
     counts: { reactions: post._count.reactions, comments: post._count.comments },
+    topReactions: meta.topReactions,
+    myReaction: meta.myReaction,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   };
+}
+
+export interface PostsViewer {
+  userId?: string;
+  anonymousId?: string;
+}
+
+/**
+ * Aggregate reaction meta (topReactions[3] + myReaction) for a batch of post IDs.
+ * 1 groupBy + 1 findMany (only when viewer present). Returns map; missing entries → empty meta.
+ */
+export async function buildReactionMetaMap(
+  prisma: PrismaService,
+  postIds: string[],
+  viewer?: PostsViewer,
+): Promise<Map<string, ReactionMeta>> {
+  const map = new Map<string, ReactionMeta>();
+  if (postIds.length === 0) return map;
+
+  const grouped = await prisma.reaction.groupBy({
+    by: ['postId', 'type'],
+    where: { postId: { in: postIds } },
+    _count: { type: true },
+  });
+
+  const byPost = new Map<string, [ReactionType, number][]>();
+  for (const row of grouped) {
+    const arr = byPost.get(row.postId) ?? [];
+    arr.push([row.type, row._count.type]);
+    byPost.set(row.postId, arr);
+  }
+
+  let mineMap = new Map<string, ReactionType>();
+  if (viewer?.userId || viewer?.anonymousId) {
+    const mine = await prisma.reaction.findMany({
+      where: {
+        postId: { in: postIds },
+        ...(viewer.userId
+          ? { userId: viewer.userId, anonymousId: null }
+          : { userId: null, anonymousId: viewer.anonymousId }),
+      },
+      select: { postId: true, type: true },
+    });
+    mineMap = new Map(mine.map((m) => [m.postId, m.type]));
+  }
+
+  for (const postId of postIds) {
+    const tuples = byPost.get(postId) ?? [];
+    const topReactions = tuples
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 3)
+      .map(([t]) => t);
+    map.set(postId, { topReactions, myReaction: mineMap.get(postId) ?? null });
+  }
+
+  return map;
 }
 
 export const VIEW_DEDUP_WINDOW_MS = 30 * 60 * 1000;
@@ -70,6 +140,7 @@ export class PostsService {
 
   async list(
     query: ListPostsDto,
+    viewer?: PostsViewer,
   ): Promise<{ items: PostView[]; total: number; page: number; limit: number }> {
     const where: Prisma.PostWhereInput = {};
     if (query.mood) where.mood = query.mood;
@@ -96,20 +167,27 @@ export class PostsService {
       this.prisma.post.count({ where }),
     ]);
 
+    const metaMap = await buildReactionMetaMap(
+      this.prisma,
+      items.map((p) => p.id),
+      viewer,
+    );
+
     return {
-      items: items.map(toPostView),
+      items: items.map((p) => toPostView(p, metaMap.get(p.id))),
       total,
       page: query.page,
       limit: query.limit,
     };
   }
 
-  async findById(id: string): Promise<PostView> {
+  async findById(id: string, viewer?: PostsViewer): Promise<PostView> {
     const post = await this.prisma.post.findUnique({ where: { id }, include: POST_INCLUDE });
     if (!post) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
-    return toPostView(post);
+    const metaMap = await buildReactionMetaMap(this.prisma, [post.id], viewer);
+    return toPostView(post, metaMap.get(post.id));
   }
 
   async create(authorId: string, dto: CreatePostDto): Promise<PostView> {

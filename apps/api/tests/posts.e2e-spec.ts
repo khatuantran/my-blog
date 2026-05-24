@@ -102,6 +102,53 @@ describe('Posts (e2e)', () => {
       expect(res.body.data.content).toBe('detail');
       expect(res.body.data.author.id).toBe(adminId);
       expect(res.body.data.counts).toEqual({ reactions: 0, comments: 0 });
+      expect(res.body.data.topReactions).toEqual([]);
+      expect(res.body.data.myReaction).toBeNull();
+    });
+
+    it('200 topReactions sorted desc by count + myReaction=LIKE for auth viewer', async () => {
+      const post = await makePost(prisma, { authorId: adminId, content: 'multi-react' });
+      // 3 LOVE, 2 LIKE, 1 HAHA — actor must differ per row (unique[postId,userId])
+      const u1 = await makeUser(prisma, { username: 'r1', role: Role.USER });
+      const u2 = await makeUser(prisma, { username: 'r2', role: Role.USER });
+      const u3 = await makeUser(prisma, { username: 'r3', role: Role.USER });
+      const u4 = await makeUser(prisma, { username: 'r4', role: Role.USER });
+      const u5 = await makeUser(prisma, { username: 'r5', role: Role.USER });
+      await prisma.reaction.createMany({
+        data: [
+          { postId: post.id, userId: u1.id, type: 'LOVE' },
+          { postId: post.id, userId: u2.id, type: 'LOVE' },
+          { postId: post.id, userId: u3.id, type: 'LOVE' },
+          { postId: post.id, userId: u4.id, type: 'LIKE' },
+          { postId: post.id, userId: u5.id, type: 'LIKE' },
+          { postId: post.id, userId: adminId, type: 'HAHA' },
+        ],
+      });
+
+      const res = await request(app.getHttpServer())
+        .get(`/posts/${post.id}`)
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(res.body.data.counts.reactions).toBe(6);
+      expect(res.body.data.topReactions).toEqual(['LOVE', 'LIKE', 'HAHA']);
+      expect(res.body.data.myReaction).toBe('HAHA');
+    });
+
+    it('200 myReaction=null khi viewer chưa react / không có cookie', async () => {
+      const post = await makePost(prisma, { authorId: adminId, content: 'no-react' });
+      const u1 = await makeUser(prisma, { username: 'spectator', role: Role.USER });
+      const spectatorCookies = await loginAs(app, {
+        username: u1.username,
+        password: u1.rawPassword,
+      });
+
+      const res = await request(app.getHttpServer())
+        .get(`/posts/${post.id}`)
+        .set('Cookie', spectatorCookies)
+        .expect(200);
+
+      expect(res.body.data.myReaction).toBeNull();
     });
 
     it('404 not found', async () => {

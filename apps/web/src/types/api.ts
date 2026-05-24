@@ -1,5 +1,5 @@
 // API types — mirror BE DTOs trong apps/api/src.
-// Sync với @prisma/client enums + DTOs trong posts/dto, comments/dto, likes/dto, saved/dto.
+// Sync với @prisma/client enums + DTOs trong posts/dto, comments/dto, reactions/dto, saved/dto.
 
 import type { Mood } from '@/lib/mood-config';
 import type { FileType } from '@/lib/file-config';
@@ -140,9 +140,12 @@ export type PostFile = {
 };
 
 export type PostCounts = {
-  likes: number;
+  reactions: number;
   comments: number;
 };
+
+export const REACTION_TYPES = ['LIKE', 'LOVE', 'HAHA', 'WOW', 'SAD', 'ANGRY'] as const;
+export type ReactionType = (typeof REACTION_TYPES)[number];
 
 export type Post = {
   id: string;
@@ -154,10 +157,11 @@ export type Post = {
   images: PostImage[];
   files: PostFile[];
   counts: PostCounts;
+  topReactions: ReactionType[];
+  myReaction: ReactionType | null;
   createdAt: string;
   updatedAt: string;
-  // Optional — BE có thể thêm `liked` / `saved` per-viewer flags trong tương lai.
-  liked?: boolean;
+  // Optional — BE có thể thêm `saved` per-viewer flag trong tương lai.
   saved?: boolean;
 };
 
@@ -210,6 +214,41 @@ export type TrackViewResponse = {
 export type ToggleLikeResponse = {
   liked: boolean;
   count: number;
+};
+
+export type TotalReactionCounts = Record<ReactionType, number>;
+
+export type UpsertReactionResponse = {
+  type: ReactionType;
+  totalCounts: TotalReactionCounts;
+  topThree: ReactionType[];
+};
+
+export type ReactionCountsResponse = {
+  totalCounts: TotalReactionCounts;
+  topThree: ReactionType[];
+  total: number;
+  myReaction: ReactionType | null;
+};
+
+export type ReactionListItem = {
+  actor: { id: string; username: string; avatarUrl: string | null } | null;
+  type: ReactionType;
+  createdAt: string;
+};
+
+export type ReactionListResponse = {
+  items: ReactionListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  byType: TotalReactionCounts;
+};
+
+export type ListReactionsParams = {
+  type?: ReactionType;
+  page?: number;
+  limit?: number;
 };
 
 export type ActivityType = 'POST_CREATED' | 'COMMENT_CREATED' | 'LIKE_CREATED' | 'SAVE_CREATED';

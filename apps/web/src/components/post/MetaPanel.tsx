@@ -48,8 +48,8 @@ export function MetaPanel({ post }: Props) {
             <dd className="text-ts">{post.viewCount}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-tm">Likes</dt>
-            <dd className="text-ts">{post.counts.likes}</dd>
+            <dt className="text-tm">Reactions</dt>
+            <dd className="text-ts">{post.counts.reactions}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-tm">Comments</dt>

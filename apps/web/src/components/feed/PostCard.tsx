@@ -4,7 +4,7 @@ import { PostContent } from '@/components/post/PostContent';
 import { ImageGrid } from '@/components/post/ImageGrid';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { TagPill } from '@/components/shared/TagPill';
-import { LikeButton } from './LikeButton';
+import { ReactionButton } from './ReactionButton';
 import { SaveButton } from './SaveButton';
 import type { Post } from '@/types/api';
 
@@ -60,7 +60,12 @@ export function PostCard({ post, delay = 0 }: Props) {
 
       {/* Actions */}
       <div className="flex items-center gap-0.5">
-        <LikeButton postId={post.id} liked={!!post.liked} count={post.counts.likes} />
+        <ReactionButton
+          postId={post.id}
+          myReaction={post.myReaction}
+          topReactions={post.topReactions}
+          count={post.counts.reactions}
+        />
         <Link
           to={`/post/${post.id}`}
           className="flex items-center gap-1 rounded-sm px-2.5 py-1 font-mono text-mono text-tm no-underline transition-colors hover:bg-elev hover:text-tp"

@@ -157,6 +157,108 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/notifications': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List notifications của current user, filter all|unread, paginated */
+    get: operations['NotificationsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/notifications/unread-count': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Số notification chưa đọc của current user */
+    get: operations['NotificationsController_unreadCount'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/notifications/mark-all-read': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Đánh dấu tất cả notification của user là đã đọc */
+    patch: operations['NotificationsController_markAllRead'];
+    trace?: never;
+  };
+  '/notifications/{id}/read': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Đánh dấu 1 notification đã đọc/chưa đọc (self-scope) */
+    patch: operations['NotificationsController_markRead'];
+    trace?: never;
+  };
+  '/notifications/bulk': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Xóa nhiều notification (self-scope, ids không thuộc user bị skip) */
+    delete: operations['NotificationsController_deleteBulk'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/notifications/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Xóa 1 notification (self-scope) */
+    delete: operations['NotificationsController_deleteOne'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users': {
     parameters: {
       query?: never;
@@ -384,6 +486,42 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/posts/{id}/reactions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List users đã react, optional filter by type, paginated */
+    get: operations['ReactionsController_listReactions'];
+    put?: never;
+    /** Upsert reaction cho post (optional auth, idempotent) */
+    post: operations['ReactionsController_upsertReaction'];
+    /** Xóa reaction của actor khỏi post */
+    delete: operations['ReactionsController_removeReaction'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/posts/{id}/reactions/counts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Aggregate reaction counts cho post (public, myReaction nếu có viewer) */
+    get: operations['ReactionsController_getReactionCounts'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/posts/{id}/like': {
     parameters: {
       query?: never;
@@ -393,8 +531,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Toggle like cho post (optional auth, idempotent) */
-    post: operations['LikesController_togglePost'];
+    /** [DEPRECATED] Use POST /posts/:id/reactions instead */
+    post: operations['ReactionsController_legacyLike'];
     delete?: never;
     options?: never;
     head?: never;
@@ -410,8 +548,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Toggle like cho comment APPROVED (optional auth, idempotent) */
-    post: operations['LikesController_toggleComment'];
+    /** Toggle like cho comment APPROVED (binary, optional auth) */
+    post: operations['ReactionsController_toggleCommentLike'];
     delete?: never;
     options?: never;
     head?: never;
@@ -679,6 +817,13 @@ export interface components {
       page: number;
       limit: number;
     };
+    MarkReadDto: {
+      /** @example true */
+      read: boolean;
+    };
+    BulkDeleteDto: {
+      ids: string[];
+    };
     UserResponseDto: {
       /** @example cmpa14i8t000010ldmv5j5att */
       id: string;
@@ -889,7 +1034,7 @@ export interface components {
     };
     PostCountsDto: {
       /** @example 5 */
-      likes: number;
+      reactions: number;
       /** @example 3 */
       comments: number;
     };
@@ -1006,17 +1151,13 @@ export interface components {
        */
       counted: boolean;
     };
-    ToggleLikeResponseDto: {
+    UpsertReactionDto: {
       /**
-       * @description Trạng thái sau toggle
-       * @example true
+       * @description Kiểu reaction
+       * @example LOVE
+       * @enum {string}
        */
-      liked: boolean;
-      /**
-       * @description Tổng số like của post/comment sau toggle
-       * @example 5
-       */
-      count: number;
+      type: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
     };
     CommentAuthorDto: {
       /** @example cmpa-user-1 */
@@ -1149,7 +1290,7 @@ export interface components {
     };
     StatsResponseDto: {
       posts: components['schemas']['MetricBucketDto'];
-      likes: components['schemas']['MetricBucketDto'];
+      reactions: components['schemas']['MetricBucketDto'];
       comments: components['schemas']['MetricBucketDto'];
       views: components['schemas']['MetricBucketDto'];
     };
@@ -1360,6 +1501,124 @@ export interface operations {
         content: {
           'application/json': components['schemas']['PaginatedActivityDto'];
         };
+      };
+    };
+  };
+  NotificationsController_list: {
+    parameters: {
+      query?: {
+        filter?: 'all' | 'unread';
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_unreadCount: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_markAllRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_markRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MarkReadDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_deleteBulk: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BulkDeleteDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_deleteOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -1777,9 +2036,14 @@ export interface operations {
       };
     };
   };
-  LikesController_togglePost: {
+  ReactionsController_listReactions: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filter by reaction type */
+        type?: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
+        page?: number;
+        limit?: number;
+      };
       header?: never;
       path: {
         id: string;
@@ -1792,13 +2056,53 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          'application/json': components['schemas']['ToggleLikeResponseDto'];
-        };
+        content?: never;
       };
     };
   };
-  LikesController_toggleComment: {
+  ReactionsController_upsertReaction: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpsertReactionDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReactionsController_removeReaction: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReactionsController_getReactionCounts: {
     parameters: {
       query?: never;
       header?: never;
@@ -1813,9 +2117,44 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          'application/json': components['schemas']['ToggleLikeResponseDto'];
+        content?: never;
+      };
+    };
+  };
+  ReactionsController_legacyLike: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Gone — endpoint replaced by /reactions */
+      410: {
+        headers: {
+          [name: string]: unknown;
         };
+        content?: never;
+      };
+    };
+  };
+  ReactionsController_toggleCommentLike: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

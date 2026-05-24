@@ -150,6 +150,110 @@ paths:
                 $ref: '#/components/schemas/PaginatedActivityDto'
       tags:
         - users
+  /notifications:
+    get:
+      operationId: NotificationsController_list
+      summary: List notifications của current user, filter all|unread, paginated
+      parameters:
+        - name: filter
+          required: false
+          in: query
+          schema:
+            default: all
+            enum:
+              - all
+              - unread
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/unread-count:
+    get:
+      operationId: NotificationsController_unreadCount
+      summary: Số notification chưa đọc của current user
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/mark-all-read:
+    patch:
+      operationId: NotificationsController_markAllRead
+      summary: Đánh dấu tất cả notification của user là đã đọc
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/{id}/read:
+    patch:
+      operationId: NotificationsController_markRead
+      summary: Đánh dấu 1 notification đã đọc/chưa đọc (self-scope)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkReadDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/bulk:
+    delete:
+      operationId: NotificationsController_deleteBulk
+      summary: Xóa nhiều notification (self-scope, ids không thuộc user bị skip)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/{id}:
+    delete:
+      operationId: NotificationsController_deleteOne
+      summary: Xóa 1 notification (self-scope)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - notifications
   /users:
     get:
       operationId: UsersController_list
@@ -552,29 +656,111 @@ paths:
                 $ref: '#/components/schemas/TrackViewResponseDto'
       tags:
         - posts
+  /posts/{id}/reactions:
+    post:
+      operationId: ReactionsController_upsertReaction
+      summary: Upsert reaction cho post (optional auth, idempotent)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertReactionDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - reactions
+    delete:
+      operationId: ReactionsController_removeReaction
+      summary: Xóa reaction của actor khỏi post
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - reactions
+    get:
+      operationId: ReactionsController_listReactions
+      summary: List users đã react, optional filter by type, paginated
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: type
+          required: false
+          in: query
+          description: Filter by reaction type
+          schema:
+            enum:
+              - LIKE
+              - LOVE
+              - HAHA
+              - WOW
+              - SAD
+              - ANGRY
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            default: 1
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            default: 20
+            example: 20
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - reactions
+  /posts/{id}/reactions/counts:
+    get:
+      operationId: ReactionsController_getReactionCounts
+      summary: Aggregate reaction counts cho post (public, myReaction nếu có viewer)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - reactions
   /posts/{id}/like:
     post:
-      operationId: LikesController_togglePost
-      summary: Toggle like cho post (optional auth, idempotent)
-      parameters:
-        - name: id
-          required: true
-          in: path
-          schema:
-            type: string
+      operationId: ReactionsController_legacyLike
+      summary: '[DEPRECATED] Use POST /posts/:id/reactions instead'
+      parameters: []
       responses:
-        '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ToggleLikeResponseDto'
+        '410':
+          description: Gone — endpoint replaced by /reactions
       tags:
-        - likes
+        - reactions
   /comments/{id}/like:
     post:
-      operationId: LikesController_toggleComment
-      summary: Toggle like cho comment APPROVED (optional auth, idempotent)
+      operationId: ReactionsController_toggleCommentLike
+      summary: Toggle like cho comment APPROVED (binary, optional auth)
       parameters:
         - name: id
           required: true
@@ -584,12 +770,8 @@ paths:
       responses:
         '200':
           description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ToggleLikeResponseDto'
       tags:
-        - likes
+        - reactions
   /posts/{id}/comments:
     get:
       operationId: CommentsController_list
@@ -997,6 +1179,24 @@ components:
         - total
         - page
         - limit
+    MarkReadDto:
+      type: object
+      properties:
+        read:
+          type: boolean
+          example: true
+      required:
+        - read
+    BulkDeleteDto:
+      type: object
+      properties:
+        ids:
+          maxItems: 100
+          type: array
+          items:
+            type: string
+      required:
+        - ids
     UserResponseDto:
       type: object
       properties:
@@ -1365,14 +1565,14 @@ components:
     PostCountsDto:
       type: object
       properties:
-        likes:
+        reactions:
           type: number
           example: 5
         comments:
           type: number
           example: 3
       required:
-        - likes
+        - reactions
         - comments
     PostResponseDto:
       type: object
@@ -1591,20 +1791,22 @@ components:
       required:
         - viewCount
         - counted
-    ToggleLikeResponseDto:
+    UpsertReactionDto:
       type: object
       properties:
-        liked:
-          type: boolean
-          example: true
-          description: Trạng thái sau toggle
-        count:
-          type: number
-          example: 5
-          description: Tổng số like của post/comment sau toggle
+        type:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+          example: LOVE
+          description: Kiểu reaction
       required:
-        - liked
-        - count
+        - type
     CommentAuthorDto:
       type: object
       properties:
@@ -1840,7 +2042,7 @@ components:
       properties:
         posts:
           $ref: '#/components/schemas/MetricBucketDto'
-        likes:
+        reactions:
           $ref: '#/components/schemas/MetricBucketDto'
         comments:
           $ref: '#/components/schemas/MetricBucketDto'
@@ -1848,7 +2050,7 @@ components:
           $ref: '#/components/schemas/MetricBucketDto'
       required:
         - posts
-        - likes
+        - reactions
         - comments
         - views
     MoodCountDto:

@@ -24,8 +24,9 @@
 | M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                                                                      | ⬜ Todo               |             |
 | M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)                                                       | 🟡 Doing              | 2026-06-05  |
 | M11.8 | design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes (FR-17 AI / FR-03.6 reply / FR-04.7 modal / FR-12 search / FR-14 notifs) | 🟡 Doing              | 2026-06-12  |
+| M11.9 | Design-file phase 2 polish — components + token system + page rewrites (18 tasks T-360→T-377; SUPERSEDES M11.7 T-321/322/323)        | ⬜ Todo               | 2026-06-26  |
 
-## Tỉ lệ hoàn thành: 72% (13/18 milestone)
+## Tỉ lệ hoàn thành: 68% (13/19 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 

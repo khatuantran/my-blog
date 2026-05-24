@@ -6,6 +6,13 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **M11.9 backlog opened (2026-05-25, docs-only):** Convert 19 deferred items từ "Out of M11.8 scope (defer phase 2)" thành 18 actionable tasks T-360 → T-377 (StatusBar dropped vì FE component đã match spec). Target milestone date 2026-06-26. Pure FE refactor — KHÔNG touch BE, KHÔNG cần FR amendment (specs đã có trong DESIGN_SYSTEM.md + UI_DESIGN.md commit `24c040e`):
+  - **Theme A Token foundation (P1):** T-360 token system (Z-index 9 tiers + Shadow recipes 10 named + Typography refinement + letter-spacing + line-height vars) + T-361 animation registry tailwind config (5 new keyframes borderRotate/liveDot/slideIn/slideDown/cursorBlink + fade-up split 5 variants).
+  - **Theme B Shared components (P1/P2):** T-362 Toast shared + useToast hook + ToastProvider + T-363 UploadZone extract to shared.
+  - **Theme C TopBar + layout refactor (P2):** T-364 AvatarMenu 7-item extract + T-365 CommandPalette 8 commands + ⌘K global handler.
+  - **Theme D Create Post enhancements (P2):** T-366 EmojiPicker inline (4×16 groups) + T-367 TagPickerDropdown master-data + T-368 RichTextEditor contentEditable + 11 toolbar + 2 popovers + T-369 LinkInsertModal saveSelection/restoreSelection.
+  - **Theme E Page rewrites (P2):** T-370 LoginCard polish (anonymous + register + bracket logo) + T-371 AdminPage rewrite (SubBar + StatCards + 2-col + users table + comments moderation) + **T-372 ManagePostsPage greenfield (SUPERSEDES T-321/322/323)** + T-373 TagsPage TagModal NEON_COLORS refactor + T-374 ProfilePage hero rewrite (large) + T-375 PostMiniCard + T-376 EditProfileDrawer 4-section redesign + T-377 ImageCarousel Post Detail refresh.
+
 - **M11.8 design-file sync + F2 amendments** (2026-05-25, docs-only commits `24c040e` + `f9f407a`):
   - **FR-17 AI Content Generation (NEW)** — Admin `POST /ai/generate` via Anthropic Claude (`claude-haiku-4-5`) + AISuggestModal trong Create Post + rate limit 10 req/min/admin + Sentry cost tracking. NEW UC-22. 8 sub-FRs (scope/endpoint/provider/prompt template/UI spec/override warning/cost guard/error handling). 4 new env vars (`AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_RATE_LIMIT_PER_MIN`). New AIModule (NEW) trong BE.
   - **FR-03.6 reply-to-comment MVP (NEW)** — Comment thêm `parentId String?` self-reference + `replyTo Json?` denorm + cascade delete + `@@index([parentId])`. Depth 1 only (validate `parentComment.parentId === null` reject 400 `INVALID_PARENT_DEPTH`). POST `/comments` body accept optional `parentId`. NEW endpoint `GET /comments/:id/replies` paginated. NEW UI components `ReplyForm` + `ReplyRow` + `CommentItemRow` (CommentItem refactor). Notification type=REPLY trigger với `metadata.replyTo`.

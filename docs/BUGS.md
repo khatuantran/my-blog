@@ -65,6 +65,13 @@
 - **Actual:** Ring spin nhanh hơn 2x, stroke solid cyan, không có online dot, không có shadow glow.
 - **Screenshot/log:** Visual diff — capture cả 2 (current FE Profile vs `design-file/MyBlog Profile.html`).
 - **Root cause:** FE `ProfileAvatar.tsx` được implement nhanh trong M11.5 (T-098 hoặc tương tự) trước khi design-file 2026-05-24 finalize spec. Implementation chỉ cover basic case, miss nhiều chi tiết visual + animation đã chốt trong design-file v2.1.
+- **Additional drift discovered (post-initial-fix, 2026-05-25):** Sau commit `4c9b622` initial fix vẫn không match design-file 1:1 vì 4 vấn đề thêm:
+  1. SVG `viewBox="0 0 100 100"` + `absolute inset-0` → SVG scale 0.88× (88 container/100 viewBox), stroke 2px render 1.76px, dash `6 4` render `5.28 3.52` — dashes nhìn nhỏ + nhịp quay bị nén.
+  2. Gradient stop 3 dùng `#FF79C6` (pink), design `#FF6E96` (rose).
+  3. Online dot dùng `#50FA7B` (Dracula green), design `#9ECE6A` (Tokyo-night olive).
+  4. Inner avatar margin `3px` (size-6 inner), design `4px` all sides; online dot ở corner `0,0` thay vì inset `4 4`.
+  5. SVG default `transform-origin` = `0 0` (top-left) trên một số browser → ring quay quanh corner thay vì tâm. Fixed bằng explicit `transformOrigin: 50% 50%`.
+  - Fixed trong commits `b492c9d` (pixel-exact refactor) + `b7b5524` (transformOrigin).
 - **Fix (proposed):** Refactor `apps/web/src/components/shared/ProfileAvatar.tsx` theo `DESIGN_SYSTEM.md > ProfileAvatar (Profile hero — M11.5 FR-11.1 — updated 2026-05-24 design-file sync)`:
   - Add `<linearGradient id="avatarGrad">` 3 stops + use `stroke="url(#avatarGrad)"`.
   - Change `strokeDasharray="20 12"` → `"6 4"`.
@@ -100,6 +107,29 @@
   - Update keyframes `scan-line: { from: { transform: 'translateY(-100%)' }, to: { transform: 'translateY(100vh)' } }` → `scan-card: { '0%': { top: '-100%' }, '100%': { top: '200%' } }`.
   - Update consumer component (LoginCard) class `animate-scan-line` → `animate-scan-card`.
 - **Regression test:** `apps/web/tests/components/auth/LoginCard.test.tsx` — case `it('regression BUG-003: scan card animation runs 4s duration', ...)` assert element có class `animate-scan-card` (NOT `animate-scan-line`) + verify keyframe definition trong test setup.
+
+### [BUG-004] [Low] [FE] ProfilePage ADMIN role badge vertical alignment drift
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-25
+- **Environment:**
+  - Browser/OS: any modern browser
+  - App version: v0.4.0-alpha post-T-341 commit `c97e1f0`
+  - Env: local + preview + production
+  - Layer impacted: FE
+- **Related task:** T-378
+- **Related FR/component:** FR-11.1 / `apps/web/src/pages/ProfilePage.tsx` L93-103
+- **Mô tả:** Badge `[ ADMIN ]` bên cạnh `~/username` trong Profile hero có vertical alignment lệch — text feel stuck-to-top trong box, không center theo trục dọc của badge.
+- **Steps to reproduce:**
+  1. Mở `/profile/admin` (user role=ADMIN).
+  2. Quan sát badge `[ ADMIN ]` orange bên cạnh `~/admin`.
+  3. So sánh visual center với badge height — text bị đẩy lên top.
+- **Expected:** Text `[ ADMIN ]` center theo trục dọc trong badge, match design-file `MyBlog Profile.html L488` padding `1px 6px` + bg tint.
+- **Actual:** Text lệch lên top do `py-0.5` (2px vertical) + default mono line-height baseline metric → top-heavy. Thiếu bg tint subtle.
+- **Root cause:** `px-2 py-0.5` (8px/2px) + `font-mono text-mono-xs` không có explicit line-height → mono font baseline metric đẩy text lên top of box. Design-file dùng `padding: 1px 6px` + `inline-flex` (centering implicit) + `background: rgba(255,158,100,.06)` cho consistency.
+- **Fix:** Apply `inline-flex items-center` + `leading-none` + inline `padding: 1px 6px` + `bg-ora/[0.06]` (ADMIN) / `bg-red/[0.06]` (BANNED). Commit `c97e1f0`.
+- **Regression test:** N/A — pure CSS styling (padding + line-height + bg color), không có behavior testable trong jsdom. Visual verified manually browser side-by-side với design-file.
+- **Lesson learned:** Bracket badges với mono font luôn cần `leading-none` + `inline-flex items-center` để vô hiệu hóa font baseline drift.
 
 ## Fixed
 

@@ -52,9 +52,10 @@
   - Follow-up commit này (3 audit findings fix): DATA_MODEL full Comment Prisma block sync với delta snippet + CHANGELOG [Unreleased] log toàn bộ amendments + PROGRESS milestone + weekly log.
 - **Done thêm (2026-05-25, code):**
   - T-340 DONE: BUG-001 ReactionPicker hover gap fixed — CSS bridge instant close. 9/9 tests pass.
-  - T-341 DONE: BUG-002 ProfileAvatar 6 visual bugs fixed — gradient ring + dasharray + borderRotate 8s + glow + online dot. 5/5 tests pass.
+  - T-341 DONE: BUG-002 ProfileAvatar 6 visual bugs fixed (initial commit `4c9b622`). **Plus pixel-exact refinement round** (commits `b492c9d` + `b7b5524`) sau khi initial fix vẫn không match design-file 1:1 — viewBox→concrete sizing fix (stroke 1.76→2px, dash 5.28/3.52→6/4 chuẩn) + color corrections (#FF6E96 rose + #9ECE6A olive) + spacing 3px→4px + explicit `transformOrigin: 50% 50%` cho SVG ring rotation. 5/5 tests pass.
   - T-342 DONE: BUG-003 Login scanCard animation — tailwind cleanup `scan-line 6s` → `scan-card 4s` (TerminalCard đã dùng inline 4s trước). 3/3 tests pass.
-- **Pending:** 17 M11.8/M11.9 tasks còn lại. All 3 bug fixes (BUG-001/002/003) done. T-361 animation registry now unblocked.
+  - T-378 DONE: BUG-004 [Low] ProfilePage ADMIN badge vertical alignment (commit `c97e1f0`) — `inline-flex items-center` + `leading-none` + design padding `1px 6px` + bg tint subtle per `design-file/MyBlog Profile.html L488`. Pure CSS, no regression test.
+- **Pending:** 17 M11.8/M11.9 tasks còn lại. All 4 bug fixes (BUG-001/002/003/004) done. T-361 animation registry now unblocked.
 - **Next steps:** T-361 (animation registry verify + cursorBlink + fade-up split) hoặc T-343 BE migration reply comments.
 - **Blockers:** Không có technical blocker. 5 FR amendments cần user confirm scope rõ ràng (đã spec đầy đủ trong REQUIREMENTS.md, chỉ chờ F1 task execute).
 

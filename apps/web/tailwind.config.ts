@@ -49,11 +49,20 @@ const config: Config = {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       fontSize: {
-        // mono variants
+        // mono variants (JetBrains Mono)
         'mono-xs': ['9px', { lineHeight: '1.3' }],
         'mono-sm': ['11px', { lineHeight: '1.4' }],
         mono: ['12px', { lineHeight: '1.5' }],
+        'mono-md': ['13px', { lineHeight: '1.5' }],
         'mono-lg': ['14px', { lineHeight: '1.6' }],
+        // Inter base body/caption
+        small: ['13px', { lineHeight: '1.5' }],
+        body: ['15px', { lineHeight: '1.65' }],
+        // Heading scale (Space Grotesk for h1/h2 + display, Inter for h3)
+        h3: ['14px', { lineHeight: '1.4', fontWeight: '600' }],
+        h2: ['18px', { lineHeight: '1.4', fontWeight: '600' }],
+        h1: ['22px', { lineHeight: '1.3', fontWeight: '600' }],
+        display: ['28px', { lineHeight: '1', fontWeight: '700' }],
       },
       spacing: {
         '1.5': '6px',

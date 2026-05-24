@@ -30,7 +30,7 @@ export function StatCard({ label, value, delta, color, sparkline }: Props) {
         )}
       </div>
       <div className="flex items-end justify-between gap-2">
-        <span className="font-brand text-2xl font-bold text-tp">{value}</span>
+        <span className="font-brand text-display text-tp">{value}</span>
         {sparkline && sparkline.length > 0 && <Sparkline data={sparkline} color={color} />}
       </div>
     </div>

@@ -6,6 +6,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **T-341 BUG-002 [High] ProfileAvatar 6 visual/animation bugs** (2026-05-25, FE): Rewrite `ProfileAvatar.tsx` — gradient ring 3-stop linearGradient (cyan→pur→mag) + `stroke-dasharray="6 4"` + `animate-border-rotate` + 2px solid cyan border + glow shadow + text-shadow + online dot 12×12 `animate-pulse`. `tailwind.config.ts`: `glitch 8s` (was 9s) + `pulse-status` keyframe → opacity+drop-shadow glow (NOT scale) + 4 new keyframes (`borderRotate 8s`, `liveDot 1.5s`, `slideIn 250ms`, `slideDown 200ms`). Regression test: `tests/components/shared/ProfileAvatar.test.tsx` 3 cases `regression BUG-002`.
 - **T-340 BUG-001 [High] ReactionPicker hover gap** (2026-05-25, FE): Thêm invisible CSS bridge div (`h-3 absolute bottom-full`) lấp gap `mb-2` (8px) giữa button và picker trong `ReactionButton.tsx`. Mouse cross gap → luôn trên DOM child của container → `onMouseLeave` không fire → close instant (0ms, không delay). Regression test: `tests/components/feed/ReactionButton.test.tsx` case `regression BUG-001`.
 
 ### Added

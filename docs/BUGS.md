@@ -38,7 +38,7 @@
 
 ### [BUG-002] [High] [FE] ProfileAvatar 6 visual/animation bugs vs design-file (rotating ring + online dot + glow)
 
-- **Status:** OPEN
+- **Status:** FIXED
 - **Reporter:** khatran — **Date:** 2026-05-25
 - **Environment:**
   - Browser/OS: any modern browser

@@ -75,12 +75,16 @@ const config: Config = {
         'glow-cyan-xl': '0 0 40px rgba(0,255,229,.22), 0 8px 32px rgba(0,0,0,.4)',
       },
       animation: {
-        glitch: 'glitch 9s infinite',
+        glitch: 'glitch 8s infinite',
         'pulse-status': 'pulse-status 2s ease-in-out infinite',
         blink: 'blink 530ms step-start infinite',
         shake: 'shake 400ms ease',
         'fade-up': 'fade-up 300ms ease',
         'scan-line': 'scan-line 6s linear infinite',
+        'border-rotate': 'borderRotate 8s linear infinite',
+        'live-dot': 'liveDot 1.5s ease-in-out infinite',
+        'slide-in': 'slideIn 250ms ease',
+        'slide-down': 'slideDown 200ms ease',
       },
       keyframes: {
         glitch: {
@@ -100,8 +104,8 @@ const config: Config = {
           to: { transform: 'translateY(100vh)' },
         },
         'pulse-status': {
-          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
-          '50%': { opacity: '0.6', transform: 'scale(0.9)' },
+          '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 6px #50FA7B)' },
+          '50%': { opacity: '0.7', filter: 'drop-shadow(0 0 2px #50FA7B)' },
         },
         blink: {
           '0%, 50%': { opacity: '1' },
@@ -114,6 +118,22 @@ const config: Config = {
         },
         'fade-up': {
           from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        borderRotate: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        liveDot: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(0.85)' },
+        },
+        slideIn: {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        slideDown: {
+          from: { opacity: '0', transform: 'translateY(-8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
       },

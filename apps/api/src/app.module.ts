@@ -10,7 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
-import { LikesModule } from './likes/likes.module';
+import { ReactionsModule } from './reactions/reactions.module';
 import { PostsModule } from './posts/posts.module';
 import { SavedModule } from './saved/saved.module';
 import { SearchModule } from './search/search.module';
@@ -39,7 +39,7 @@ import { validateEnv } from './config/env.schema';
     FilesModule,
     TagsModule,
     PostsModule,
-    LikesModule,
+    ReactionsModule,
     CommentsModule,
     SavedModule,
     SearchModule,

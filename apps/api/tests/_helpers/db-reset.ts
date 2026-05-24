@@ -9,7 +9,7 @@ export async function resetDb(prisma: PrismaService): Promise<void> {
     prisma.refreshToken.deleteMany({}),
     prisma.postView.deleteMany({}),
     prisma.commentLike.deleteMany({}),
-    prisma.like.deleteMany({}),
+    prisma.reaction.deleteMany({}),
     prisma.comment.deleteMany({}),
     prisma.file.deleteMany({}),
     prisma.image.deleteMany({}),

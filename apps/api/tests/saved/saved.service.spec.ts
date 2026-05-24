@@ -28,7 +28,7 @@ const basePost = {
   postTags: [],
   images: [],
   files: [],
-  _count: { likes: 0, comments: 0 },
+  _count: { reactions: 0, comments: 0 },
 };
 
 describe('SavedService', () => {
@@ -120,7 +120,7 @@ describe('SavedService', () => {
       prisma.savedPost.findMany.mockResolvedValue([{ post: basePost, savedAt }]);
       prisma.savedPost.count.mockResolvedValue(1);
       const res = await service.listSaved('u1', { page: 1, limit: 10 });
-      expect(res.items[0].counts).toEqual({ likes: 0, comments: 0 });
+      expect(res.items[0].counts).toEqual({ reactions: 0, comments: 0 });
       expect(res.items[0].author.username).toBe('admin');
       expect(res.items[0].savedAt).toBe(savedAt);
     });

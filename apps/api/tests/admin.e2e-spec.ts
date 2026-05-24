@@ -42,7 +42,7 @@ describe('Admin (e2e)', () => {
 
     it('200 admin: response shape có 4 metrics với sparkline length 12', async () => {
       const post = await makePost(prisma, { authorId: adminId });
-      await prisma.like.create({ data: { postId: post.id, anonymousId: '0x1' } });
+      await prisma.reaction.create({ data: { postId: post.id, anonymousId: '0x1' } });
       await makeComment(prisma, { postId: post.id });
       await prisma.postView.create({ data: { postId: post.id, anonymousId: '0x1' } });
 
@@ -51,7 +51,7 @@ describe('Admin (e2e)', () => {
         .set('Cookie', adminCookies)
         .expect(200);
 
-      for (const metric of ['posts', 'likes', 'comments', 'views']) {
+      for (const metric of ['posts', 'reactions', 'comments', 'views']) {
         expect(res.body.data[metric]).toBeDefined();
         expect(res.body.data[metric].total).toBeGreaterThanOrEqual(1);
         expect(res.body.data[metric].sparkline).toHaveLength(12);

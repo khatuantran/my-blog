@@ -70,7 +70,7 @@ export class AdminService {
       this.prisma.refreshToken.deleteMany({}),
       this.prisma.postView.deleteMany({}),
       this.prisma.commentLike.deleteMany({}),
-      this.prisma.like.deleteMany({}),
+      this.prisma.reaction.deleteMany({}),
       this.prisma.comment.deleteMany({}),
       this.prisma.file.deleteMany({}),
       this.prisma.image.deleteMany({}),
@@ -100,20 +100,20 @@ export class AdminService {
 
     const [
       postsTotal,
-      likesTotal,
+      reactionsTotal,
       commentsTotal,
       viewsTotal,
       postsRecent,
-      likesRecent,
+      reactionsRecent,
       commentsRecent,
       viewsRecent,
     ] = await Promise.all([
       this.prisma.post.count(),
-      this.prisma.like.count(),
+      this.prisma.reaction.count(),
       this.prisma.comment.count(),
       this.prisma.postView.count(),
       this.prisma.post.findMany({ where, select: { createdAt: true } }),
-      this.prisma.like.findMany({ where, select: { createdAt: true } }),
+      this.prisma.reaction.findMany({ where, select: { createdAt: true } }),
       this.prisma.comment.findMany({ where, select: { createdAt: true } }),
       this.prisma.postView.findMany({
         where: { viewedAt: { gte: windowStart } },
@@ -123,7 +123,7 @@ export class AdminService {
 
     return {
       posts: metricFromRows(postsRecent, postsTotal),
-      likes: metricFromRows(likesRecent, likesTotal),
+      reactions: metricFromRows(reactionsRecent, reactionsTotal),
       comments: metricFromRows(commentsRecent, commentsTotal),
       views: metricFromRows(
         viewsRecent.map((v) => ({ createdAt: v.viewedAt })),

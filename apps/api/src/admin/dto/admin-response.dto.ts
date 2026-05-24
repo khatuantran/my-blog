@@ -17,7 +17,7 @@ export class StatsResponseDto {
   posts!: MetricBucketDto;
 
   @ApiProperty({ type: MetricBucketDto })
-  likes!: MetricBucketDto;
+  reactions!: MetricBucketDto;
 
   @ApiProperty({ type: MetricBucketDto })
   comments!: MetricBucketDto;

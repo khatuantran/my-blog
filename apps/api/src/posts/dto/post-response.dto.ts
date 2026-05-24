@@ -68,7 +68,7 @@ export class PostFileDto {
 
 export class PostCountsDto {
   @ApiProperty({ example: 5 })
-  likes!: number;
+  reactions!: number;
 
   @ApiProperty({ example: 3 })
   comments!: number;

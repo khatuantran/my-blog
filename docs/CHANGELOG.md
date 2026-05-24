@@ -6,6 +6,16 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-316** BE Reactions — rename Like → Reaction + ReactionsModule + 4 endpoints (M11.7, FR-16.x, BE-only):
+  - Migration `20260524125935_rename_like_to_reaction_with_type`: data-preserving `ALTER TABLE "Like" RENAME TO "Reaction"` + `ADD COLUMN type ReactionType DEFAULT LIKE` + `ADD COLUMN updatedAt` + new index `[postId, type]`. Existing rows backfill to LIKE (zero data loss).
+  - `src/reactions/reactions.service.ts` (new): `upsertReaction()` (create or change type, activity-log on first react), `removeReaction()` (404 nếu chưa react), `getReactionCounts()` (groupBy aggregate → 6-type totalCounts + topThree + myReaction for authed viewer), `listReactions()` (paginated + optional type filter), `toggleCommentLike()` (binary carry-over from LikesService, uses `prisma.commentLike`).
+  - `src/reactions/reactions.controller.ts` (new): `POST /posts/:id/reactions`, `DELETE /posts/:id/reactions` (204), `GET /posts/:id/reactions/counts`, `GET /posts/:id/reactions`, `POST /posts/:id/like` (410 Gone legacy), `POST /comments/:id/like` (unchanged).
+  - Old `src/likes/` module deleted. `app.module.ts` swapped `LikesModule → ReactionsModule`.
+  - `posts.service.ts` + `posts/dto/post-response.dto.ts`: `_count.likes → reactions`, `PostCountsDto.likes → reactions`, `toPostView()` + sort orderBy updated.
+  - `admin.service.ts` + `admin/dto/admin-response.dto.ts`: all `prisma.like.*` → `prisma.reaction.*`, response key `likes → reactions`.
+  - `users.service.ts`: `prisma.like.count` → `prisma.reaction.count` (getStats likes received).
+  - Tests: `tests/reactions/reactions.service.spec.ts` (8 unit), `tests/reactions.e2e-spec.ts` (14 e2e). Updated `posts.service.spec.ts`, `admin.service.spec.ts`, `saved.service.spec.ts`, `posts.e2e-spec.ts`, `admin.e2e-spec.ts`, `saved.e2e-spec.ts`, `users.e2e-spec.ts`. All **123 unit + 175 e2e pass**.
+
 - **T-330** Foundation v2 refresh (M11.7, FR-15/NFR-02, FE-only):
   - `apps/web/tailwind.config.ts`: extend `theme.screens` với 5-tier max-width sub-breakpoints `mx-980 / mx-760 / mx-640 / mx-480 / mx-420` cho design v2 compress pattern (giữ nguyên `sm/md/lg/xl/2xl` defaults).
   - `apps/web/src/styles/globals.css`: thêm 3 CSS vars typography v2 — `--fs-ui: 11px` (UI label mono), `--fs-ui-text: 13px` (meta mono), `--fs-body: 15px` (body content prose) — upper bound per DESIGN_SYSTEM:75.

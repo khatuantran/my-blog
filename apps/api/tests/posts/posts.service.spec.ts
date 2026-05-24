@@ -32,7 +32,7 @@ const basePost = {
   postTags: [{ postId: 'p1', tagId: 't1', tag: { id: 't1', name: 'dev', color: '#7AF7FF' } }],
   images: [],
   files: [],
-  _count: { likes: 3, comments: 2 },
+  _count: { reactions: 3, comments: 2 },
 };
 
 describe('PostsService', () => {
@@ -117,7 +117,7 @@ describe('PostsService', () => {
       expect(res.total).toBe(42);
       expect(res.page).toBe(2);
       expect(res.items[0].tags[0]).toEqual({ id: 't1', name: 'dev', color: '#7AF7FF' });
-      expect(res.items[0].counts).toEqual({ likes: 3, comments: 2 });
+      expect(res.items[0].counts).toEqual({ reactions: 3, comments: 2 });
     });
 
     it('normalizes tag filter (#dev → dev)', async () => {
@@ -138,12 +138,12 @@ describe('PostsService', () => {
       expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
     });
 
-    it('sort=likes → orderBy likes _count desc', async () => {
+    it('sort=likes → orderBy reactions _count desc', async () => {
       prisma.post.findMany.mockResolvedValue([]);
       prisma.post.count.mockResolvedValue(0);
       await service.list({ page: 1, limit: 10, sort: 'likes' });
       expect(prisma.post.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ orderBy: { likes: { _count: 'desc' } } }),
+        expect.objectContaining({ orderBy: { reactions: { _count: 'desc' } } }),
       );
     });
 

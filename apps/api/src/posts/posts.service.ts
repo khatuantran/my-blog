@@ -16,7 +16,7 @@ export const POST_INCLUDE = {
   postTags: { include: { tag: true } },
   images: { orderBy: { order: 'asc' as const } },
   files: { orderBy: { createdAt: 'asc' as const } },
-  _count: { select: { likes: true, comments: true } },
+  _count: { select: { reactions: true, comments: true } },
 } satisfies Prisma.PostInclude;
 
 export type PostWithRelations = Prisma.PostGetPayload<{ include: typeof POST_INCLUDE }>;
@@ -30,7 +30,7 @@ export interface PostView {
   tags: { id: string; name: string; color: string | null }[];
   images: PostWithRelations['images'];
   files: PostWithRelations['files'];
-  counts: { likes: number; comments: number };
+  counts: { reactions: number; comments: number };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,7 +49,7 @@ export function toPostView(post: PostWithRelations): PostView {
     })),
     images: post.images,
     files: post.files,
-    counts: { likes: post._count.likes, comments: post._count.comments },
+    counts: { reactions: post._count.reactions, comments: post._count.comments },
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
   };
@@ -82,7 +82,7 @@ export class PostsService {
       query.sort === 'oldest'
         ? { createdAt: 'asc' }
         : query.sort === 'likes'
-          ? { likes: { _count: 'desc' } }
+          ? { reactions: { _count: 'desc' } }
           : { createdAt: 'desc' };
 
     const [items, total] = await Promise.all([

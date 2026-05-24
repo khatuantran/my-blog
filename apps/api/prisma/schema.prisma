@@ -59,6 +59,15 @@ enum ActivityTargetType {
   COMMENT
 }
 
+enum ReactionType {
+  LIKE
+  LOVE
+  HAHA
+  WOW
+  SAD
+  ANGRY
+}
+
 // ──────────────────────────────────────────────────────────
 // Models
 // ──────────────────────────────────────────────────────────
@@ -78,7 +87,7 @@ model User {
 
   posts            Post[]
   comments         Comment[]
-  likes            Like[]
+  reactions        Reaction[]
   commentLikes     CommentLike[]
   savedPosts       SavedPost[]
   refreshTokens    RefreshToken[]
@@ -95,14 +104,14 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author   User        @relation(fields: [authorId], references: [id])
-  images   Image[]
-  files    File[]
-  comments Comment[]
-  likes    Like[]
-  postTags PostTag[]
-  savedBy  SavedPost[]
-  views    PostView[]
+  author    User        @relation(fields: [authorId], references: [id])
+  images    Image[]
+  files     File[]
+  comments  Comment[]
+  reactions Reaction[]
+  postTags  PostTag[]
+  savedBy   SavedPost[]
+  views     PostView[]
 
   @@index([createdAt])
   @@index([authorId])
@@ -154,12 +163,14 @@ model Comment {
   @@index([postId, createdAt])
 }
 
-model Like {
-  id          String   @id @default(cuid())
+model Reaction {
+  id          String       @id @default(cuid())
   postId      String
   userId      String?
   anonymousId String?
-  createdAt   DateTime @default(now())
+  type        ReactionType @default(LIKE)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User? @relation(fields: [userId], references: [id])
@@ -167,6 +178,7 @@ model Like {
   @@unique([postId, userId])
   @@unique([postId, anonymousId])
   @@index([postId])
+  @@index([postId, type])
 }
 
 model CommentLike {

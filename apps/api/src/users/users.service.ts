@@ -80,7 +80,7 @@ export class UsersService {
       tagRows,
     ] = await Promise.all([
       this.prisma.post.count({ where: { authorId: id } }),
-      this.prisma.like.count({ where: { post: { authorId: id } } }),
+      this.prisma.reaction.count({ where: { post: { authorId: id } } }),
       this.prisma.comment.count({ where: { post: { authorId: id } } }),
       this.prisma.post.aggregate({
         where: { authorId: id },

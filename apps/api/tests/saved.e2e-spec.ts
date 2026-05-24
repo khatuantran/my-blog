@@ -131,7 +131,7 @@ describe('Saved (e2e)', () => {
       expect(item.id).toBe(post.id);
       expect(item.author.id).toBe(adminId);
       expect(item.tags[0].name).toBe('dev');
-      expect(item.counts).toEqual({ likes: 0, comments: 0 });
+      expect(item.counts).toEqual({ reactions: 0, comments: 0 });
       expect(item.savedAt).toBeDefined();
     });
   });

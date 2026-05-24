@@ -77,7 +77,7 @@ describe('Posts (e2e)', () => {
     it('200 sort=likes → orderBy likes _count desc', async () => {
       const less = await makePost(prisma, { authorId: adminId, content: 'less liked' });
       const more = await makePost(prisma, { authorId: adminId, content: 'more liked' });
-      await prisma.like.createMany({
+      await prisma.reaction.createMany({
         data: [
           { postId: more.id, userId: adminId },
           { postId: more.id, anonymousId: 'anon-a' },
@@ -101,7 +101,7 @@ describe('Posts (e2e)', () => {
       expect(res.body.data.id).toBe(post.id);
       expect(res.body.data.content).toBe('detail');
       expect(res.body.data.author.id).toBe(adminId);
-      expect(res.body.data.counts).toEqual({ likes: 0, comments: 0 });
+      expect(res.body.data.counts).toEqual({ reactions: 0, comments: 0 });
     });
 
     it('404 not found', async () => {

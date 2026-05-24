@@ -5,7 +5,7 @@ import { AdminService, bucketByDay } from '@/admin/admin.service';
 
 type MockPrisma = {
   post: { count: jest.Mock; findMany: jest.Mock; groupBy: jest.Mock };
-  like: { count: jest.Mock; findMany: jest.Mock };
+  reaction: { count: jest.Mock; findMany: jest.Mock };
   comment: { count: jest.Mock; findMany: jest.Mock };
   postView: { count: jest.Mock; findMany: jest.Mock };
 };
@@ -25,7 +25,7 @@ describe('AdminService', () => {
   beforeEach(async () => {
     prisma = {
       post: { count: jest.fn(), findMany: jest.fn(), groupBy: jest.fn() },
-      like: { count: jest.fn(), findMany: jest.fn() },
+      reaction: { count: jest.fn(), findMany: jest.fn() },
       comment: { count: jest.fn(), findMany: jest.fn() },
       postView: { count: jest.fn(), findMany: jest.fn() },
     };
@@ -58,7 +58,7 @@ describe('AdminService', () => {
       const today = utcStartOfToday();
       const yesterday = new Date(today.getTime() - DAY_MS);
       prisma.post.count.mockResolvedValue(10);
-      prisma.like.count.mockResolvedValue(20);
+      prisma.reaction.count.mockResolvedValue(20);
       prisma.comment.count.mockResolvedValue(5);
       prisma.postView.count.mockResolvedValue(100);
       prisma.post.findMany.mockResolvedValue([
@@ -67,7 +67,7 @@ describe('AdminService', () => {
         { createdAt: today },
         { createdAt: yesterday },
       ]);
-      prisma.like.findMany.mockResolvedValue([{ createdAt: today }]);
+      prisma.reaction.findMany.mockResolvedValue([{ createdAt: today }]);
       prisma.comment.findMany.mockResolvedValue([]);
       prisma.postView.findMany.mockResolvedValue([
         { viewedAt: today },
@@ -79,8 +79,8 @@ describe('AdminService', () => {
       expect(res.posts.total).toBe(10);
       expect(res.posts.sparkline).toHaveLength(12);
       expect(res.posts.deltaToday).toBe(3 - 1); // today=3, yesterday=1
-      expect(res.likes.total).toBe(20);
-      expect(res.likes.deltaToday).toBe(1 - 0);
+      expect(res.reactions.total).toBe(20);
+      expect(res.reactions.deltaToday).toBe(1 - 0);
       expect(res.comments.total).toBe(5);
       expect(res.comments.sparkline.every((n) => n === 0)).toBe(true);
       expect(res.views.total).toBe(100);

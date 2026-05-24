@@ -208,7 +208,7 @@ describe('Users (e2e)', () => {
       });
       const tag = await prisma.tag.create({ data: { name: 'dev', color: '#00FFE5' } });
       await prisma.postTag.create({ data: { postId: post1.id, tagId: tag.id } });
-      await prisma.like.create({ data: { postId: post1.id, anonymousId: 'a1' } });
+      await prisma.reaction.create({ data: { postId: post1.id, anonymousId: 'a1' } });
       await prisma.comment.create({
         data: { postId: post1.id, anonymousId: 'a2', content: 'nice' },
       });

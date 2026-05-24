@@ -4,33 +4,54 @@
 
 ## Milestone
 
-| #     | Milestone                                                                         | Trạng thái            | Ngày target |
-| ----- | --------------------------------------------------------------------------------- | --------------------- | ----------- |
-| M1    | Setup SDD docs v2 (cyberpunk + monorepo stack)                                    | ✅ Done               | 2026-05-17  |
-| M2    | Monorepo scaffold (Turborepo + Docker + apps skeleton)                            | ✅ Done               | 2026-05-17  |
-| M3    | Backend NestJS — Auth (JWT) + Users + Prisma schema                               | ✅ Done               | 2026-05-17  |
-| M4    | Backend — Posts + Files (Cloudinary signed upload) + Tags                         | ✅ Done               | 2026-05-18  |
-| M5    | Backend — Comments + Likes + CommentLikes + Saved                                 | ✅ Done               | 2026-05-18  |
-| M6    | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway          | ✅ Done (partial 2/4) | 2026-05-18  |
-| M7    | Frontend — Layout (TopBar, StatusBar, CommandPalette)                             | ✅ Done               | 2026-05-18  |
-| M8    | Frontend — Feed + Post Detail (ImageCarousel + file download)                     | ✅ Done               | 2026-05-18  |
-| M9    | Frontend — Create Post + Admin Dashboard                                          | ✅ Done               | 2026-05-18  |
-| M10   | Frontend — Login + auth flow + protected routes                                   | ✅ Done               | 2026-05-18  |
-| M11   | Real-time integration (Socket.io client + activity log + live visitors)           | ⬜ Todo               |             |
-| M11.5 | Tags / Profile / Search / Create Post enhance                                     | ✅ Done               | 2026-05-19  |
-| M11.6 | Activity Log (user-scope timeline) — F2 spec + F1 BE/FE                           | ✅ Done               | 2026-05-19  |
-| M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
-| M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
-| M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
-| M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)    | 🟡 Doing              | 2026-06-05  |
+| #     | Milestone                                                                                                                            | Trạng thái            | Ngày target |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ----------- |
+| M1    | Setup SDD docs v2 (cyberpunk + monorepo stack)                                                                                       | ✅ Done               | 2026-05-17  |
+| M2    | Monorepo scaffold (Turborepo + Docker + apps skeleton)                                                                               | ✅ Done               | 2026-05-17  |
+| M3    | Backend NestJS — Auth (JWT) + Users + Prisma schema                                                                                  | ✅ Done               | 2026-05-17  |
+| M4    | Backend — Posts + Files (Cloudinary signed upload) + Tags                                                                            | ✅ Done               | 2026-05-18  |
+| M5    | Backend — Comments + Likes + CommentLikes + Saved                                                                                    | ✅ Done               | 2026-05-18  |
+| M6    | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway                                                             | ✅ Done (partial 2/4) | 2026-05-18  |
+| M7    | Frontend — Layout (TopBar, StatusBar, CommandPalette)                                                                                | ✅ Done               | 2026-05-18  |
+| M8    | Frontend — Feed + Post Detail (ImageCarousel + file download)                                                                        | ✅ Done               | 2026-05-18  |
+| M9    | Frontend — Create Post + Admin Dashboard                                                                                             | ✅ Done               | 2026-05-18  |
+| M10   | Frontend — Login + auth flow + protected routes                                                                                      | ✅ Done               | 2026-05-18  |
+| M11   | Real-time integration (Socket.io client + activity log + live visitors)                                                              | ⬜ Todo               |             |
+| M11.5 | Tags / Profile / Search / Create Post enhance                                                                                        | ✅ Done               | 2026-05-19  |
+| M11.6 | Activity Log (user-scope timeline) — F2 spec + F1 BE/FE                                                                              | ✅ Done               | 2026-05-19  |
+| M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright)                                                    | ✅ Done               | 2026-05-18  |
+| M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                                                                      | ⬜ Todo               |             |
+| M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                                                                      | ⬜ Todo               |             |
+| M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)                                                       | 🟡 Doing              | 2026-06-05  |
+| M11.8 | design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes (FR-17 AI / FR-03.6 reply / FR-04.7 modal / FR-12 search / FR-14 notifs) | 🟡 Doing              | 2026-06-12  |
 
-## Tỉ lệ hoàn thành: 76% (13/17 milestone)
+## Tỉ lệ hoàn thành: 72% (13/18 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
 ---
 
 ## Weekly Log
+
+### 2026-05-25 (Week 2 — M11.8 kickoff)
+
+- **Done (docs-only commits, no code changes):**
+  - `24c040e` — design-file 2026-05-24 sync (DESIGN_SYSTEM.md + UI_DESIGN.md, +513/-129 dòng):
+    - 10 NEW components grouped (ImageLightbox, PostActionMenu với Save, CommentsModal DEFINITIVE Feed pattern, ReactionIcon 6 SVG line-art, AvatarMenu 7-item, SubBar pattern, LoginCard refresh, Toast pattern, NotifRowBell + NotifRowPage split 2 variants).
+    - 8 critical specs UPDATE (PostCard 💬→modal + bỏ SaveButton, NotificationBell SVG bell + threshold 9+, ReactionPicker panel + 250ms debounce, ProfileAvatar 6-bug flag, MOOD_CFG 2 outliers, Glitch 9s→8s).
+    - Token system refinement: Z-index scale 9 tiers + Shadow recipes 10 tokens + Motion tokens expanded (5 new keyframes: borderRotate / liveDot / slideIn / slideDown / scanCard).
+    - Token Change History entry 2026-05-24 v2.1 với full design-file/ references + 59 drift items flagged.
+  - `f9f407a` — F2 amendments (REQUIREMENTS + DATA_MODEL + API_CONTRACT + DEPLOYMENT + BUGS + TASKS, +371/-56 dòng):
+    - 5 FR amendments: FR-03.6 reply-to-comment MVP + FR-04.7 CommentsModal Feed pattern DEFINITIVE + FR-12.8-.12 SearchPage expanded scope + FR-14.7-.13 NotificationsPage expanded scope + NEW FR-17 AI Content Generation. NEW UC-22.
+    - 4 new API endpoints: POST `/ai/generate` (admin rate-limit 10/min) + GET `/comments/:id/replies` (paginated) + PATCH `/notifications/bulk-read` (bulk action) + DELETE `/notifications/all` (clear all).
+    - DATA_MODEL Comment thêm parentId + replyTo + self-relation + index ([parentId]).
+    - DEPLOYMENT 4 new env vars (AI_PROVIDER + AI_API_KEY + AI_MODEL + AI_RATE_LIMIT_PER_MIN).
+    - 3 user-reported bugs logged trong BUGS.md: BUG-001 ReactionPicker hover gap (High) + BUG-002 ProfileAvatar 6 visual bugs (High) + BUG-003 Login scanCard duration drift (Medium).
+    - M11.8 backlog 20 tasks T-340 to T-359 trong TASKS.md (3 F3 bug fixes priority cao + 3 F2 BE prerequisites + 14 F1 implementations).
+  - Follow-up commit này (3 audit findings fix): DATA_MODEL full Comment Prisma block sync với delta snippet + CHANGELOG [Unreleased] log toàn bộ amendments + PROGRESS milestone + weekly log.
+- **Pending:** 20 M11.8 tasks chưa start. Bug fixes (T-340 ReactionPicker hover + T-341 ProfileAvatar + T-342 Login scanCard) priority cao nhất vì user-reported blocking.
+- **Next steps:** Begin T-340 — fastest priority + smallest diff (< 30 dòng, ~30 min). Unblock core reaction feature immediately. Sau đó parallel T-341 + T-342 hoặc move sang F2 BE prereq (T-343 Comment.parentId migration) tùy user.
+- **Blockers:** Không có technical blocker. 5 FR amendments cần user confirm scope rõ ràng (đã spec đầy đủ trong REQUIREMENTS.md, chỉ chờ F1 task execute).
 
 ### 2026-05-24 (Week 2 — M11.7)
 

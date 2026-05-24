@@ -6,6 +6,18 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **M11.8 design-file sync + F2 amendments** (2026-05-25, docs-only commits `24c040e` + `f9f407a`):
+  - **FR-17 AI Content Generation (NEW)** — Admin `POST /ai/generate` via Anthropic Claude (`claude-haiku-4-5`) + AISuggestModal trong Create Post + rate limit 10 req/min/admin + Sentry cost tracking. NEW UC-22. 8 sub-FRs (scope/endpoint/provider/prompt template/UI spec/override warning/cost guard/error handling). 4 new env vars (`AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`, `AI_RATE_LIMIT_PER_MIN`). New AIModule (NEW) trong BE.
+  - **FR-03.6 reply-to-comment MVP (NEW)** — Comment thêm `parentId String?` self-reference + `replyTo Json?` denorm + cascade delete + `@@index([parentId])`. Depth 1 only (validate `parentComment.parentId === null` reject 400 `INVALID_PARENT_DEPTH`). POST `/comments` body accept optional `parentId`. NEW endpoint `GET /comments/:id/replies` paginated. NEW UI components `ReplyForm` + `ReplyRow` + `CommentItemRow` (CommentItem refactor). Notification type=REPLY trigger với `metadata.replyTo`.
+  - **FR-04.7 CommentsModal Feed pattern (NEW, DEFINITIVE)** — Feed `💬` click opens modal popup overlay (KHÔNG navigate `/post/:id`). Post Detail page reserved cho deep-link/SEO. NEW CommentsModal component (640px portal vào body, infinite scroll PAGE_SIZE 5, page indicator dots, integrated CommentForm footer). Reuse `CommentItemRow` + `ReplyForm` + `ReplyRow` từ FR-03.6.
+  - **3 user-reported bugs logged** trong BUGS.md:
+    - BUG-001 [High] ReactionPicker hover gap — missing 250ms close debounce. User không chọn được reaction khi hover qua 6px gap.
+    - BUG-002 [High] ProfileAvatar 6 visual/animation bugs + tailwind config drift — `spin 4s` vs `borderRotate 8s`, dasharray sai, solid stroke vs gradient, 1px vs 2px border, missing online dot, missing inner/text shadow. Plus `glitch 9s` vs `8s` + `pulse-status` keyframes scale-shrink vs design `pulse` drop-shadow glow.
+    - BUG-003 [Medium] Login `scan-line 6s` vs design-file `scanCard 4s` + missing keyframe rename.
+  - **M11.8 backlog 20 tasks (T-340 → T-359)** trong TASKS.md: 3 F3 bug fixes (T-340/341/342, P1 priority cao user-blocking) + 3 F2 BE prerequisites (T-343/344/345 migration + endpoints) + 14 F1 implementations (AI module BE+FE, CommentsModal Feed + PostCard refactor, ReplyForm + ReplyRow, SearchPage rewrite, NotificationsPage rewrite + NotifRow split, design visual sync — PostCard action row + ImageLightbox + PostActionMenu + ReactionIcon + ReactionPicker container + NotificationBell visual). Plus 20+ out-of-scope items defer phase 2.
+  - **Design system token refinement (DESIGN_SYSTEM.md commit `24c040e`)**: Z-index scale 9 tiers (`--z-base` 0-3 / `--z-popover` 50-60 / `--z-subbar` 90 / `--z-topbar` 100 / `--z-dropdown` 200 / `--z-modal` 300 / `--z-modal-stacked` 400 / `--z-lightbox` 500 / `--z-dev-tweaks` 9999) + Shadow recipes 10 named tokens + Motion tokens expanded (5 new: `motion-borderrotate` 8s, `motion-livedot` 1.5s, `motion-slidein` 250ms, `motion-slidedown` 200ms, `motion-scancard` 4s renamed).
+  - **NEW components grouped trong DESIGN_SYSTEM.md** (Phase 1 + Phase 2 từ design-file 2026-05-24 deep audit): ImageLightbox, PostActionMenu (with `🔖 Save post`), CommentsModal (DEFINITIVE), ReactionIcon (6 SVG line-art), AvatarMenu (7-item), SubBar pattern, LoginCard refresh, Toast pattern, NotifRowBell + NotifRowPage (split 2 variants).
+
 - **T-313** NotificationBell FE primitive (M11.7, FR-14.3, FE-only):
   - `types/api.ts` — new types: `NotificationType`, `NotificationActor`, `NotificationMetadata`, `NotificationItem`, `NotificationListResponse`, `UnreadCountResponse`, `MarkReadResponse`, `MarkAllReadResponse`, `BulkDeleteNotificationsResponse`, `ListNotificationsParams`.
   - `services/api/notifications.ts` (NEW) — 6 functions wrapping notification REST endpoints: `listNotifications`, `getUnreadCount`, `markNotificationRead`, `markAllNotificationsRead`, `deleteNotification`, `bulkDeleteNotifications`.
@@ -110,6 +122,22 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 - **T-200** Copy link button MetaPanel (M11.5 Wave 1 start): tách `🔗 Copy link` ra khỏi SHARE_TARGETS array → dedicated button với state local `copied: boolean`. Click → `navigator.clipboard.writeText(${origin}/post/${id})` → state flip `copied=true` 2000ms → render `✓ // link copied` text grn + bg grn 10% / border grn 50%. Try-catch silently skip nếu clipboard unavailable (insecure context). 3 unit tests (clicks success + writeText URL + label toggle / clipboard reject does NOT throw + label unchanged / 3 social + copy buttons render). Total **191 FE tests pass** (was 188).
 
 ### Changed
+
+- **M11.8 design-file sync (commit `24c040e`, 2026-05-25 docs-only):** DESIGN_SYSTEM.md + UI_DESIGN.md +513/-129 lines comprehensive update theo `design-file/` @ 2026-05-24:
+  - **NotifRow split into 2 components** (NotifRowBell + NotifRowPage) — sizes (34×34/18×18/2px vs 40×40/20×20/3px) + 4 type configs (like/comment/share/save legacy vs reaction/comment/reply/share new) + features (page variant has checkbox + replyTo + mark toggle + delete actions). Code drift flag for FE refactor.
+  - **PostCard action row** 3-button (React/Comment/Share) + `(ml-auto) ⋯` menu — **bỏ SaveButton standalone** (moved sang PostActionMenu item `🔖 Save post`). 💬 → CommentsModal popup (DEFINITIVE — KHÔNG navigate `/post/:id`).
+  - **PostHeader Post Detail variant** action row chỉ 3 button + `(ml-auto) 👁 N views`, KHÔNG có Save, KHÔNG có ⋯ menu.
+  - **NotificationBell visual refactor spec** — SVG bell (inline 15×15, 2 paths body+clapper) thay `🔔` emoji + bordered button (32×32 border `1px --b2` bg `--elev`) + badge ring `1.5px solid --surf` + threshold `> 9 → "9+"` (NOT 99+). Flag FE code drift.
+  - **ReactionPicker container refactor spec** — panel radius 8 (KHÔNG pill) + 40×40 buttons (KHÔNG 36×36) + per-color `translateY(-2px) + glow` hover (KHÔNG `scale-125`) + SVG `<ReactionIcon>` thay emoji. Hover 250ms close debounce pattern.
+  - **ReactionButton spec** — SVG ReactionIcon trigger + 250ms hover grace pattern (Hover-reveal popover with grace period — CRITICAL bug fix BUG-001).
+  - **ProfileAvatar spec refresh** — rotating ring 8s `borderRotate` (NOT spin 4s) + linearGradient 3 stops stroke (cyan→pur→mag) + dasharray `"6 4"` + 2px solid border + inner shadow + text-shadow + online status dot (12×12 green pulse). 6-bug flag for FE.
+  - **MOOD_CFG 7 moods table** + note 2 outliers (HAPPY #FFD93D + SAD #6BCFFF) KHÔNG trong 8-accent palette.
+  - **Motion table `motion-glitch` 9s → 8s** + 5 new motion tokens.
+
+- **M11.8 F2 amendments (commit `f9f407a`, 2026-05-25 docs-only):** Expanded scope cho 2 existing FRs:
+  - **FR-12.8-.12 SearchPage expanded scope** — hero refresh (Inter 18 NOT mono), 3 filter chips (All/Saved/Files) + 7 mood emoji buttons, 3 empty-state sections (recent.searches / browse.tags / all.posts preview), no-results state với ◎ + bash hint, ResultCard top accent line + Highlight `<mark>` cyan/20.
+  - **FR-14.7-.13 NotificationsPage expanded scope** — 6 type tabs (All/Unread/Reactions/Comments/Replies/Shares) thay 2 tabs cũ + search input client-debounce 150ms + bulk select bar + Toast feedback (3 variants slideDown 2500ms) + `✕ clear all` SubBar action + NotifRow split into 2 variants. NEW endpoints `PATCH /notifications/bulk-read` + `DELETE /notifications/all`. Flag F2 amend FR-14 trước F1 implement.
+  - **PostPreview action row update** — static `♡ 0 · 💬 0 · 🏷 · ↗` → match new PostCard `[React + picker] / 💬 / ↗ Share / ⋯`.
 
 - **Chore (design tooling, 2026-05-23):** Track `design-file/` trong git (bỏ khỏi `.gitignore`) để xem lịch sử thay đổi prototype qua git log/diff — design-file là bộ tham khảo, không phải source of truth. Chuyển lint-staged config từ `package.json` sang `lint-staged.config.mjs` (root) + filter `design-file/` ra khỏi eslint/prettier (eslint vốn ignore, tránh `--max-warnings=0` fail khi commit file ignored).
 

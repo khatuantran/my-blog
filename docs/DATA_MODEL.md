@@ -473,13 +473,18 @@ model Comment {
   anonymousId   String?
   content       String
   status        CommentStatus @default(APPROVED)
+  parentId      String?       // FR-03.6 reply (null = top-level, set = reply depth 1 only)
+  replyTo       Json?         // FR-03.6 denorm { username: string, isAnon: boolean }
   createdAt     DateTime      @default(now())
 
   post          Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   user          User?         @relation(fields: [userId], references: [id])
   likes         CommentLike[]
+  parent        Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade) // FR-03.6
+  replies       Comment[]     @relation("CommentReplies") // FR-03.6
 
   @@index([postId, createdAt])
+  @@index([parentId]) // FR-03.6 — fast lookup replies of a comment
 }
 
 model Reaction {

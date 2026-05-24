@@ -116,7 +116,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
             type="button"
             onClick={onOpenCommandPalette}
             aria-label="Open command palette (⌘K)"
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-mono-xs text-tm bg-elev border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer whitespace-nowrap hover:text-tp hover:border-b3"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-mono-sm text-tm bg-elev border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer whitespace-nowrap hover:text-tp hover:border-b3"
           >
             ⌘K
           </button>
@@ -125,7 +125,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
 
       {/* Right cluster */}
       <div className="flex items-center gap-2.5 ml-auto shrink-0">
-        <span className="font-mono text-mono-xs text-tm border border-b2 rounded-[3px] px-[7px] py-[2px] hidden md:inline-block">
+        <span className="font-mono text-mono-sm text-tm border border-b2 rounded-[3px] px-[7px] py-[2px] hidden md:inline-block">
           [ v0.1.0 ]
         </span>
         <span className="flex items-center gap-1 font-mono text-mono-sm text-grn">
@@ -177,7 +177,9 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
                       ~/{user?.username ?? 'guest'}
                     </div>
                     {isAdmin && (
-                      <div className="font-mono text-mono-xs text-ora mt-px">[ ADMIN ]</div>
+                      <div className="font-mono text-mono-sm text-ora mt-px leading-none">
+                        [ ADMIN ]
+                      </div>
                     )}
                   </div>
                 </div>

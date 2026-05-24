@@ -219,7 +219,7 @@ Toggle via Tweaks panel (dev tool, không document).
   - FileAttachments (if files > 0)
   - Tags row (TagPill list)
   - Divider line `─────────────────────` (text-mono `--b1`)
-  - Actions: like ❤ / comment 💬 / save 🏷 / share ↗ + `⋯` more menu right-aligned
+  - Actions: reactions ([[#ReactionButton (FR-16, M11.7)]] wrapping [[#ReactionPicker (FR-16, M11.7)]] + [[#ReactionList modal (FR-16.5, M11.7)]]) / comment 💬 / save 🏷 / share ↗ + `⋯` more menu right-aligned
 - **Variants:** default, `glow-hi` (with stronger glow on hover)
 - **Animation:** `fadeUp 0.3s ease both` on mount with stagger delay (60ms per item)
 
@@ -630,6 +630,23 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Modal:** width 480px, header `// reactions · N` + close ✕. Tab bar: `All (N)` / `👍 LIKE (N)` / `❤️ LOVE (N)` / … (6 type tabs).
 - **List:** scrollable, mỗi row: avatar + username + reaction type emoji + relative time. Pagination NFR-06 (`page=1&limit=20`).
 - **Empty per tab:** `// no reactions of this type yet`.
+
+### ReactionButton (FR-16.4/16.5, M11.7)
+
+Composite wrapper kết hợp [[#ReactionPicker (FR-16, M11.7)]] + [[#ReactionList modal (FR-16.5, M11.7)]] + display row. Dùng trong PostCard + PostDetail actions row.
+
+- **Props:** `postId` + `myReaction: ReactionType | null` + `topReactions: ReactionType[]` + `count: number` (từ `Post.counts.reactions`).
+- **Trigger button (left):** `<emoji> <Label>` — default `👍 React` (text-tm), active `<reaction.emoji> <reaction.label>` với inline `color` theo `REACTION_CONFIG[type].color`. `aria-pressed={!!active}`.
+- **Click trigger:**
+  - Không có `myReaction` → `useUpsertReaction({ type: 'LIKE' })` (default).
+  - Có `myReaction` → `useRemoveReaction()` (toggle off).
+- **Hover container:** mở ReactionPicker. `onMouseLeave` ignore khi `relatedTarget` vẫn trong container (tránh gap với absolute picker).
+- **Picker click:** cùng type với `myReaction` → remove; khác → upsert.
+- **Count display button (right, only if `count > 0`):** top-3 stacked emoji (negative margin overlap) + total count. `aria-label="View N reactions"`. Click → mở ReactionList modal.
+- **Optimistic state:** local mirror `{ myReaction, topReactions, count }` áp dụng ngay khi click; `useEffect` reset khi parent props đổi (cache invalidate → BE response qua TanStack Query re-flow xuống). `onError` → restore snapshot.
+- **410 Gone graceful:** nếu mutation hit legacy `/posts/:id/like` trả 410 → set `gone=true` → trigger disabled + `cursor-not-allowed` + inline `role="alert" text-red`: `// reactions endpoint unavailable`.
+- **A11y:** trigger có `aria-label` đầy đủ ("React to post — default Like" hoặc "Remove `<Label>` reaction"); count button có `aria-label="View N reactions"`.
+- **Reference impl:** `apps/web/src/components/feed/ReactionButton.tsx`.
 
 ---
 

@@ -171,7 +171,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Actor:** Admin (P1)
 - **Precondition:** Admin xem `/admin`, WebSocket connected
 - **Main flow:**
-  1. WS event `like:new` / `comment:new` / `save:new` / `visitor:join` → activity log feed update real-time
+  1. WS event `reaction:new` / `comment:new` / `save:new` / `visitor:join` → activity log feed update real-time
   2. Live visitors panel update khi anonymous user truy cập (Feed RightPanel)
   3. Online count update trên TopBar/StatusBar
 - **Postcondition:** —

@@ -165,7 +165,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - **Infinite scroll**: IntersectionObserver trên sentinel div (rootMargin 120px) → load thêm 2 posts với 700ms delay simulate
 - **Mood filter click**: toggle (click lại để clear) → reset `shown=2` → re-fetch
 - **PostCard hover**: border cyan glow, top gradient line `linear-gradient(90deg,transparent,cyan,transparent)` fade in
-- **Like button click**: optimistic update + WS emit; reverse nếu fail
+- **Reaction button hover**: reveal ReactionPicker popover (6 emoji LIKE/LOVE/HAHA/WOW/SAD/ANGRY). Click trigger = LIKE default (toggle off nếu đang có reaction). Click emoji = upsert reaction type. Click top-3 emoji + count = mở ReactionList modal. Optimistic local mirror, rollback nếu fail. 410 Gone từ legacy `/like` → disable + inline error
 - **Comment button**: navigate `/post/<id>` (open detail with focus on comment input)
 - **Save button**: cookie/cài đặt confirm cần login nếu anonymous
 - **Share button**: open share dropdown (Facebook/X/Telegram/Copy link)
@@ -180,7 +180,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 ### Real-time updates (FR-09)
 
 - WS event `post:new` → prepend vào feed (with `fadeUp` animation)
-- WS event `like:new` → update like count cho PostCard `postId` match
+- WS event `reaction:new` (payload `{ postId, totalCounts, topThree, type }`) → patch reactions count + topReactions cho PostCard `postId` match
 - WS event `online:count` → update TopBar/StatusBar online count
 
 ---
@@ -198,7 +198,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 │  ← feed / ~/post/abc123              │ // post.meta │
 │                                      │  ID    abc123│
 │  A  ~/admin [ADMIN] · [2026-05-17]   │  Views   142 │
-│     😊 happy · 2h ago                │  Likes    24 │
+│     😊 happy · 2h ago                │  Reactions24 │
 │                                      │  Comments  5 │
 │  <full content markdown>             │              │
 │  ```js                               │ // tags      │
@@ -213,7 +213,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 │                                      │              │
 │  #code #dev #debugging #nodejs       │ // related   │
 │  ─────────────────────────────       │  [post1]     │
-│  ❤24  💬5  🏷  ↗Share   👁142 views │  [post2]     │
+│  👍❤️😆24 💬5 🏷 ↗Share  👁142 views │  [post2]     │
 │  ─────────────────────────────       │              │
 │                                      │              │
 │  ❯ // comments [5]                   │              │
@@ -282,7 +282,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - Khi mount: client emit `room:join` cho room `post:<id>`
 - WS event `comment:new` (filtered theo postId) → prepend comment list
 - WS event `comment:status` (PENDING→APPROVED) → re-render
-- WS event `like:new` → update like count
+- WS event `reaction:new` → patch reactions count + topReactions + myReaction
 - WS event `commentLike:new` → update comment like count
 - Unmount: emit `room:leave`
 
@@ -475,7 +475,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 ### Real-time
 
 - Sub-bar `● live mode` chỉ green khi WS connected
-- WS event `like:new` / `comment:new` / `save:new` / `visitor:join` → prepend activity log entry (max 50, oldest fade out)
+- WS event `reaction:new` / `comment:new` / `save:new` / `visitor:join` → prepend activity log entry (max 50, oldest fade out)
 - WS event `comment:new` với status PENDING → pending badge `+1`
 - Stat cards refresh mỗi 30s OR on WS event
 

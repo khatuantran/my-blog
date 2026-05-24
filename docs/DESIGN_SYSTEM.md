@@ -72,6 +72,8 @@
 
 **Italic** style: `text-mono` italic 400 cho placeholder + `// quote` style.
 
+**v2 design refinement (M11.7):** Design v2 chọn upper bound của token ranges (UI label 11px thay 10px; mono text 13px thay 12px; body content 15px thay 14px) để dễ đọc. Editor Create Post chuyển từ JetBrains Mono → **Inter** cho phần content prose (UI chrome vẫn mono).
+
 ### Spacing (4px base)
 
 | Token      | Value | Use                   |
@@ -118,6 +120,8 @@
 | `tablet`  | `640-1024px` | `sm:` / `md:`                      |
 | `desktop` | `> 1024px`   | `lg:`                              |
 | `wide`    | `> 1100px`   | `xl:` (page-specific wide layouts) |
+
+> **v2 sub-breakpoints (design v2 M11.7):** prototype design dùng 5-tier compress chi tiết hơn — `980` (desktop tight) / `760` (tablet) / `640` (mobile-lg) / `480` (mobile-md) / `420` (mobile-sm). Map vào token gốc: ≤640 = `mobile`, 640-1024 = `tablet`, >1024 = `desktop`. CSS dùng raw `@media (max-width: 980px)` etc. cho các screen v2 (theo `myblog-shared-ui.jsx`).
 
 ### Motion
 
@@ -414,11 +418,19 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Style:** text-mono-xs, padding `1px space-1`, border 1px, radius `radius-xs`
 - **Variants:** `[ ADMIN ]` (`--ora` border 50% + text), `[ USER ]` (`--tm` border + text), `[ ANON ]` (`--pur` border + text)
 
-### StatusBadge (comment moderation)
+### StatusBadge
+
+**Comment moderation (CommentStatus — FR-03.4):**
 
 - `pending` — `--yel` bg 10% + border 30% + text
 - `approved` — `--grn` bg 10% + border 30% + text
 - `rejected` — `--red` bg 10% + border 30% + text
+
+**Post status (PostStatus — FR-15, M11.7):**
+
+- `PUBLISHED` — `#9ECE6A` (grn) bg 12% + border 40% + text
+- `DRAFT` — `#E0AF68` (yel) bg 12% + border 40% + text
+- `ARCHIVED` — `#566176` (tm/muted) bg 12% + border 40% + text + opacity 80% (subtle "less active")
 
 ### ShareButton (Post Detail share panel)
 
@@ -578,6 +590,46 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Loading skeleton:** 3 row placeholder grayscale flex-row khi initial fetch.
 - **Empty state:** centered `// no activity yet · interact with posts to build history` text-tm.
 - **Reuse:** share base với existing `ActivityLogItem` (admin) — prop `variant: 'admin' | 'profile'` switch text template + visibility logic.
+
+### NotificationBell (FR-14, M11.7)
+
+- **Position:** TopBar right cluster, trước Avatar dropdown.
+- **Icon:** bell 🔔 18px, color `--tm` default → `--cyan` on hover/active.
+- **Badge:** vòng tròn `--mag` (`#FF6E96`) 14px top-right anchor, text trắng 9px JetBrains Mono. Hiện khi `unreadCount > 0`, pulsing 2s ease-in-out infinite. `99+` nếu > 99.
+- **Dropdown panel:** absolute below bell, width 360px, max-height 480px scroll, `bg --surf`, border `--b2`, radius `radius-lg`, shadow xl.
+  - Header: `// notifications · N unread` + button `✓ mark all read` (visible khi unread > 0).
+  - Tab bar: `All (N)` / `Unread (N)` segmented.
+  - List 10 items gần nhất, group time (today/yesterday/older). Mỗi row: avatar sm + verb + snippet 40 chars + relative time + dot `●` blue nếu unread.
+  - Footer link `// view all → /notifications` border-top `--b1`.
+- **Interactions:** click bell → toggle open; click outside / Esc → close; click row → navigate target + mark read; sync với `useUnreadCount()` polling 30s.
+- **Accessibility:** `aria-label="Notifications, N unread"`, role `button` aria-expanded; arrow keys nav list rows; Enter activate.
+- **Reference:** `design-file/myblog-shared-ui.jsx:101-257`.
+
+### ReactionPicker (FR-16, M11.7)
+
+- **Trigger:** hover/long-press reaction button (👍) trên PostCard hoặc PostDetail.
+- **Popover:** flex row 6 emoji buttons 36×36px, absolute above trigger, padding `space-2`, bg `--surf`, border `--b2`, radius `radius-full` (pill), shadow lg.
+- **Emoji map (ReactionType enum):**
+  - `LIKE` 👍 — `--cyan`
+  - `LOVE` ❤️ — `--red`
+  - `HAHA` 😆 — `--yel`
+  - `WOW` 😮 — `--ora`
+  - `SAD` 😢 — `--blu`
+  - `ANGRY` 😡 — `--red` (deep)
+- **Hover state:** emoji scale 1.3x + tooltip label below (`LIKE` etc.) 300ms ease.
+- **Selected indicator:** active reaction → button bg `<accent>/15` + border accent + emoji scale 1.1x.
+- **Display dưới button** (PostCard / Detail):
+  - Top 3 emoji icons stack + total count (vd `👍❤️😆 12`).
+  - Click số → mở ReactionList modal (xem dưới).
+- **Mobile:** popover transform full-width sticky bottom với 6 buttons large 48×48px.
+- **Cross-ref:** [DATA_MODEL.md > Enum ReactionType](./DATA_MODEL.md).
+
+### ReactionList modal (FR-16.5, M11.7)
+
+- **Trigger:** click số count dưới reaction button.
+- **Modal:** width 480px, header `// reactions · N` + close ✕. Tab bar: `All (N)` / `👍 LIKE (N)` / `❤️ LOVE (N)` / … (6 type tabs).
+- **List:** scrollable, mỗi row: avatar + username + reaction type emoji + relative time. Pagination NFR-06 (`page=1&limit=20`).
+- **Empty per tab:** `// no reactions of this type yet`.
 
 ---
 
@@ -894,6 +946,17 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 - **Mood colors changed:** all 7 mood colors updated theo design source (HAPPY yellow #FFD93D, EXCITED orange #FF9E64, ...)
 - **Mood emoji:** EXCITED 🎉 → ⚡
 - **Related:** ADR-008 (OpenAPI), design-file/ (reference prototype — tham khảo)
+
+### v2.0 (planned M11.7 — 2026-05-24) — Design v2 overhaul
+
+- **Added typography note:** prefer upper bound của token ranges (UI 11px, mono 13px, body 15px). Editor Create Post sang Inter cho content prose.
+- **Added breakpoints (v2 sub-tier):** 980 / 760 / 640 / 480 / 420 — applied per-screen trong design-file v2.
+- **Added StatusBadge variant:** PostStatus (PUBLISHED `#9ECE6A` / DRAFT `#E0AF68` / ARCHIVED `#566176`).
+- **Added primitive:** NotificationBell (FR-14) — TopBar bell + dropdown.
+- **Added primitive:** ReactionPicker + ReactionList modal (FR-16) — multi-reaction (6 emoji) thay binary Like.
+- **Reaction emoji map:** LIKE 👍, LOVE ❤️, HAHA 😆, WOW 😮, SAD 😢, ANGRY 😡 (cross-ref DATA_MODEL ReactionType enum).
+- **Breaking:** Like primitive (binary) deprecated → migrate FE `useToggleLike` → `useUpsertReaction` (FR-16.6).
+- **Related:** FR-14, FR-15, FR-16, M11.7 design v2 commit `a56ee72`.
 
 ---
 

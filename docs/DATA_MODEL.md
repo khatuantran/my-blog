@@ -47,17 +47,18 @@ AnonymousSession (standalone — track guest)
 
 **Mục đích:** Bài viết của admin.
 
-| Field     | Type          | Constraints               | Notes                         |
-| --------- | ------------- | ------------------------- | ----------------------------- |
-| id        | String (cuid) | PK                        |                               |
-| content   | Text          |                           | markdown                      |
-| mood      | Enum(Mood)    |                           |                               |
-| viewCount | Int           | default 0                 | FR-04.5, tracked qua PostView |
-| authorId  | String        | FK User                   |                               |
-| createdAt | DateTime      | default(now()), `@@index` | feed sort                     |
-| updatedAt | DateTime      | @updatedAt                |                               |
+| Field     | Type             | Constraints               | Notes                         |
+| --------- | ---------------- | ------------------------- | ----------------------------- |
+| id        | String (cuid)    | PK                        |                               |
+| content   | Text             |                           | markdown                      |
+| mood      | Enum(Mood)       |                           |                               |
+| viewCount | Int              | default 0                 | FR-04.5, tracked qua PostView |
+| authorId  | String           | FK User                   |                               |
+| createdAt | DateTime         | default(now()), `@@index` | feed sort                     |
+| updatedAt | DateTime         | @updatedAt                |                               |
+| status    | Enum(PostStatus) | default(PUBLISHED)        | FR-15.2 — admin Manage Posts  |
 
-**Relations:** `belongsTo` User (author), `hasMany` Image, File, Comment, Like, PostTag, SavedPost, PostView
+**Relations:** `belongsTo` User (author), `hasMany` Image, File, Comment, Reaction, PostTag, SavedPost, PostView
 **Indexes:** `@@index([createdAt])` cho feed sort DESC; `@@index([authorId])`
 
 ### Image
@@ -113,24 +114,28 @@ AnonymousSession (standalone — track guest)
 **Relations:** `belongsTo` Post, `belongsTo` User (nullable), `hasMany` CommentLike
 **Indexes:** `@@index([postId, createdAt])` cho load comment theo post + sort
 
-### Like
+### Reaction (RENAMED từ Like — FR-16 M11.7)
 
-**Mục đích:** Like cho Post (auth user hoặc anonymous).
+**Mục đích:** Multi-type reaction cho Post (LIKE/LOVE/HAHA/WOW/SAD/ANGRY). Thay binary Like cũ.
 
-| Field       | Type          | Constraints               | Notes            |
-| ----------- | ------------- | ------------------------- | ---------------- |
-| id          | String (cuid) | PK                        |                  |
-| postId      | String        | FK Post, onDelete Cascade |                  |
-| userId      | String?       | FK User                   | null = anonymous |
-| anonymousId | String?       |                           | cookie UUID      |
-| createdAt   | DateTime      | default(now())            |                  |
+| Field       | Type               | Constraints               | Notes                            |
+| ----------- | ------------------ | ------------------------- | -------------------------------- |
+| id          | String (cuid)      | PK                        |                                  |
+| postId      | String             | FK Post, onDelete Cascade |                                  |
+| userId      | String?            | FK User                   | null = anonymous                 |
+| anonymousId | String?            |                           | cookie UUID                      |
+| type        | Enum(ReactionType) |                           | LIKE/LOVE/HAHA/WOW/SAD/ANGRY     |
+| createdAt   | DateTime           | default(now())            |                                  |
+| updatedAt   | DateTime           | @updatedAt                | track khi user đổi reaction type |
 
 **Relations:** `belongsTo` Post, `belongsTo` User (nullable)
-**Indexes:** `@@index([postId])` cho count nhanh
+**Indexes:** `@@index([postId])` (count), `@@index([postId, type])` (count per type)
 **Unique constraints:**
 
-- `@@unique([postId, userId])` — auth chỉ like 1 lần (when userId NOT NULL)
-- `@@unique([postId, anonymousId])` — anonymous chỉ like 1 lần (when anonymousId NOT NULL)
+- `@@unique([postId, userId])` — auth 1 reaction/post (đổi type = update row, không insert)
+- `@@unique([postId, anonymousId])` — anonymous 1 reaction/post
+
+**Migration:** Rename `Like` → `Reaction` + thêm `type ReactionType @default(LIKE)` (backfill existing = LIKE). Chi tiết v0.4.0-alpha.
 
 ### CommentLike (MỚI — FR-03.5)
 
@@ -263,6 +268,29 @@ AnonymousSession (standalone — track guest)
 - `targetId` không declared relation vì polymorphic (Post hoặc Comment). Hydrate qua manual lookup trong service.
 - Hybrid query Profile Activity: `WHERE actorId = :userId OR (targetOwnerId = :userId AND actorId != :userId)`.
 
+### Entity Notification (FR-14)
+
+| Field      | Type             | Constraints                      | Description                                              |
+| ---------- | ---------------- | -------------------------------- | -------------------------------------------------------- |
+| id         | String           | PK, cuid                         |                                                          |
+| userId     | String           | FK → User.id, ON DELETE CASCADE  | Recipient (chỉ authed user)                              |
+| actorId    | String           | FK → User.id, ON DELETE CASCADE  | Actor gây event (chỉ authed; anonymous skip per FR-14.2) |
+| type       | NotificationType |                                  | REACTION / COMMENT / REPLY / SHARE                       |
+| targetType | String           |                                  | POST / COMMENT (polymorphic)                             |
+| targetId   | String           | (soft FK, không declared)        | ID Post/Comment, không cascade vì poly                   |
+| postId     | String?          | FK → Post.id, ON DELETE SET NULL | Denorm cho fast nav từ notification → post               |
+| read       | Boolean          | default(false)                   |                                                          |
+| metadata   | Json?            |                                  | vd `{ reactionType: 'LOVE' }` cho REACTION event         |
+| createdAt  | DateTime         | default(now())                   |                                                          |
+
+**Relations:** `recipient` belongsTo User (alias `ReceivedNotifications`); `actor` belongsTo User (alias `SentNotifications`); `post` belongsTo? Post.
+**Indexes:** `@@index([userId, createdAt])` (list per user DESC), `@@index([userId, read])` (filter unread count fast).
+**Notes:**
+
+- Anonymous engagement KHÔNG tạo notification (cần actorId là user thật, FR-14.2).
+- Self-action (user react/comment post của chính mình) KHÔNG tạo notification.
+- Cascade: nếu actor account bị xoá → notification của recipient cũng xoá (FK Cascade). V1 chọn vậy cho đơn giản; reconsider khi cần "by deleted user".
+
 ## Enums
 
 ### Enum Role
@@ -297,6 +325,23 @@ Dùng cho: `ActivityLog.type`. KHÔNG log unlike/unsave events (append-only ch�
 Values: `POST`, `COMMENT`
 Dùng cho: `ActivityLog.targetType`. Polymorphic — `targetId` ref Post hoặc Comment tùy type.
 
+### Enum NotificationType (MỚI — FR-14)
+
+Values: `REACTION`, `COMMENT`, `REPLY`, `SHARE`
+Dùng cho: `Notification.type`. KHÔNG log remove events (chỉ create).
+
+### Enum ReactionType (MỚI — FR-16)
+
+Values: `LIKE`, `LOVE`, `HAHA`, `WOW`, `SAD`, `ANGRY`
+Dùng cho: `Reaction.type`. Emoji map: LIKE 👍, LOVE ❤️, HAHA 😆, WOW 😮, SAD 😢, ANGRY 😡.
+
+> Cross-ref: [DESIGN_SYSTEM.md > Reaction emoji map](./DESIGN_SYSTEM.md). Thêm reaction type mới PHẢI update cả 2 doc.
+
+### Enum PostStatus (MỚI — FR-15)
+
+Values: `PUBLISHED`, `DRAFT`, `ARCHIVED`
+Dùng cho: `Post.status`. Default `PUBLISHED` (backward compat). Feed (`GET /posts`) chỉ trả PUBLISHED; Manage Posts (`/admin/posts`) trả mọi status.
+
 ## Prisma snippet (schema)
 
 ```prisma
@@ -318,6 +363,9 @@ enum FileType           { PDF DOC DOCX XLS XLSX TXT CSV }
 enum CommentStatus      { PENDING APPROVED REJECTED }
 enum ActivityType       { POST_CREATED COMMENT_CREATED LIKE_CREATED SAVE_CREATED }
 enum ActivityTargetType { POST COMMENT }
+enum NotificationType   { REACTION COMMENT REPLY SHARE }
+enum ReactionType       { LIKE LOVE HAHA WOW SAD ANGRY }
+enum PostStatus         { PUBLISHED DRAFT ARCHIVED }
 
 model User {
   id            String        @id @default(cuid())
@@ -344,6 +392,7 @@ model Post {
   id         String     @id @default(cuid())
   content    String
   mood       Mood
+  status     PostStatus @default(PUBLISHED)
   viewCount  Int        @default(0)
   authorId   String
   createdAt  DateTime   @default(now())
@@ -353,7 +402,7 @@ model Post {
   images     Image[]
   files      File[]
   comments   Comment[]
-  likes      Like[]
+  reactions  Reaction[]
   postTags   PostTag[]
   savedBy    SavedPost[]
   views      PostView[]
@@ -408,19 +457,22 @@ model Comment {
   @@index([postId, createdAt])
 }
 
-model Like {
-  id          String   @id @default(cuid())
+model Reaction {
+  id          String       @id @default(cuid())
   postId      String
   userId      String?
   anonymousId String?
-  createdAt   DateTime @default(now())
+  type        ReactionType
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
-  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user        User?    @relation(fields: [userId], references: [id])
+  post        Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
   @@unique([postId, anonymousId])
   @@index([postId])
+  @@index([postId, type])
 }
 
 model CommentLike {
@@ -527,6 +579,26 @@ model ActivityLog {
   @@index([actorId, createdAt])
   @@index([targetOwnerId, createdAt])
 }
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String                                  // recipient
+  actorId     String                                  // actor (chỉ authed)
+  type        NotificationType
+  targetType  String                                  // POST | COMMENT
+  targetId    String                                  // soft FK polymorphic
+  postId      String?                                 // denorm cho fast nav
+  read        Boolean          @default(false)
+  metadata    Json?                                   // vd { reactionType: 'LOVE' }
+  createdAt   DateTime         @default(now())
+
+  recipient   User             @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor       User             @relation("SentNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  post        Post?            @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([userId, read])
+}
 ```
 
 ## Indexing Strategy (tổng hợp)
@@ -578,6 +650,16 @@ model ActivityLog {
 - **Backfill:** N/A — empty table, log only from migration time forward (historical activity sẽ KHÔNG visible cho v1).
 - **Breaking:** None — purely additive.
 - **Linked:** FR-13 (Activity Log user-scope), UC-16.
+
+### v0.4.0-alpha (planned) — Design v2 (Notifications + Manage Posts + Reactions) (M11.7)
+
+- **Planned migrations:**
+  - `add_post_status_enum` (T-320): enum `PostStatus` + `Post.status PostStatus @default(PUBLISHED)`. Backfill: existing rows → PUBLISHED.
+  - `add_notification_table` (T-310): model `Notification` + enum `NotificationType`. 2 index `[userId, createdAt]` + `[userId, read]`.
+  - `rename_like_to_reaction_with_type` (T-316 new): RENAME table `Like` → `Reaction` + thêm column `type ReactionType @default(LIKE)` + enum `ReactionType`. Backfill: ALL existing rows được set `type='LIKE'` (data preserve). Indexes giữ nguyên + thêm `[postId, type]`. Rename relation alias trong Post model (`likes` → `reactions`).
+- **Backfill:** Post.status → PUBLISHED; Like → Reaction `type=LIKE` (full data preserve, 0 row mất).
+- **Breaking:** **YES** — Like model bị rename → Reaction. BE code phải update Prisma queries (PostsService include, LikesService → ReactionsService). API endpoint `POST /posts/:id/likes` đổi thành `POST /posts/:id/reactions` (xem API_CONTRACT). FE phải update `useToggleLike` → `useUpsertReaction`. Migration order: deploy BE mới + chạy migration trong 1 release window.
+- **Linked:** FR-14 (Notification), FR-15 (Manage Posts), FR-16 (Multi-Reaction), UC-17/18/19/20/21.
 
 ---
 

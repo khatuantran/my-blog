@@ -272,6 +272,42 @@
 - [T-300] [P1] [F1] [BE] ActivityLog migration (`add_activity_log`) + ActivityModule (service + controller + DTO) + hook `ActivityService.log()` vào PostsService.create / CommentsService.create / LikesService.togglePostLike (only on like=true) / SavedService.toggleSave (only on save=true) + `GET /users/:id/activity` endpoint với JwtAuthGuard + visibility check self/admin. KHÔNG hook `toggleCommentLike` (FR-13.6 v1 skip). Tests: activity.service.spec.ts (5 unit case) + activity.e2e-spec.ts (200 self / 401 anon / 403 other / 200 admin / pagination). (FR-13.1/13.2/13.3/13.6) - DONE 2026-05-19
 - [T-301] [P1] [F1] [FE] Thêm types ActivityLog vào hand-typed api.ts (ActivityType / ActivityTargetType / ActivityDirection / ActivityLogItem / PaginatedActivity — vì T-302 cutover deferred) + services/api/activity.ts (listUserActivity) + useUserActivity hook (useInfiniteQuery) + qk.users.activity query key + ProfileActivityList component (icon + direction-aware text + relative time + truncate snippet + 403 fallback + IntersectionObserver infinite scroll) + wire ProfilePage Activity tab (visibility self/admin). Test 5 case (empty / 4 type icon / OUTGOING vs INCOMING text / pagination MSW / 403 hint). (FR-13.1) - DONE 2026-05-19
 
+### Backlog — M11.7: Design v2 (Notifications + Admin Manage Posts + Reactions)
+
+> F2 docs spec done 2026-05-24 (FR-14/15/16 + NFR-06 + UC-17/18/19/20/21 + DATA_MODEL v0.4.0-alpha + API_CONTRACT + UI_DESIGN screen 11/12 + DESIGN_SYSTEM v2.0). Design v2 baseline đã commit `a56ee72`. Tasks below pending F1 execute.
+
+**Foundation (chạy TRƯỚC vì các task khác bám):**
+
+- [T-330] [P1] [F1] [FE] Foundation refresh — typography token v2 (UI 11px, mono 13px, body 15px) + responsive 5-tier breakpoint utilities (980/760/640/480/420) trong globals.css + Tailwind config update + status badge palette (PUBLISHED/DRAFT/ARCHIVED) variant. Test: visual diff vài screen + token-resolution unit. (FR-15.x, NFR-02) - TODO
+
+**Reactions (BE + FE — chạy trước Notifications vì REACTION event nguồn từ đây):**
+
+- [T-316] [P1] [F1] [BE] Migration `rename_like_to_reaction_with_type`: RENAME table Like → Reaction + thêm `type ReactionType @default(LIKE)` + enum ReactionType (LIKE/LOVE/HAHA/WOW/SAD/ANGRY) + index `[postId, type]`. Backfill: existing rows = LIKE (data preserve). ReactionsModule (rename LikesModule) + service `upsertReaction(postId, actorId/anonymousId, type)` + 4 endpoints: POST `/posts/:id/reactions { type }`, DELETE `/posts/:id/reactions`, GET `/posts/:id/reactions/counts`, GET `/posts/:id/reactions?type=&page=&limit=`. Update PostsService.list include reactions counts. Legacy `POST /posts/:id/like` → return 410 Gone 1 release window. Tests: reactions.service.spec.ts (5 case: upsert/change-type/toggle-off/anon/migration) + reactions.e2e-spec.ts (8 case). (FR-16.x) - TODO
+- [T-317] [P1] [F1] [FE] Reactions FE — ReactionPicker primitive (hover popover 6 emoji) + ReactionList modal (tab All/6-type list), `useUpsertReaction` + `useRemoveReaction` + `useReactionCounts` hooks, qk.posts.reactions key. Replace `useToggleLike` call sites trong PostCard + PostDetail (CommentLike giữ binary). Handle 410 Gone từ legacy `/like` endpoint gracefully. Display: top 3 emoji + total count dưới reaction button. Tests: 8 case (picker hover/click/change-type/toggle-off + counts display + modal tab switch + 410 fallback). (FR-16.4/16.5) - TODO
+
+**Notifications (BE → FE):**
+
+- [T-310] [P1] [F1] [BE] Migration `add_notification_table` + enum NotificationType (REACTION/COMMENT/REPLY/SHARE). Model Notification (id/userId/actorId/type/targetType/targetId/postId?/read/metadata?/createdAt) + 2 index `[userId, createdAt]` + `[userId, read]`. (FR-14.1) - TODO
+- [T-311] [P1] [F1] [BE] NotificationsModule + service `createNotification()` (skip nếu actor anonymous hoặc self-action per FR-14.2) + hook vào ReactionsService.upsertReaction (REACTION + metadata.reactionType), CommentsService.create (COMMENT nếu comment trên post, REPLY nếu trên comment), ShareService (SHARE — defer nếu chưa có endpoint share). Best-effort try-catch (không break parent). Mocks NotificationsService trong service spec của các module hook. (FR-14.1/14.2) - TODO
+- [T-312] [P1] [F1] [BE] Notifications endpoints: GET `/notifications?filter=&page=&limit=`, GET `/notifications/unread-count`, PATCH `/notifications/:id/read`, PATCH `/notifications/mark-all-read`, DELETE `/notifications/:id`, DELETE `/notifications/bulk`. JwtAuthGuard self-scope (403 nếu touch không phải của mình). Pagination per NFR-06. Tests: notifications.e2e-spec.ts (10 case: list filter all/unread, unread-count, read toggle, mark-all, delete single/bulk, 401 anon, 403 other user). (FR-14.3/14.4/14.5) - TODO
+- [T-313] [P1] [F1] [FE] NotificationBell primitive vào TopBar — bell icon + badge unread pulsing + dropdown panel (tab All/Unread, group time, 10 items, "view all →" link). `useNotifications({ filter, limit: 10 })` + `useUnreadCount()` polling 30s. Tests: 6 case (badge hide/show/99+, dropdown toggle, tab switch, click item nav+mark-read). (FR-14.3) - TODO
+- [T-314] [P1] [F1] [FE] NotificationsPage `/notifications` route (ProtectedRoute authed). useInfiniteQuery list, group time render, bulk select state, mark/delete mutations, ConfirmDialog bulk delete, mark-all-read button, empty state. Tests: 8 case (loading/empty/list, tab filter, bulk select+delete, mark-all, mark individual, navigate). (FR-14.4) - TODO
+- [T-315] [P2] [F1] [Both] WebSocket realtime — extend RealtimeGateway emit `notification:new` to room `user:<userId>` từ NotificationsService.create. FE: WS subscription trong NotificationBell + NotificationsPage → invalidate `qk.notifications.list` + `qk.notifications.unreadCount`. **DEFER** nếu phase 1 timeline tight — polling 30s đủ dùng. (FR-14.6) - TODO
+
+**Admin Manage Posts:**
+
+- [T-320] [P2] [F1] [BE] Migration `add_post_status_enum` + enum PostStatus (PUBLISHED/DRAFT/ARCHIVED) + Post.status field default PUBLISHED. Update PostsService.list query filter status (default PUBLISHED cho feed public). 3 admin endpoints: GET `/admin/posts?status=&mood=&sort=&q=&page=&limit=`, PATCH `/admin/posts/:id { content?, mood?, status?, tags? }`, DELETE `/admin/posts/:id` (cascade). Tests: 6 case (list filter status, default PUBLISHED feed, PATCH partial, DELETE cascade, 401, 403 non-admin). (FR-15.3/15.4/15.5) - TODO
+- [T-321] [P2] [F1] [FE] ManagePostsPage `/admin/posts` route (ProtectedRoute requireRole=ADMIN). View toggle list/card (URL `?view=`), FilterChip status/mood, SegmentedToggle sort, search debounce 300ms. useInfiniteQuery + useAdminPosts hook. Tests: 7 case (list/card view toggle, filter status, sort change, search debounce, empty, 401, 403). (FR-15.1/15.2/15.3) - TODO
+- [T-322] [P2] [F1] [FE] QuickEditModal component — form (status dropdown + mood picker + content textarea + tag input) + optimistic patch + invalidate cache. Esc/Cancel/backdrop close. Tests: 5 case (open prefill, save patch, save error rollback, esc close, validation). (FR-15.4) - TODO
+- [T-323] [P2] [F1] [FE] DeleteConfirm — reuse ConfirmDialog primitive T-211 với snippet (truncate 80) + destructive variant. Tests: 3 case (open snippet, confirm DELETE, cancel close). (FR-15.5) - TODO
+
+**Polish (port foundation vào 8 màn cũ):**
+
+- [T-331] [P2] [F1] [FE] ImageGrid `onImageClick` callback + ImageLightbox component (full-screen modal carousel + keyboard nav ←/→/Esc) port từ design-file/MyBlog Feed.html v2. Wire vào PostCard + PostDetail. Tests: 4 case (open/close/keyboard nav/multi-image). (Foundation) - TODO
+- [T-332] [P2] [F1] [FE] PostContent typography sync (14→15px Feed, 15→16px PostDetail) + ImageCarousel nav buttons refined per design v2. (Foundation) - TODO
+- [T-333] [P2] [F1] [FE] CreatePostPage — editor MonoSpace → Inter cho content prose (toggle var qua CSS class), image preview grid revamp giống Feed (1/2/3+ +N overlay), preview file attachment. (Foundation) - TODO
+- [T-334] [P3] [F5] [FE] Responsive sweep 8 màn cũ — port v2 5-tier breakpoint CSS từ design-file (Feed/PostDetail/Profile/Admin/Search/Tags/Login/CreatePost). Pure CSS refactor, không đổi behavior. (Foundation, NFR-02) - TODO
+
 ### Backlog — M13: Deploy
 
 - [T-120] [P1] [F7] [Infra] Setup Vercel project (FE) + connect GitHub - TODO

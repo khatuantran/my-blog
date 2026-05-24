@@ -22,8 +22,9 @@
 | M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright) | ✅ Done               | 2026-05-18  |
 | M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                   | ⬜ Todo               |             |
 | M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                   | ⬜ Todo               |             |
+| M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)    | 🟡 Doing              | 2026-06-05  |
 
-## Tỉ lệ hoàn thành: 81% (13/16 milestone)
+## Tỉ lệ hoàn thành: 76% (13/17 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -142,6 +143,20 @@
   - Hoặc M13 Deploy infra (Vercel + Fly.io + Neon).
   - Hoặc M14 Monitoring (Sentry + Fly metrics).
   - Tech debt: T-302 OpenAPI cutover (fix 15+ BE decorator gap + aliases.ts + migrate 38 imports).
+
+### 2026-05-24 — F2 spec M11.7 + design v2 baseline
+
+- **Done:**
+  - ✅ Design v2 overhaul commit baseline `a56ee72`: 2 screen mới (Manage Posts, Notifications) + 8 screen cũ refresh + foundation (NotificationBell primitive, typography +1px, 5-tier responsive, image lightbox, status badge palette).
+  - ✅ F2 docs spec done M11.7 (Notifications + Admin Manage Posts + Multi-Reactions):
+    - REQUIREMENTS: FR-14 Notification System (6 sub) + FR-15 Admin Manage Posts (6 sub) + FR-16 Multi-Reaction System (6 sub) + NFR-06 Pagination (universal) + UC-17/18/19/20/21 + 6 glossary terms
+    - DATA_MODEL v0.4.0-alpha: Notification entity + rename Like → Reaction (+ ReactionType 6 values) + Post.status (PostStatus enum) + 3 enum mới
+    - API_CONTRACT: 6 Notifications + 4 Reactions + 3 Admin Posts endpoints + WS `notification:new` / `reaction:new`
+    - UI_DESIGN screen 11 (Notifications) + screen 12 (Manage Posts)
+    - DESIGN_SYSTEM v2.0: NotificationBell + ReactionPicker + ReactionList + StatusBadge PostStatus variant + typography v2 note + 5-tier breakpoint note
+    - TASKS M11.7: 17 task T-310→T-334 (Foundation 1 + Reactions 2 + Notifications 6 + Admin Posts 4 + Polish 4)
+- **Doing:** Pending user duyệt backlog 17 task để F1 execute.
+- **Next:** F1 order: Foundation T-330 → BE Reactions T-316 → BE Notifications T-310/311/312 → openapi:sync → FE Reactions T-317 → FE Notifications T-313/314 → BE Admin Posts T-320 → FE Admin Posts T-321/322/323 → Polish T-331/332/333/334. WS realtime T-315 defer-able.
 
 ---
 

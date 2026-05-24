@@ -30,17 +30,23 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Glossary
 
-| Term            | Definition                                                                                                                                                                                          |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mood            | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)                                                                                                 |
-| Tag             | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                                                                                                     |
-| Anonymous ID    | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                                                                                                    |
-| Session         | Connection của user/anonymous từ browser → server (track cho live visitors)                                                                                                                         |
-| Activity        | Sự kiện như like/comment/save/new-session. **Admin-scope** (FR-07.5): toàn-cục real-time. **User-scope** (FR-13): per-user persistent log (POST/COMMENT/LIKE/SAVE created) cho Profile Activity tab |
-| Command Palette | Overlay ⌘K cho quick navigation/actions                                                                                                                                                             |
-| Affected layer  | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                                                                                                                 |
-| Skill           | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`)                                                                                   |
-| Heatmap         | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity                                                                                        |
+| Term             | Definition                                                                                                                                                                                          |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mood             | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)                                                                                                 |
+| Tag              | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                                                                                                     |
+| Anonymous ID     | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                                                                                                    |
+| Session          | Connection của user/anonymous từ browser → server (track cho live visitors)                                                                                                                         |
+| Activity         | Sự kiện như like/comment/save/new-session. **Admin-scope** (FR-07.5): toàn-cục real-time. **User-scope** (FR-13): per-user persistent log (POST/COMMENT/LIKE/SAVE created) cho Profile Activity tab |
+| Command Palette  | Overlay ⌘K cho quick navigation/actions                                                                                                                                                             |
+| Affected layer   | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                                                                                                                 |
+| Skill            | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`)                                                                                   |
+| Heatmap          | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity                                                                                        |
+| Notification     | Tin báo cho user khi có engagement event trên post của mình. Recipient = user nhận, Actor = user gây event. Stored append-only với flag `read` toggle                                               |
+| Engagement event | Hành động tạo notification: REACTION (react post), COMMENT (comment trên post của mình), REPLY (reply comment của mình), SHARE. KHÔNG tính remove-reaction/uncomment/unsave                         |
+| NotificationBell | UI primitive trong TopBar — bell icon + badge unread pulsing + dropdown 10 items gần nhất + link "view all →" sang `/notifications`                                                                 |
+| PostStatus       | Trạng thái bài viết: `PUBLISHED` (hiện feed), `DRAFT` (chỉ admin thấy trong Manage Posts), `ARCHIVED` (ẩn feed nhưng còn nav trực tiếp được)                                                        |
+| Reaction         | Multi-type interaction trên post (thay binary Like cũ). User chọn 1 trong 6 type; chọn lại type khác = đổi; chọn cùng type = remove (toggle off)                                                    |
+| ReactionType     | Enum 6 giá trị: LIKE 👍, LOVE ❤️, HAHA 😆, WOW 😮, SAD 😢, ANGRY 😡                                                                                                                                 |
 
 ## Use Cases
 
@@ -238,6 +244,70 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Alternative:** Target đã bị xoá → snippet = `[deleted post]`, link disabled
 - **Postcondition:** Activity timeline cập nhật real-time khi user/others tạo event mới (defer M11 WebSocket — v1 chỉ refresh khi reload)
 
+### UC-17: Receive notification
+
+- **Actor:** Authed user (recipient)
+- **Precondition:** Có post của user; user khác (actor) thực hiện engagement event lên post đó
+- **Main flow:**
+  1. Actor react/comment/reply/share post của recipient
+  2. BE service hook tạo row Notification `{userId=recipient, actorId, type, targetType/Id, postId, read=false, metadata: { reactionType? }}`
+  3. NotificationBell badge unread count +1 (FE polling 30s hoặc WS push T-315)
+  4. User click bell → dropdown 10 items gần nhất, group time (today/yesterday/older)
+  5. Click 1 item → navigate target (post detail / comment anchor) + auto mark read
+- **Alternative:** Anonymous engagement (anonymous react/comment) → KHÔNG tạo notification (cần actorId là user thật)
+- **Postcondition:** Notification persist; badge count decrease khi user mark read hoặc đọc
+
+### UC-18: Manage notifications
+
+- **Actor:** Authed user (recipient)
+- **Precondition:** Đã login, đứng tại `/notifications`
+- **Main flow:**
+  1. Click bell footer "view all →" hoặc navigate trực tiếp `/notifications`
+  2. Header hiện unread count + button `✓ mark all read` (visible khi unread > 0)
+  3. Tab `All (N)` / `Unread (N)` filter
+  4. List group time, mỗi row có checkbox + avatar actor + verb + snippet + meta + actions (mark read/unread toggle + delete)
+  5. Bulk: tick nhiều checkbox → toolbar `delete N` xuất hiện → confirm → DELETE bulk
+- **Alternative:** Empty list → ASCII empty state `◎ // no notifications yet`
+- **Postcondition:** Notification table updated; bell badge sync
+
+### UC-19: Admin quick-edit post
+
+- **Actor:** Admin
+- **Precondition:** Đã login admin, đứng tại `/admin/posts`
+- **Main flow:**
+  1. List/card row → click `✎ Edit` action
+  2. QuickEditModal mở (inline trong dashboard, không navigate)
+  3. Form fields: status dropdown (PUBLISHED/DRAFT/ARCHIVED), mood picker, content textarea, tag input (Enter/comma add)
+  4. Click `Save` → optimistic PATCH `/admin/posts/:id` → invalidate `['posts']` + `['admin','posts']`
+  5. Modal close khi 200; hiện error banner khi 4xx/5xx
+- **Alternative:** Click Cancel / Esc / backdrop → đóng modal, không gọi API
+- **Postcondition:** Post updated; list refresh; admin không rời dashboard
+
+### UC-20: Admin browse/filter posts
+
+- **Actor:** Admin
+- **Precondition:** Đã login admin
+- **Main flow:**
+  1. Navigate `/admin/posts` → ManagePostsPage
+  2. Header: search input + filter bar (status PUBLISHED/DRAFT/ARCHIVED + mood + sort latest/oldest/likes) + view toggle list/card + `[+ New Post]` link `/admin/create`
+  3. Query refetch khi filter/sort/search đổi (reuse pattern FR-04.6 sort + FR-10.2 search) + pagination NFR-06
+  4. Click row Delete → DeleteConfirm modal hiện snippet content (truncate 80) + warning destructive → confirm → DELETE
+- **Alternative:** Bulk select hint (defer bulk delete endpoint phase sau)
+- **Postcondition:** List reflect filter state; URL query params sync (`?status=DRAFT&sort=oldest&page=1`)
+
+### UC-21: User/Anonymous react to post
+
+- **Actor:** Authed user hoặc Anonymous (track qua anonymousId)
+- **Precondition:** Đang xem PostCard/PostDetail có reaction button
+- **Main flow:**
+  1. Hover reaction button (👍) → popover picker hiện 6 emoji (LIKE/LOVE/HAHA/WOW/SAD/ANGRY)
+  2. Click 1 emoji → POST `/posts/:id/reactions { type }` (upsert)
+  3. UI optimistic flip: button icon đổi sang type vừa chọn, top 3 emoji + total count hiển thị dưới button
+- **Alternative:**
+  - Click cùng type đang có → DELETE `/posts/:id/reactions` (toggle off) — count −1
+  - Click type khác → upsert đổi type — count không đổi
+- **Postcondition:** Reaction lưu DB; nếu actor là authed + post owner khác actor → trigger Notification REACTION event (xem FR-14)
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -272,7 +342,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ### FR-03: Tương tác (Like, Comment, Save)
 
-- **FR-03.1:** Like cho post — cho cả auth user lẫn anonymous (anonymous track qua cookie `anonymousId`). Unique `(postId, userId)` HOẶC `(postId, anonymousId)`
+- **FR-03.1:** ~~Like cho post — cho cả auth user lẫn anonymous (anonymous track qua cookie `anonymousId`). Unique `(postId, userId)` HOẶC `(postId, anonymousId)`~~ **(deprecated binary like trong M11.7 — see FR-16 Multi-Reaction System).** Comment/Save/CommentLike (FR-03.2/.3/.5) giữ binary semantics.
 - **FR-03.2:** Comment cho post — auth user dùng tên user; anonymous nhập `anonymousName`. Status mặc định `APPROVED` (configurable: nếu admin bật moderation queue → mặc định `PENDING`)
 - **FR-03.3:** Save bài — CHỈ auth user, lưu vào `SavedPost`. Xem ở `/me/saved`
 - **FR-03.4:** Admin có thể xóa hoặc moderate (approve/reject) comment
@@ -428,6 +498,68 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked UCs:** UC-16
 - **Linked Tests:** activity.service.spec.ts + activity.e2e-spec.ts + ProfileActivityList.test.tsx
 
+### FR-14: Notification System
+
+- **FR-14.1 Event types:** Tạo notification khi có engagement event — `REACTION` (user react post của recipient — payload `metadata.reactionType: LIKE|LOVE|HAHA|WOW|SAD|ANGRY`), `COMMENT` (comment trên post recipient), `REPLY` (reply comment recipient), `SHARE`. KHÔNG tạo cho remove-reaction/uncomment/unsave events. REACTION đổi type (vd LIKE → LOVE) cũng KHÔNG tạo notification mới (chỉ create event mới mới trigger).
+- **FR-14.2 Recipient scope:** Chỉ authed user nhận notification (cần `userId` field). Anonymous user KHÔNG nhận. Self-action KHÔNG tạo notification (vd user react post của chính mình → skip).
+- **FR-14.3 Bell dropdown:** NotificationBell trong TopBar hiển thị badge unread count (pulsing khi > 0). Dropdown 10 items gần nhất, group time (today/yesterday/older), link "view all →" sang `/notifications`.
+- **FR-14.4 Full page:** `/notifications` route (auth required) — tab All/Unread với count, list group time, **pagination** `page=1&limit=20` (max 50) theo NFR-06 với infinite scroll IntersectionObserver, bulk select checkbox, mark read/unread toggle per item, mark-all-read button, delete per item + bulk delete (max 100 ids).
+- **FR-14.5 Auto-mark read:** Click 1 notification → navigate target + PATCH `:id/read` với `read=true` (optimistic).
+- **FR-14.6 Realtime (defer):** WebSocket event `notification:new` push từ server → client room `user:<userId>` để FE invalidate query. Defer T-315; v1 dùng polling 30s.
+- **Acceptance Criteria (Given/When/Then):**
+  - Given user B react LOVE post của user A → Then Notification table có 1 row `{userId=A, actorId=B, type=REACTION, postId=<post>, metadata: {reactionType:'LOVE'}, read=false}` + bell badge của A +1
+  - Given user B đổi reaction LIKE→LOVE → KHÔNG tạo notification mới (chỉ create events được log)
+  - Given anonymous react post của user A → KHÔNG tạo notification (cần actorId là user thật)
+  - Given user A login + click bell → dropdown hiện 10 noti gần nhất, group today/yesterday/older
+  - Given user A click 1 notification → navigate target + row có `read=true`
+  - Given user A click `mark all read` → tất cả unread → read, response `{ updated: N }`, badge = 0
+  - Given user A bulk delete 5 ids → response `{ deleted: 5 }`, list refresh
+  - Given user khác (không phải recipient) PATCH/DELETE notification → 403
+- **Linked UCs:** UC-17, UC-18
+- **Linked Tests:** notifications.service.spec.ts + notifications.e2e-spec.ts + NotificationBell.test.tsx + NotificationsPage.test.tsx
+
+### FR-15: Admin Manage Posts
+
+- **FR-15.1 Page route:** `/admin/posts` (ProtectedRoute requireRole=ADMIN). Trang quản lý CRUD bài inline trong dashboard, không cần navigate đến từng Post Detail.
+- **FR-15.2 View toggle:** 2 view mode — `list` (table 6-col: content preview / status badge / mood / tags / stats likes+comments / actions) + `card` (compact PostCard với mood/tags/stats/actions inline). Toggle persist trong URL query `?view=list|card`.
+- **FR-15.3 Filter, sort & pagination:** Filter `status=PUBLISHED|DRAFT|ARCHIVED` + `mood=<MOOD>` + search query (reuse FR-10.2 substring) + sort `latest|oldest|likes` (reuse FR-04.6) + **pagination** `page=1&limit=20` (max 50) theo NFR-06. Tất cả sync URL query, refetch query khi đổi.
+- **FR-15.4 Quick edit modal:** Click row `✎ Edit` → modal inline với form (status dropdown + mood picker + content textarea + tag input Enter/comma add). Save → PATCH `/admin/posts/:id` partial + optimistic. Modal close on 200.
+- **FR-15.5 Delete confirm:** Click row `🗑 Delete` → ConfirmDialog modal hiện snippet content (truncate 80) + warning destructive → confirm → DELETE `/admin/posts/:id` (204).
+- **FR-15.6 Bulk select (defer endpoint):** UI có checkbox bulk select, toolbar count. Bulk delete endpoint defer phase sau — phase 1 chỉ select single.
+- **Acceptance Criteria (Given/When/Then):**
+  - Given admin navigate `/admin/posts` → Then hiện list 20 post mặc định sort `latest`, view `list`
+  - Given admin filter `status=DRAFT` → Then GET `/admin/posts?status=DRAFT&page=1&limit=20` chỉ trả draft posts
+  - Given non-admin (USER role) navigate `/admin/posts` → 403 redirect
+  - Given anonymous navigate `/admin/posts` → 401 redirect `/auth/login`
+  - Given admin click Edit row → modal mở với data pre-fill
+  - Given admin Save edit → PATCH thành công → list refresh + modal close
+  - Given admin Delete + confirm → DELETE 204 → row disappears
+- **Linked UCs:** UC-19, UC-20
+- **Linked Tests:** admin-posts.e2e-spec.ts + ManagePostsPage.test.tsx + QuickEditModal.test.tsx
+
+### FR-16: Multi-Reaction System
+
+- **FR-16.1 Reaction types:** Enum `ReactionType` với 6 giá trị: `LIKE` 👍, `LOVE` ❤️, `HAHA` 😆, `WOW` 😮, `SAD` 😢, `ANGRY` 😡. Hiển thị emoji + label tooltip khi hover.
+- **FR-16.2 Single-pick semantics:** 1 actor (user/anonymous) trên 1 post có max 1 reaction active. Chọn type khác → upsert đổi type (count không đổi). Chọn cùng type đang active → remove (toggle off, count -1).
+- **FR-16.3 Actor scope:** Authed user (qua userId) HOẶC Anonymous (qua anonymousId từ cookie middleware) — match scope của Like binary FR-03.1 cũ. Self-react cho phép (tránh notification: xem FR-14.2).
+- **FR-16.4 Endpoints:**
+  - `POST /posts/:id/reactions` body `{ type: ReactionType }` → upsert reaction của actor (200, response `{ type, totalCounts: { LIKE:N, LOVE:N, ... }, topThree: [type, type, type] }`)
+  - `DELETE /posts/:id/reactions` → remove reaction của actor (204)
+  - `GET /posts/:id/reactions/counts` → public, response `{ totalCounts, topThree, total: N }` (NO pagination, vì chỉ 6 type)
+  - `GET /posts/:id/reactions?type=&page=&limit=` → list users đã react (auth optional, pagination per NFR-06)
+- **FR-16.5 UI:**
+  - PostCard reaction button: hover popover picker 6 emoji, click select. Button icon hiển thị reaction type hiện tại (mặc định 👍 chưa react). Dưới button: top 3 emoji + total count (vd `👍❤️😆 12`).
+  - PostDetail: thêm "see who reacted" link → modal list users group by type (tab All/LIKE/LOVE/...).
+- **FR-16.6 Migration:** Existing `Like` table → rename/migrate sang `Reaction` table với `type=LIKE` default cho tất cả row cũ (data preserve). Tham khảo DATA_MODEL.md migration plan.
+- **Acceptance Criteria (Given/When/Then):**
+  - Given user B chưa react post A → When B click LOVE → Then 1 row Reaction `{actorId=B, postId=A, type=LOVE}` + notification REACTION cho A
+  - Given user B đã react LIKE post A → When B click LOVE → Then row update `type=LOVE` (KHÔNG insert mới), count LIKE −1 LOVE +1, KHÔNG notification mới
+  - Given user B đã react LIKE post A → When B click LIKE → Then row deleted (toggle off), count LIKE −1
+  - Given anonymous react post A → Then row Reaction với `anonymousId`, KHÔNG notification cho A (per FR-14.2)
+  - Given migration → Then 100% Like cũ → Reaction với type=LIKE, count đúng pre-migration
+- **Linked UCs:** UC-04, UC-21
+- **Linked Tests:** reactions.service.spec.ts + reactions.e2e-spec.ts + ReactionPicker.test.tsx + migration test
+
 ## Non-Functional Requirements
 
 - **NFR-01: Performance API** — Response time p95 < 500ms. Measurement: Sentry transactions, Fly metrics.
@@ -435,6 +567,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **NFR-03: Lighthouse score** — Performance ≥ 85, Accessibility ≥ 85, SEO ≥ 90 cho mỗi public page (`/`, `/post/:id`, `/auth/login`). Measurement: `pnpm dlx unlighthouse --site <url>` weekly.
 - **NFR-04: Security** — bcrypt cost ≥ 10, CSRF protection (httpOnly cookie + SameSite=Strict), rate limit 10 req/min/IP cho register/comment/like, input validation (class-validator BE + Zod FE), XSS sanitization (DOMPurify), CORS chỉ allow FE origin. Measurement: [CODING_CONVENTION.md > Security Checklist](./CODING_CONVENTION.md) + Sentry alerts.
 - **NFR-05: SEO** — Meta tags (title, description, OG, Twitter Card), sitemap.xml, robots.txt, structured data JSON-LD cho Post. Measurement: Google Search Console index + Lighthouse SEO.
+- **NFR-06: Pagination (universal)** — Mọi list API PHẢI có pagination với query `page=1&limit=20` mặc định (`limit` max 50, theo pattern FR-13.2 ActivityLog đã lập). Response shape `{ items, total, page, limit }` HOẶC cursor-based nếu cần infinite scroll. UI tương ứng: infinite scroll IntersectionObserver sentinel (pattern T-301) HOẶC page controls. ListDto BE extends `PaginationDto` shared. Measurement: code review mỗi endpoint mới + unit test pagination boundary (page=0, page=last+1, limit>50).
 
 ## Out of Scope
 
@@ -450,20 +583,24 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Traceability Mini-Matrix
 
-| FR    | Linked UCs          | E2E Test               | BE Module                    | FE Page/Component                               |
-| ----- | ------------------- | ---------------------- | ---------------------------- | ----------------------------------------------- |
-| FR-01 | UC-09, UC-10, UC-08 | E2E-01, E2E-09         | AuthModule, UsersModule      | LoginPage, RegisterPage, AdminPage > UsersTable |
-| FR-02 | UC-01               | E2E-02, E2E-03         | PostsModule, FilesModule     | CreatePostPage                                  |
-| FR-03 | UC-04, UC-05, UC-07 | E2E-04, E2E-05, E2E-10 | LikesModule, CommentsModule  | PostCard, CommentItem                           |
-| FR-04 | UC-02, UC-03        | E2E-04, E2E-06         | PostsModule                  | FeedPage, PostDetailPage                        |
-| FR-05 | UC-06               | E2E-07                 | (BE: OG meta in SSR/sitemap) | SharePanel                                      |
-| FR-06 | UC-01               | E2E-11                 | FilesModule                  | UploadZone, FileAttachments                     |
-| FR-07 | UC-07, UC-08, UC-11 | E2E-09, E2E-10, E2E-12 | AdminModule                  | AdminPage                                       |
-| FR-08 | UC-12               | E2E-13                 | — (pure FE)                  | CommandPalette                                  |
-| FR-09 | UC-04, UC-11        | E2E-12                 | RealtimeGateway              | useWebSocket hook, Activity feed components     |
-| FR-10 | UC-13               | E2E (defer)            | TagsModule                   | TagsPage, TagCard, TagModal                     |
-| FR-11 | UC-14               | E2E (defer)            | UsersModule, AuthModule      | ProfilePage, EditProfileDrawer                  |
-| FR-12 | UC-15               | E2E (defer)            | SearchModule (new)           | SearchPage, BigSearchInput, ResultCard          |
+| FR    | Linked UCs          | E2E Test               | BE Module                     | FE Page/Component                               |
+| ----- | ------------------- | ---------------------- | ----------------------------- | ----------------------------------------------- |
+| FR-01 | UC-09, UC-10, UC-08 | E2E-01, E2E-09         | AuthModule, UsersModule       | LoginPage, RegisterPage, AdminPage > UsersTable |
+| FR-02 | UC-01               | E2E-02, E2E-03         | PostsModule, FilesModule      | CreatePostPage                                  |
+| FR-03 | UC-04, UC-05, UC-07 | E2E-04, E2E-05, E2E-10 | LikesModule, CommentsModule   | PostCard, CommentItem                           |
+| FR-04 | UC-02, UC-03        | E2E-04, E2E-06         | PostsModule                   | FeedPage, PostDetailPage                        |
+| FR-05 | UC-06               | E2E-07                 | (BE: OG meta in SSR/sitemap)  | SharePanel                                      |
+| FR-06 | UC-01               | E2E-11                 | FilesModule                   | UploadZone, FileAttachments                     |
+| FR-07 | UC-07, UC-08, UC-11 | E2E-09, E2E-10, E2E-12 | AdminModule                   | AdminPage                                       |
+| FR-08 | UC-12               | E2E-13                 | — (pure FE)                   | CommandPalette                                  |
+| FR-09 | UC-04, UC-11        | E2E-12                 | RealtimeGateway               | useWebSocket hook, Activity feed components     |
+| FR-10 | UC-13               | E2E (defer)            | TagsModule                    | TagsPage, TagCard, TagModal                     |
+| FR-11 | UC-14               | E2E (defer)            | UsersModule, AuthModule       | ProfilePage, EditProfileDrawer                  |
+| FR-12 | UC-15               | E2E (defer)            | SearchModule (new)            | SearchPage, BigSearchInput, ResultCard          |
+| FR-13 | UC-16               | (defer)                | ActivityModule                | ProfilePage > Activity tab                      |
+| FR-14 | UC-17, UC-18        | (defer)                | NotificationsModule (new)     | NotificationsPage, NotificationBell, TopBar     |
+| FR-15 | UC-19, UC-20        | (defer)                | AdminModule (extended)        | ManagePostsPage, QuickEditModal, DeleteConfirm  |
+| FR-16 | UC-04, UC-21        | (defer)                | ReactionsModule (rename Like) | PostCard ReactionPicker, ReactionList modal     |
 
 ---
 

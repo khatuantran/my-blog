@@ -816,6 +816,183 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ---
 
+## Screen 11: Notifications (`/notifications`)
+
+**Linked UCs:** UC-17 (receive), UC-18 (manage)
+**User roles:** Authed only (redirect `/auth/login?next=/notifications` nếu guest)
+**Reference prototype:** [`design-file/MyBlog Notifications.html`](../design-file/MyBlog%20Notifications.html) (tham khảo, không source of truth)
+
+### Layout
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ TopBar (52px) — Logo + Search + Online + Bell🔔(N) + Avatar  │
+├──────────────────────────────────────────────────────────────┤
+│ // notifications · N unread        [ ✓ mark all read ]       │
+│ ─────────────────────────────────────────────────────────    │
+│ [ All (N) ] [ Unread (N) ]                                   │
+│ ─────────────────────────────────────────────────────────    │
+│ // today                                                     │
+│ ☐  ⭕@bob  reacted ❤️ to your post  "<snippet 80>..."   2m   ✕│
+│ ☐  ⭕@alice commented on your post  "<snippet>..."     30m  ✕│
+│ ─ // yesterday ────────────────────────────────────────────  │
+│ ☐  ⭕@xy    shared your post                            1d  ✕│
+│ ─ // older ────────────────────────────────────────────────  │
+│ ☐  ⭕@kim   reacted 😆                                  3d  ✕│
+│ ▼ load more (IntersectionObserver sentinel)                  │
+├──────────────────────────────────────────────────────────────┤
+│ StatusBar (28px) — path ~/notifications + build + online     │
+└──────────────────────────────────────────────────────────────┘
+
+Empty state:
+   ◎  // no notifications yet
+   ── react/comment activity sẽ hiện ở đây ──
+```
+
+### Components
+
+| Component         | Source                             |
+| ----------------- | ---------------------------------- |
+| NotificationBell  | DESIGN_SYSTEM > NotificationBell   |
+| TabBar All/Unread | DESIGN_SYSTEM > SegmentedToggle    |
+| NotifRow          | local (PageNotifications/NotifRow) |
+| Avatar            | DESIGN_SYSTEM > Avatar             |
+| ConfirmDialog     | DESIGN_SYSTEM > ConfirmDialog      |
+
+### State machine
+
+| State              | Trigger              | UI                                      |
+| ------------------ | -------------------- | --------------------------------------- |
+| loading            | mount, filter change | skeleton 5 rows + spinner               |
+| empty              | items.length=0       | ASCII empty state                       |
+| list               | items > 0            | rows group time + sentinel              |
+| bulk-select-active | ≥1 checkbox tick     | toolbar `delete N` + `cancel` xuất hiện |
+| error              | query fail           | `// failed to load — retry`             |
+
+### Interactions
+
+- Hook: `useNotifications({ filter, page, limit })` qua `useInfiniteQuery`, key `qk.notifications.list({filter})`, page-based getNextPageParam.
+- Hook `useUnreadCount()` polling 30s (defer WS T-315).
+- Click row → navigate target (post detail) + PATCH `:id/read` optimistic.
+- Hover row: hiện ✕ delete button.
+- Checkbox tick → state `selected` Set; toolbar bulk delete xuất hiện.
+- Bulk delete → ConfirmDialog → DELETE `/notifications/bulk { ids }`.
+- Mark all read button (visible khi unreadCount > 0) → PATCH `/notifications/mark-all-read` → invalidate `['notifications']` + `['unread-count']`.
+
+### Responsive
+
+- `<768px`: Tab All/Unread stack vertical; toolbar `delete N` full-width sticky bottom.
+- `<640px`: Avatar size sm (28px), snippet truncate 60 chars.
+- `<480px`: ẩn meta timestamp inline → tooltip on tap.
+
+### Real-time
+
+- WS event `notification:new { notification }` → `qk.notifications.list` + unread-count invalidate (FR-14.6, defer T-315).
+
+---
+
+## Screen 12: Manage Posts (`/admin/posts`)
+
+**Linked UCs:** UC-19 (quick edit), UC-20 (browse/filter)
+**User roles:** ADMIN only (`ProtectedRoute requireRole=ADMIN`)
+**Reference prototype:** [`design-file/MyBlog Manage Posts.html`](../design-file/MyBlog%20Manage%20Posts.html) (tham khảo)
+
+### Layout
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ TopBar (52px)                                                │
+├──────────────────────────────────────────────────────────────┤
+│ ~/admin/posts · {total} posts          [ + New Post → ]      │
+│ ─────────────────────────────────────────────────────────    │
+│ ⌕ search... | status ▾ | mood ▾ | sort ▾ | [☰ list | ▦ card]│
+│ ─────────────────────────────────────────────────────────    │
+│ LIST view (table 6-col):                                     │
+│ ☐ | content snippet      | PUBLISHED | 😊 | #tag | ❤12 💬3 👁100 | ✎🗑│
+│ ☐ | ...                  | DRAFT     | 😆 | #tag | ...           | ✎🗑│
+│ ▼ load more / pagination                                     │
+│                                                              │
+│ CARD view (grid 2-col @ desktop):                            │
+│ ┌──────────────┐ ┌──────────────┐                            │
+│ │ snippet      │ │ snippet      │                            │
+│ │ DRAFT 😊     │ │ PUBLISHED 😆 │                            │
+│ │ ❤12 💬3 👁100│ │ ...          │                            │
+│ │ ✎ Edit  🗑   │ │              │                            │
+│ └──────────────┘ └──────────────┘                            │
+│                                                              │
+│ QuickEditModal (overlay):                                    │
+│ ┌─────────────────────────────────────┐                      │
+│ │ Edit post #abc123                ✕  │                      │
+│ │ ─────────────────────────────────── │                      │
+│ │ Status: [ PUBLISHED ▾ ]             │                      │
+│ │ Mood:   [😊][😆][😢][...]            │                      │
+│ │ Content: [textarea]                 │                      │
+│ │ Tags:    [#tag1] [#tag2] [+ add]    │                      │
+│ │ ─────────────────────────────────── │                      │
+│ │           [ Cancel ] [ ✓ Save ]     │                      │
+│ └─────────────────────────────────────┘                      │
+│                                                              │
+│ DeleteConfirm modal:                                         │
+│ ┌─────────────────────────────────────┐                      │
+│ │ ⚠️  Delete post?                     │                      │
+│ │ "<snippet 80 chars>..."             │                      │
+│ │ Hành động này không reverse.        │                      │
+│ │           [ Cancel ] [ 🗑 Delete ]  │                      │
+│ └─────────────────────────────────────┘                      │
+├──────────────────────────────────────────────────────────────┤
+│ StatusBar (28px) — path ~/admin/posts                        │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Components
+
+| Component             | Source                                      |
+| --------------------- | ------------------------------------------- |
+| FilterChip            | DESIGN_SYSTEM > FilterChip (reuse T-211)    |
+| SegmentedToggle       | DESIGN_SYSTEM > SegmentedToggle             |
+| StatusBadge           | DESIGN_SYSTEM > Status badge palette (mới)  |
+| MoodBadge             | DESIGN_SYSTEM > MoodBadge                   |
+| TagPill               | DESIGN_SYSTEM > TagPill                     |
+| PostRow / PostCardMng | local (`components/admin/manage-posts/`)    |
+| QuickEditModal        | local (`components/admin/QuickEditModal`)   |
+| ConfirmDialog         | DESIGN_SYSTEM > ConfirmDialog (reuse T-211) |
+
+### State machine
+
+| State               | Trigger              | UI                                     |
+| ------------------- | -------------------- | -------------------------------------- |
+| loading             | mount, filter change | skeleton 6 rows                        |
+| empty               | items.length=0       | `// no posts match filter`             |
+| list-view           | URL `?view=list`     | table 6-col                            |
+| card-view           | URL `?view=card`     | grid 2-col @ desktop                   |
+| edit-modal-open     | click Edit           | QuickEditModal overlay + form pre-fill |
+| delete-confirm-open | click Delete         | ConfirmDialog với snippet              |
+| saving              | submit modal         | Save button → `[ saving... ]` spinner  |
+| error               | query/mutation fail  | inline error banner trong modal        |
+
+### Interactions
+
+- Hook `useAdminPosts({ status, mood, sort, q, page, limit })` qua `useInfiniteQuery`, key `qk.admin.posts(filter)`.
+- Mutations: `useUpdateAdminPost(id)` (PATCH), `useDeleteAdminPost(id)` (DELETE) → invalidate `['admin','posts']` + `['posts']`.
+- Filter/sort/search → debounce 300ms → update URL query → refetch.
+- View toggle → URL `?view=list|card` persist.
+- Edit row → modal mở, prefill data từ row item. Save → optimistic patch + invalidate. Esc/Cancel/backdrop → close.
+- Delete → ConfirmDialog hiện snippet (truncate 80). Confirm → DELETE 204 → row disappears optimistic.
+- Bulk select (defer endpoint phase sau): UI checkbox + toolbar count.
+- `[+ New Post →]` → navigate `/admin/create`.
+
+### Responsive
+
+- `<980px`: card grid 2 → 1 col; filter bar wrap.
+- `<760px`: list view collapse stats column; modal full-width.
+- `<640px`: filter bar stack vertical; view toggle hidden (default list).
+
+### Real-time
+
+- N/A v1 (không có realtime push cho admin posts).
+
+---
+
 ## Template thêm screen mới
 
 ```markdown

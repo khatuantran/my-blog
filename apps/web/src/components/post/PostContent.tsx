@@ -8,7 +8,7 @@ type Props = {
 };
 
 const VARIANT_TEXT: Record<Variant, string> = {
-  card: 'text-[14px] leading-[1.65]',
+  card: 'text-body',
   detail: 'text-[15px] leading-[1.75]',
 };
 

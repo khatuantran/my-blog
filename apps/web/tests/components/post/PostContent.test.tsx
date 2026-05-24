@@ -43,10 +43,10 @@ describe('PostContent component', () => {
     expect(screen.getByText('const x=1;')).toBeInTheDocument();
   });
 
-  it('variant="detail" áp dụng font-size lớn hơn', () => {
+  it('variant="card" dùng text-body (15px design) + variant="detail" dùng 15px Inter', () => {
     const { container, rerender } = render(<PostContent content="x" variant="card" />);
     const card = container.firstChild as HTMLElement;
-    expect(card.className).toMatch(/14px/);
+    expect(card.className).toMatch(/text-body/);
     rerender(<PostContent content="x" variant="detail" />);
     const detail = container.firstChild as HTMLElement;
     expect(detail.className).toMatch(/15px/);

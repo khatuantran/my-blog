@@ -4,6 +4,15 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Changed
+
+- **Typography token foundation + screen font-size sync sweep** (2026-05-25, FE, T-360 partial — 8 code commits + 1 spec commit):
+  - **Spec (`701c959`):** DESIGN_SYSTEM Typography table updated — narrow `text-mono-xs` scope (bỏ "Badges", chỉ "hex IDs corner deco"), clarify `text-mono-sm 11px` cho role badges, add `text-mono-md 13px` row, append M11.8 implementation note.
+  - **Tokens (`6b4f894`):** Add 7 base tokens vào `tailwind.config.ts` (đã spec từ trước nhưng chưa implement): `mono-md 13px`, `small 13px`, `body 15px`, `h3 14px`, `h2 18px`, `h1 22px`, `display 28px`.
+  - **Implementation (`3c60c0f`, `02bf43f`, `e73b8a5`, `10c02c5`, `6669916`, `2398921`):** Fix font-size drift across 6 screens — Admin StatCard 24→28, TopBar shared (⌘K/version 9→11, AvatarMenu ADMIN badge), ProfilePage hero handle 18→14, PostContent body 14→15, TerminalCard Login header 14/10/12→15/11/13, SearchPage/TagsPage StatBox 20/24→28. PostHeader timestamp + PostCard action buttons đã match design (no change).
+  - **Test update:** `PostContent.test.tsx` — regex `/14px/` → `/text-body/` sau khi spec đổi sang 15px (test-stale-assumption per CLAUDE.md). 313/313 FE tests pass.
+  - **Deferred:** Notifications page (skeleton only — T-314/T-352) + Manage Posts page (greenfield T-372) + v2.1 variant tokens (`text-h1-hero 26`, `text-input-hero 18`, `text-display-sm 24`, `text-mono-tiny 7-8`, `text-display-glyph 32-48`) + Z-index 9 tiers + Shadow recipes 10 tokens + Letter-spacing + Line-height tokens — all remain TODO trong T-360 chính.
+
 ### Fixed
 
 - **T-342 BUG-003 [Medium] Login scanCard animation drift** (2026-05-25, FE): `tailwind.config.ts` rename `scan-line 6s` → `scan-card 4s` + keyframe `top: -100%→200%` (was `translateY`). Note: `TerminalCard.tsx` đã dùng inline `scanCardStripe 4s` (correct) từ trước — tailwind entry là dead code nhưng được cleanup cho consistency. Regression test: `tests/components/auth/TerminalCard.test.tsx` 3 cases.

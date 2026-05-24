@@ -257,7 +257,7 @@ function StatBox({ label, value, color }: { label: string; value: string; color:
       style={{ borderLeft: `3px solid var(--${color})` }}
     >
       <div className="font-mono text-mono-xs uppercase tracking-wider text-tm">{label}</div>
-      <div className="mt-1 font-brand text-2xl font-bold text-tp">{value}</div>
+      <div className="mt-1 font-brand text-display text-tp">{value}</div>
     </div>
   );
 }

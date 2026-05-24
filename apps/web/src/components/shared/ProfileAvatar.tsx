@@ -20,6 +20,7 @@ export function ProfileAvatar({ username, avatarUrl, size = 80, online = false }
         width={size}
         height={size}
         className="pointer-events-none absolute left-0 top-0 z-[1] animate-border-rotate"
+        style={{ transformOrigin: '50% 50%' }}
       >
         <defs>
           <linearGradient id="avatarGrad" x1="0" y1="0" x2="1" y2="1">

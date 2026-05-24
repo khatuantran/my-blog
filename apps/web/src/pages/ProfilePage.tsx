@@ -89,7 +89,7 @@ export default function ProfilePage() {
         <ProfileAvatar username={user.username} avatarUrl={user.avatarUrl} size={88} />
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-lg text-blu">~/{user.username}</span>
+            <span className="font-mono text-mono-lg text-blu">~/{user.username}</span>
             <span
               className={`inline-flex items-center rounded-sm border font-mono text-mono-sm leading-none ${
                 user.role === 'ADMIN'

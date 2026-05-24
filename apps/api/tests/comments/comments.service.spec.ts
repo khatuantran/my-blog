@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CommentStatus, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '@/activity/activity.service';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { CommentsService } from '@/comments/comments.service';
 
 type MockPrisma = {
@@ -33,8 +34,10 @@ const baseComment = {
 describe('CommentsService', () => {
   let service: CommentsService;
   let prisma: MockPrisma;
+  let createNotification: jest.Mock;
 
   beforeEach(async () => {
+    createNotification = jest.fn();
     prisma = {
       post: { findUnique: jest.fn() },
       comment: {
@@ -50,6 +53,7 @@ describe('CommentsService', () => {
         CommentsService,
         { provide: PrismaService, useValue: prisma },
         { provide: ActivityService, useValue: { log: jest.fn() } },
+        { provide: NotificationsService, useValue: { createNotification } },
       ],
     }).compile();
     service = moduleRef.get(CommentsService);
@@ -163,6 +167,24 @@ describe('CommentsService', () => {
       await service.create('p1', { anonymousId: '0x1' }, { content: 'hi' });
       const arg = prisma.comment.create.mock.calls[0][0];
       expect(arg.data.anonymousName).toBeNull();
+    });
+
+    it('auth user comment → createNotification COMMENT called', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+      prisma.comment.create.mockResolvedValue(baseComment);
+
+      await service.create('p1', { userId: 'u1' }, { content: 'hi' });
+
+      expect(createNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'author1',
+          actorId: 'u1',
+          type: 'COMMENT',
+          targetType: 'POST',
+          targetId: 'p1',
+          postId: 'p1',
+        }),
+      );
     });
   });
 

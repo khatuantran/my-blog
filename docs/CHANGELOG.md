@@ -6,6 +6,15 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-311** BE NotificationsModule + createNotification hook (M11.7, FR-14.1/14.2, BE-only):
+  - `src/notifications/notifications.service.ts` (NEW): `createNotification(input)` — self-action guard (`actorId === userId` → skip), creates `Notification` row, best-effort (caller wraps in try-catch). `metadata` cast to `Prisma.InputJsonValue`.
+  - `src/notifications/notifications.module.ts` (NEW): exports `NotificationsService`.
+  - `ReactionsService.upsertReaction`: after new reaction create (not update, not anonymous, not self), fire `REACTION` notification to post.authorId with `metadata.reactionType`.
+  - `CommentsService.create`: after comment create by authed user, fire `COMMENT` notification to post.authorId.
+  - Both hooks are **best-effort** (`try/catch` + `logger.warn`) — parent operation never fails due to notification error.
+  - `ReactionsModule` + `CommentsModule` + `AppModule` import `NotificationsModule`.
+  - Tests: `reactions.service.spec.ts` +1 case (REACTION called on new auth-user reaction), `comments.service.spec.ts` +1 case (COMMENT called on auth-user comment). **125 unit pass**, tsc clean.
+
 - **T-310** BE Notifications migration (M11.7, FR-14.1, BE-only):
   - Migration `20260524140000_add_notification_table`: CREATE TABLE `"Notification"` + CREATE TYPE `"NotificationType"` (REACTION/COMMENT/REPLY/SHARE). Fields: id/userId/actorId/type/targetType(String poly)/targetId(soft-FK)/postId?(FK SetNull)/read(default false)/metadata(Json?)/createdAt. FK Cascade on userId+actorId (actor deleted → notification deleted), SetNull on postId (post deleted → postId null).
   - Indexes: `[userId, createdAt]` (list per user DESC) + `[userId, read]` (unread count fast query).

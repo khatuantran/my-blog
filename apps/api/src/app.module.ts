@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { ReactionsModule } from './reactions/reactions.module';
 import { PostsModule } from './posts/posts.module';
 import { SavedModule } from './saved/saved.module';
@@ -35,6 +36,7 @@ import { validateEnv } from './config/env.schema';
     }),
     AuthModule,
     ActivityModule,
+    NotificationsModule,
     UsersModule,
     FilesModule,
     TagsModule,

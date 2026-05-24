@@ -38,6 +38,7 @@
   - T-330: Foundation v2 refresh (typography CSS vars, 5-tier breakpoints, StatusBadge component) — FE 296 tests pass.
   - T-316: BE Reactions — data-preserving migration Like → Reaction + ReactionsModule (upsert/remove/counts/list + 410 legacy) — BE 123 unit + 175 e2e pass.
   - T-310: BE Notifications migration — NotificationType enum + Notification model + 2 indexes — 123 unit pass, tsc clean.
+  - T-311: BE NotificationsModule + createNotification() — hooks into ReactionsService (REACTION) + CommentsService (COMMENT), best-effort try-catch — 125 unit pass, tsc clean.
 
 ### 2026-05-17 (Week 1)
 

@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CommentStatus, ReactionType } from '@prisma/client';
+import { CommentStatus, NotificationType, ReactionType } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '../activity/activity.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type { ListReactionsDto } from './dto/list-reactions.dto';
 
 export interface Viewer {
@@ -68,6 +69,7 @@ export class ReactionsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activity: ActivityService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   private async buildCounts(
@@ -136,6 +138,19 @@ export class ReactionsService {
           targetOwnerId: post.authorId,
           metadata: { reactionType: type },
         });
+        try {
+          await this.notifications.createNotification({
+            userId: post.authorId,
+            actorId: key.userId,
+            type: NotificationType.REACTION,
+            targetType: 'POST',
+            targetId: postId,
+            postId,
+            metadata: { reactionType: type },
+          });
+        } catch (err) {
+          this.logger.warn(`createNotification REACTION failed: ${err}`);
+        }
       }
     }
 

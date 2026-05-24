@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ReactionType, CommentStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '@/activity/activity.service';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { ReactionsService } from '@/reactions/reactions.service';
 
 type MockPrisma = {
@@ -29,9 +30,11 @@ describe('ReactionsService', () => {
   let service: ReactionsService;
   let prisma: MockPrisma;
   let activityLog: jest.Mock;
+  let createNotification: jest.Mock;
 
   beforeEach(async () => {
     activityLog = jest.fn();
+    createNotification = jest.fn();
     prisma = {
       post: { findUnique: jest.fn() },
       comment: { findUnique: jest.fn() },
@@ -56,6 +59,7 @@ describe('ReactionsService', () => {
         ReactionsService,
         { provide: PrismaService, useValue: prisma },
         { provide: ActivityService, useValue: { log: activityLog } },
+        { provide: NotificationsService, useValue: { createNotification } },
       ],
     }).compile();
     service = moduleRef.get(ReactionsService);
@@ -110,6 +114,27 @@ describe('ReactionsService', () => {
         }),
       );
       expect(activityLog).not.toHaveBeenCalled();
+      expect(createNotification).not.toHaveBeenCalled();
+    });
+
+    it('auth user new reaction → createNotification REACTION called', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+      prisma.reaction.findFirst.mockResolvedValue(null);
+      prisma.reaction.groupBy.mockResolvedValue([{ type: ReactionType.LOVE, _count: { type: 1 } }]);
+
+      await service.upsertReaction('p1', { userId: 'u1' }, ReactionType.LOVE);
+
+      expect(createNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'author1',
+          actorId: 'u1',
+          type: 'REACTION',
+          targetType: 'POST',
+          targetId: 'p1',
+          postId: 'p1',
+          metadata: { reactionType: ReactionType.LOVE },
+        }),
+      );
     });
   });
 

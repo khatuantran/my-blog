@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CommentStatus, Prisma, Role } from '@prisma/client';
+import { CommentStatus, NotificationType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '../activity/activity.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type { CreateCommentDto } from './dto/create-comment.dto';
 import type { CommentResponseDto } from './dto/comment-response.dto';
 import type { ModeratableStatus } from './dto/update-status.dto';
@@ -46,6 +47,7 @@ export class CommentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly activity: ActivityService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async listForAdmin(
@@ -150,6 +152,18 @@ export class CommentsService {
         targetId: postId,
         targetOwnerId: post.authorId,
       });
+      try {
+        await this.notifications.createNotification({
+          userId: post.authorId,
+          actorId: viewer.userId,
+          type: NotificationType.COMMENT,
+          targetType: 'POST',
+          targetId: postId,
+          postId,
+        });
+      } catch (err) {
+        this.logger.warn(`createNotification COMMENT failed: ${err}`);
+      }
     }
     return toCommentResponse(comment);
   }

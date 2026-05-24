@@ -44,14 +44,22 @@ Tất cả page (trừ Login) dùng **shared layout**:
 
 **TopBar prop `hideSearch?: boolean`** (default `false`) — khi `true` ẩn cả search input + ⌘K hint. AppLayout sniff `useLocation().pathname === '/search'` → set `hideSearch={true}` (avoid duplicate hero search trên trang Search).
 
-**Avatar dropdown menu items (authed):**
+**Avatar dropdown menu items (authed — updated 2026-05-24 design-file sync, link [[DESIGN_SYSTEM.md#AvatarMenu (TopBar dropdown — design-file 2026-05-24)|AvatarMenu]]):**
 
-- Header: avatar + `~/{username}` + `[ ADMIN ]` badge (chỉ ADMIN)
-- Create Post (cyan, ⌘N) → `/admin/create` (admin only)
-- Admin Dashboard (purple, ⌘3) → `/admin` (admin only)
-- Saved (yellow, ⌘2) → `/saved` (new)
-- Profile (muted) — separator above → `/profile/{user.username}` (FR-11.2)
-- Logout (red, ⌘Q) → POST /auth/logout → `/auth/login`
+Design-file chốt 7 items theo order:
+
+- Header: mini avatar 28 + `~/{username}` blu + `[ ADMIN ]` ora badge (chỉ ADMIN)
+- 📝 Manage Posts (blu `#7DCFFF`) → `/admin/posts`
+- ⚙️ Admin Dashboard (purple, ⌘3) → `/admin` (admin only)
+- 🏷 Manage Tags (yellow) → `/tags` (admin only)
+- 🔧 System Settings (green) → TBD
+- **Separator** 1px `--b2`
+- 👤 Profile (color default, KHÔNG accent — distinguishable từ admin items) → `/profile/{user.username}` (FR-11.2)
+- 🚪 Logout (red, ⌘Q) → POST /auth/logout → `/auth/login`
+
+Note: Items ordering deprecated cũ (Create Post / Saved at top) — design-file 2026-05-24 nhóm admin actions trước, user actions sau separator.
+
+Avatar style: 32×32 cyan border 2px + gradient bg cyan/pur + **green status dot 8×8 bottom-right** (border 1.5px `--surf`, shadow `0 0 5px grn`). Hover/open: shadow `0 0 18px cyan/40` (stronger).
 
 **Guest variant:** Login + Register chỉ.
 
@@ -126,7 +134,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 │         │ [PDF] doc.pdf 1.2MB ↓                    │  │
 │         │ #code #dev #debugging                    │  │
 │         │ ─────────────                            │  │
-│         │ ❤24  💬5  🏷  ↗Share                    │  │
+│         │ [React 24] [💬 5] [↗ Share]    [⋯]      │  │
 │         └──────────────────────────────────────────┘  │
 │                                                       │
 │         [more PostCards...]                           │
@@ -160,15 +168,16 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 | `empty`   | Zero posts    | ASCII deco `◐` + `// no posts matching filter` + `$ cd ../feed && ls -la --all-moods` hint |
 | `error`   | Fetch fail    | Retry button + `// connection lost` message                                                |
 
-### Interactions
+### Interactions (updated 2026-05-24 design-file sync)
 
-- **Infinite scroll**: IntersectionObserver trên sentinel div (rootMargin 120px) → load thêm 2 posts với 700ms delay simulate
+- **Infinite scroll**: IntersectionObserver trên sentinel div (rootMargin 120px) → load thêm 2 posts với 700ms delay simulate. Loading state: `<AsciiSpinner /> loading posts...` mono 13 muted. End state: `// end of feed · N posts loaded` deeper muted.
 - **Mood filter click**: toggle (click lại để clear) → reset `shown=2` → re-fetch
 - **PostCard hover**: border cyan glow, top gradient line `linear-gradient(90deg,transparent,cyan,transparent)` fade in
-- **Reaction button hover**: reveal ReactionPicker popover (6 emoji LIKE/LOVE/HAHA/WOW/SAD/ANGRY). Click trigger = LIKE default (toggle off nếu đang có reaction). Click emoji = upsert reaction type. Click top-3 emoji + count = mở ReactionList modal. Optimistic local mirror, rollback nếu fail. 410 Gone từ legacy `/like` → disable + inline error
-- **Comment button**: navigate `/post/<id>` (open detail with focus on comment input)
-- **Save button**: cookie/cài đặt confirm cần login nếu anonymous
-- **Share button**: open share dropdown (Facebook/X/Telegram/Copy link)
+- **Image click → opens [[DESIGN_SYSTEM.md#ImageLightbox (Feed — design-file 2026-05-24)|ImageLightbox]] overlay** (keyboard ← → Esc, click backdrop to close).
+- **Hover React button → reveal ReactionPicker popover with 250ms close debounce** ([[DESIGN_SYSTEM.md#Hover-reveal popover with grace period|Hover-reveal popover pattern]] — CRITICAL bug fix). 6 SVG line-art icons LIKE/LOVE/HAHA/WOW/SAD/ANGRY (KHÔNG emoji). Click trigger = LIKE default (toggle off nếu đang có reaction). Click icon = upsert reaction type. Click top-3 stacked icons + count = mở ReactionList modal. Optimistic local mirror, rollback nếu fail. 410 Gone từ legacy `/like` → disable + inline error.
+- **Comment `💬` button click → mở [[DESIGN_SYSTEM.md#CommentsModal (Feed — design-file 2026-05-24) — DEFINITIVE pattern|CommentsModal]] popup (KHÔNG navigate `/post/:id`)**. DEFINITIVE pattern từ design-file 2026-05-24. Post Detail page vẫn tồn tại nhưng chỉ accessed qua direct URL (deep-link/SEO).
+- **`⋯` button click → mở [[DESIGN_SYSTEM.md#PostActionMenu (Feed — design-file 2026-05-24)|PostActionMenu]]** với items: Open detail / Copy link / **🔖 Save post** / (admin) Edit / Pin / Archive / Hide comments / **(danger)** Delete. Click outside → close. **Save post moved here từ standalone SaveButton** — KHÔNG còn save button riêng trong action row.
+- **Share button (↗)**: open share dropdown (Facebook/X/Telegram/Copy link)
 - **PostCard click (vùng trống)**: navigate `/post/<id>`
 - **TagPill click**: filter feed theo tag
 
@@ -261,14 +270,17 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 | `error 404`       | Post not found | `// post not found` + back to feed button |
 | `error other`     | Fetch fail     | Retry button                              |
 
-### Interactions
+### Interactions (updated 2026-05-24 design-file sync)
 
+- **Action row (Post Detail variant — design-file 2026-05-24):** Chỉ 3 button (React/Comment/Share) + `(ml-auto) 👁 N views` counter. **KHÔNG có Save button, KHÔNG có ⋯ menu** (khác PostCard Feed variant). Save accessed via PostActionMenu on Feed.
+- **Hover React button → ReactionPicker với 250ms close debounce** ([[DESIGN_SYSTEM.md#Hover-reveal popover with grace period|Hover-reveal popover pattern]]) — giống Screen 1 Feed pattern.
+- **Comment `💬` button trên Post Detail:** scroll-to comment section inline (KHÔNG mở modal — đã có inline comment form ở dưới content). Note: KHÁC Feed variant (Feed dùng modal).
 - **ImageCarousel**: ← → buttons + dot indicator click; keyboard arrow nav khi focused; touch swipe mobile
 - **Comment form `post as anon` toggle**: switch between auth user mode và anonymous input mode
 - **Comment submit**: optimistic insert; rollback on fail
-- **Like comment**: tương tự like post
-- **Reply button** (CommentItem): placeholder — defer feature, mở comment form với prefix `@username `
-- **Share button click**: open dropdown (4 options); copy link → toast "Copied"
+- **Like comment:** traditional `♡/❤` toggle (KHÔNG reaction picker — chỉ post mới có reactions multi-type). Comment vẫn dùng binary like.
+- **Reply button** (CommentItem): MVP feature — mở [[DESIGN_SYSTEM.md#ReplyForm (NEW — design-file 2026-05-24)|ReplyForm]] inline với prefix `↩ replying to @username`. Reply depth 1 only (no nested reply trong reply). Render thành [[DESIGN_SYSTEM.md#ReplyRow (NEW — design-file 2026-05-24)|ReplyRow]] indented 40px dưới comment cha. **Bỏ note "defer feature" cũ** — feature đã trong design-file MVP.
+- **Share button click**: open dropdown (4 options Facebook/X/Telegram/Copy link với brand colors); copy link → toast "Copied"
 - **Related post click**: navigate to that post (full page replace)
 - **View count**: increment 1 lần / 30min / session (debounced via `POST /posts/:id/view`)
 
@@ -606,19 +618,19 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component                            | Source                            |
-| ------------------------------------ | --------------------------------- |
-| ProfileAvatar (rotating ring 88px)   | DESIGN_SYSTEM > ProfileAvatar     |
-| Hero stats inline                    | inline layout                     |
-| Tabs (4: Posts/Saved/Activity/About) | DESIGN_SYSTEM > TabButtons        |
-| EditProfileDrawer (self)             | DESIGN_SYSTEM > EditProfileDrawer |
-| SkillChipInput (drawer)              | DESIGN_SYSTEM > SkillChipInput    |
-| PostCard (Posts/Saved)               | existing                          |
-| ActivityLogItem (Activity tab)       | DESIGN_SYSTEM > ActivityLogItem   |
-| MoodBar (sidebar mood breakdown)     | existing                          |
-| HeatmapGrid (sidebar 28d)            | DESIGN_SYSTEM > HeatmapGrid       |
-| TagPill (tags.used)                  | existing                          |
-| StatSparkline (sidebar)              | DESIGN_SYSTEM > StatSparkline     |
+| Component                                                                                                                         | Source                                                                                                                                                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ProfileAvatar (rotating ring 88px + green online dot — `borderRotate 8s` linear, gradient stroke cyan→pur→mag, dasharray `"6 4"`) | DESIGN_SYSTEM > ProfileAvatar. ⚠ **FE has 6 visual bugs vs design-file** (Gap 35): `spin 4s` vs `borderRotate 8s`, dasharray sai, solid stroke vs gradient, 1px vs 2px border, **missing online dot**, missing inner/text shadow. → F3 bug task. |
+| Hero stats inline                                                                                                                 | inline layout                                                                                                                                                                                                                                    |
+| Tabs (4: Posts/Saved/Activity/About)                                                                                              | DESIGN_SYSTEM > TabButtons                                                                                                                                                                                                                       |
+| EditProfileDrawer (self)                                                                                                          | DESIGN_SYSTEM > EditProfileDrawer                                                                                                                                                                                                                |
+| SkillChipInput (drawer)                                                                                                           | DESIGN_SYSTEM > SkillChipInput                                                                                                                                                                                                                   |
+| PostCard (Posts/Saved)                                                                                                            | existing                                                                                                                                                                                                                                         |
+| ActivityLogItem (Activity tab)                                                                                                    | DESIGN_SYSTEM > ActivityLogItem                                                                                                                                                                                                                  |
+| MoodBar (sidebar mood breakdown)                                                                                                  | existing                                                                                                                                                                                                                                         |
+| HeatmapGrid (sidebar 28d)                                                                                                         | DESIGN_SYSTEM > HeatmapGrid                                                                                                                                                                                                                      |
+| TagPill (tags.used)                                                                                                               | existing                                                                                                                                                                                                                                         |
+| StatSparkline (sidebar)                                                                                                           | DESIGN_SYSTEM > StatSparkline                                                                                                                                                                                                                    |
 
 ### State machine
 
@@ -816,68 +828,94 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ---
 
-## Screen 11: Notifications (`/notifications`)
+## Screen 11: Notifications (`/notifications`) — REWRITE 2026-05-24 design-file sync
 
 **Linked UCs:** UC-17 (receive), UC-18 (manage)
 **User roles:** Authed only (redirect `/auth/login?next=/notifications` nếu guest)
-**Reference prototype:** [`design-file/MyBlog Notifications.html`](../design-file/MyBlog%20Notifications.html) (tham khảo, không source of truth)
+**Reference (source of truth):** [`design-file/MyBlog Notifications.html`](../design-file/MyBlog%20Notifications.html) L52-256
+**Status:** ⚠ Scope expanded vs current FR-14 — flag F2 amend FR-14 trước F1 implement (6 type tabs + search + bulk + toast).
 
 ### Layout
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ TopBar (52px) — Logo + Search + Online + Bell🔔(N) + Avatar  │
+├── SubBar (44px) ─────────────────────────────────────────────┤
+│ ~/notifications · N total · M unread        [ ✓ mark all read │
+│                                              ] [ ✕ clear all ]│
 ├──────────────────────────────────────────────────────────────┤
-│ // notifications · N unread        [ ✓ mark all read ]       │
+│ [◉ All N] [● Unread M] [❤ Reactions K] [💬 Comments L]       │
+│ [↩ Replies P] [↗ Shares Q]                                   │ ← 6 type tabs
 │ ─────────────────────────────────────────────────────────    │
-│ [ All (N) ] [ Unread (N) ]                                   │
+│ ⌕ search by user, content, post id...        [☐ select all]  │
 │ ─────────────────────────────────────────────────────────    │
-│ // today                                                     │
-│ ☐  ⭕@bob  reacted ❤️ to your post  "<snippet 80>..."   2m   ✕│
-│ ☐  ⭕@alice commented on your post  "<snippet>..."     30m  ✕│
-│ ─ // yesterday ────────────────────────────────────────────  │
-│ ☐  ⭕@xy    shared your post                            1d  ✕│
-│ ─ // older ────────────────────────────────────────────────  │
-│ ☐  ⭕@kim   reacted 😆                                  3d  ✕│
-│ ▼ load more (IntersectionObserver sentinel)                  │
+│ // showing N of M notifications · filter "..." · tab reply   │
+│ ┌────────────────────────────────────────────────────────┐   │
+│ │ // today · 5                                           │   │
+│ │ ☐ ⭕@bob ❤️badge reacted to your post  "<snip>..."     │   │
+│ │                                          2m · ● new  ○ ✕│   │
+│ │ ☐ ⭕@alice 💬badge commented on your post                │   │
+│ │                                          5m         ● ✕ │   │
+│ │ ☐ ⭕@user2 ↩badge replied to your comment on …          │   │
+│ │           from @user1                  8m · ● new  ○ ✕ │   │ ← reply variant
+│ │ ─ // yesterday · 2 ──────────────────────────────────  │   │
+│ │ ...                                                    │   │
+│ └────────────────────────────────────────────────────────┘   │
+│                                                              │
+│ Bulk action bar (visible khi selected > 0):                  │
+│   N selected  [✓ mark read] [✕ delete] [clear]               │
+│                                                              │
+│ Toast (bottom-right slideDown 2500ms):                       │
+│   ✓ All marked as read   /   ✕ Deleted 3 notifications       │
 ├──────────────────────────────────────────────────────────────┤
 │ StatusBar (28px) — path ~/notifications + build + online     │
 └──────────────────────────────────────────────────────────────┘
 
-Empty state:
-   ◎  // no notifications yet
-   ── react/comment activity sẽ hiện ở đây ──
+Empty states (2 variants):
+   ◎ // no notifications yet · inbox zero achieved        (notifs.length === 0)
+   ◎ // no notifications matching filters [← clear]       (filtered === 0)
 ```
 
-### Components
+### Components (updated 2026-05-24 design-file sync)
 
-| Component         | Source                             |
-| ----------------- | ---------------------------------- |
-| NotificationBell  | DESIGN_SYSTEM > NotificationBell   |
-| TabBar All/Unread | DESIGN_SYSTEM > SegmentedToggle    |
-| NotifRow          | local (PageNotifications/NotifRow) |
-| Avatar            | DESIGN_SYSTEM > Avatar             |
-| ConfirmDialog     | DESIGN_SYSTEM > ConfirmDialog      |
+| Component        | Source                                                                                                                       |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| NotificationBell | DESIGN_SYSTEM > NotificationBell (SVG bell + bordered button + ring badge + threshold 9+)                                    |
+| SubBar           | DESIGN_SYSTEM > SubBar (`~/notifications · N total · M unread` + actions right)                                              |
+| TabBar (6 types) | local — All / Unread / Reactions / Comments / Replies / Shares — `.tab-btn` style with count badges                          |
+| Search input     | DESIGN_SYSTEM > Input (search variant) — `⌕ search by user, content, post id...` with × clear                                |
+| Bulk action bar  | local — visible khi `selected.size > 0`: `N selected` cyan + mark read + delete + clear buttons                              |
+| NotifRowPage     | DESIGN_SYSTEM > **NotifRowPage** (40×40 avatar + 20×20 badge + 3px border + checkbox + replyTo field)                        |
+| Avatar           | DESIGN_SYSTEM > Avatar                                                                                                       |
+| Toast            | DESIGN_SYSTEM > Toast (bottom-right slideDown 2500ms 3 variants)                                                             |
+| ConfirmDialog    | DESIGN_SYSTEM > ConfirmDialog (used for `clear all` — design-file currently uses native `window.confirm`, recommend replace) |
 
 ### State machine
 
-| State              | Trigger              | UI                                      |
-| ------------------ | -------------------- | --------------------------------------- |
-| loading            | mount, filter change | skeleton 5 rows + spinner               |
-| empty              | items.length=0       | ASCII empty state                       |
-| list               | items > 0            | rows group time + sentinel              |
-| bulk-select-active | ≥1 checkbox tick     | toolbar `delete N` + `cancel` xuất hiện |
-| error              | query fail           | `// failed to load — retry`             |
+| State              | Trigger               | UI                                                               |
+| ------------------ | --------------------- | ---------------------------------------------------------------- |
+| loading            | mount, filter change  | skeleton 5 rows + spinner                                        |
+| empty (all)        | `notifs.length === 0` | `◎ // no notifications yet · inbox zero achieved`                |
+| empty (filtered)   | `filtered === 0`      | `◎ // no notifications matching filters` + `← clear` button      |
+| list               | items > 0             | rows group time (today/yesterday/older) sticky labels + sentinel |
+| bulk-select-active | `selected.size > 0`   | bulk action bar visible (mark read / delete / clear)             |
+| error              | query fail            | `// failed to load — retry`                                      |
 
-### Interactions
+### Interactions (updated 2026-05-24 design-file sync)
 
-- Hook: `useNotifications({ filter, page, limit })` qua `useInfiniteQuery`, key `qk.notifications.list({filter})`, page-based getNextPageParam.
+- Hook: `useNotifications({ filter, search, page, limit })` qua `useInfiniteQuery`, key `qk.notifications.list({filter, search})`, page-based getNextPageParam.
 - Hook `useUnreadCount()` polling 30s (defer WS T-315).
-- Click row → navigate target (post detail) + PATCH `:id/read` optimistic.
-- Hover row: hiện ✕ delete button.
-- Checkbox tick → state `selected` Set; toolbar bulk delete xuất hiện.
-- Bulk delete → ConfirmDialog → DELETE `/notifications/bulk { ids }`.
-- Mark all read button (visible khi unreadCount > 0) → PATCH `/notifications/mark-all-read` → invalidate `['notifications']` + `['unread-count']`.
+- **Tab switching:** 6 type tabs (All/Unread/Reactions/Comments/Replies/Shares) — click → set `tab` state + count badges per tab. Filter list theo `n.type === tab` (hoặc all/unread special).
+- **Search input:** filter by `n.user / n.snippet / n.post`. Debounce 150ms.
+- Click row → navigate target post + PATCH `:id/read` optimistic.
+- **Actions row right per NotifRowPage:** `○`/`●` mark read toggle (color cyan if unread, muted if read) + `✕` delete (instant, no confirm — toast feedback).
+- **Checkbox column (16×16 left of each row):** click tick → `selected` Set; bulk action bar appears.
+- **Select all visible button** (when no selection): `☐ select all visible` mono 11 muted.
+- **Bulk action bar (visible when `selected.size > 0`):** `N selected` cyan + `✓ mark read` (PATCH bulk) + `✕ delete` (DELETE `/notifications/bulk { ids }`) + `clear` (deselect all).
+- **Mark all read button** (sub-bar right, visible khi unread > 0) → PATCH `/notifications/mark-all-read` → invalidate `['notifications']` + `['unread-count']` + toast `✓ All marked as read`.
+- **Clear all button** (sub-bar right, visible khi `notifs.length > 0`) → `window.confirm("Delete all N notifications?")` → DELETE all → toast `✕ All notifications cleared`. **Recommend replace `window.confirm` bằng `ConfirmDialog` Tags variant 360px** (consistent UX).
+- **Toast feedback:** mọi action (mark read / delete / bulk / clear) → trigger toast bottom-right slideDown 2500ms.
+- **Reply notification special:** `n.type === 'reply'` → row hiển thị `from @<replyTo>` clause after verb (KHÔNG `your post`).
 
 ### Responsive
 

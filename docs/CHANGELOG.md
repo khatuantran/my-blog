@@ -7,7 +7,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 ### Fixed
 
 - **T-342 BUG-003 [Medium] Login scanCard animation drift** (2026-05-25, FE): `tailwind.config.ts` rename `scan-line 6s` → `scan-card 4s` + keyframe `top: -100%→200%` (was `translateY`). Note: `TerminalCard.tsx` đã dùng inline `scanCardStripe 4s` (correct) từ trước — tailwind entry là dead code nhưng được cleanup cho consistency. Regression test: `tests/components/auth/TerminalCard.test.tsx` 3 cases.
-- **T-378 BUG-004 [Low] ADMIN badge vertical alignment** (2026-05-25, FE, commit `c97e1f0`): ProfilePage hero `[ ADMIN ]` badge dùng `px-2 py-0.5` (2px vertical) + default mono line-height → text feel stuck-to-top. Fix: `inline-flex items-center` + `leading-none` + `padding: 1px 6px` + subtle `bg-{color}/[0.06]` tint per `design-file/MyBlog Profile.html L488` spec.
+- **T-378 BUG-004 [Low] ADMIN badge vertical alignment + undersized font (3 sites)** (2026-05-25, FE):
+  - `c97e1f0` ProfilePage hero: layout + padding fix (`inline-flex items-center` + `leading-none` + `padding: 1px 6px` + `bg-{ora|red}/[0.06]`).
+  - `668101c` ProfilePage hero: font `text-mono-xs` (9px) → `text-mono-sm` (11px) — brackets render đúng baseline.
+  - **(next commit)** PostHeader (Feed PostCard) + PostPreview (Create Post): apply cùng pattern. Match `design-file/MyBlog Profile.html L488` spec ở cả 3 call sites.
 - **T-341 BUG-002 [High] ProfileAvatar 6 visual/animation bugs** (2026-05-25, FE):
   - Initial fix (commit `4c9b622`): gradient ring 3-stop linearGradient (cyan→pur→mag) + `stroke-dasharray="6 4"` + `animate-border-rotate` + 2px solid cyan border + glow shadow + text-shadow + online dot 12×12 `animate-pulse`. `tailwind.config.ts`: `glitch 8s` (was 9s) + `pulse-status` keyframe → opacity+drop-shadow glow (NOT scale) + 4 new keyframes (`borderRotate 8s`, `liveDot 1.5s`, `slideIn 250ms`, `slideDown 200ms`).
   - **Visual sync refinement** (commits `b492c9d` + `b7b5524`): SVG `viewBox` → concrete `width/height` props để stroke 2px + dash 6/4 render pixel-exact (trước đó bị scale 0.88×). Gradient stop 3 `#FF79C6` → `#FF6E96` (rose). Online dot `#50FA7B` → `#9ECE6A` (olive). Inner avatar margin 3px → 4px all sides. Explicit `transformOrigin: 50% 50%` cho SVG (default origin = 0,0 trên một số browser → ring quay lệch tâm).

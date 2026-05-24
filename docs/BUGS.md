@@ -108,7 +108,7 @@
   - Update consumer component (LoginCard) class `animate-scan-line` → `animate-scan-card`.
 - **Regression test:** `apps/web/tests/components/auth/LoginCard.test.tsx` — case `it('regression BUG-003: scan card animation runs 4s duration', ...)` assert element có class `animate-scan-card` (NOT `animate-scan-line`) + verify keyframe definition trong test setup.
 
-### [BUG-004] [Low] [FE] ProfilePage ADMIN role badge vertical alignment drift
+### [BUG-004] [Low] [FE] ADMIN role badge vertical alignment + undersized font (ProfilePage + PostHeader + PostPreview)
 
 - **Status:** FIXED
 - **Reporter:** khatran — **Date:** 2026-05-25
@@ -118,18 +118,30 @@
   - Env: local + preview + production
   - Layer impacted: FE
 - **Related task:** T-378
-- **Related FR/component:** FR-11.1 / `apps/web/src/pages/ProfilePage.tsx` L93-103
-- **Mô tả:** Badge `[ ADMIN ]` bên cạnh `~/username` trong Profile hero có vertical alignment lệch — text feel stuck-to-top trong box, không center theo trục dọc của badge.
+- **Related FR/component:** FR-11.1 + FR-02.x / 3 call sites:
+  - `apps/web/src/pages/ProfilePage.tsx` L93-103 (Profile hero)
+  - `apps/web/src/components/post/PostHeader.tsx` L24-31 (Feed PostCard + PostDetail)
+  - `apps/web/src/components/create-post/PostPreview.tsx` L40-46 (Create Post preview)
+- **Mô tả:** Badge `[ ADMIN ]` ở 3 vị trí đều có vertical alignment lệch + brackets nhỏ → text feel stuck-to-top, không center theo trục dọc của badge.
 - **Steps to reproduce:**
   1. Mở `/profile/admin` (user role=ADMIN).
   2. Quan sát badge `[ ADMIN ]` orange bên cạnh `~/admin`.
   3. So sánh visual center với badge height — text bị đẩy lên top.
 - **Expected:** Text `[ ADMIN ]` center theo trục dọc trong badge, match design-file `MyBlog Profile.html L488` padding `1px 6px` + bg tint.
 - **Actual:** Text lệch lên top do `py-0.5` (2px vertical) + default mono line-height baseline metric → top-heavy. Thiếu bg tint subtle.
-- **Root cause:** `px-2 py-0.5` (8px/2px) + `font-mono text-mono-xs` không có explicit line-height → mono font baseline metric đẩy text lên top of box. Design-file dùng `padding: 1px 6px` + `inline-flex` (centering implicit) + `background: rgba(255,158,100,.06)` cho consistency.
-- **Fix:** Apply `inline-flex items-center` + `leading-none` + inline `padding: 1px 6px` + `bg-ora/[0.06]` (ADMIN) / `bg-red/[0.06]` (BANNED). Commit `c97e1f0`.
-- **Regression test:** N/A — pure CSS styling (padding + line-height + bg color), không có behavior testable trong jsdom. Visual verified manually browser side-by-side với design-file.
-- **Lesson learned:** Bracket badges với mono font luôn cần `leading-none` + `inline-flex items-center` để vô hiệu hóa font baseline drift.
+- **Root cause:** Cả 3 chỗ đều có 3 vấn đề:
+  1. **Font size**: `text-mono-xs` = 9px (line-height 1.3) quá nhỏ cho bracket characters — baseline rasterization không ổn định ở size này.
+  2. **Layout**: thiếu `inline-flex items-center` + `leading-none` → mono font baseline metric drift làm text lệch top.
+  3. **Padding**: ProfilePage `py-0.5` (2px), PostHeader/PostPreview `padding: 0 4px` (0 vertical) — không match design-file `1px 6px` + bg tint.
+- **Fix (3 commits):**
+  - `c97e1f0` ProfilePage: layout + padding (vẫn dùng 9px nên chưa fix hết).
+  - `668101c` ProfilePage: font 9px → 11px (`text-mono-sm`) để brackets render đúng.
+  - **Pending commit** PostHeader + PostPreview: apply cùng pattern (`inline-flex items-center` + `leading-none` + `text-mono-sm` + `padding: 1px 6px` + `border-ora/50 bg-ora/[0.06]`).
+- **Regression test:** N/A — pure CSS styling. Visual verified manually browser side-by-side với design-file.
+- **Lesson learned:**
+  - Bracket badges với mono font luôn cần `leading-none` + `inline-flex items-center` để vô hiệu hóa font baseline drift.
+  - Tránh `text-mono-xs` (9px) cho bracketed text — quá nhỏ, baseline render không ổn định cross-browser.
+  - Khi fix UI bug đa-site (cùng pattern dùng nhiều nơi), `grep` tất cả call sites trước khi commit để tránh fix-cục-bộ rồi miss spots khác.
 
 ## Fixed
 

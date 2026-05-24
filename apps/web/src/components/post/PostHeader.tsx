@@ -23,8 +23,8 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
           <span className="font-mono text-mono-sm font-semibold text-blu">~/{author.username}</span>
           {isAdmin && (
             <span
-              className="rounded-xs font-mono text-mono-xs text-ora"
-              style={{ border: '1px solid #FF9E6450', padding: '0 4px' }}
+              className="inline-flex items-center rounded-xs border border-ora/50 bg-ora/[0.06] font-mono text-mono-sm leading-none text-ora"
+              style={{ padding: '1px 6px' }}
             >
               [ ADMIN ]
             </span>

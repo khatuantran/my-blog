@@ -38,8 +38,8 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="font-mono text-mono-sm font-semibold text-blu">~/admin</span>
             <span
-              className="font-mono text-mono-xs text-ora"
-              style={{ border: '1px solid #FF9E6440', borderRadius: 2, padding: '0 3px' }}
+              className="inline-flex items-center rounded-sm border border-ora/50 bg-ora/[0.06] font-mono text-mono-sm leading-none text-ora"
+              style={{ padding: '1px 6px' }}
             >
               [ ADMIN ]
             </span>

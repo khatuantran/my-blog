@@ -6,6 +6,19 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-312** BE Notifications REST endpoints (M11.7, FR-14.3/14.4/14.5, BE-only):
+  - `src/notifications/notifications.controller.ts` (NEW): 6 endpoints under `@Controller('notifications')` + `@UseGuards(JwtAuthGuard)`.
+    - `GET /notifications` — list with `filter=all|unread`, `page`, `limit` (max 50); response `{ items, total, page, limit, unreadCount }`. Items include actor (id/username/avatarUrl), type, targetType, targetId, postId, read, metadata, createdAt.
+    - `GET /notifications/unread-count` — `{ count: number }`.
+    - `PATCH /notifications/mark-all-read` — mark all unread → read; `{ updated: number }`.
+    - `PATCH /notifications/:id/read` — Body `{ read: boolean }`; self-scope 403; `{ id, read }`.
+    - `DELETE /notifications/bulk` — Body `{ ids: string[] }` max 100; self-scope (non-own silently skipped); `{ deleted: number }`. 400 if empty.
+    - `DELETE /notifications/:id` — self-scope 403; 204.
+  - Static routes (`mark-all-read`, `bulk`) declared before parameterized (`:id`) to prevent NestJS route conflict.
+  - `src/notifications/dto/`: `list-notifications.dto.ts`, `mark-read.dto.ts`, `bulk-delete.dto.ts`.
+  - `NotificationsModule`: added `NotificationsController` to controllers.
+  - Tests: `tests/notifications.e2e-spec.ts` (10 cases: list all/unread, unread-count, mark-read, 403 other-user, mark-all-read, delete single + 403, bulk delete + 400 empty). **186 e2e pass**, 125 unit pass, tsc clean.
+
 - **T-311** BE NotificationsModule + createNotification hook (M11.7, FR-14.1/14.2, BE-only):
   - `src/notifications/notifications.service.ts` (NEW): `createNotification(input)` — self-action guard (`actorId === userId` → skip), creates `Notification` row, best-effort (caller wraps in try-catch). `metadata` cast to `Prisma.InputJsonValue`.
   - `src/notifications/notifications.module.ts` (NEW): exports `NotificationsService`.

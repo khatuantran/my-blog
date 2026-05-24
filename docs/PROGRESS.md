@@ -39,6 +39,7 @@
   - T-316: BE Reactions — data-preserving migration Like → Reaction + ReactionsModule (upsert/remove/counts/list + 410 legacy) — BE 123 unit + 175 e2e pass.
   - T-310: BE Notifications migration — NotificationType enum + Notification model + 2 indexes — 123 unit pass, tsc clean.
   - T-311: BE NotificationsModule + createNotification() — hooks into ReactionsService (REACTION) + CommentsService (COMMENT), best-effort try-catch — 125 unit pass, tsc clean.
+  - T-312: BE Notifications 6 REST endpoints (list/unread-count/mark-read/mark-all/delete/bulk-delete) — 186 e2e pass, tsc clean.
 
 ### 2026-05-17 (Week 1)
 

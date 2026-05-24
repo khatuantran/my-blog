@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Fixed
+
+- **T-340 BUG-001 [High] ReactionPicker hover gap** (2026-05-25, FE): Thêm invisible CSS bridge div (`h-3 absolute bottom-full`) lấp gap `mb-2` (8px) giữa button và picker trong `ReactionButton.tsx`. Mouse cross gap → luôn trên DOM child của container → `onMouseLeave` không fire → close instant (0ms, không delay). Regression test: `tests/components/feed/ReactionButton.test.tsx` case `regression BUG-001`.
+
 ### Added
 
 - **M11.9 backlog opened (2026-05-25, docs-only):** Convert 19 deferred items từ "Out of M11.8 scope (defer phase 2)" thành 18 actionable tasks T-360 → T-377 (StatusBar dropped vì FE component đã match spec). Target milestone date 2026-06-26. Pure FE refactor — KHÔNG touch BE, KHÔNG cần FR amendment (specs đã có trong DESIGN_SYSTEM.md + UI_DESIGN.md commit `24c040e`):

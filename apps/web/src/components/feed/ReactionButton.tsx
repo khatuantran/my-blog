@@ -84,14 +84,10 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
     <div
       className="relative inline-flex items-center"
       onMouseEnter={() => !gone && setPickerOpen(true)}
-      onMouseLeave={(e) => {
-        // Keep open if mouse moved to picker child (absolute positioned, gap possible).
-        const next = e.relatedTarget;
-        if (next instanceof Node && e.currentTarget.contains(next)) return;
-        setPickerOpen(false);
-      }}
+      onMouseLeave={() => setPickerOpen(false)}
     >
       <ReactionPicker open={pickerOpen} selected={active} onPick={pickReaction} />
+      {pickerOpen && <div aria-hidden="true" className="absolute bottom-full left-0 right-0 h-3" />}
 
       <button
         type="button"

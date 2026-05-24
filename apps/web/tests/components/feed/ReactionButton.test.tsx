@@ -176,6 +176,26 @@ describe('ReactionButton (T-317)', () => {
     expect(await screen.findByText('bob')).toBeInTheDocument();
   });
 
+  it('regression BUG-001: picker stays open when mouse moves through 6px gap between button and picker', async () => {
+    render(
+      <TestProviders>
+        <ReactionButton postId="p1" myReaction={null} topReactions={[]} count={0} />
+      </TestProviders>,
+    );
+    const container = screen.getByTestId('reaction-button-p1').parentElement!;
+    fireEvent.mouseEnter(container);
+    await waitFor(() => expect(screen.getByTestId('reaction-picker')).toBeInTheDocument());
+    // Mouse enters picker (simulates move through gap to popover)
+    fireEvent.mouseEnter(screen.getByTestId('reaction-picker'));
+    // Picker must still be open — debounce timer was cleared
+    expect(screen.getByTestId('reaction-picker')).toBeInTheDocument();
+    // Mouse leaves container entirely → picker closes after 250ms debounce
+    fireEvent.mouseLeave(container);
+    await waitFor(() => expect(screen.queryByTestId('reaction-picker')).not.toBeInTheDocument(), {
+      timeout: 100,
+    });
+  });
+
   it('8. 410 Gone từ legacy endpoint → disable button + show inline error', async () => {
     mswServer.use(
       http.post(`${API_URL}/posts/p1/reactions`, () =>

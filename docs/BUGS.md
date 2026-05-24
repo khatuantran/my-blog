@@ -9,7 +9,7 @@
 
 ### [BUG-001] [High] [FE] ReactionPicker biến mất khi hover qua gap → user không chọn được reaction
 
-- **Status:** OPEN
+- **Status:** FIXED
 - **Reporter:** khatran — **Date:** 2026-05-25
 - **Environment:**
   - Browser/OS: Chrome/Safari (any modern) / macOS / desktop
@@ -27,7 +27,7 @@
 - **Expected:** Picker giữ open khi chuột di chuyển qua gap, user chọn được emoji.
 - **Actual:** Picker đóng giữa chừng. UX bị blocked, user không thể chọn reaction qua hover flow.
 - **Screenshot/log:** N/A (UX issue, không có error log)
-- **Root cause (preliminary — verify khi fix):** FE `ReactionButton.tsx` `onMouseLeave` handler đóng picker NGAY LẬP TỨC nếu `e.relatedTarget` không thuộc DOM tree của container (`e.currentTarget.contains(next)` returns false). Khi chuột nằm trên gap 6px (mb-2 hoặc `bottom: calc(100% + 6px)`), browser không hit element nào trong hover container → `relatedTarget` = null hoặc body → close fires. Design-file pattern dùng 250ms `setTimeout` debounce (`closePicker = () => { timer.current = setTimeout(close, 250) }` + `openPicker = clearTimeout(timer.current) + setOpen(true)`) để cho user buffer 250ms move qua gap. Reference: `design-file/MyBlog Feed.html` L840-841.
+- **Root cause:** FE `ReactionButton.tsx` `onMouseLeave` fires khi chuột nằm trên gap `mb-2` (8px) giữa button và picker — không có DOM element nào trong gap nên container coi mouse đã rời. Fix: thêm invisible bridge `<div aria-hidden h-3 absolute bottom-full left-0 right-0>` chỉ render khi picker mở, lấp vật lý 8px gap (h-3=12px, 4px buffer). Mouse cross gap → đang trên bridge (descendant của container) → `onMouseLeave` không fire → close instant (0ms). Pattern: `DESIGN_SYSTEM.md > Hover-reveal popover with grace period`.
 - **Fix (proposed):** Refactor `ReactionButton.tsx` (`apps/web/src/components/feed/ReactionButton.tsx`):
   - Thêm `const hoverTimer = useRef<NodeJS.Timeout>()`.
   - `openPicker = () => { clearTimeout(hoverTimer.current); setPickerOpen(true); }`.

@@ -27,6 +27,10 @@
     --ora: #ff9e64;
     --red: #f7768e;
     --blu: #7dcfff;
+    /* v2 typography tier (M11.7) — upper bound của token ranges (DESIGN_SYSTEM:75) */
+    --fs-ui: 11px;
+    --fs-ui-text: 13px;
+    --fs-body: 15px;
   }
 
   html,

@@ -6,6 +6,14 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-330** Foundation v2 refresh (M11.7, FR-15/NFR-02, FE-only):
+  - `apps/web/tailwind.config.ts`: extend `theme.screens` với 5-tier max-width sub-breakpoints `mx-980 / mx-760 / mx-640 / mx-480 / mx-420` cho design v2 compress pattern (giữ nguyên `sm/md/lg/xl/2xl` defaults).
+  - `apps/web/src/styles/globals.css`: thêm 3 CSS vars typography v2 — `--fs-ui: 11px` (UI label mono), `--fs-ui-text: 13px` (meta mono), `--fs-body: 15px` (body content prose) — upper bound per DESIGN_SYSTEM:75.
+  - `apps/web/src/lib/status-config.ts` (NEW): `PostStatus` type + `POST_STATUS_CFG` Record (PUBLISHED `#9ECE6A` / DRAFT `#E0AF68` / ARCHIVED `#566176`) + `POST_STATUS_KEYS`. Mirror pattern `mood-config.ts`. Sync với Prisma enum `PostStatus` (T-320 sẽ tạo migration).
+  - `apps/web/src/components/shared/StatusBadge.tsx` (NEW): variant `post` — inline-flex pill `[ LABEL ]` font-mono 11px với tinted bg (12% alpha) + border (40% alpha) + opacity 0.8 cho ARCHIVED (visual "less active"). Port từ `design-file/MyBlog Manage Posts.html:379`.
+  - Tests: `tests/lib/status-config.test.ts` (2 case) + `tests/components/shared/StatusBadge.test.tsx` (4 case) — 6 case mới, all pass; total FE **296 tests pass** (was 290).
+  - Foundation cleared cho downstream M11.7 task (T-313/314/317/321/322/323/331-334 đều consume tokens này).
+
 - **F2 spec for M11.7 — Design v2 (Notifications + Admin Manage Posts + Multi-Reactions) (2026-05-24, docs only):** Design v2 overhaul commit baseline `a56ee72` (2 screen mới + foundation refresh). F2 docs spec execute trên 7 doc:
   - `docs/REQUIREMENTS.md`: thêm FR-14 (Notification System, 6 sub) + FR-15 (Admin Manage Posts, 6 sub) + FR-16 (Multi-Reaction System, 6 sub thay binary Like) + NFR-06 (Pagination universal) + UC-17/18/19/20/21 + Glossary 6 terms (Notification, Engagement event, NotificationBell, PostStatus, Reaction, ReactionType) + Traceability rows FR-13/14/15/16
   - `docs/DATA_MODEL.md`: entity Notification (+ NotificationType enum) + rename Like → Reaction (+ ReactionType enum 6 values LIKE/LOVE/HAHA/WOW/SAD/ANGRY + index `[postId, type]`) + Post.status field (PostStatus enum PUBLISHED/DRAFT/ARCHIVED) + Prisma snippet sync + migration log v0.4.0-alpha

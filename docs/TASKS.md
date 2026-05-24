@@ -278,7 +278,7 @@
 
 **Foundation (chạy TRƯỚC vì các task khác bám):**
 
-- [T-330] [P1] [F1] [FE] Foundation refresh — typography token v2 (UI 11px, mono 13px, body 15px) + responsive 5-tier breakpoint utilities (980/760/640/480/420) trong globals.css + Tailwind config update + status badge palette (PUBLISHED/DRAFT/ARCHIVED) variant. Test: visual diff vài screen + token-resolution unit. (FR-15.x, NFR-02) - TODO
+- [T-330] [P1] [F1] [FE] Foundation refresh — typography token v2 (UI 11px, mono 13px, body 15px) + responsive 5-tier breakpoint utilities (980/760/640/480/420) trong globals.css + Tailwind config update + status badge palette (PUBLISHED/DRAFT/ARCHIVED) variant. Test: visual diff vài screen + token-resolution unit. (FR-15.x, NFR-02) - DONE (2026-05-24)
 
 **Reactions (BE + FE — chạy trước Notifications vì REACTION event nguồn từ đây):**
 

@@ -155,8 +155,10 @@
     - UI_DESIGN screen 11 (Notifications) + screen 12 (Manage Posts)
     - DESIGN_SYSTEM v2.0: NotificationBell + ReactionPicker + ReactionList + StatusBadge PostStatus variant + typography v2 note + 5-tier breakpoint note
     - TASKS M11.7: 17 task T-310→T-334 (Foundation 1 + Reactions 2 + Notifications 6 + Admin Posts 4 + Polish 4)
-- **Doing:** Pending user duyệt backlog 17 task để F1 execute.
-- **Next:** F1 order: Foundation T-330 → BE Reactions T-316 → BE Notifications T-310/311/312 → openapi:sync → FE Reactions T-317 → FE Notifications T-313/314 → BE Admin Posts T-320 → FE Admin Posts T-321/322/323 → Polish T-331/332/333/334. WS realtime T-315 defer-able.
+- **Done thêm (2026-05-24):**
+  - ✅ T-330 Foundation refresh — typography CSS vars v2 (`--fs-ui` 11px / `--fs-ui-text` 13px / `--fs-body` 15px) + Tailwind 5-tier max-width screens (`mx-980/760/640/480/420`) + StatusBadge component (variant `post`, palette PUBLISHED/DRAFT/ARCHIVED) + `status-config.ts`. Tests: 2 file (6 case) pass. M11.7 Foundation cleared cho downstream task.
+- **Doing:** M11.7 F1 — next BE Reactions T-316.
+- **Next:** F1 order: BE Reactions T-316 → BE Notifications T-310/311/312 → openapi:sync → FE Reactions T-317 → FE Notifications T-313/314 → BE Admin Posts T-320 → FE Admin Posts T-321/322/323 → Polish T-331/332/333/334. WS realtime T-315 defer-able.
 
 ---
 

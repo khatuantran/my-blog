@@ -10,6 +10,12 @@ const config: Config = {
       lg: '1024px',
       xl: '1100px',
       '2xl': '1280px',
+      // v2 sub-breakpoints (M11.7) — max-width tier cho design v2 5-step compress.
+      'mx-980': { max: '980px' },
+      'mx-760': { max: '760px' },
+      'mx-640': { max: '640px' },
+      'mx-480': { max: '480px' },
+      'mx-420': { max: '420px' },
     },
     extend: {
       colors: {

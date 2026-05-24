@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · ~/admin/posts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; }
+body { background:#0A0E1A; background-image:radial-gradient(circle,#2A354822 1px,transparent 1px); background-size:24px 24px; color:#E6EDF3; font-family:'Inter',sans-serif; overflow-x:hidden; }
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse  { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.fade-up { animation:fadeUp .25s ease both; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:11px; color:#8B96AA; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.edit-inp { width:100%; background:#070A14; border:1px solid #2A3548; color:#E6EDF3; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 12px; border-radius:6px; outline:none; transition:all .15s; }
+.edit-inp:focus { border-color:#00FFE5; box-shadow:0 0 10px rgba(0,255,229,.15); }
+.edit-inp::placeholder { color:#8B96AA; }
+.sort-btn { font-family:'JetBrains Mono',monospace; font-size:12px; padding:5px 12px; border:1px solid #2A3548; border-radius:4px; background:#1A1F2E; color:#8B96AA; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.sort-btn:hover { color:#C9D1D9; border-color:#3D4A63; }
+.sort-btn.active { color:#00FFE5; border-color:rgba(0,255,229,.5); background:rgba(0,255,229,.08); }
+.act-btn { display:flex; align-items:center; gap:4px; padding:4px 9px; border-radius:4px; border:1px solid; background:transparent; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px; transition:all .15s; white-space:nowrap; }
+.row { display:grid; padding:13px 16px; border-bottom:1px solid #1A1F2E; align-items:center; transition:background .15s; gap:12px; }
+.row:hover { background:#1A1F2E; }
+.post-card-mng { background:#11151F; border:1px solid #2A3548; border-radius:8px; padding:14px 16px; transition:all .2s; position:relative; }
+.post-card-mng:hover { border-color:rgba(0,255,229,.4); box-shadow:0 0 18px rgba(0,255,229,.08); }
+
+/* Mobile topbar — hide search to prevent overlap with logo/avatar */
+@media (max-width: 820px) {
+  header > div[style*="position: absolute"] { display: none !important; }
+}
+@media (max-width: 560px) {
+  /* Hide version badge + online count on very small screens */
+  header > div[style*="margin-left: auto"] > span:nth-child(1),
+  header > div[style*="margin-left: auto"] > span:nth-child(2) { display: none !important; }
+  /* Compact logo subtitle */
+  header [style*="personal"] { display: none !important; }
+}
+
+
+/* ==== Mobile responsive v2 — real adaptive layout ==== */
+@media (max-width: 980px) {
+  /* Stack 4-col stat grids → 2 cols */
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Sub-bar items wrap */
+  div[style*="height: 44px"][style*="border-bottom"] { flex-wrap: wrap !important; height: auto !important; padding-top: 8px !important; padding-bottom: 8px !important; row-gap: 6px !important; }
+  /* Topbar nav: tighten */
+  header { padding-left: 12px !important; padding-right: 12px !important; }
+}
+@media (max-width: 760px) {
+  /* Main padding compression */
+  main, [style*="padding: 20px 24px"], [style*="padding:'20px 24px'"] { padding-left: 14px !important; padding-right: 14px !important; }
+  /* Tables with many cols → horizontal scroll instead of breaking */
+  [style*="grid-template-columns: 3fr"],
+  [style*="grid-template-columns: 2fr"] { min-width: 720px !important; }
+  /* Wrap their containers so they scroll instead of overlap */
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 3fr"]),
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 2fr"]) {
+    overflow-x: auto !important;
+  }
+  /* Stat cards smaller */
+  [style*="font-size: 22px"][style*="font-weight: 700"],
+  [style*="font-size:22px"] { font-size: 18px !important; }
+  /* Hero on Profile: stack and shrink */
+  .profile-hero { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  /* Modal full-bleed-ish */
+  [style*="width: 640px"], [style*="width: 560px"], [style*="width: 540px"], [style*="width: 480px"], [style*="width: 440px"], [style*="width: 420px"], [style*="width: 400px"], [style*="width: 380px"], [style*="width: 360px"] {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+  /* Right drawer (profile settings) full-width */
+  [style*="width: 480px"][style*="height: 100vh"] { width: 100vw !important; }
+  /* Hide Create Post preview column already gone via .preview-col */
+  /* Big heading shrink */
+  h1[style*="font-size: 26px"] { font-size: 22px !important; }
+}
+@media (max-width: 480px) {
+  /* 2-col grids → 1 col */
+  [style*="grid-template-columns: repeat(2"],
+  [style*="grid-template-columns:repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Even tighter padding */
+  main, [style*="padding: 24px 28px"], [style*="padding:'24px 28px'"] { padding-left: 12px !important; padding-right: 12px !important; }
+  /* Login card padding */
+  [style*="padding: 22px 20px"] { padding: 16px !important; }
+  /* Status bar info — hide some segments */
+  div[style*="bottom: 0"][style*="height: 28px"] span:nth-of-type(n+3) { display: none !important; }
+}
+/* Touch-friendly tap targets globally on mobile */
+@media (max-width: 760px) and (pointer: coarse) {
+  button, .toolbar-btn, .filter-chip, .sort-btn, .act-btn { min-height: 36px !important; }
+}
+
+
+/* ==== Mobile responsive v3 — prevent overflow + tight layout ==== */
+html, body { max-width: 100vw; overflow-x: hidden; }
+@media (max-width: 640px) {
+  /* Topbar: bring right cluster fully inside viewport */
+  header { padding-left: 10px !important; padding-right: 10px !important; gap: 0 !important; }
+  header > div[style*="margin-left: auto"] { gap: 6px !important; }
+  /* Logo: drop subtitle for sure, shrink */
+  header svg { width: 20px !important; height: 20px !important; }
+  /* Notification dropdown: full width near viewport */
+  header [style*="width: 380px"] { width: calc(100vw - 20px) !important; right: -8px !important; }
+  /* Avatar dropdown menu */
+  header [style*="min-width: 210px"] { right: -4px !important; }
+  /* Feed filter row: don't push 'Latest' off-screen with margin-left:auto */
+  .flt-btn[style*="margin-left: auto"], button[style*="margin-left: auto"][style*="Latest"] {
+    margin-left: 0 !important;
+  }
+  /* Common pattern: anything with margin-left:auto in a flex row at mobile becomes wrap-friendly */
+  div[style*="display: flex"][style*="flex-wrap: wrap"] > [style*="margin-left: auto"] {
+    margin-left: 0 !important;
+  }
+  /* Post cards: tighter padding */
+  .post-card { padding: 14px !important; }
+  /* Tags page card grid */
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(240px"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(320px"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Image grid in post: keep 2 columns max */
+  .post-card div[style*="grid-template-columns: 1fr 1fr"] { gap: 2px !important; }
+  /* Status bar: compress further */
+  div[style*="bottom: 0"][style*="height: 28px"] { font-size: 10px !important; }
+  div[style*="bottom: 0"][style*="height: 28px"] span { padding: 0 8px !important; }
+  /* Sub-bars and toolbars: scroll horizontally if too tight */
+  div[style*="top: 52px"][style*="height: 44px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  div[style*="top: 52px"][style*="height: 40px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 420px) {
+  /* Very small phones */
+  .post-card { padding: 12px !important; }
+  .post-card span[style*="position: absolute"][style*="top: 10px"] { display: none !important; } /* hide #post-id corner */
+  /* Hide [v0.1.0] entirely on small screens (already in 560 but extra safety) */
+  header span[style*="border: 1px solid"][style*="padding: 2px 7px"]:first-child { display: none !important; }
+  /* Stat card values stay readable */
+  [style*="font-size: 22px"][style*="font-weight: 700"] { font-size: 18px !important; }
+}
+/* Allow horizontal scroll on tables only, not whole page */
+.row { min-width: 0 !important; }
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+const STATUSES = {
+  PUBLISHED: { label:'PUBLISHED', color:'#9ECE6A' },
+  DRAFT:     { label:'DRAFT',     color:'#E0AF68' },
+  ARCHIVED:  { label:'ARCHIVED',  color:'#566176' },
+};
+
+// Build an extended posts list with status & date
+const INIT_POSTS = POSTS_DATA.map((p, i) => ({
+  ...p,
+  status: i === 1 ? 'DRAFT' : 'PUBLISHED',
+  date: p.ts.replace(/[\[\]]/g,'').split(' ')[0],
+})).concat([
+  {
+    id:'pqr890', time:'4d ago', ts:'[2026-05-14 11:00]', mood:'GRATEFUL',
+    content:'Cảm ơn community đã đồng hành 1 năm qua. Mọi feedback, comment đều là động lực cực lớn 🙏',
+    images:0, files:[], tags:['#life','#grateful'], likes:56, comments:9, saved:false,
+    status:'PUBLISHED', date:'2026-05-14',
+  },
+  {
+    id:'stu321', time:'1w ago', ts:'[2026-05-09 14:00]', mood:'EXCITED',
+    content:'Side project mới: cli tool để generate component scaffolding. Đang viết draft, sẽ release tuần sau.',
+    images:1, files:[{ name:'spec-v1.pdf', type:'pdf', size:'1.8 MB' }],
+    tags:['#dev','#side-project','#cli'], likes:12, comments:3, saved:false,
+    status:'DRAFT', date:'2026-05-09',
+  },
+  {
+    id:'old001', time:'3w ago', ts:'[2026-04-27 09:30]', mood:'CALM',
+    content:'Bài cũ đã archive. Vẫn giữ làm reference.',
+    images:0, files:[], tags:['#archive'], likes:5, comments:1, saved:false,
+    status:'ARCHIVED', date:'2026-04-27',
+  },
+]);
+
+// ── Delete Confirm Modal ────────────────────────────────────────
+function DeleteConfirm({ post, onConfirm, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => { document.body.style.overflow=''; window.removeEventListener('keydown', h); };
+  }, []);
+  return ReactDOM.createPortal(
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.7)', backdropFilter:'blur(6px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center' }}
+      onClick={e => e.target===e.currentTarget && onClose()}>
+      <div style={{ width:'400px', maxWidth:'90vw', background:'#11151F', border:'1px solid rgba(247,118,142,.3)', borderRadius:'10px', padding:'24px', boxShadow:'0 0 30px rgba(247,118,142,.1),0 20px 50px rgba(0,0,0,.7)', animation:'fadeUp .2s ease', textAlign:'center' }}>
+        <div style={{ fontSize:'32px', marginBottom:'12px' }}>⚠️</div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#F7768E', marginBottom:'8px' }}>[CONFIRM DELETE]</div>
+        <div style={{ fontSize:'14px', color:'#C9D1D9', marginBottom:'6px' }}>Delete post <span style={{ color:'#7DCFFF', fontFamily:"'JetBrains Mono',monospace" }}>#{post.id}</span>?</div>
+        <p style={{ fontSize:'12px', color:'#8B96AA', lineHeight:'1.5', marginBottom:'14px', maxHeight:'60px', overflow:'hidden' }}>
+          "{post.content.replace(/```[\s\S]*?```/g,'').replace(/[#*`]/g,'').slice(0,100)}..."
+        </p>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginBottom:'20px' }}>
+          {post.likes} likes · {post.comments} comments will be lost permanently.
+        </div>
+        <div style={{ display:'flex', gap:'8px', justifyContent:'center' }}>
+          <button onClick={onConfirm}
+            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#F7768E', background:'rgba(247,118,142,.1)', border:'1px solid rgba(247,118,142,.4)', borderRadius:'6px', padding:'9px 20px', cursor:'pointer' }}>
+            ✕ Delete Permanently
+          </button>
+          <button onClick={onClose}
+            style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'9px 20px', cursor:'pointer' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ── Quick Edit Modal (mood + tags + status + content) ───────────
+function QuickEditModal({ post, onSave, onClose }) {
+  const [content, setContent] = useState(post.content);
+  const [mood, setMood]       = useState(post.mood);
+  const [status, setStatus]   = useState(post.status);
+  const [tags, setTags]       = useState(post.tags);
+  const [tagInput, setTagInput] = useState('');
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => { document.body.style.overflow=''; window.removeEventListener('keydown', h); };
+  }, []);
+
+  const TAG_COLORS = ['#00FFE5','#FF6E96','#BB9AF7','#9ECE6A','#E0AF68','#FF9E64','#7DCFFF','#F7768E'];
+  const tagColor = n => TAGS_DATA.find(t=>t.name===n)?.color || TAG_COLORS[n.length % TAG_COLORS.length];
+
+  const addTag = () => {
+    let n = tagInput.trim().toLowerCase().replace(/\s+/g,'-').replace(/^#?/,'#');
+    if (!n || n === '#' || tags.includes(n)) { setTagInput(''); return; }
+    setTags([...tags, n]); setTagInput('');
+  };
+
+  return ReactDOM.createPortal(
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.7)', backdropFilter:'blur(6px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:'30px 16px' }}
+      onClick={e => e.target===e.currentTarget && onClose()}>
+      <div style={{ width:'560px', maxWidth:'95vw', maxHeight:'90vh', background:'#11151F', border:'1px solid rgba(0,255,229,.25)', borderRadius:'12px', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 0 50px rgba(0,255,229,.08),0 24px 60px rgba(0,0,0,.7)', animation:'fadeUp .2s ease' }}>
+        {/* Header */}
+        <div style={{ padding:'14px 20px', borderBottom:'1px solid #1F2A3A', background:'#0A0E1A', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#00FFE5' }}>// edit.post</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>~/admin/posts/{post.id}</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'22px', lineHeight:1 }}>×</button>
+        </div>
+        {/* Body */}
+        <div style={{ flex:1, overflowY:'auto', padding:'20px' }}>
+          {/* Status */}
+          <div style={{ marginBottom:'16px' }}>
+            <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'block', marginBottom:'6px' }}>STATUS</label>
+            <div style={{ display:'flex', gap:'6px' }}>
+              {Object.entries(STATUSES).map(([key, s]) => (
+                <button key={key} onClick={() => setStatus(key)}
+                  style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px',
+                    padding:'7px', borderRadius:'5px', cursor:'pointer',
+                    color: status===key?s.color:'#8B96AA',
+                    background: status===key?`${s.color}12`:'#1A1F2E',
+                    border:`1px solid ${status===key?`${s.color}60`:'#2A3548'}`,
+                    boxShadow: status===key?`0 0 8px ${s.color}20`:'none' }}>
+                  [ {s.label} ]
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Mood */}
+          <div style={{ marginBottom:'16px' }}>
+            <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'block', marginBottom:'6px' }}>MOOD</label>
+            <div style={{ display:'flex', gap:'6px', flexWrap:'wrap' }}>
+              {Object.entries(MOOD_CFG).map(([key, c]) => (
+                <button key={key} onClick={() => setMood(key)} title={c.label}
+                  style={{ width:'38px', height:'38px', borderRadius:'7px',
+                    border:`2px solid ${mood===key?c.color:'#2A3548'}`,
+                    background: mood===key?`${c.color}15`:'#1A1F2E',
+                    fontSize:'18px', cursor:'pointer', transition:'all .15s',
+                    boxShadow: mood===key?`0 0 12px ${c.color}40`:'none' }}>
+                  {c.emoji}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Content */}
+          <div style={{ marginBottom:'16px' }}>
+            <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'block', marginBottom:'6px' }}>CONTENT</label>
+            <textarea className="edit-inp" value={content} onChange={e=>setContent(e.target.value)} rows={6}
+              style={{ resize:'vertical', lineHeight:'1.6', fontFamily:"'JetBrains Mono',monospace", fontSize:'13px' }} />
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'4px', textAlign:'right' }}>{content.length} chars</div>
+          </div>
+          {/* Tags */}
+          <div style={{ marginBottom:'4px' }}>
+            <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'block', marginBottom:'6px' }}>TAGS</label>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', padding:'10px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', minHeight:'44px' }}>
+              {tags.map(t => {
+                const c = tagColor(t);
+                return (
+                  <span key={t} style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:c, background:`${c}15`, border:`1px solid ${c}40`, borderRadius:'4px', padding:'2px 8px' }}>
+                    {t}<span onClick={() => setTags(tags.filter(x=>x!==t))} style={{ cursor:'pointer', opacity:.6, fontSize:'13px', lineHeight:1 }}>×</span>
+                  </span>
+                );
+              })}
+              <input value={tagInput} onChange={e=>setTagInput(e.target.value)}
+                onKeyDown={e=>{ if(e.key==='Enter'||e.key===','){ e.preventDefault(); addTag(); } }}
+                placeholder="❯ add tag..."
+                style={{ background:'transparent', border:'none', outline:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', minWidth:'90px' }} />
+            </div>
+          </div>
+        </div>
+        {/* Footer */}
+        <div style={{ padding:'14px 20px', borderTop:'1px solid #1F2A3A', display:'flex', gap:'8px', background:'#0A0E1A' }}>
+          <a href={`MyBlog Create Post.html`} style={{ textDecoration:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF', background:'#1A1F2E', border:'1px solid rgba(125,207,255,.3)', borderRadius:'5px', padding:'8px 14px', display:'flex', alignItems:'center', gap:'4px' }}>
+            ↗ Open in full editor
+          </a>
+          <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+            <button onClick={onClose}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'8px 16px', cursor:'pointer' }}>
+              Cancel
+            </button>
+            <button onClick={() => { onSave({ ...post, content, mood, status, tags }); onClose(); }}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontWeight:600, color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'6px', padding:'8px 18px', cursor:'pointer', boxShadow:'0 0 12px rgba(0,255,229,.3)' }}>
+              ✓ Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ── Post row (list view) ────────────────────────────────────────
+function PostRow({ post, onEdit, onDelete, delay }) {
+  const mood = MOOD_CFG[post.mood];
+  const stat = STATUSES[post.status];
+  const tagColor = n => TAGS_DATA.find(t=>t.name===n)?.color || '#00FFE5';
+  return (
+    <div className="row fade-up" style={{ gridTemplateColumns:'3fr 1fr 1.2fr 1.4fr 1fr 1.5fr', animationDelay:`${delay}ms` }}>
+      {/* Content preview */}
+      <div style={{ minWidth:0 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'5px' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>#{post.id}</span>
+        </div>
+        <p style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.5', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+          {post.content.replace(/```[\s\S]*?```/g,'[code]').replace(/[#*`]/g,'').slice(0,90)}
+        </p>
+      </div>
+      {/* Status */}
+      <div>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:stat.color, background:`${stat.color}12`, border:`1px solid ${stat.color}40`, borderRadius:'3px', padding:'2px 7px' }}>
+          [ {stat.label} ]
+        </span>
+      </div>
+      {/* Mood */}
+      <div>
+        <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${mood.color}15`, border:`1px solid ${mood.color}40`, borderRadius:'4px', padding:'2px 7px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:mood.color }}>
+          {mood.emoji} {mood.label}
+        </span>
+      </div>
+      {/* Tags */}
+      <div style={{ display:'flex', gap:'4px', flexWrap:'wrap', overflow:'hidden' }}>
+        {post.tags.slice(0,2).map(t => (
+          <span key={t} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:tagColor(t), background:`${tagColor(t)}15`, border:`1px solid ${tagColor(t)}40`, borderRadius:'3px', padding:'1px 6px' }}>{t}</span>
+        ))}
+        {post.tags.length > 2 && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>+{post.tags.length-2}</span>}
+      </div>
+      {/* Stats */}
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'flex', flexDirection:'column', gap:'2px' }}>
+        <span>♡ {post.likes} · 💬 {post.comments}</span>
+        <span style={{ color:'#566176' }}>{post.date}</span>
+      </div>
+      {/* Actions */}
+      <div style={{ display:'flex', gap:'5px', justifyContent:'flex-end' }}>
+        <a href="MyBlog Post Detail.html" className="act-btn" style={{ color:'#7DCFFF', borderColor:'#7DCFFF40', textDecoration:'none' }} title="View">👁 View</a>
+        <button className="act-btn" style={{ color:'#00FFE5', borderColor:'rgba(0,255,229,.4)' }} onClick={() => onEdit(post)}>✎ Edit</button>
+        <button className="act-btn" style={{ color:'#F7768E', borderColor:'#F7768E40' }} onClick={() => onDelete(post)}>✕</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Card view ───────────────────────────────────────────────────
+function PostCardMng({ post, onEdit, onDelete, delay }) {
+  const mood = MOOD_CFG[post.mood];
+  const stat = STATUSES[post.status];
+  const tagColor = n => TAGS_DATA.find(t=>t.name===n)?.color || '#00FFE5';
+  return (
+    <div className="post-card-mng fade-up" style={{ animationDelay:`${delay}ms` }}>
+      {/* Top row */}
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px', flexWrap:'wrap' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>#{post.id}</span>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:stat.color, background:`${stat.color}12`, border:`1px solid ${stat.color}40`, borderRadius:'3px', padding:'1px 7px' }}>
+          [ {stat.label} ]
+        </span>
+        <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${mood.color}15`, border:`1px solid ${mood.color}40`, borderRadius:'4px', padding:'1px 7px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:mood.color }}>
+          {mood.emoji} {mood.label}
+        </span>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginLeft:'auto' }}>{post.date}</span>
+      </div>
+      {/* Content */}
+      <p style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.6', marginBottom:'10px',
+        display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+        {post.content.replace(/```[\s\S]*?```/g,'[code]').replace(/[#*`]/g,'').trim()}
+      </p>
+      {/* Tags + stats */}
+      <div style={{ display:'flex', alignItems:'center', gap:'6px', flexWrap:'wrap', marginBottom:'10px' }}>
+        {post.tags.map(t => (
+          <span key={t} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:tagColor(t), background:`${tagColor(t)}15`, border:`1px solid ${tagColor(t)}40`, borderRadius:'3px', padding:'1px 6px' }}>{t}</span>
+        ))}
+        <span style={{ marginLeft:'auto', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', display:'flex', gap:'10px' }}>
+          <span>♡ {post.likes}</span>
+          <span>💬 {post.comments}</span>
+          {post.images > 0 && <span>📷 {post.images}</span>}
+          {post.files?.length > 0 && <span>📎 {post.files.length}</span>}
+        </span>
+      </div>
+      {/* Actions */}
+      <div style={{ display:'flex', gap:'5px', paddingTop:'10px', borderTop:'1px solid #1A1F2E' }}>
+        <a href="MyBlog Post Detail.html" className="act-btn" style={{ color:'#7DCFFF', borderColor:'#7DCFFF40', textDecoration:'none' }}>👁 View</a>
+        <button className="act-btn" style={{ color:'#00FFE5', borderColor:'rgba(0,255,229,.4)' }} onClick={() => onEdit(post)}>✎ Edit</button>
+        <button className="act-btn" style={{ color:'#F7768E', borderColor:'#F7768E40' }} onClick={() => onDelete(post)}>✕ Delete</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ────────────────────────────────────────────────────
+function ManagePosts() {
+  const [posts, setPosts]       = useState(INIT_POSTS);
+  const [search, setSearch]     = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [moodFilter, setMoodFilter]     = useState(null);
+  const [sort, setSort]         = useState('latest');
+  const [view, setView]         = useState('list');
+  const [editPost, setEditPost] = useState(null);
+  const [deletePost, setDeletePost] = useState(null);
+  const [showCP, setShowCP]     = useState(false);
+  const [toast, setToast]       = useState(null);
+  const [selected, setSelected] = useState(new Set());
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey)&&e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const showToast = (msg, type='success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2500);
+  };
+
+  const filtered = useMemo(() => {
+    let p = posts;
+    if (statusFilter !== 'all') p = p.filter(x => x.status === statusFilter);
+    if (moodFilter) p = p.filter(x => x.mood === moodFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      p = p.filter(x =>
+        x.content.toLowerCase().includes(q) ||
+        x.id.toLowerCase().includes(q) ||
+        x.tags.some(t => t.toLowerCase().includes(q))
+      );
+    }
+    if (sort === 'latest') p = [...p].sort((a,b) => b.date.localeCompare(a.date));
+    if (sort === 'oldest') p = [...p].sort((a,b) => a.date.localeCompare(b.date));
+    if (sort === 'likes')  p = [...p].sort((a,b) => b.likes - a.likes);
+    return p;
+  }, [posts, search, statusFilter, moodFilter, sort]);
+
+  const counts = {
+    all: posts.length,
+    PUBLISHED: posts.filter(p => p.status === 'PUBLISHED').length,
+    DRAFT:     posts.filter(p => p.status === 'DRAFT').length,
+    ARCHIVED:  posts.filter(p => p.status === 'ARCHIVED').length,
+  };
+
+  const savePost = (updated) => {
+    setPosts(posts.map(p => p.id === updated.id ? updated : p));
+    showToast(`Updated post #${updated.id}`);
+  };
+
+  const doDelete = () => {
+    showToast(`Deleted post #${deletePost.id}`, 'error');
+    setPosts(posts.filter(p => p.id !== deletePost.id));
+    setDeletePost(null);
+  };
+
+  const bulkDelete = () => {
+    showToast(`Deleted ${selected.size} posts`, 'error');
+    setPosts(posts.filter(p => !selected.has(p.id)));
+    setSelected(new Set());
+  };
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+
+      {/* Sub-bar */}
+      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'44px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 24px', gap:'12px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'12px' }}>
+        <span style={{ color:'#8B96AA' }}>~/admin/posts</span>
+        <span style={{ color:'#566176' }}>──</span>
+        <span style={{ color:'#E6EDF3' }}>{posts.length} total</span>
+        <span style={{ color:'#566176' }}>·</span>
+        <span style={{ color:'#9ECE6A' }}>{counts.PUBLISHED} published</span>
+        <span style={{ color:'#566176' }}>·</span>
+        <span style={{ color:'#E0AF68' }}>{counts.DRAFT} drafts</span>
+        <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+          {selected.size > 0 && (
+            <button onClick={bulkDelete}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#F7768E', background:'rgba(247,118,142,.1)', border:'1px solid rgba(247,118,142,.4)', borderRadius:'5px', padding:'5px 12px', cursor:'pointer' }}>
+              ✕ Delete {selected.size} selected
+            </button>
+          )}
+          <a href="MyBlog Create Post.html"
+            style={{ textDecoration:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'5px', padding:'5px 14px', cursor:'pointer', fontWeight:600, boxShadow:'0 0 10px rgba(0,255,229,.3)' }}>
+            + New Post
+          </a>
+        </div>
+      </div>
+
+      <div style={{ marginTop:'96px', padding:'20px 24px 40px', maxWidth:'1400px', margin:'96px auto 0' }}>
+
+        {/* Stats row */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'20px' }}>
+          {[
+            { label:'TOTAL POSTS',  value:posts.length, color:'#00FFE5' },
+            { label:'PUBLISHED',    value:counts.PUBLISHED, color:'#9ECE6A' },
+            { label:'DRAFTS',       value:counts.DRAFT, color:'#E0AF68' },
+            { label:'ARCHIVED',     value:counts.ARCHIVED, color:'#566176' },
+          ].map(s => (
+            <div key={s.label} style={{ background:'#11151F', border:'1px solid #2A3548', borderLeft:`3px solid ${s.color}`, borderRadius:'7px', padding:'12px 16px' }}>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', letterSpacing:'.08em', marginBottom:'6px' }}>{s.label}</div>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:'22px', fontWeight:700, color:s.color, lineHeight:1 }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Toolbar */}
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px', flexWrap:'wrap' }}>
+          {/* Search */}
+          <div style={{ position:'relative', flex:1, minWidth:'200px', maxWidth:'340px' }}>
+            <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#8B96AA', fontSize:'13px', pointerEvents:'none' }}>⌕</span>
+            <input className="edit-inp" value={search} onChange={e=>setSearch(e.target.value)}
+              placeholder="search by content, id, tag..." style={{ paddingLeft:'30px', paddingRight:search?'30px':'12px' }} />
+            {search && <button onClick={() => setSearch('')} style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'14px' }}>×</button>}
+          </div>
+
+          {/* Status filter */}
+          <div style={{ display:'flex', gap:'4px' }}>
+            {[['all','All',counts.all],['PUBLISHED','Pub',counts.PUBLISHED],['DRAFT','Draft',counts.DRAFT],['ARCHIVED','Arch',counts.ARCHIVED]].map(([k,l,c]) => (
+              <button key={k} className={`sort-btn${statusFilter===k?' active':''}`} onClick={() => setStatusFilter(k)}>
+                {l} <span style={{ color:statusFilter===k?'#00FFE5':'#566176', marginLeft:'3px' }}>({c})</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Sort */}
+          <div style={{ display:'flex', gap:'4px', alignItems:'center' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>sort:</span>
+            {[['latest','Newest'],['oldest','Oldest'],['likes','Top']].map(([k,l]) => (
+              <button key={k} className={`sort-btn${sort===k?' active':''}`} onClick={() => setSort(k)}>{l}</button>
+            ))}
+          </div>
+
+          {/* View toggle */}
+          <div style={{ display:'flex', gap:'3px', marginLeft:'auto' }}>
+            {[['list','☰'],['card','⊞']].map(([k,icon]) => (
+              <button key={k} onClick={() => setView(k)}
+                style={{ width:'32px', height:'32px', borderRadius:'4px', border:'1px solid', cursor:'pointer', fontSize:'15px', display:'flex', alignItems:'center', justifyContent:'center', transition:'all .15s',
+                  borderColor:view===k?'rgba(0,255,229,.5)':'#2A3548',
+                  background:view===k?'rgba(0,255,229,.08)':'#1A1F2E',
+                  color:view===k?'#00FFE5':'#8B96AA' }}>
+                {icon}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results count */}
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginBottom:'12px' }}>
+          // showing {filtered.length} of {posts.length} posts
+          {(search||statusFilter!=='all'||moodFilter) && <span style={{ color:'#8B96AA' }}> · filtered</span>}
+        </div>
+
+        {/* List view */}
+        {view === 'list' && (
+          <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', overflow:'hidden' }}>
+            {/* Header */}
+            <div style={{ display:'grid', gridTemplateColumns:'3fr 1fr 1.2fr 1.4fr 1fr 1.5fr', padding:'10px 16px', gap:'12px', background:'#0A0E1A', borderBottom:'1px solid #2A3548' }}>
+              {['Post','Status','Mood','Tags','Stats','Actions'].map(h => (
+                <span key={h} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', letterSpacing:'.05em', textAlign:h==='Actions'?'right':'left' }}>{h}</span>
+              ))}
+            </div>
+            {filtered.map((p, i) => <PostRow key={p.id} post={p} onEdit={setEditPost} onDelete={setDeletePost} delay={i*20} />)}
+            {filtered.length === 0 && (
+              <div style={{ textAlign:'center', padding:'48px 20px' }}>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'28px', color:'#2A3548', marginBottom:'10px' }}>◎</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA' }}>// no posts matching filters</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Card view */}
+        {view === 'card' && (
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))', gap:'12px' }}>
+            {filtered.map((p, i) => <PostCardMng key={p.id} post={p} onEdit={setEditPost} onDelete={setDeletePost} delay={i*30} />)}
+          </div>
+        )}
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{ position:'fixed', bottom:'44px', right:'20px', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px',
+          color: toast.type==='error'?'#F7768E':'#9ECE6A',
+          background: toast.type==='error'?'rgba(247,118,142,.1)':'rgba(158,206,106,.1)',
+          border: `1px solid ${toast.type==='error'?'rgba(247,118,142,.4)':'rgba(158,206,106,.4)'}`,
+          borderRadius:'6px', padding:'10px 16px', boxShadow:'0 4px 20px rgba(0,0,0,.4)',
+          animation:'slideDown .2s ease', zIndex:200 }}>
+          {toast.type==='error'?'✕':'✓'} {toast.msg}
+        </div>
+      )}
+
+      <StatusBar path="~/admin/posts" info={`${filtered.length} of ${posts.length} posts`} />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+      {editPost && <QuickEditModal post={editPost} onSave={savePost} onClose={() => setEditPost(null)} />}
+      {deletePost && <DeleteConfirm post={deletePost} onConfirm={doDelete} onClose={() => setDeletePost(null)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(ManagePosts));
+</script>
+</body>
+</html>

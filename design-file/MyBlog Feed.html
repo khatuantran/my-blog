@@ -69,7 +69,7 @@ body.no-crt::after { opacity: 0; }
 
 /* ── Section labels ─────────────────────────────────────────── */
 .sb-lbl {
-  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--tm);
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--tm);
   letter-spacing:.05em; margin-bottom:8px;
   display:flex; align-items:center; gap:8px;
 }
@@ -105,7 +105,7 @@ body.no-crt::after { opacity: 0; }
 .act-btn {
   display:flex; align-items:center; gap:4px; padding:5px 10px;
   border-radius:5px; border:none; background:transparent; color:var(--tm);
-  cursor:pointer; transition:all .15s; font-family:'JetBrains Mono',monospace; font-size:12px;
+  cursor:pointer; transition:all .15s; font-family:'JetBrains Mono',monospace; font-size:13px;
 }
 .act-btn:hover { color:var(--tp); background:var(--elev); }
 .act-btn.liked { color:var(--mag); }
@@ -113,7 +113,7 @@ body.no-crt::after { opacity: 0; }
 
 /* ── Filter buttons ─────────────────────────────────────────── */
 .flt-btn {
-  font-family:'JetBrains Mono',monospace; font-size:11px;
+  font-family:'JetBrains Mono',monospace; font-size:12px;
   padding:5px 12px; border:1px solid var(--b2); border-radius:4px;
   background:var(--elev); color:var(--ts); cursor:pointer; transition:all .15s;
 }
@@ -123,7 +123,7 @@ body.no-crt::after { opacity: 0; }
 /* ── Search ─────────────────────────────────────────────────── */
 .srch-inp {
   width:100%; background:var(--bg); border:1px solid var(--b2); color:var(--ts);
-  font-family:'JetBrains Mono',monospace; font-size:13px;
+  font-family:'JetBrains Mono',monospace; font-size:14px;
   padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s;
 }
 .srch-inp:focus { border-color:var(--cyan); box-shadow:0 0 14px rgba(0,255,229,.22); color:var(--tp); }
@@ -137,7 +137,7 @@ body.no-crt::after { opacity: 0; }
 .pulse { animation:pulse 2s ease-in-out infinite; }
 .sc-hover:hover { box-shadow:0 0 16px rgba(0,255,229,.12); }
 .code-bl {
-  font-family:'JetBrains Mono',monospace; font-size:12px; background:#070A14;
+  font-family:'JetBrains Mono',monospace; font-size:13px; background:#070A14;
   border:1px solid var(--b2); border-left:2px solid rgba(158,206,106,.4);
   border-radius:6px; padding:10px 14px; color:var(--grn); margin:8px 0;
   overflow-x:auto; line-height:1.6; white-space:pre;
@@ -149,13 +149,152 @@ body.no-crt::after { opacity: 0; }
 /* ── Responsive ─────────────────────────────────────────────── */
 @media(max-width:1100px) { .rp { display:none !important; } }
 @media(max-width:768px)  { .sb { display:none !important; } .feed-pad { padding:10px 12px !important; } }
+
+/* Post-bump fixes — keep small UI badges/pills/labels on one line */
+span[style*="JetBrains Mono"], span[style*="JetBrains Mono,monospace"] { white-space: nowrap; }
+/* Mood badges, filter chips, stat deltas — inline-flex content must not wrap */
+[style*="inline-flex"][style*="JetBrains Mono"] { flex-shrink: 0; white-space: nowrap; }
+/* Bracket badges like [ ADMIN ], [ v0.1.0 ] */
+.flt-btn, .sort-btn, .filter-chip, .act-btn, .skill-badge, .tab-btn, .act-ghost { white-space: nowrap; flex-shrink: 0; }
+
+
+/* Post-bump nowrap fixes v2 — broader, with restored wrap containers */
+[style*="JetBrains"] { white-space: nowrap; }
+.sb-lbl, .sb-lbl > *, .glitch { white-space: nowrap !important; }
+/* Restore wrap-sensitive containers */
+.code-bl, pre.code-bl { white-space: pre !important; }
+.editor-area, .comment-inp, textarea { white-space: pre-wrap !important; }
+.sb-lbl::after { white-space: normal !important; }
+
+
+/* Mobile topbar — hide search to prevent overlap with logo/avatar */
+@media (max-width: 820px) {
+  header > div[style*="position: absolute"] { display: none !important; }
+}
+@media (max-width: 560px) {
+  /* Hide version badge + online count on very small screens */
+  header > div[style*="margin-left: auto"] > span:nth-child(1),
+  header > div[style*="margin-left: auto"] > span:nth-child(2) { display: none !important; }
+  /* Compact logo subtitle */
+  header [style*="personal"] { display: none !important; }
+}
+
+
+/* ==== Mobile responsive v2 — real adaptive layout ==== */
+@media (max-width: 980px) {
+  /* Stack 4-col stat grids → 2 cols */
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Sub-bar items wrap */
+  div[style*="height: 44px"][style*="border-bottom"] { flex-wrap: wrap !important; height: auto !important; padding-top: 8px !important; padding-bottom: 8px !important; row-gap: 6px !important; }
+  /* Topbar nav: tighten */
+  header { padding-left: 12px !important; padding-right: 12px !important; }
+}
+@media (max-width: 760px) {
+  /* Main padding compression */
+  main, [style*="padding: 20px 24px"], [style*="padding:'20px 24px'"] { padding-left: 14px !important; padding-right: 14px !important; }
+  /* Tables with many cols → horizontal scroll instead of breaking */
+  [style*="grid-template-columns: 3fr"],
+  [style*="grid-template-columns: 2fr"] { min-width: 720px !important; }
+  /* Wrap their containers so they scroll instead of overlap */
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 3fr"]),
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 2fr"]) {
+    overflow-x: auto !important;
+  }
+  /* Stat cards smaller */
+  [style*="font-size: 22px"][style*="font-weight: 700"],
+  [style*="font-size:22px"] { font-size: 18px !important; }
+  /* Hero on Profile: stack and shrink */
+  .profile-hero { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  /* Modal full-bleed-ish */
+  [style*="width: 640px"], [style*="width: 560px"], [style*="width: 540px"], [style*="width: 480px"], [style*="width: 440px"], [style*="width: 420px"], [style*="width: 400px"], [style*="width: 380px"], [style*="width: 360px"] {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+  /* Right drawer (profile settings) full-width */
+  [style*="width: 480px"][style*="height: 100vh"] { width: 100vw !important; }
+  /* Hide Create Post preview column already gone via .preview-col */
+  /* Big heading shrink */
+  h1[style*="font-size: 26px"] { font-size: 22px !important; }
+}
+@media (max-width: 480px) {
+  /* 2-col grids → 1 col */
+  [style*="grid-template-columns: repeat(2"],
+  [style*="grid-template-columns:repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Even tighter padding */
+  main, [style*="padding: 24px 28px"], [style*="padding:'24px 28px'"] { padding-left: 12px !important; padding-right: 12px !important; }
+  /* Login card padding */
+  [style*="padding: 22px 20px"] { padding: 16px !important; }
+  /* Status bar info — hide some segments */
+  div[style*="bottom: 0"][style*="height: 28px"] span:nth-of-type(n+3) { display: none !important; }
+}
+/* Touch-friendly tap targets globally on mobile */
+@media (max-width: 760px) and (pointer: coarse) {
+  button, .toolbar-btn, .filter-chip, .sort-btn, .act-btn { min-height: 36px !important; }
+}
+
+
+/* ==== Mobile responsive v3 — prevent overflow + tight layout ==== */
+html, body { max-width: 100vw; overflow-x: hidden; }
+@media (max-width: 640px) {
+  /* Topbar: bring right cluster fully inside viewport */
+  header { padding-left: 10px !important; padding-right: 10px !important; gap: 0 !important; }
+  header > div[style*="margin-left: auto"] { gap: 6px !important; }
+  /* Logo: drop subtitle for sure, shrink */
+  header svg { width: 20px !important; height: 20px !important; }
+  /* Notification dropdown: full width near viewport */
+  header [style*="width: 380px"] { width: calc(100vw - 20px) !important; right: -8px !important; }
+  /* Avatar dropdown menu */
+  header [style*="min-width: 210px"] { right: -4px !important; }
+  /* Feed filter row: don't push 'Latest' off-screen with margin-left:auto */
+  .flt-btn[style*="margin-left: auto"], button[style*="margin-left: auto"][style*="Latest"] {
+    margin-left: 0 !important;
+  }
+  /* Common pattern: anything with margin-left:auto in a flex row at mobile becomes wrap-friendly */
+  div[style*="display: flex"][style*="flex-wrap: wrap"] > [style*="margin-left: auto"] {
+    margin-left: 0 !important;
+  }
+  /* Post cards: tighter padding */
+  .post-card { padding: 14px !important; }
+  /* Tags page card grid */
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(240px"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(320px"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Image grid in post: keep 2 columns max */
+  .post-card div[style*="grid-template-columns: 1fr 1fr"] { gap: 2px !important; }
+  /* Status bar: compress further */
+  div[style*="bottom: 0"][style*="height: 28px"] { font-size: 10px !important; }
+  div[style*="bottom: 0"][style*="height: 28px"] span { padding: 0 8px !important; }
+  /* Sub-bars and toolbars: scroll horizontally if too tight */
+  div[style*="top: 52px"][style*="height: 44px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  div[style*="top: 52px"][style*="height: 40px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 420px) {
+  /* Very small phones */
+  .post-card { padding: 12px !important; }
+  .post-card span[style*="position: absolute"][style*="top: 10px"] { display: none !important; } /* hide #post-id corner */
+  /* Hide [v0.1.0] entirely on small screens (already in 560 but extra safety) */
+  header span[style*="border: 1px solid"][style*="padding: 2px 7px"]:first-child { display: none !important; }
+  /* Stat card values stay readable */
+  [style*="font-size: 22px"][style*="font-weight: 700"] { font-size: 18px !important; }
+}
+/* Allow horizontal scroll on tables only, not whole page */
+.row { min-width: 0 !important; }
+
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel" src="myblog-components.jsx"></script>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useMemo } = React;
 
 // ── Post content renderer ──────────────────────────────────────
 function PostContent({ content }) {
@@ -171,7 +310,7 @@ function PostContent({ content }) {
     rest = ce < 0 ? '' : rest.slice(ce+3);
   }
   return (
-    <div style={{ fontSize:'14px', lineHeight:'1.65', color:'#C9D1D9', marginBottom:'12px' }}>
+    <div style={{ fontSize:'15px', lineHeight:'1.65', color:'#C9D1D9', marginBottom:'12px' }}>
       {segs.map((s,i) =>
         s.t === 'code'
           ? <pre key={i} className="code-bl">{s.v.trim()}</pre>
@@ -183,38 +322,548 @@ function PostContent({ content }) {
   );
 }
 
+// ── Image Lightbox ────────────────────────────────────────────
+const LB_CFGS = [
+  { bg:'#081420', acc:'#00FFE5', lbl:'photo.01' },
+  { bg:'#1A0A1E', acc:'#BB9AF7', lbl:'photo.02' },
+  { bg:'#081A0C', acc:'#9ECE6A', lbl:'photo.03' },
+  { bg:'#1E0C08', acc:'#FF9E64', lbl:'photo.04' },
+];
+function ImageLightbox({ post, startIdx = 0, onClose }) {
+  const [idx, setIdx] = useState(startIdx);
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const h = e => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft')  setIdx(i => (i - 1 + post.images) % post.images);
+      if (e.key === 'ArrowRight') setIdx(i => (i + 1) % post.images);
+    };
+    window.addEventListener('keydown', h);
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', h); };
+  }, [post.images]);
+  const c = LB_CFGS[idx % 4];
+  return ReactDOM.createPortal(
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.92)', zIndex:500, display:'flex', flexDirection:'column', animation:'fadeUp .15s ease' }}
+      onClick={e => e.target===e.currentTarget && onClose()}>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 20px', borderBottom:'1px solid rgba(255,255,255,.06)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+          <div style={{ width:'30px', height:'30px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5' }}>A</div>
+          <div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{post.ts} · #{post.id}</div>
+          </div>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
+            {idx + 1} / {post.images}
+          </span>
+          <button onClick={onClose} title="Close (Esc)" style={{ width:'34px', height:'34px', borderRadius:'50%', border:'1px solid #2A3548', background:'#11151F', color:'#E6EDF3', cursor:'pointer', fontSize:'17px', lineHeight:1, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>
+        </div>
+      </div>
+
+      {/* Image area */}
+      <div style={{ flex:1, position:'relative', display:'flex', alignItems:'center', justifyContent:'center', padding:'20px', overflow:'hidden' }}
+        onClick={e => e.target===e.currentTarget && onClose()}>
+        <div style={{ position:'relative', width:'100%', maxWidth:'960px', height:'100%', maxHeight:'70vh',
+          background:`repeating-linear-gradient(135deg,${c.bg} 0px,${c.bg} 12px,${c.acc}15 12px,${c.acc}15 24px)`,
+          borderRadius:'8px', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'10px',
+          boxShadow:`0 0 60px ${c.acc}30, 0 0 0 1px ${c.acc}40` }}>
+          <span style={{ fontSize:'48px', opacity:.4 }}>⧡</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", color:c.acc, opacity:.6, fontSize:'13px' }}>{c.lbl}</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#566176', fontSize:'10px' }}>// placeholder · 1920×1080</span>
+        </div>
+
+        {/* Nav arrows */}
+        {post.images > 1 && (
+          <>
+            <button onClick={() => setIdx((idx - 1 + post.images) % post.images)} title="Previous (←)"
+              style={{ position:'absolute', left:'16px', top:'50%', transform:'translateY(-50%)', width:'44px', height:'44px', borderRadius:'50%', background:'rgba(17,21,31,.85)', border:'1px solid #2A3548', color:'#E6EDF3', cursor:'pointer', fontSize:'18px', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center' }}>←</button>
+            <button onClick={() => setIdx((idx + 1) % post.images)} title="Next (→)"
+              style={{ position:'absolute', right:'16px', top:'50%', transform:'translateY(-50%)', width:'44px', height:'44px', borderRadius:'50%', background:'rgba(17,21,31,.85)', border:'1px solid #2A3548', color:'#E6EDF3', cursor:'pointer', fontSize:'18px', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center' }}>→</button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnail strip */}
+      {post.images > 1 && (
+        <div style={{ padding:'12px 20px 18px', display:'flex', gap:'6px', justifyContent:'center', flexWrap:'wrap' }}>
+          {Array.from({length:post.images}).map((_, i) => {
+            const tc = LB_CFGS[i % 4];
+            return (
+              <button key={i} onClick={() => setIdx(i)}
+                style={{ width:'56px', height:'40px', borderRadius:'4px', cursor:'pointer',
+                  background:`repeating-linear-gradient(135deg,${tc.bg} 0px,${tc.bg} 4px,${tc.acc}15 4px,${tc.acc}15 8px)`,
+                  border:`2px solid ${i===idx?tc.acc:'#2A3548'}`,
+                  opacity:i===idx?1:.55, transition:'all .15s',
+                  boxShadow:i===idx?`0 0 10px ${tc.acc}50`:'none' }} />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Hint footer */}
+      <div style={{ padding:'8px 20px', borderTop:'1px solid rgba(255,255,255,.06)', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', display:'flex', justifyContent:'space-between' }}>
+        <span>← → navigate · Esc close</span>
+        <span>// click outside to close</span>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ── Comments mock generator + Modal ──────────────────────────
+const COMMENT_SAMPLES = [
+  { user:'@user1', isAnon:false, text:'Relatable quá! Mình cũng từng mất 2 ngày vì một typo tương tự 😭', likes:5 },
+  { user:'Anon#7',  isAnon:true,  text:'Cảm ơn bạn đã chia sẻ! Classic mistake 😄', likes:2 },
+  { user:'@user2', isAnon:false, text:'Tip nhỏ: dùng `dotenv-safe` để validate env vars khi start app, sẽ catch lỗi này ngay lập tức.', likes:8 },
+  { user:'Anon#3',  isAnon:true,  text:'Mình đang debug tương tự cả tuần nay, cảm ơn thông tin hữu ích!', likes:1 },
+  { user:'@user3', isAnon:false, text:'Code review luôn là bước quan trọng nhất. Kiểu gì học được lại quay về lesson 101.', likes:3 },
+  { user:'@user4', isAnon:false, text:'Linting với ESLint + Prettier + TypeScript strict mode có thể catch 90% issues như vậy. Highly recommend!', likes:12 },
+  { user:'Anon#11', isAnon:true,  text:'Bug tương tự trong production tầm 3am... Kiểu gì cũng remember mãi 😅', likes:4 },
+  { user:'@user5', isAnon:false, text:'Bro có dùng zod hay yup để validate env runtime không? Tùy use case nhưng muốn hỏi opinion.', likes:6 },
+  { user:'@user6', isAnon:false, text:'Save bài này làm reference cho team. Thanks!', likes:2 },
+  { user:'Anon#14', isAnon:true,  text:'Đọc xong cảm thấy đỡ tổn thương hơn :))', likes:7 },
+  { user:'@user7', isAnon:false, text:'Đúng rồi, double-check env là bài học đắt giá!', likes:1 },
+  { user:'@user8', isAnon:false, text:'Bài viết đều mà chất lượng. Keep going!', likes:9 },
+];
+const TIMES_AGO = ['2m ago','5m ago','12m ago','25m ago','42m ago','1h ago','1h ago','2h ago','3h ago','5h ago','8h ago','1d ago'];
+
+function genComments(post) {
+  const n = Math.max(post.comments, 8);
+  const REPLY_BANK = [
+    { user:'@admin',  isAnon:false, text:'Cảm ơn bạn! Mai viết thêm bài về monitoring stack tiếp tục ⚡', likes:3 },
+    { user:'@user1', isAnon:false, text:'Đồng ý 100%! Mình đang setup thử.', likes:1 },
+    { user:'Anon#9', isAnon:true,  text:'Bàn phím mềm sý không?', likes:0 },
+    { user:'@user5', isAnon:false, text:'Đúng rồi, để mình share lin k repo ở comment sau.', likes:2 },
+  ];
+  return Array.from({length: n}).map((_, i) => {
+    const base = {
+      id: `${post.id}-c${i}`,
+      ...COMMENT_SAMPLES[i % COMMENT_SAMPLES.length],
+      time: TIMES_AGO[i % TIMES_AGO.length],
+    };
+    // Pseudo-random replies on some comments (i=0,3,5,8...)
+    if ([0, 3, 5, 8].includes(i % 12)) {
+      const replyCount = (i % 3) + 1;
+      base.replies = Array.from({length: replyCount}).map((_, j) => ({
+        id: `${base.id}-r${j}`,
+        ...REPLY_BANK[(i + j) % REPLY_BANK.length],
+        time: TIMES_AGO[(i + j + 2) % TIMES_AGO.length],
+      }));
+    } else {
+      base.replies = [];
+    }
+    return base;
+  });
+}
+
+function ReplyForm({ onSubmit, onCancel, replyingTo }) {
+  const [text, setText] = useState('');
+  const [asAnon, setAsAnon] = useState(false);
+  const [anonName, setAnonName] = useState('');
+  const inputRef = useRef(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  const submit = () => {
+    if (!text.trim()) return;
+    onSubmit({
+      user: asAnon ? (anonName || 'Anon#?') : '@admin',
+      isAnon: asAnon, text: text.trim(), likes: 0, time: 'just now'
+    });
+    setText('');
+  };
+
+  return (
+    <div style={{ marginLeft:'40px', marginTop:'6px', padding:'10px', background:'#0A0E1A', border:'1px solid #2A3548', borderLeft:'2px solid #00FFE5', borderRadius:'6px' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'6px' }}>
+        ↩ replying to <span style={{ color:'#7DCFFF' }}>{replyingTo}</span>
+      </div>
+      <textarea ref={inputRef} value={text} onChange={e=>setText(e.target.value)} rows={2}
+        placeholder="// your reply..."
+        style={{ width:'100%', background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'Inter',sans-serif", fontSize:'13px', padding:'8px 10px', borderRadius:'5px', outline:'none', resize:'none' }}
+        onKeyDown={e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter') submit(); if(e.key==='Escape') onCancel(); }} />
+      <div style={{ display:'flex', alignItems:'center', gap:'6px', marginTop:'6px' }}>
+        {asAnon ? (
+          <input value={anonName} onChange={e=>setAnonName(e.target.value)} placeholder="your name"
+            style={{ flex:1, background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', padding:'4px 8px', borderRadius:'4px', outline:'none' }} />
+        ) : (
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF', flex:1 }}>as: ~/admin</span>
+        )}
+        <button onClick={() => setAsAnon(!asAnon)}
+          style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'4px', padding:'3px 9px', cursor:'pointer' }}>
+          {asAnon ? 'use account' : 'anon'}
+        </button>
+        <button onClick={onCancel}
+          style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'transparent', border:'1px solid #2A3548', borderRadius:'4px', padding:'3px 9px', cursor:'pointer' }}>
+          Cancel <span style={{ color:'#566176', marginLeft:'2px' }}>Esc</span>
+        </button>
+        <button onClick={submit}
+          style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'4px', padding:'4px 12px', cursor:'pointer', fontWeight:600 }}>
+          ↵ Reply
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ReplyRow({ r, depth = 1 }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(r.likes);
+  return (
+    <div style={{ padding:'10px 0', position:'relative' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'5px' }}>
+        <div style={{ width:'24px', height:'24px', borderRadius:'50%', border:'1.5px solid #2A3548',
+          background: r.isAnon?'#1A1F2E':'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontFamily:"'JetBrains Mono',monospace", fontSize:'10px',
+          color: r.isAnon?'#8B96AA':'#00FFE5', flexShrink:0 }}>
+          {r.isAnon ? '?' : r.user[1].toUpperCase()}
+        </div>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color: r.isAnon?'#8B96AA':'#7DCFFF' }}>{r.user}</span>
+        {r.isAnon && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176' }}>[ anon ]</span>}
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>· {r.time}</span>
+      </div>
+      <p style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.6', marginBottom:'5px', marginLeft:'32px' }}>{r.text}</p>
+      <div style={{ marginLeft:'32px' }}>
+        <button className={`act-btn${liked?' liked':''}`}
+          onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}
+          style={{ fontSize:'11px', padding:'3px 7px' }}>
+          <span>{liked?'❤':'♡'}</span><span>{likes}</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CommentItemRow({ c }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(c.likes);
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [replies, setReplies] = useState(c.replies || []);
+  const [showReplies, setShowReplies] = useState((c.replies?.length || 0) > 0);
+
+  const addReply = (r) => {
+    setReplies([...replies, { id:`${c.id}-r${replies.length}`, ...r }]);
+    setShowReplyForm(false);
+    setShowReplies(true);
+  };
+
+  return (
+    <div style={{ padding:'14px 0', borderBottom:'1px solid #1A1F2E' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px' }}>
+        <div style={{ width:'30px', height:'30px', borderRadius:'50%', border:'1.5px solid #2A3548',
+          background: c.isAnon?'#1A1F2E':'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontFamily:"'JetBrains Mono',monospace", fontSize:'12px',
+          color: c.isAnon?'#8B96AA':'#00FFE5', flexShrink:0 }}>
+          {c.isAnon ? '?' : c.user[1].toUpperCase()}
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:'7px', flexWrap:'wrap', flex:1 }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color: c.isAnon?'#8B96AA':'#7DCFFF' }}>{c.user}</span>
+          {c.isAnon && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>[ anon ]</span>}
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>{c.time}</span>
+        </div>
+      </div>
+      <p style={{ fontSize:'14px', color:'#C9D1D9', lineHeight:'1.65', marginBottom:'8px', marginLeft:'40px' }}>{c.text}</p>
+      <div style={{ marginLeft:'40px', display:'flex', gap:'4px', alignItems:'center' }}>
+        <button className={`act-btn${liked?' liked':''}`}
+          onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}>
+          <span>{liked?'❤':'♡'}</span><span>{likes}</span>
+        </button>
+        <button className="act-btn" onClick={() => setShowReplyForm(!showReplyForm)}
+          style={showReplyForm?{ color:'#00FFE5', background:'rgba(0,255,229,.08)' }:{}}>
+          ↩ {showReplyForm?'Cancel':'Reply'}
+        </button>
+        {replies.length > 0 && (
+          <button className="act-btn" onClick={() => setShowReplies(!showReplies)}
+            style={{ color:'#7DCFFF' }}>
+            {showReplies?'▾':'▸'} {replies.length} {replies.length===1?'reply':'replies'}
+          </button>
+        )}
+      </div>
+
+      {/* Reply form */}
+      {showReplyForm && (
+        <ReplyForm replyingTo={c.user} onSubmit={addReply} onCancel={() => setShowReplyForm(false)} />
+      )}
+
+      {/* Replies thread */}
+      {showReplies && replies.length > 0 && (
+        <div style={{ marginLeft:'40px', marginTop:'8px', paddingLeft:'14px', borderLeft:'2px solid #1F2A3A', position:'relative' }}>
+          {/* Thread label */}
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginBottom:'2px' }}>
+            // thread · {replies.length} {replies.length===1?'reply':'replies'}
+          </div>
+          {replies.map(r => <ReplyRow key={r.id} r={r} />)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CommentsModal({ post, onClose }) {
+  const PAGE_SIZE = 5;
+  const allComments = useMemo(() => genComments(post), [post.id]);
+  const [shown, setShown] = useState(PAGE_SIZE);
+  const [loading, setLoading] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [asAnon, setAsAnon] = useState(false);
+  const [anonName, setAnonName] = useState('');
+  const mood = MOOD_CFG[post.mood];
+  const scrollRef = useRef(null);
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    const h = e => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', h); };
+  }, []);
+
+  // Auto load more on scroll
+  useEffect(() => {
+    if (!sentinelRef.current || !scrollRef.current) return;
+    const remaining = allComments.length - shown;
+    if (remaining <= 0 || loading) return;
+    const obs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setLoading(true);
+        setTimeout(() => {
+          setShown(s => Math.min(s + PAGE_SIZE, allComments.length));
+          setLoading(false);
+        }, 400);
+      }
+    }, { root: scrollRef.current, rootMargin: '80px' });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [shown, loading, allComments.length]);
+
+  const remaining = allComments.length - shown;
+  const visible = allComments.slice(0, shown);
+
+  return ReactDOM.createPortal(
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.7)', backdropFilter:'blur(6px)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:'30px 16px' }}
+      onClick={e => e.target===e.currentTarget && onClose()}>
+      <div style={{ width:'640px', maxWidth:'95vw', maxHeight:'90vh', background:'#11151F', border:'1px solid rgba(0,255,229,.25)', borderRadius:'12px', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 0 50px rgba(0,255,229,.1),0 24px 64px rgba(0,0,0,.7)', animation:'fadeUp .2s ease' }}>
+        {/* Header */}
+        <div style={{ padding:'14px 20px', borderBottom:'1px solid #1F2A3A', background:'#0A0E1A', display:'flex', alignItems:'center', gap:'12px', flexShrink:0 }}>
+          <div style={{ width:'32px', height:'32px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5', flexShrink:0 }}>A</div>
+          <div style={{ flex:1, minWidth:0 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'7px', marginBottom:'2px' }}>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>· {post.time}</span>
+              <span style={{ display:'inline-flex', alignItems:'center', gap:'3px', background:`${mood.color}18`, border:`1px solid ${mood.color}50`, borderRadius:'3px', padding:'1px 6px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:mood.color, marginLeft:'auto' }}>
+                {mood.emoji} {mood.label}
+              </span>
+            </div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5' }}>// comments [{allComments.length}] · #{post.id}</div>
+          </div>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'22px', lineHeight:1, flexShrink:0 }}>×</button>
+        </div>
+
+        {/* Scrollable list */}
+        <div ref={scrollRef} style={{ flex:1, overflowY:'auto', padding:'4px 20px' }}>
+          {visible.map(c => <CommentItemRow key={c.id} c={c} />)}
+          {/* Sentinel + loading state */}
+          <div ref={sentinelRef} style={{ display:'flex', justifyContent:'center', padding:'16px 0', minHeight:'40px' }}>
+            {loading && (
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', display:'flex', alignItems:'center', gap:'8px' }}>
+                <AsciiSpinner /> loading more...
+              </span>
+            )}
+            {!loading && remaining === 0 && visible.length > 0 && (
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>
+                // end of comments · {allComments.length} total
+              </span>
+            )}
+          </div>
+          {/* Page indicator */}
+          <div style={{ display:'flex', justifyContent:'center', gap:'4px', padding:'4px 0 14px' }}>
+            {Array.from({length: Math.ceil(allComments.length/PAGE_SIZE)}).map((_,i) => {
+              const isLoaded = (i+1)*PAGE_SIZE <= shown;
+              return <div key={i} style={{ width:isLoaded?'18px':'5px', height:'5px', borderRadius:'3px', background:isLoaded?'#00FFE5':'#2A3548', transition:'width .3s', boxShadow:isLoaded?'0 0 4px #00FFE580':undefined }} />;
+            })}
+          </div>
+        </div>
+
+        {/* Footer input */}
+        <div style={{ borderTop:'1px solid #1F2A3A', background:'#0A0E1A', padding:'14px 20px', flexShrink:0 }}>
+          <textarea value={commentText} onChange={e=>setCommentText(e.target.value)}
+            placeholder="// add a comment..." rows={2}
+            style={{ width:'100%', background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'Inter',sans-serif", fontSize:'14px', padding:'10px 12px', borderRadius:'6px', outline:'none', resize:'none' }} />
+          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginTop:'10px' }}>
+            {asAnon ? (
+              <input value={anonName} onChange={e=>setAnonName(e.target.value)} placeholder="your name (optional)"
+                style={{ flex:1, background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', padding:'6px 10px', borderRadius:'5px', outline:'none' }} />
+            ) : (
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF', flex:1 }}>as: ~/admin</span>
+            )}
+            <button onClick={() => setAsAnon(!asAnon)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'4px', padding:'5px 11px', cursor:'pointer' }}>
+              {asAnon ? 'use account' : 'post as anon'}
+            </button>
+            <button style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'5px', padding:'6px 16px', cursor:'pointer', fontWeight:600 }}>
+              ↵ Send
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+// ── Post Card ──────────────────────────────────────────────────
+const REACTIONS = [
+  { key:'like',  label:'Like',  color:'#7DCFFF', svg:(c)=>(<><rect x="3" y="11" width="4" height="9" stroke={c} strokeWidth="1.6" fill="none"/><path d="M7 11l4-7c2 0 2.5 1.5 2 3l-1 2h5.5c1.5 0 2.5 1.5 2 3l-1.5 5.5c-.3 1.2-1.3 1.5-2.3 1.5H7" fill="none" stroke={c} strokeWidth="1.6" strokeLinejoin="round"/><line x1="4" y1="15" x2="6" y2="15" stroke={c} strokeWidth="1.2"/></>) },
+  { key:'love',  label:'Love',  color:'#FF6E96', svg:(c)=>(<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z" fill="none" stroke={c} strokeWidth="1.8" strokeLinejoin="round"/>) },
+  { key:'haha',  label:'Haha',  color:'#E0AF68', svg:(c)=>(<><rect x="4" y="4" width="16" height="16" rx="3" fill="none" stroke={c} strokeWidth="1.6"/><path d="M7 13h10" stroke={c} strokeWidth="1.6" strokeLinecap="round"/><path d="M9 13c0 2 1 3 3 3s3-1 3-3" fill="none" stroke={c} strokeWidth="1.6" strokeLinecap="round"/><path d="M7 9l2 2M17 9l-2 2" stroke={c} strokeWidth="1.6" strokeLinecap="round"/><text x="6" y="21.5" fontFamily="'JetBrains Mono',monospace" fontSize="4.5" fill={c}>LOL</text></>) },
+  { key:'wow',   label:'Wow',   color:'#BB9AF7', svg:(c)=>(<><circle cx="12" cy="12" r="9" fill="none" stroke={c} strokeWidth="1.8"/><circle cx="9"  cy="10" r="1.4" fill={c}/><circle cx="15" cy="10" r="1.4" fill={c}/><ellipse cx="12" cy="16" rx="2" ry="2.5" fill="none" stroke={c} strokeWidth="1.6"/></>) },
+  { key:'sad',   label:'Sad',   color:'#7DCFFF', svg:(c)=>(<><circle cx="12" cy="12" r="9" fill="none" stroke={c} strokeWidth="1.8"/><path d="M8 16c1-2 2.5-3 4-3s3 1 4 3" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"/><circle cx="9"  cy="10" r="1" fill={c}/><circle cx="15" cy="10" r="1" fill={c}/><path d="M9 13l-1 3" stroke={c} strokeWidth="1.4" strokeLinecap="round"/></>) },
+  { key:'angry', label:'Angry', color:'#F7768E', svg:(c)=>(<><circle cx="12" cy="12" r="9" fill="none" stroke={c} strokeWidth="1.8"/><path d="M7 8l3 2M14 10l3-2" stroke={c} strokeWidth="1.8" strokeLinecap="round"/><circle cx="9"  cy="11" r="1" fill={c}/><circle cx="15" cy="11" r="1" fill={c}/><path d="M8 16c1-2 2.5-2.5 4-2.5s3 .5 4 2.5" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round"/></>) },
+];
+const REACTIONS_BY_KEY = Object.fromEntries(REACTIONS.map(r => [r.key, r]));
+
+function ReactionIcon({ r, size=18, glow=false }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display:'block', filter: glow ? `drop-shadow(0 0 4px ${r.color})` : 'none', flexShrink:0 }}>
+      {r.svg(r.color)}
+    </svg>
+  );
+}
+
+function ReactionPicker({ onPick, current }) {
+  return (
+    <div style={{ position:'absolute', bottom:'calc(100% + 6px)', left:0, zIndex:50,
+      background:'#0A0E1A', border:'1px solid rgba(0,255,229,.3)', borderRadius:'8px',
+      padding:'6px', boxShadow:'0 0 24px rgba(0,255,229,.15), 0 8px 30px rgba(0,0,0,.7)',
+      display:'flex', gap:'2px', animation:'fadeUp .12s ease' }}>
+      {REACTIONS.map(r => {
+        const isActive = current === r.key;
+        return (
+          <button key={r.key} title={r.label} onClick={() => onPick(r.key)}
+            style={{ width:'40px', height:'40px', borderRadius:'6px',
+              background: isActive ? `${r.color}18` : 'transparent',
+              border:`1px solid ${isActive ? r.color+'80' : 'transparent'}`,
+              cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
+              transition:'all .15s', position:'relative' }}
+            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.background = `${r.color}22`; e.currentTarget.style.borderColor = r.color+'A0'; e.currentTarget.style.boxShadow = `0 0 10px ${r.color}50, inset 0 0 8px ${r.color}30`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.background = isActive ? `${r.color}18` : 'transparent'; e.currentTarget.style.borderColor = isActive ? r.color+'80' : 'transparent'; e.currentTarget.style.boxShadow='none'; }}>
+            <ReactionIcon r={r} size={22} glow={isActive} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Post Action Menu (admin) ─────────────────────────────────────────
+function PostActionMenu({ post, onClose }) {
+  const ref = useRef(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, [onClose]);
+
+  const copyLink = () => {
+    navigator.clipboard?.writeText(`kha.blog/post/${post.id}`);
+    setCopied(true);
+    setTimeout(() => { setCopied(false); onClose(); }, 900);
+  };
+
+  const items = [
+    { icon:'↗',  label:'Open detail',  desc:`#${post.id}`,  color:'#00FFE5', href:'MyBlog Post Detail.html' },
+    { icon:'🔗', label:copied?'Copied!':'Copy link', desc:'kha.blog/post/' + post.id,  color: copied?'#9ECE6A':'#7DCFFF',  onClick: copyLink },
+    { sep:true, label:'admin' },
+    { icon:'✎',  label:'Edit post',    desc:'⌘E',           color:'#E0AF68', href:'MyBlog Create Post.html' },
+    { icon:'📌', label:'Pin to top',  desc:null,             color:'#BB9AF7', onClick: () => onClose() },
+    { icon:'📦', label:'Archive',     desc:null,             color:'#8B96AA', onClick: () => onClose() },
+    { icon:'🔇', label:'Hide comments',desc:null,            color:'#8B96AA', onClick: () => onClose() },
+    { sep:true, label:'danger' },
+    { icon:'✕',  label:'Delete post',  desc:'permanent',      color:'#F7768E', onClick: () => onClose() },
+  ];
+
+  return (
+    <div ref={ref} style={{ position:'absolute', bottom:'calc(100% + 6px)', right:0, minWidth:'250px', zIndex:60,
+      background:'#11151F', border:'1px solid rgba(0,255,229,.25)', borderRadius:'8px', overflow:'hidden',
+      boxShadow:'0 0 24px rgba(0,255,229,.08), 0 12px 40px rgba(0,0,0,.6)',
+      animation:'fadeUp .15s ease' }}>
+      <div style={{ padding:'10px 14px', borderBottom:'1px solid #1F2A3A', background:'#0A0E1A', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#00FFE5' }}>// post.actions</span>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>#{post.id}</span>
+      </div>
+      <div style={{ padding:'4px 0' }}>
+        {items.map((it, i) => {
+          if (it.sep) return (
+            <div key={i} style={{ padding:'7px 14px 3px', fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', letterSpacing:'.08em' }}>// {it.label}</div>
+          );
+          const Body = (
+            <>
+              <span style={{ width:'18px', display:'inline-flex', justifyContent:'center', fontSize:'13px', color:it.color, flexShrink:0 }}>{it.icon}</span>
+              <span style={{ flex:1, fontSize:'12px', color:it.color==='#9ECE6A'?it.color:'#C9D1D9' }}>{it.label}</span>
+              {it.desc && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{it.desc}</span>}
+            </>
+          );
+          const style = { display:'flex', alignItems:'center', gap:'10px', padding:'7px 14px', cursor:'pointer', textDecoration:'none', transition:'background .1s' };
+          return it.href ? (
+            <a key={i} href={it.href} style={style}
+              onMouseEnter={e => e.currentTarget.style.background=`${it.color}10`}
+              onMouseLeave={e => e.currentTarget.style.background='transparent'}>{Body}</a>
+          ) : (
+            <div key={i} onClick={it.onClick} style={style}
+              onMouseEnter={e => e.currentTarget.style.background=`${it.color}10`}
+              onMouseLeave={e => e.currentTarget.style.background='transparent'}>{Body}</div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ── Post Card ──────────────────────────────────────────────────
 function PostCard({ post, glowLevel, delay }) {
-  const [liked, setLiked] = useState(false);
+  const [reaction, setReaction] = useState(null);
   const [likes, setLikes] = useState(post.likes);
   const [saved, setSaved] = useState(post.saved);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [showPicker, setShowPicker] = useState(false);
+  const hoverTimer = useRef(null);
+  const pickReaction = (key) => {
+    if (reaction === key) { setReaction(null); setLikes(likes - 1); }
+    else { if (!reaction) setLikes(likes + 1); setReaction(key); }
+    setShowPicker(false);
+  };
+  const openPicker  = () => { clearTimeout(hoverTimer.current); setShowPicker(true); };
+  const closePicker = () => { hoverTimer.current = setTimeout(() => setShowPicker(false), 250); };
   const mood = MOOD_CFG[post.mood];
   const tagColor = n => TAGS_DATA.find(t => t.name === n)?.color || '#00FFE5';
   const cls = `post-card${glowLevel==='high'?' glow-hi':''}`;
 
   return (
     <div className={cls} style={{ animationDelay:`${delay||0}ms` }} data-screen-label={`post-${post.id}`}>
-      {/* Post ID corner deco */}
-      <span style={{ position:'absolute', top:'10px', right:'14px', fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#2A3548' }}>#{post.id}</span>
 
       {/* Header */}
       <div style={{ display:'flex', alignItems:'flex-start', gap:'10px', marginBottom:'12px' }}>
         <div style={{ width:'36px', height:'36px', borderRadius:'50%', border:'2px solid #00FFE5',
           background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center',
           justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700,
-          fontSize:'14px', color:'#00FFE5', flexShrink:0, boxShadow:'0 0 10px rgba(0,255,229,.2)' }}>
+          fontSize:'15px', color:'#00FFE5', flexShrink:0, boxShadow:'0 0 10px rgba(0,255,229,.2)' }}>
           A
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'3px', flexWrap:'wrap' }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', fontWeight:600, color:'#7DCFFF' }}>~/admin</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6450', borderRadius:'2px', padding:'0 4px' }}>[ ADMIN ]</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#63707F' }}>·</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{post.ts}</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', fontWeight:600, color:'#7DCFFF' }}>~/admin</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#FF9E64', border:'1px solid #FF9E6450', borderRadius:'2px', padding:'0 4px' }}>[ ADMIN ]</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#63707F' }}>·</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA' }}>{post.ts}</span>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
             <span style={{ color:'#9ECE6A', fontSize:'8px' }} className="pulse">●</span>
-            <span style={{ fontSize:'11px', color:'#8B96AA' }}>{post.time}</span>
+            <span style={{ fontSize:'12px', color:'#8B96AA' }}>{post.time}</span>
           </div>
         </div>
         <MoodBadge mood={post.mood} />
@@ -224,7 +873,7 @@ function PostCard({ post, glowLevel, delay }) {
       <PostContent content={post.content} />
 
       {/* Images */}
-      <ImageGrid count={post.images} />
+      <ImageGrid count={post.images} onImageClick={i => setLightboxIdx(i)} />
 
       {/* File attachments */}
       <FileAttachments files={post.files} />
@@ -237,33 +886,40 @@ function PostCard({ post, glowLevel, delay }) {
       )}
 
       {/* Divider */}
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#1F2A3A', marginBottom:'10px', letterSpacing:'2px', overflow:'hidden', whiteSpace:'nowrap' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#1F2A3A', marginBottom:'10px', letterSpacing:'2px', overflow:'hidden', whiteSpace:'nowrap' }}>
         ────────────────────────────────────────
       </div>
 
       {/* Actions */}
       <div style={{ display:'flex', gap:'2px', alignItems:'center' }}>
-        <button className={`act-btn${liked?' liked':''}`}
-          onClick={() => { setLiked(!liked); setLikes(liked?likes-1:likes+1); }}
-          style={liked?{color:'#FF6E96',textShadow:'0 0 8px #FF6E9660'}:{}}>
-          <span style={{ fontSize:'14px' }}>{liked?'❤':'♡'}</span>
-          <span>{likes}</span>
-        </button>
-        <button className="act-btn">
-          <span style={{ fontSize:'14px' }}>💬</span>
+        <div style={{ position:'relative' }} onMouseEnter={openPicker} onMouseLeave={closePicker}>
+          {showPicker && <ReactionPicker current={reaction} onPick={pickReaction} />}
+          <button className="act-btn"
+            onClick={() => pickReaction(reaction || 'like')}
+            style={ reaction ? { color: REACTIONS_BY_KEY[reaction].color, textShadow:`0 0 8px ${REACTIONS_BY_KEY[reaction].color}60` } : {} }>
+            {reaction
+              ? <ReactionIcon r={REACTIONS_BY_KEY[reaction]} size={16} glow={true} />
+              : <svg width="16" height="16" viewBox="0 0 24 24" style={{ display:'block' }}><rect x="3" y="11" width="4" height="9" stroke="#8B96AA" strokeWidth="1.6" fill="none"/><path d="M7 11l4-7c2 0 2.5 1.5 2 3l-1 2h5.5c1.5 0 2.5 1.5 2 3l-1.5 5.5c-.3 1.2-1.3 1.5-2.3 1.5H7" fill="none" stroke="#8B96AA" strokeWidth="1.6" strokeLinejoin="round"/></svg>}
+            <span>{reaction ? REACTIONS_BY_KEY[reaction].label : 'React'}</span>
+            <span style={{ marginLeft:'2px', color:'#566176' }}>· {likes}</span>
+          </button>
+        </div>
+        <button className="act-btn" onClick={() => setShowComments(true)}>
+          <span style={{ fontSize:'15px' }}>💬</span>
           <span>{post.comments}</span>
-        </button>
-        <button className={`act-btn${saved?' saved':''}`} onClick={() => setSaved(!saved)}>
-          <span style={{ fontSize:'14px' }}>{saved?'🔖':'🏷'}</span>
         </button>
         <button className="act-btn">
           <span>↗</span>
           <span>Share</span>
         </button>
-        <div style={{ marginLeft:'auto' }}>
-          <button className="act-btn">⋯</button>
+        <div style={{ marginLeft:'auto', position:'relative' }}>
+          <button className="act-btn" onClick={() => setShowMenu(s => !s)}
+            style={ showMenu ? { color:'#00FFE5', background:'rgba(0,255,229,.08)' } : {} }>⋯</button>
+          {showMenu && <PostActionMenu post={post} onClose={() => setShowMenu(false)} />}
         </div>
       </div>
+      {showComments && <CommentsModal post={post} onClose={() => setShowComments(false)} />}
+      {lightboxIdx !== null && <ImageLightbox post={post} startIdx={lightboxIdx} onClose={() => setLightboxIdx(null)} />}
     </div>
   );
 }
@@ -273,7 +929,7 @@ function FilterBar({ activeMood, onMoodFilter }) {
   const moodFilters = ['HAPPY','EXCITED','THOUGHTFUL','CALM','SAD'];
   return (
     <div style={{ marginBottom:'16px' }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'8px', display:'flex', alignItems:'center', gap:'10px' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'8px', display:'flex', alignItems:'center', gap:'10px' }}>
         <span>// feed.posts · 42 total</span>
         {activeMood && (
           <span style={{ color:MOOD_CFG[activeMood]?.color }}>
@@ -333,28 +989,28 @@ function CommandPalette({ onClose }) {
 
         {/* Input */}
         <div style={{ display:'flex', alignItems:'center', gap:'10px', padding:'14px 16px', borderBottom:'1px solid #2A3548' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#00FFE5', flexShrink:0 }}>~$</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'15px', color:'#00FFE5', flexShrink:0 }}>~$</span>
           <input ref={inputRef} value={query} onChange={e=>setQuery(e.target.value)}
             placeholder="type a command or search..."
-            style={{ flex:1, background:'transparent', border:'none', outline:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#E6EDF3' }} />
-          <button onClick={onClose} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer' }}>Esc</button>
+            style={{ flex:1, background:'transparent', border:'none', outline:'none', fontFamily:"'JetBrains Mono',monospace", fontSize:'15px', color:'#E6EDF3' }} />
+          <button onClick={onClose} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer' }}>Esc</button>
         </div>
 
         {/* Results */}
         <div style={{ maxHeight:'340px', overflowY:'auto' }}>
           {groups.map(g => (
             <div key={g}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', padding:'10px 16px 4px', letterSpacing:'.05em' }}>// {g}</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', padding:'10px 16px 4px', letterSpacing:'.05em' }}>// {g}</div>
               {filtered.filter(c=>c.g===g).map((cmd,i) => (
                 <a key={i} href={cmd.href} style={{ textDecoration:'none' }} className="cp-item">
-                  <div style={{ width:'28px', height:'28px', borderRadius:'5px', background:'#232936', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', flexShrink:0 }}>{cmd.icon}</div>
+                  <div style={{ width:'28px', height:'28px', borderRadius:'5px', background:'#232936', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', flexShrink:0 }}>{cmd.icon}</div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontSize:'13px', color:'#E6EDF3' }}>{cmd.label}</div>
-                    {cmd.desc && <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{cmd.desc}</div>}
+                    <div style={{ fontSize:'14px', color:'#E6EDF3' }}>{cmd.label}</div>
+                    {cmd.desc && <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{cmd.desc}</div>}
                   </div>
                   <div style={{ display:'flex', gap:'3px' }}>
                     {cmd.keys.map((k,ki) => (
-                      <span key={ki} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#A0AEC0', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'1px 5px' }}>{k}</span>
+                      <span key={ki} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#A0AEC0', background:'#232936', border:'1px solid #2A3548', borderRadius:'3px', padding:'1px 5px' }}>{k}</span>
                     ))}
                   </div>
                 </a>
@@ -362,18 +1018,180 @@ function CommandPalette({ onClose }) {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div style={{ padding:'24px', textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA' }}>
+            <div style={{ padding:'24px', textAlign:'center', fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA' }}>
               // no results for "{query}"
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div style={{ padding:'8px 16px', borderTop:'1px solid #1F2A3A', display:'flex', gap:'16px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>
+        <div style={{ padding:'8px 16px', borderTop:'1px solid #1F2A3A', display:'flex', gap:'16px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
           <span>↑↓ navigate</span><span>↵ select</span><span>Esc close</span>
           <span style={{ marginLeft:'auto' }}>// command.palette v1</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Notifications Bell ──────────────────────────────────────────
+const NOTIF_DATA = [
+  { id:1,  type:'like',    user:'@user1',    isAnon:false, post:'abc123', snippet:'Hôm nay deploy xong feature mới...',     time:'2m ago',  read:false, group:'today' },
+  { id:2,  type:'comment', user:'Anon#7',    isAnon:true,  post:'abc123', snippet:'Cảm ơn bạn đã chia sẻ!',                  time:'5m ago',  read:false, group:'today' },
+  { id:3,  type:'like',    user:'@user2',    isAnon:false, post:'xyz789', snippet:'Đọc xong "A Philosophy of..."',           time:'12m ago', read:false, group:'today' },
+  { id:4,  type:'share',   user:'@user3',    isAnon:false, post:'def456', snippet:'Vừa thử Cursor AI với codebase...',       time:'1h ago',  read:false, group:'today' },
+  { id:5,  type:'comment', user:'@user1',    isAnon:false, post:'def456', snippet:'Vừa thử Cursor AI với codebase...',       time:'2h ago',  read:true,  group:'today' },
+  { id:6,  type:'save',    user:'@user5',    isAnon:false, post:'ghi012', snippet:'Chiều nay ngồi cafe, không code...',      time:'5h ago',  read:true,  group:'today' },
+  { id:7,  type:'like',    user:'Anon#11',   isAnon:true,  post:'abc123', snippet:'Hôm nay deploy xong feature mới...',     time:'1d ago',  read:true,  group:'yesterday' },
+  { id:8,  type:'comment', user:'@user4',    isAnon:false, post:'xyz789', snippet:'Đọc xong "A Philosophy of..."',           time:'1d ago',  read:true,  group:'yesterday' },
+  { id:9,  type:'share',   user:'@user6',    isAnon:false, post:'ghi012', snippet:'Chiều nay ngồi cafe, không code...',      time:'2d ago',  read:true,  group:'older' },
+  { id:10, type:'like',    user:'@user8',    isAnon:false, post:'def456', snippet:'Vừa thử Cursor AI với codebase...',       time:'3d ago',  read:true,  group:'older' },
+];
+const NOTIF_CFG = {
+  like:    { icon:'❤', color:'#FF6E96', verb:'liked'        },
+  comment: { icon:'💬', color:'#7DCFFF', verb:'commented on' },
+  share:   { icon:'↗', color:'#BB9AF7', verb:'shared'        },
+  save:    { icon:'🔖', color:'#E0AF68', verb:'saved'         },
+};
+
+function NotificationBell() {
+  const [open, setOpen] = useState(false);
+  const [notifs, setNotifs] = useState(NOTIF_DATA);
+  const [filter, setFilter] = useState('all');
+  const ref = useRef(null);
+  useEffect(() => {
+    const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const unreadCount = notifs.filter(n => !n.read).length;
+  const visible = filter === 'unread' ? notifs.filter(n => !n.read) : notifs;
+  const groups = ['today', 'yesterday', 'older'];
+  const markAllRead = () => setNotifs(notifs.map(n => ({ ...n, read:true })));
+  const markRead    = id => setNotifs(notifs.map(n => n.id === id ? { ...n, read:true } : n));
+  return (
+    <div ref={ref} style={{ position:'relative' }}>
+      <button onClick={() => setOpen(!open)}
+        style={{ width:'32px', height:'32px', borderRadius:'6px', border:'1px solid #2A3548',
+          background:open?'rgba(0,255,229,.08)':'#1A1F2E',
+          color:open?'#00FFE5':'#A0AEC0', cursor:'pointer',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          transition:'all .15s', position:'relative',
+          boxShadow:open?'0 0 12px rgba(0,255,229,.2)':'none' }}>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+        </svg>
+        {unreadCount > 0 && (
+          <span className="pulse" style={{ position:'absolute', top:'-3px', right:'-3px',
+            minWidth:'16px', height:'16px', padding:'0 4px', borderRadius:'8px',
+            background:'#FF6E96', color:'#0A0E1A', fontFamily:"'JetBrains Mono',monospace",
+            fontSize:'10px', fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center',
+            border:'1.5px solid #11151F', boxShadow:'0 0 6px #FF6E9680' }}>
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
+      </button>
+      {open && (
+        <div style={{ position:'absolute', top:'42px', right:0, width:'380px', maxWidth:'95vw',
+          background:'#11151F', border:'1px solid rgba(0,255,229,.25)', borderRadius:'10px',
+          overflow:'hidden', zIndex:200, animation:'fadeUp .15s ease',
+          boxShadow:'0 0 30px rgba(0,255,229,.08),0 16px 50px rgba(0,0,0,.6)' }}>
+          <div style={{ padding:'14px 16px', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', justifyContent:'space-between', background:'#0A0E1A' }}>
+            <div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#00FFE5' }}>// notifications</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>{unreadCount} unread · {notifs.length} total</div>
+            </div>
+            {unreadCount > 0 && (
+              <button onClick={markAllRead} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'4px', padding:'4px 10px', cursor:'pointer' }}>
+                ✓ mark all read
+              </button>
+            )}
+          </div>
+          <div style={{ display:'flex', gap:'4px', padding:'8px 12px', borderBottom:'1px solid #1F2A3A' }}>
+            {[['all','All',notifs.length],['unread','Unread',unreadCount]].map(([k,l,c]) => (
+              <button key={k} onClick={() => setFilter(k)}
+                style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', padding:'5px 10px',
+                  borderRadius:'4px', cursor:'pointer',
+                  color: filter===k?'#00FFE5':'#8B96AA',
+                  background: filter===k?'rgba(0,255,229,.08)':'transparent',
+                  border:`1px solid ${filter===k?'rgba(0,255,229,.4)':'transparent'}` }}>
+                {l} <span style={{ color:'#566176', marginLeft:'3px' }}>({c})</span>
+              </button>
+            ))}
+          </div>
+          <div style={{ maxHeight:'400px', overflowY:'auto' }}>
+            {visible.length === 0 ? (
+              <div style={{ textAlign:'center', padding:'40px 20px' }}>
+                <div style={{ fontSize:'28px', color:'#2A3548', marginBottom:'10px' }}>◎</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
+                  // {filter==='unread'?'all caught up!':'no notifications yet'}
+                </div>
+              </div>
+            ) : (
+              groups.map(g => {
+                const items = visible.filter(n => n.group === g);
+                if (!items.length) return null;
+                const labels = { today:'today', yesterday:'yesterday', older:'older' };
+                return (
+                  <div key={g}>
+                    <div style={{ padding:'8px 16px 4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>// {labels[g]}</div>
+                    {items.map(n => {
+                      const cfg = NOTIF_CFG[n.type];
+                      return (
+                        <a key={n.id} href="MyBlog Post Detail.html"
+                          onClick={() => markRead(n.id)}
+                          style={{ display:'flex', gap:'10px', padding:'10px 16px',
+                            borderLeft:`2px solid ${n.read?'transparent':cfg.color}`,
+                            background: n.read?'transparent':`${cfg.color}06`,
+                            textDecoration:'none', cursor:'pointer', transition:'background .1s' }}
+                          onMouseEnter={e=>e.currentTarget.style.background=n.read?'#1A1F2E':`${cfg.color}10`}
+                          onMouseLeave={e=>e.currentTarget.style.background=n.read?'transparent':`${cfg.color}06`}>
+                          <div style={{ position:'relative', width:'34px', height:'34px', flexShrink:0 }}>
+                            <div style={{ width:'34px', height:'34px', borderRadius:'50%', border:'1.5px solid #2A3548',
+                              background: n.isAnon?'#1A1F2E':'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              fontFamily:"'JetBrains Mono',monospace", fontSize:'12px',
+                              color: n.isAnon?'#8B96AA':'#00FFE5' }}>
+                              {n.isAnon ? '?' : n.user[1].toUpperCase()}
+                            </div>
+                            <div style={{ position:'absolute', bottom:'-2px', right:'-2px', width:'18px', height:'18px',
+                              borderRadius:'50%', background:cfg.color, border:'2px solid #11151F',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              fontSize:'9px', boxShadow:`0 0 4px ${cfg.color}80` }}>
+                              {cfg.icon}
+                            </div>
+                          </div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:'12px', color:'#C9D1D9', lineHeight:'1.4', marginBottom:'2px' }}>
+                              <span style={{ color: n.isAnon?'#8B96AA':'#7DCFFF', fontFamily:"'JetBrains Mono',monospace" }}>{n.user}</span>
+                              {' '}<span style={{ color:'#A0AEC0' }}>{cfg.verb}</span>{' '}
+                              <span style={{ color:'#8B96AA' }}>your post</span>
+                            </div>
+                            <div style={{ fontSize:'11px', color:'#8B96AA', fontStyle:'italic', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'2px' }}>
+                              "{n.snippet}"
+                            </div>
+                            <div style={{ display:'flex', alignItems:'center', gap:'6px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>
+                              <span>#{n.post}</span>
+                              <span>·</span>
+                              <span>{n.time}</span>
+                              {!n.read && <span style={{ color:cfg.color, marginLeft:'auto' }}>● new</span>}
+                            </div>
+                          </div>
+                        </a>
+                      );
+                    })}
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <div style={{ padding:'10px 16px', borderTop:'1px solid #1F2A3A', display:'flex', justifyContent:'space-between', alignItems:'center', background:'#0A0E1A' }}>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>// click to mark as read</span>
+            <a href="MyBlog Notifications.html" style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', textDecoration:'none' }}>view all →</a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -388,7 +1206,7 @@ function TopBar({ onOpenCP }) {
     return () => document.removeEventListener('mousedown', h);
   }, []);
   const menuItems = [
-    { icon:'✏️', label:'Create Post',      href:'MyBlog Create Post.html', desc:'⌘N', color:'#00FFE5', sep:false },
+    { icon:'📝', label:'Manage Posts',     href:'MyBlog Manage Posts.html', desc:null,  color:'#7DCFFF', sep:false },
     { icon:'⚙️', label:'Admin Dashboard',  href:'MyBlog Admin.html',       desc:'⌘3', color:'#BB9AF7', sep:false },
     { icon:'🏷', label:'Manage Tags',      href:'MyBlog Tags.html',        desc:null,  color:'#E0AF68', sep:false },
     { icon:'🔧', label:'System Settings',  href:'#',                       desc:null,  color:'#9ECE6A', sep:false },
@@ -404,28 +1222,29 @@ function TopBar({ onOpenCP }) {
           <polyline points="8,3 3,12 8,21" stroke="#00FFE5" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
           <polyline points="16,3 21,12 16,21" stroke="#BB9AF7" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
-        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'16px', letterSpacing:'-0.04em', lineHeight:1 }}>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'17px', letterSpacing:'-0.04em', lineHeight:1 }}>
           <span style={{ color:'#E6EDF3' }}>kha</span><span style={{ color:'#00FFE5' }}>.</span><span style={{ color:'#A0AEC0', fontWeight:500 }}>blog</span>
         </div>
       </div>
 
       {/* Search — centered */}
       <div style={{ position:'absolute', left:'50%', transform:'translateX(-50%)', width:'440px', zIndex:1 }}>
-        <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#8B96AA', fontSize:'13px', pointerEvents:'none' }}>⌕</span>
+        <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#8B96AA', fontSize:'14px', pointerEvents:'none' }}>⌕</span>
         <input className="srch-inp" placeholder="~$ search posts, tags, users..." onClick={() => window.location.href='MyBlog Search.html'} readOnly style={{ cursor:'pointer' }} />
-        <button onClick={onOpenCP} style={{ position:'absolute', right:'6px', top:'50%', transform:'translateY(-50%)', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer', whiteSpace:'nowrap' }}>⌘K</button>
+        <button onClick={onOpenCP} style={{ position:'absolute', right:'6px', top:'50%', transform:'translateY(-50%)', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px', cursor:'pointer', whiteSpace:'nowrap' }}>⌘K</button>
       </div>
 
       {/* Right */}
       <div style={{ display:'flex', alignItems:'center', gap:'10px', marginLeft:'auto', flexShrink:0 }}>
-        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px' }}>[ v0.1.0 ]</span>
-        <span style={{ display:'flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#9ECE6A' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', border:'1px solid #2A3548', borderRadius:'3px', padding:'2px 7px' }}>[ v0.1.0 ]</span>
+        <span style={{ display:'flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#9ECE6A' }}>
           <span className="pulse" style={{ fontSize:'8px', color:'#9ECE6A' }}>●</span> 3
         </span>
+        <NotificationBell />
         {/* Avatar + dropdown */}
         <div ref={menuRef} style={{ position:'relative' }}>
           <div onClick={() => setShowMenu(!showMenu)}
-            style={{ width:'32px', height:'32px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5', cursor:'pointer', boxShadow:showMenu?'0 0 18px rgba(0,255,229,.4)':'0 0 12px rgba(0,255,229,.25)', transition:'box-shadow .15s', position:'relative' }}>
+            style={{ width:'32px', height:'32px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'14px', color:'#00FFE5', cursor:'pointer', boxShadow:showMenu?'0 0 18px rgba(0,255,229,.4)':'0 0 12px rgba(0,255,229,.25)', transition:'box-shadow .15s', position:'relative' }}>
             A
             <span style={{ position:'absolute', bottom:'-1px', right:'-1px', width:'8px', height:'8px', background:'#9ECE6A', borderRadius:'50%', border:'1.5px solid #11151F', boxShadow:'0 0 5px #9ECE6A' }} />
           </div>
@@ -433,10 +1252,10 @@ function TopBar({ onOpenCP }) {
             <div style={{ position:'absolute', top:'42px', right:0, background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderRadius:'8px', minWidth:'210px', padding:'6px', zIndex:200, boxShadow:'0 0 30px rgba(0,255,229,.1),0 12px 40px rgba(0,0,0,.6)', animation:'fadeUp .15s ease' }}>
               <div style={{ padding:'8px 10px 10px', borderBottom:'1px solid #2A3548', marginBottom:'4px' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <div style={{ width:'28px', height:'28px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px', color:'#00FFE5', fontWeight:700 }}>A</div>
+                  <div style={{ width:'28px', height:'28px', borderRadius:'50%', border:'1.5px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', color:'#00FFE5', fontWeight:700 }}>A</div>
                   <div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF' }}>~/admin</div>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', marginTop:'1px' }}>[ ADMIN ]</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</div>
+                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#FF9E64', marginTop:'1px' }}>[ ADMIN ]</div>
                   </div>
                 </div>
               </div>
@@ -444,9 +1263,9 @@ function TopBar({ onOpenCP }) {
                 <React.Fragment key={i}>
                   {item.sep && <div style={{ height:'1px', background:'#2A3548', margin:'4px 0' }} />}
                   <a href={item.href} className="cp-item" style={{ borderRadius:'5px', textDecoration:'none' }}>
-                    <span style={{ fontSize:'14px' }}>{item.icon}</span>
-                    <span style={{ flex:1, fontSize:'13px', color:item.color==='#A0AEC0'?'#E6EDF3':item.color }}>{item.label}</span>
-                    {item.desc && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>{item.desc}</span>}
+                    <span style={{ fontSize:'15px' }}>{item.icon}</span>
+                    <span style={{ flex:1, fontSize:'14px', color:item.color==='#A0AEC0'?'#E6EDF3':item.color }}>{item.label}</span>
+                    {item.desc && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>{item.desc}</span>}
                   </a>
                 </React.Fragment>
               ))}
@@ -462,7 +1281,7 @@ function TopBar({ onOpenCP }) {
 function StatusBar() {
   const sep = { padding:'0 14px', color:'#8B96AA', borderRight:'1px solid #1F2A3A', height:'100%', display:'flex', alignItems:'center', whiteSpace:'nowrap' };
   return (
-    <div style={{ position:'fixed', bottom:0, left:0, right:0, height:'28px', background:'#070A14', borderTop:'1px solid #1F2A3A', display:'flex', alignItems:'center', zIndex:100, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', overflow:'hidden' }}>
+    <div style={{ position:'fixed', bottom:0, left:0, right:0, height:'28px', background:'#070A14', borderTop:'1px solid #1F2A3A', display:'flex', alignItems:'center', zIndex:100, fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', overflow:'hidden' }}>
       <span style={{ ...sep, color:'#00FFE5', background:'rgba(0,255,229,.07)' }}>~/feed</span>
       <span style={sep}><span className="pulse" style={{ color:'#9ECE6A', fontSize:'8px', marginRight:'5px' }}>●</span> 42 posts</span>
       <span style={{ ...sep, color:'#566176' }}>──────</span>
@@ -520,7 +1339,7 @@ function Feed({ activeMood, onMoodFilter, glowLevel }) {
           <div style={{ textAlign:'center', padding:'60px 20px', fontFamily:"'JetBrains Mono',monospace" }}>
             <div style={{ fontSize:'40px', marginBottom:'12px', opacity:.3 }}>◐</div>
             <div style={{ color:'#8B96AA', marginBottom:'6px' }}>// no posts matching filter</div>
-            <div style={{ color:'#566176', fontSize:'11px' }}>$ cd ../feed && ls -la --all-moods</div>
+            <div style={{ color:'#566176', fontSize:'12px' }}>$ cd ../feed && ls -la --all-moods</div>
           </div>
         )
         : visible.map((p, i) => <PostCard key={p.id} post={p} glowLevel={glowLevel} delay={i * 60} />)
@@ -528,12 +1347,12 @@ function Feed({ activeMood, onMoodFilter, glowLevel }) {
       {/* Sentinel */}
       <div ref={sentinelRef} style={{ padding:'20px 0', display:'flex', justifyContent:'center', alignItems:'center', minHeight:'40px' }}>
         {loading && (
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', display:'flex', alignItems:'center', gap:'8px' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', display:'flex', alignItems:'center', gap:'8px' }}>
             <AsciiSpinner /> loading posts...
           </span>
         )}
         {!hasMore && visible.length > 0 && (
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#566176' }}>
             // end of feed · {allPosts.length} posts loaded
           </span>
         )}
@@ -548,27 +1367,27 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"glowIntensity":"low","crtEffect":true
 
 function TweaksPanelInline({ tweaks, setTweak, onClose }) {
   const btn = (active, onClick, label) => (
-    <button onClick={onClick} style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', padding:'4px 0', borderRadius:'4px', cursor:'pointer', background:active?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${active?'#00FFE580':'#2A3548'}`, color:active?'#00FFE5':'#A0AEC0' }}>
+    <button onClick={onClick} style={{ flex:1, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', padding:'4px 0', borderRadius:'4px', cursor:'pointer', background:active?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${active?'#00FFE580':'#2A3548'}`, color:active?'#00FFE5':'#A0AEC0' }}>
       {label}
     </button>
   );
   return (
     <div style={{ position:'fixed', bottom:'40px', right:'16px', width:'240px', background:'#1A1F2E', border:'1px solid rgba(0,255,229,.3)', borderRadius:'10px', padding:'16px', zIndex:300, boxShadow:'0 0 30px rgba(0,255,229,.12),0 12px 40px rgba(0,0,0,.5)' }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', marginBottom:'14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#00FFE5', marginBottom:'14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <span>// Tweaks</span>
-        <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'16px', lineHeight:1 }}>×</button>
+        <button onClick={onClose} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'17px', lineHeight:1 }}>×</button>
       </div>
       {/* Glow */}
       <div style={{ marginBottom:'12px' }}>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'6px' }}>glow.intensity</div>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'6px' }}>glow.intensity</div>
         <div style={{ display:'flex', gap:'4px' }}>
           {['low','medium','high'].map(g => btn(tweaks.glowIntensity===g, ()=>setTweak('glowIntensity',g), g))}
         </div>
       </div>
       {/* CRT */}
       <div style={{ marginBottom:'12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>crt.scanline</span>
-        <button onClick={()=>setTweak('crtEffect',!tweaks.crtEffect)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', padding:'3px 12px', borderRadius:'4px', cursor:'pointer', background:tweaks.crtEffect?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${tweaks.crtEffect?'#00FFE580':'#2A3548'}`, color:tweaks.crtEffect?'#00FFE5':'#8B96AA' }}>
+        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>crt.scanline</span>
+        <button onClick={()=>setTweak('crtEffect',!tweaks.crtEffect)} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', padding:'3px 12px', borderRadius:'4px', cursor:'pointer', background:tweaks.crtEffect?'rgba(0,255,229,.15)':'#232936', border:`1px solid ${tweaks.crtEffect?'#00FFE580':'#2A3548'}`, color:tweaks.crtEffect?'#00FFE5':'#8B96AA' }}>
           {tweaks.crtEffect?'ON':'OFF'}
         </button>
       </div>

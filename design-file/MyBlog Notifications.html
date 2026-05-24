@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kha.blog · ~/notifications</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { height:100%; max-width:100vw; overflow-x:hidden; }
+body { background:#0A0E1A; background-image:radial-gradient(circle,#2A354822 1px,transparent 1px); background-size:24px 24px; color:#E6EDF3; font-family:'Inter',sans-serif; }
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg,transparent 0px,transparent 2px,rgba(0,0,0,.028) 2px,rgba(0,0,0,.028) 4px); pointer-events:none; z-index:9999; }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+@keyframes pulse   { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
+@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
+.pulse { animation:pulse 2s ease-in-out infinite; }
+.fade-up { animation:fadeUp .25s ease both; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
+.srch-inp::placeholder { color:#8B96AA; font-style:italic; }
+.cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
+.cp-item:hover { background:rgba(0,255,229,.08); }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:11px; color:#8B96AA; letter-spacing:.05em; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
+.edit-inp { width:100%; background:#070A14; border:1px solid #2A3548; color:#E6EDF3; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 12px; border-radius:6px; outline:none; transition:all .15s; }
+.edit-inp:focus { border-color:#00FFE5; box-shadow:0 0 10px rgba(0,255,229,.15); }
+.edit-inp::placeholder { color:#8B96AA; }
+.tab-btn { font-family:'JetBrains Mono',monospace; font-size:12px; padding:7px 14px; border:1px solid #2A3548; border-radius:5px; background:#1A1F2E; color:#8B96AA; cursor:pointer; transition:all .15s; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+.tab-btn:hover { color:#C9D1D9; border-color:#3D4A63; }
+.tab-btn.active { color:#00FFE5; border-color:rgba(0,255,229,.5); background:rgba(0,255,229,.08); box-shadow:0 0 8px rgba(0,255,229,.12); }
+.notif-row { display:flex; gap:12px; padding:14px 18px; border-bottom:1px solid #1A1F2E; transition:background .15s; cursor:pointer; position:relative; align-items:flex-start; }
+.notif-row:hover { background:#1A1F2E; }
+.act-btn { display:flex; align-items:center; gap:4px; padding:5px 10px; border-radius:4px; border:1px solid; background:transparent; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px; transition:all .15s; }
+@media (max-width:640px) {
+  .notif-row { padding:12px 14px; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="myblog-components.jsx"></script>
+<script type="text/babel" src="myblog-shared-ui.jsx"></script>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+// ── Extended notification data ─────────────────────────────────
+const INIT_NOTIFS = [
+  { id:1,  type:'reaction',user:'@user1',    isAnon:false, reaction:'love',    post:'abc123', snippet:'Hôm nay deploy xong feature mới sau 3 ngày...',     time:'2m ago',  read:false, group:'today' },
+  { id:2,  type:'comment', user:'Anon#7',    isAnon:true,  post:'abc123', snippet:'Cảm ơn bạn đã chia sẻ! Classic mistake 😄', time:'5m ago',  read:false, group:'today' },
+  { id:11, type:'reply',   user:'@user2',    isAnon:false, post:'abc123', replyTo:'@user1', snippet:'Y hình như đúng như bạn nói!',          time:'8m ago',  read:false, group:'today' },
+  { id:3,  type:'reaction',user:'@user2',    isAnon:false, reaction:'like',    post:'xyz789', snippet:'Đọc xong "A Philosophy of..."',                       time:'12m ago', read:false, group:'today' },
+  { id:4,  type:'share',   user:'@user3',    isAnon:false, post:'def456', snippet:'Vừa thử Cursor AI với codebase 50k lines...',  time:'1h ago',  read:false, group:'today'  },
+  { id:5,  type:'comment', user:'@user1',    isAnon:false, post:'def456', snippet:'Bro có dùng zod hay yup để validate env runtime?',time:'2h ago',  read:true,  group:'today'  },
+  { id:6,  type:'reaction',user:'@user5',    isAnon:false, reaction:'wow',     post:'ghi012', snippet:'Chiều nay ngồi cafe, không code, không Slack', time:'3h ago',  read:true,  group:'today'  },
+  { id:18, type:'reply',   user:'@user2',    isAnon:false, post:'abc123', snippet:'Đồng ý đụng bạn! Mình cũng quote bookmark vivo tuyệt vời.', replyTo:'@user1', time:'3h ago',  read:false, group:'today' },
+  { id:19, type:'reply',   user:'Anon#21',   isAnon:true,  post:'def456', snippet:'Cách fix để tương tự nha bạn, mình đã gặp trường hợp y hệt', replyTo:'@admin', time:'4h ago',  read:false, group:'today' },
+  { id:9,  type:'reaction',user:'Anon#11',   isAnon:true,  reaction:'like',    post:'abc123', snippet:'Hôm nay deploy xong feature mới...',          time:'1d ago',  read:true,  group:'yesterday' },
+  { id:10, type:'comment', user:'@user4',    isAnon:false, post:'xyz789', snippet:'Linting với ESLint + Prettier có thể catch 90%',time:'1d ago',  read:true,  group:'yesterday' },
+  { id:11, type:'reaction',user:'@user3',    isAnon:false, reaction:'angry',   post:'def456', snippet:'Vừa thử Cursor AI với codebase...',           time:'1d ago',  read:true,  group:'yesterday' },
+  { id:20, type:'reply',   user:'@user4',    isAnon:false, post:'xyz789', snippet:'Tip này hay lắm, cảm ơn bạn!', replyTo:'@admin', time:'1d ago',  read:true,  group:'yesterday' },
+  { id:12, type:'share',   user:'@user6',    isAnon:false, post:'ghi012', snippet:'Chiều nay ngồi cafe, không code...',          time:'2d ago',  read:true,  group:'older' },
+  { id:13, type:'reaction',user:'@user8',    isAnon:false, reaction:'love',    post:'def456', snippet:'Vừa thử Cursor AI với codebase...',           time:'3d ago',  read:true,  group:'older' },
+  { id:14, type:'comment', user:'Anon#14',   isAnon:true,  post:'abc123', snippet:'Đọc xong cảm thấy đỡ tổn thương hơn :))',     time:'4d ago',  read:true,  group:'older' },
+  { id:17, type:'reaction',user:'@user10',   isAnon:false, reaction:'sad',     post:'xyz789', snippet:'Đọc xong "A Philosophy of..."',               time:'1w ago',  read:true,  group:'older' },
+];
+
+const TYPE_CFG = {
+  reaction: { icon:'❤',  color:'#FF6E96', verb:'reacted to'    },
+  comment:  { icon:'💬',  color:'#7DCFFF', verb:'commented on'  },
+  reply:    { icon:'↩',  color:'#9ECE6A', verb:'replied to your comment on' },
+  share:    { icon:'↗',  color:'#BB9AF7', verb:'shared'         },
+};
+
+function NotifRow({ n, selected, onSelect, onToggleRead, onDelete }) {
+  const cfg = TYPE_CFG[n.type];
+  return (
+    <div className="notif-row fade-up" style={{
+      background: selected ? 'rgba(0,255,229,.05)' : (n.read ? 'transparent' : `${cfg.color}06`),
+      borderLeft: `3px solid ${selected ? '#00FFE5' : (n.read ? 'transparent' : cfg.color)}`,
+    }}>
+      {/* Checkbox */}
+      <div onClick={() => onSelect(n.id)} style={{ paddingTop:'10px', flexShrink:0, cursor:'pointer' }}>
+        <div style={{ width:'16px', height:'16px', borderRadius:'3px',
+          border:`1.5px solid ${selected?'#00FFE5':'#3D4A63'}`,
+          background: selected ? '#00FFE5' : 'transparent',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          transition:'all .15s' }}>
+          {selected && <span style={{ color:'#0A0E1A', fontSize:'10px', fontWeight:700, lineHeight:1 }}>✓</span>}
+        </div>
+      </div>
+
+      {/* Avatar */}
+      <div style={{ position:'relative', width:'40px', height:'40px', flexShrink:0 }}>
+        <div style={{ width:'40px', height:'40px', borderRadius:'50%', border:'1.5px solid #2A3548',
+          background: n.isAnon?'#1A1F2E':'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontFamily:"'JetBrains Mono',monospace", fontSize:'13px',
+          color: n.isAnon?'#8B96AA':'#00FFE5' }}>
+          {n.isAnon ? '?' : n.user[1].toUpperCase()}
+        </div>
+        <div style={{ position:'absolute', bottom:'-2px', right:'-2px', width:'20px', height:'20px',
+          borderRadius:'50%', background:cfg.color, border:'2px solid #11151F',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:'10px', color:'#0A0E1A', fontWeight:700,
+          boxShadow:`0 0 5px ${cfg.color}80` }}>
+          {cfg.icon}
+        </div>
+      </div>
+
+      {/* Content */}
+      <a href={n.post ? 'MyBlog Post Detail.html' : '#'} style={{ flex:1, minWidth:0, textDecoration:'none' }}>
+        <div style={{ fontSize:'13px', color:'#C9D1D9', lineHeight:'1.45', marginBottom:'3px' }}>
+          <span style={{ color: n.isAnon?'#8B96AA':'#7DCFFF', fontFamily:"'JetBrains Mono',monospace" }}>{n.user}</span>
+          {n.isAnon && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginLeft:'5px' }}>[anon]</span>}
+          {' '}<span style={{ color:'#A0AEC0' }}>{cfg.verb}</span>
+          {n.type==='reply' && n.replyTo && <span style={{ color:'#7DCFFF', fontFamily:"'JetBrains Mono',monospace" }}> from {n.replyTo}</span>}
+          {n.post && n.type!=='reply' && <span style={{ color:'#8B96AA' }}> your post</span>}
+        </div>
+        {n.snippet && (
+          <div style={{ fontSize:'12px', color:'#8B96AA', fontStyle:'italic', lineHeight:'1.5', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:'4px', maxWidth:'520px' }}>
+            "{n.snippet}"
+          </div>
+        )}
+        <div style={{ display:'flex', alignItems:'center', gap:'8px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>
+          {n.post && <span>#{n.post}</span>}
+          {n.post && <span>·</span>}
+          <span>{n.time}</span>
+          {!n.read && <span style={{ color:cfg.color }}>· ● new</span>}
+        </div>
+      </a>
+
+      {/* Actions */}
+      <div style={{ display:'flex', gap:'4px', flexShrink:0, alignSelf:'center' }}>
+        <button className="act-btn" title={n.read?'Mark as unread':'Mark as read'}
+          onClick={(e) => { e.preventDefault(); onToggleRead(n.id); }}
+          style={{ color: n.read?'#8B96AA':'#00FFE5', borderColor: n.read?'#2A3548':'rgba(0,255,229,.4)' }}>
+          {n.read ? '○' : '●'}
+        </button>
+        <button className="act-btn" title="Delete"
+          onClick={(e) => { e.preventDefault(); onDelete(n.id); }}
+          style={{ color:'#F7768E', borderColor:'#F7768E40' }}>
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NotificationsPage() {
+  const [notifs, setNotifs] = useState(INIT_NOTIFS);
+  const [tab, setTab] = useState('all');
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState(new Set());
+  const [showCP, setShowCP] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    const h = e => { if ((e.metaKey||e.ctrlKey)&&e.key==='k') { e.preventDefault(); setShowCP(c=>!c); } };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const showToast = (msg, type='success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 2400);
+  };
+
+  const tabs = [
+    { key:'all',      label:'All',         icon:'◉' },
+    { key:'unread',   label:'Unread',      icon:'●' },
+    { key:'reaction', label:'Reactions',   icon:'❤' },
+    { key:'comment',  label:'Comments',    icon:'💬' },
+    { key:'reply',    label:'Replies',     icon:'↩' },
+    { key:'share',    label:'Shares',      icon:'↗' },
+  ];
+
+  const filtered = useMemo(() => {
+    let list = notifs;
+    if (tab === 'unread') list = list.filter(n => !n.read);
+    else if (tab !== 'all') list = list.filter(n => n.type === tab);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter(n =>
+        n.user.toLowerCase().includes(q) ||
+        n.snippet?.toLowerCase().includes(q) ||
+        n.post?.toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [notifs, tab, search]);
+
+  const counts = {
+    all:      notifs.length,
+    unread:   notifs.filter(n => !n.read).length,
+    reaction: notifs.filter(n => n.type === 'reaction').length,
+    comment:  notifs.filter(n => n.type === 'comment').length,
+    reply:    notifs.filter(n => n.type === 'reply').length,
+    share:    notifs.filter(n => n.type === 'share').length,
+  };
+
+  const toggleSelect = (id) => {
+    const s = new Set(selected);
+    s.has(id) ? s.delete(id) : s.add(id);
+    setSelected(s);
+  };
+  const selectAll = () => setSelected(new Set(filtered.map(n => n.id)));
+  const clearSelection = () => setSelected(new Set());
+  const allFilteredSelected = filtered.length > 0 && filtered.every(n => selected.has(n.id));
+
+  const toggleRead = (id) => {
+    setNotifs(notifs.map(n => n.id === id ? { ...n, read: !n.read } : n));
+  };
+  const markAllRead = () => {
+    setNotifs(notifs.map(n => ({ ...n, read: true })));
+    showToast('All marked as read');
+  };
+  const bulkMarkRead = () => {
+    setNotifs(notifs.map(n => selected.has(n.id) ? { ...n, read: true } : n));
+    showToast(`Marked ${selected.size} as read`);
+    setSelected(new Set());
+  };
+  const bulkDelete = () => {
+    const count = selected.size;
+    setNotifs(notifs.filter(n => !selected.has(n.id)));
+    setSelected(new Set());
+    showToast(`Deleted ${count} notifications`, 'error');
+  };
+  const deleteOne = (id) => {
+    setNotifs(notifs.filter(n => n.id !== id));
+    showToast('Notification deleted', 'error');
+  };
+  const clearAll = () => {
+    if (!confirm(`Delete all ${notifs.length} notifications?`)) return;
+    setNotifs([]);
+    setSelected(new Set());
+    showToast('All notifications cleared', 'error');
+  };
+
+  const groups = ['today', 'yesterday', 'older'];
+  const grouped = groups.map(g => ({
+    g, items: filtered.filter(n => n.group === g),
+  })).filter(x => x.items.length > 0);
+
+  return (
+    <>
+      <TopBar onOpenCP={() => setShowCP(true)} />
+
+      {/* Sub-bar */}
+      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'44px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 24px', gap:'12px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+        <span style={{ color:'#8B96AA', whiteSpace:'nowrap' }}>~/notifications</span>
+        <span style={{ color:'#566176' }}>──</span>
+        <span style={{ color:'#E6EDF3', whiteSpace:'nowrap' }}>{notifs.length} total</span>
+        <span style={{ color:'#566176' }}>·</span>
+        <span style={{ color:'#FF6E96', whiteSpace:'nowrap' }}>{counts.unread} unread</span>
+        <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+          {counts.unread > 0 && (
+            <button onClick={markAllRead}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'5px', padding:'5px 12px', cursor:'pointer', whiteSpace:'nowrap' }}>
+              ✓ mark all read
+            </button>
+          )}
+          {notifs.length > 0 && (
+            <button onClick={clearAll}
+              style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#F7768E', background:'rgba(247,118,142,.08)', border:'1px solid rgba(247,118,142,.3)', borderRadius:'5px', padding:'5px 12px', cursor:'pointer', whiteSpace:'nowrap' }}>
+              ✕ clear all
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div style={{ marginTop:'96px', padding:'20px 24px 40px', maxWidth:'1000px', margin:'96px auto 0' }}>
+
+        {/* Filter tabs */}
+        <div style={{ display:'flex', gap:'6px', flexWrap:'wrap', marginBottom:'16px' }}>
+          {tabs.map(t => (
+            <button key={t.key} className={`tab-btn${tab===t.key?' active':''}`} onClick={() => setTab(t.key)}>
+              <span style={{ fontSize:'13px' }}>{t.icon}</span>
+              {t.label}
+              <span style={{ color:tab===t.key?'#00FFE5':'#566176', fontSize:'10px' }}>{counts[t.key]}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Search + bulk actions */}
+        <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px', flexWrap:'wrap' }}>
+          {/* Search */}
+          <div style={{ position:'relative', flex:1, minWidth:'220px', maxWidth:'400px' }}>
+            <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#8B96AA', fontSize:'13px', pointerEvents:'none' }}>⌕</span>
+            <input className="edit-inp" value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="search by user, content, post id..."
+              style={{ paddingLeft:'30px', paddingRight: search?'30px':'12px' }} />
+            {search && <button onClick={() => setSearch('')} style={{ position:'absolute', right:'8px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'14px' }}>×</button>}
+          </div>
+
+          {/* Bulk action bar (visible when selected > 0) */}
+          {selected.size > 0 ? (
+            <div style={{ display:'flex', gap:'6px', alignItems:'center' }}>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5' }}>
+                {selected.size} selected
+              </span>
+              <button onClick={bulkMarkRead}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'5px', padding:'5px 12px', cursor:'pointer' }}>
+                ✓ mark read
+              </button>
+              <button onClick={bulkDelete}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#F7768E', background:'rgba(247,118,142,.08)', border:'1px solid rgba(247,118,142,.3)', borderRadius:'5px', padding:'5px 12px', cursor:'pointer' }}>
+                ✕ delete
+              </button>
+              <button onClick={clearSelection}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'5px', padding:'5px 12px', cursor:'pointer' }}>
+                clear
+              </button>
+            </div>
+          ) : (
+            filtered.length > 0 && (
+              <button onClick={selectAll}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'5px', padding:'5px 12px', cursor:'pointer' }}>
+                ☐ select all visible
+              </button>
+            )
+          )}
+        </div>
+
+        {/* Results count */}
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginBottom:'10px' }}>
+          // showing {filtered.length} of {notifs.length} notifications
+          {search && <span style={{ color:'#8B96AA' }}> · filter: "{search}"</span>}
+          {tab !== 'all' && <span style={{ color:'#8B96AA' }}> · tab: {tab}</span>}
+        </div>
+
+        {/* List */}
+        <div style={{ background:'#11151F', border:'1px solid #2A3548', borderRadius:'8px', overflow:'hidden' }}>
+          {grouped.length === 0 ? (
+            <div style={{ textAlign:'center', padding:'60px 24px', fontFamily:"'JetBrains Mono',monospace" }}>
+              <div style={{ fontSize:'36px', color:'#2A3548', marginBottom:'12px' }}>◎</div>
+              <div style={{ fontSize:'13px', color:'#8B96AA', marginBottom:'6px' }}>
+                // {notifs.length===0 ? 'no notifications yet · inbox zero achieved' : 'no notifications matching filters'}
+              </div>
+              {(search || tab !== 'all') && (
+                <button onClick={() => { setSearch(''); setTab('all'); }}
+                  style={{ marginTop:'14px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#00FFE5', background:'rgba(0,255,229,.08)', border:'1px solid rgba(0,255,229,.3)', borderRadius:'5px', padding:'6px 14px', cursor:'pointer' }}>
+                  ← clear filters
+                </button>
+              )}
+            </div>
+          ) : (
+            grouped.map(({ g, items }) => (
+              <div key={g}>
+                <div style={{ padding:'10px 18px', background:'#0A0E1A', borderBottom:'1px solid #1F2A3A', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span style={{ color:'#00FFE5' }}>//</span>
+                  <span>{g}</span>
+                  <span style={{ color:'#566176' }}>· {items.length}</span>
+                </div>
+                {items.map(n => (
+                  <NotifRow key={n.id} n={n}
+                    selected={selected.has(n.id)}
+                    onSelect={toggleSelect}
+                    onToggleRead={toggleRead}
+                    onDelete={deleteOne} />
+                ))}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{ position:'fixed', bottom:'44px', right:'20px', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px',
+          color: toast.type==='error'?'#F7768E':'#9ECE6A',
+          background: toast.type==='error'?'rgba(247,118,142,.1)':'rgba(158,206,106,.1)',
+          border: `1px solid ${toast.type==='error'?'rgba(247,118,142,.4)':'rgba(158,206,106,.4)'}`,
+          borderRadius:'6px', padding:'10px 16px', boxShadow:'0 4px 20px rgba(0,0,0,.4)',
+          animation:'slideDown .2s ease', zIndex:200 }}>
+          {toast.type==='error'?'✕':'✓'} {toast.msg}
+        </div>
+      )}
+
+      <StatusBar path="~/notifications" info={`${notifs.length} total · ${counts.unread} unread`} />
+      {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(NotificationsPage));
+</script>
+</body>
+</html>

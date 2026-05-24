@@ -107,7 +107,7 @@ function Sparkline({ data, color = '#00FFE5', width = 80, height = 22 }) {
 function AsciiBar({ value, max, width = 10, color = '#00FFE5' }) {
   const n = Math.round((value / max) * width);
   return (
-    <span style={{ fontFamily:"'JetBrains Mono',monospace", color, fontSize:'10px', letterSpacing:'-0.5px' }}>
+    <span style={{ fontFamily:"'JetBrains Mono',monospace", color, fontSize:'11px', letterSpacing:'-0.5px' }}>
       {'█'.repeat(n)}{'░'.repeat(width - n)}
     </span>
   );
@@ -117,7 +117,7 @@ function TagPill({ name, color }) {
   const [h, setH] = useSt(false);
   return (
     <span onMouseEnter={()=>setH(true)} onMouseLeave={()=>setH(false)}
-      style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color: h?'#E6EDF3':color,
+      style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color: h?'#E6EDF3':color,
         background:`${color}${h?'28':'15'}`, border:`1px solid ${color}${h?'70':'40'}`,
         borderRadius:'4px', padding:'2px 8px', cursor:'pointer', transition:'all 0.15s',
         boxShadow: h?`0 0 8px ${color}50`:'none', whiteSpace:'nowrap' }}>
@@ -131,7 +131,7 @@ function MoodBadge({ mood }) {
   return (
     <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${c.color}18`,
       border:`1px solid ${c.color}55`, borderRadius:'4px', padding:'2px 9px',
-      fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:c.color,
+      fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:c.color,
       boxShadow:`0 0 10px ${c.color}30`, whiteSpace:'nowrap' }}>
       {c.emoji} {c.label}
     </span>
@@ -152,32 +152,34 @@ function ImgSlot({ idx }) {
     <div style={{ width:'100%', height:'100%',
       background:`repeating-linear-gradient(135deg,${bg} 0px,${bg} 7px,${acc}10 7px,${acc}10 14px)`,
       display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'6px' }}>
-      <span style={{ fontSize:'20px', opacity:0.3 }}>⬡</span>
-      <span style={{ fontFamily:"'JetBrains Mono',monospace", color:acc, opacity:0.45, fontSize:'9px' }}>{lbl}</span>
+      <span style={{ fontSize:'22px', opacity:0.3 }}>⬡</span>
+      <span style={{ fontFamily:"'JetBrains Mono',monospace", color:acc, opacity:0.45, fontSize:'10px' }}>{lbl}</span>
     </div>
   );
 }
 
-function ImageGrid({ count }) {
+function ImageGrid({ count, onImageClick }) {
   if (!count) return null;
-  const r = { borderRadius:'4px', overflow:'hidden' };
-  if (count === 1) return <div style={{ height:'200px', ...r, marginBottom:'12px' }}><ImgSlot idx={0} /></div>;
+  const cur = !!onImageClick;
+  const r = { borderRadius:'4px', overflow:'hidden', cursor: cur?'pointer':'default' };
+  const click = i => e => { if(!cur) return; e.stopPropagation(); onImageClick(i); };
+  if (count === 1) return <div style={{ height:'200px', ...r, marginBottom:'12px' }} onClick={click(0)}><ImgSlot idx={0} /></div>;
   if (count === 2) return (
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'3px', height:'160px', borderRadius:'6px', overflow:'hidden', marginBottom:'12px' }}>
-      {[0,1].map(i => <div key={i} style={r}><ImgSlot idx={i} /></div>)}
+      {[0,1].map(i => <div key={i} style={r} onClick={click(i)}><ImgSlot idx={i} /></div>)}
     </div>
   );
   const shown = Math.min(count, 4);
   return (
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'3px', height:'180px', borderRadius:'6px', overflow:'hidden', marginBottom:'12px' }}>
-      <div style={r}><ImgSlot idx={0} /></div>
+      <div style={r} onClick={click(0)}><ImgSlot idx={0} /></div>
       <div style={{ display:'grid', gridTemplateRows:`repeat(${shown-1},1fr)`, gap:'3px' }}>
         {Array.from({ length: shown-1 }).map((_,i) => (
-          <div key={i} style={{ position:'relative', ...r }}>
+          <div key={i} style={{ position:'relative', ...r }} onClick={click(i+1)}>
             <ImgSlot idx={i+1} />
             {count > 4 && i === shown-2 && (
               <div style={{ position:'absolute', inset:0, background:'rgba(10,14,26,0.78)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#E6EDF3', fontSize:'18px', fontWeight:700 }}>+{count-4}</span>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#E6EDF3', fontSize:'20px', fontWeight:700 }}>+{count-4}</span>
               </div>
             )}
           </div>
@@ -208,10 +210,10 @@ function Sidebar({ activeMood, onMoodFilter, isAdmin = false }) {
           <div className="sb-lbl">~/nav</div>
           {navItems.map(item => (
             <div key={item.l} className={`nav-item${item.active?' nav-act':''}`}>
-              <span style={{ width:'12px', fontSize:'10px', color:'#00FFE5' }}>{item.active ? '❯' : ''}</span>
-              <span style={{ flex:1, fontSize:'13px' }}>{item.l}</span>
-              {item.badge && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6460', borderRadius:'2px', padding:'0 4px' }}>[ admin ]</span>}
-              {item.s && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#63707F' }}>{item.s}</span>}
+              <span style={{ width:'12px', fontSize:'11px', color:'#00FFE5' }}>{item.active ? '❯' : ''}</span>
+              <span style={{ flex:1, fontSize:'14px' }}>{item.l}</span>
+              {item.badge && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#FF9E64', border:'1px solid #FF9E6460', borderRadius:'2px', padding:'0 4px' }}>[ admin ]</span>}
+              {item.s && <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#63707F' }}>{item.s}</span>}
             </div>
           ))}
         </div>
@@ -221,7 +223,7 @@ function Sidebar({ activeMood, onMoodFilter, isAdmin = false }) {
 
       {/* Hex deco */}
       <div style={{ marginTop:'auto', padding:'12px 14px', borderTop:'1px solid #1A1F2E' }}>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#2A3548', lineHeight:'1.9' }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#2A3548', lineHeight:'1.9' }}>
           <div>0xDEAD·BEEF·CAFE</div>
           <div>0b10110101·11001010</div>
           <div>pid: 3141 · uid: root</div>
@@ -254,7 +256,7 @@ function RightPanel() {
       {/* Mood distribution */}
       <div style={{ padding:'12px 14px' }}>
         <div className="sb-lbl">// mood.distribution</div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'10px' }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'10px' }}>
           {total} posts · all time
         </div>
         {MOOD_STATS.map(m => {
@@ -264,10 +266,10 @@ function RightPanel() {
             <div key={m.mood} style={{ marginBottom:'8px' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'4px' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                  <span style={{ fontSize:'12px' }}>{c.emoji}</span>
-                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:c.color }}>{c.label}</span>
+                  <span style={{ fontSize:'13px' }}>{c.emoji}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:c.color }}>{c.label}</span>
                 </div>
-                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
                   {m.count} <span style={{ color:'#63707F' }}>·</span> {pct}%
                 </span>
               </div>
@@ -299,18 +301,18 @@ function RightPanel() {
           ))}
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'6px', justifyContent:'flex-end' }}>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#63707F' }}>less</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#63707F' }}>less</span>
           {[0,1,2,3].map(v => (
             <div key={v} style={{ width:'9px', height:'9px', borderRadius:'2px', background:heatColor(v) }} />
           ))}
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#63707F' }}>more</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#63707F' }}>more</span>
         </div>
       </div>
 
       {/* Live visitors */}
       <div style={{ padding:'4px 14px 14px' }}>
         <div className="sb-lbl">// live.visitors</div>
-        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'8px', display:'flex', alignItems:'center', gap:'6px' }}>
+        <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'8px', display:'flex', alignItems:'center', gap:'6px' }}>
           <span className="pulse" style={{ color:'#9ECE6A', fontSize:'8px' }}>●</span>
           <span>3 active sessions</span>
         </div>
@@ -319,14 +321,14 @@ function RightPanel() {
             border:'1px solid #2A3548', borderLeft:'2px solid #9ECE6A40', transition:'all .15s' }}
             className="sc-hover">
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'4px' }}>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#7DCFFF', fontWeight:500 }}>{v.id}</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#63707F', background:'#232936', padding:'1px 5px', borderRadius:'3px' }}>{v.geo}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF', fontWeight:500 }}>{v.id}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#63707F', background:'#232936', padding:'1px 5px', borderRadius:'3px' }}>{v.geo}</span>
             </div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'3px' }}>{v.page}</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'3px' }}>{v.page}</div>
             <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
               <span className="pulse" style={{ color:'#9ECE6A', fontSize:'7px' }}>●</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#9ECE6A' }}>{v.action}</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#63707F' }}>· {v.time} ago</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#9ECE6A' }}>{v.action}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#63707F' }}>· {v.time} ago</span>
             </div>
           </div>
         ))}
@@ -350,7 +352,7 @@ function FileAttachments({ files }) {
 
   return (
     <div style={{ marginBottom:'12px' }}>
-      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'6px', display:'flex', alignItems:'center', gap:'6px' }}>
+      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', marginBottom:'6px', display:'flex', alignItems:'center', gap:'6px' }}>
         <span>// attachments</span><span style={{ color:'#566176' }}>[{files.length}]</span>
       </div>
       <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
@@ -358,10 +360,10 @@ function FileAttachments({ files }) {
           const { label, color } = getCfg(f.type);
           return (
             <div key={i} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'7px 12px', background:'#1A1F2E', border:`1px solid ${color}28`, borderRadius:'6px', borderLeft:`2px solid ${color}80`, transition:'border-color .15s' }}>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 5px', flexShrink:0 }}>{label}</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
-              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
-              <button style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color, background:`${color}10`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', cursor:'pointer', flexShrink:0 }}>↓</button>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 5px', flexShrink:0 }}>{label}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
+              <button style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color, background:`${color}10`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', cursor:'pointer', flexShrink:0 }}>↓</button>
             </div>
           );
         })}

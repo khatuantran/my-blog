@@ -18,29 +18,174 @@ body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; back
 @keyframes pulse  { 0%,100%{opacity:.7} 50%{opacity:1;filter:drop-shadow(0 0 3px currentColor)} }
 ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-track { background:#0A0E1A; } ::-webkit-scrollbar-thumb { background:#2A3548; border-radius:3px; }
 .pulse { animation:pulse 2s ease-in-out infinite; }
-.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:13px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
+.srch-inp { width:100%; background:#0A0E1A; border:1px solid #2A3548; color:#A0AEC0; font-family:'JetBrains Mono',monospace; font-size:14px; padding:8px 70px 8px 36px; border-radius:6px; outline:none; transition:all .15s; }
 .srch-inp:focus { border-color:#00FFE5; box-shadow:0 0 14px rgba(0,255,229,.22); color:#E6EDF3; }
 .srch-inp::placeholder { color:#8B96AA; font-style:italic; }
 .cp-item { display:flex; align-items:center; gap:10px; padding:8px 16px; cursor:pointer; transition:background .1s; }
 .cp-item:hover { background:rgba(0,255,229,.08); }
 .fade-up { animation:fadeUp .15s ease; }
-.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:#8B96AA; letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+.sb-lbl { font-family:'JetBrains Mono',monospace; font-size:11px; color:#8B96AA; letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
 .sb-lbl::after { content:''; flex:1; height:1px; background:#1F2A3A; }
-.editor-area { width:100%; background:#070A14; border:1px solid #2A3548; color:#C9D1D9; font-family:'JetBrains Mono',monospace; font-size:14px; padding:14px; border-radius:6px; outline:none; resize:none; min-height:240px; line-height:1.7; transition:border-color .15s; }
+.editor-area { width:100%; background:#070A14; border:1px solid #2A3548; color:#E6EDF3; font-family:'Inter',sans-serif; font-size:15px; padding:14px; border-radius:6px; outline:none; min-height:220px; line-height:1.7; transition:border-color .15s; overflow-y:auto; }
 .editor-area:focus { border-color:#00FFE5; box-shadow:0 0 12px rgba(0,255,229,.1); }
-.editor-area::placeholder { color:#8B96AA; }
-.tag-inp { background:transparent; border:none; outline:none; font-family:'JetBrains Mono',monospace; font-size:12px; color:#C9D1D9; min-width:100px; }
+.editor-area:empty::before { content:attr(data-placeholder); color:#566176; font-style:italic; pointer-events:none; }
+.editor-area mark { background:#E0AF6840; color:#E0AF68; padding:0 2px; border-radius:2px; }
+.editor-area b, .editor-area strong { color:#E6EDF3; font-weight:700; }
+.editor-area a { color:#00FFE5; text-decoration:underline; }
+.editor-area ul, .editor-area ol { padding-left:24px; margin:6px 0; }
+.editor-area h1 { font-size:22px; font-weight:700; margin:8px 0 4px; color:#E6EDF3; }
+.editor-area h2 { font-size:18px; font-weight:600; margin:8px 0 4px; color:#E6EDF3; }
+.tag-inp { background:transparent; border:none; outline:none; font-family:'JetBrains Mono',monospace; font-size:13px; color:#C9D1D9; min-width:100px; }
 .tag-inp::placeholder { color:#8B96AA; }
-.btn-publish { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600; color:#0A0E1A; background:#00FFE5; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; box-shadow:0 0 14px rgba(0,255,229,.3); }
+.btn-publish { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:#0A0E1A; background:#00FFE5; border:none; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; box-shadow:0 0 14px rgba(0,255,229,.3); }
 .btn-publish:hover { background:#00FFE5cc; box-shadow:0 0 22px rgba(0,255,229,.5); }
-.btn-draft { font-family:'JetBrains Mono',monospace; font-size:12px; color:#8B96AA; background:#1A1F2E; border:1px solid #2A3548; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; }
+.btn-draft { font-family:'JetBrains Mono',monospace; font-size:13px; color:#8B96AA; background:#1A1F2E; border:1px solid #2A3548; border-radius:6px; padding:8px 20px; cursor:pointer; transition:all .15s; }
 .btn-draft:hover { color:#E6EDF3; border-color:#3D4A63; }
-.toolbar-btn { background:transparent; border:1px solid #2A3548; border-radius:4px; color:#8B96AA; cursor:pointer; padding:4px 8px; font-family:'JetBrains Mono',monospace; font-size:12px; transition:all .15s; }
+.toolbar-btn { background:transparent; border:1px solid #2A3548; border-radius:4px; color:#8B96AA; cursor:pointer; width:32px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:13px; transition:all .15s; flex-shrink:0; }
 .toolbar-btn:hover { color:#E6EDF3; border-color:#3D4A63; background:#1A1F2E; }
 @keyframes dashedPulse { 0%,100%{border-color:#2A3548} 50%{border-color:#3D4A63} }
 .upload-zone { border:2px dashed #2A3548; border-radius:8px; padding:28px 20px; text-align:center; cursor:pointer; transition:all .15s; animation:dashedPulse 2s ease-in-out infinite; }
 .upload-zone:hover { border-color:#00FFE580; background:rgba(0,255,229,.03); }
 @media(max-width:900px) { .preview-col { display:none !important; } }
+
+/* Post-bump fixes — keep small UI badges/pills/labels on one line */
+span[style*="JetBrains Mono"], span[style*="JetBrains Mono,monospace"] { white-space: nowrap; }
+/* Mood badges, filter chips, stat deltas — inline-flex content must not wrap */
+[style*="inline-flex"][style*="JetBrains Mono"] { flex-shrink: 0; white-space: nowrap; }
+/* Bracket badges like [ ADMIN ], [ v0.1.0 ] */
+.flt-btn, .sort-btn, .filter-chip, .act-btn, .skill-badge, .tab-btn, .act-ghost { white-space: nowrap; flex-shrink: 0; }
+
+
+/* Post-bump nowrap fixes v2 — broader, with restored wrap containers */
+[style*="JetBrains"] { white-space: nowrap; }
+.sb-lbl, .sb-lbl > *, .glitch { white-space: nowrap !important; }
+/* Restore wrap-sensitive containers */
+.code-bl, pre.code-bl { white-space: pre !important; }
+.editor-area, .comment-inp, textarea { white-space: pre-wrap !important; }
+.sb-lbl::after { white-space: normal !important; }
+
+
+/* Mobile topbar — hide search to prevent overlap with logo/avatar */
+@media (max-width: 820px) {
+  header > div[style*="position: absolute"] { display: none !important; }
+}
+@media (max-width: 560px) {
+  /* Hide version badge + online count on very small screens */
+  header > div[style*="margin-left: auto"] > span:nth-child(1),
+  header > div[style*="margin-left: auto"] > span:nth-child(2) { display: none !important; }
+  /* Compact logo subtitle */
+  header [style*="personal"] { display: none !important; }
+}
+
+
+/* ==== Mobile responsive v2 — real adaptive layout ==== */
+@media (max-width: 980px) {
+  /* Stack 4-col stat grids → 2 cols */
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Sub-bar items wrap */
+  div[style*="height: 44px"][style*="border-bottom"] { flex-wrap: wrap !important; height: auto !important; padding-top: 8px !important; padding-bottom: 8px !important; row-gap: 6px !important; }
+  /* Topbar nav: tighten */
+  header { padding-left: 12px !important; padding-right: 12px !important; }
+}
+@media (max-width: 760px) {
+  /* Main padding compression */
+  main, [style*="padding: 20px 24px"], [style*="padding:'20px 24px'"] { padding-left: 14px !important; padding-right: 14px !important; }
+  /* Tables with many cols → horizontal scroll instead of breaking */
+  [style*="grid-template-columns: 3fr"],
+  [style*="grid-template-columns: 2fr"] { min-width: 720px !important; }
+  /* Wrap their containers so they scroll instead of overlap */
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 3fr"]),
+  div[style*="border-radius: 8px"][style*="overflow: hidden"]:has([style*="grid-template-columns: 2fr"]) {
+    overflow-x: auto !important;
+  }
+  /* Stat cards smaller */
+  [style*="font-size: 22px"][style*="font-weight: 700"],
+  [style*="font-size:22px"] { font-size: 18px !important; }
+  /* Hero on Profile: stack and shrink */
+  .profile-hero { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+  /* Modal full-bleed-ish */
+  [style*="width: 640px"], [style*="width: 560px"], [style*="width: 540px"], [style*="width: 480px"], [style*="width: 440px"], [style*="width: 420px"], [style*="width: 400px"], [style*="width: 380px"], [style*="width: 360px"] {
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+  /* Right drawer (profile settings) full-width */
+  [style*="width: 480px"][style*="height: 100vh"] { width: 100vw !important; }
+  /* Hide Create Post preview column already gone via .preview-col */
+  /* Big heading shrink */
+  h1[style*="font-size: 26px"] { font-size: 22px !important; }
+}
+@media (max-width: 480px) {
+  /* 2-col grids → 1 col */
+  [style*="grid-template-columns: repeat(2"],
+  [style*="grid-template-columns:repeat(2"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Even tighter padding */
+  main, [style*="padding: 24px 28px"], [style*="padding:'24px 28px'"] { padding-left: 12px !important; padding-right: 12px !important; }
+  /* Login card padding */
+  [style*="padding: 22px 20px"] { padding: 16px !important; }
+  /* Status bar info — hide some segments */
+  div[style*="bottom: 0"][style*="height: 28px"] span:nth-of-type(n+3) { display: none !important; }
+}
+/* Touch-friendly tap targets globally on mobile */
+@media (max-width: 760px) and (pointer: coarse) {
+  button, .toolbar-btn, .filter-chip, .sort-btn, .act-btn { min-height: 36px !important; }
+}
+
+
+/* ==== Mobile responsive v3 — prevent overflow + tight layout ==== */
+html, body { max-width: 100vw; overflow-x: hidden; }
+@media (max-width: 640px) {
+  /* Topbar: bring right cluster fully inside viewport */
+  header { padding-left: 10px !important; padding-right: 10px !important; gap: 0 !important; }
+  header > div[style*="margin-left: auto"] { gap: 6px !important; }
+  /* Logo: drop subtitle for sure, shrink */
+  header svg { width: 20px !important; height: 20px !important; }
+  /* Notification dropdown: full width near viewport */
+  header [style*="width: 380px"] { width: calc(100vw - 20px) !important; right: -8px !important; }
+  /* Avatar dropdown menu */
+  header [style*="min-width: 210px"] { right: -4px !important; }
+  /* Feed filter row: don't push 'Latest' off-screen with margin-left:auto */
+  .flt-btn[style*="margin-left: auto"], button[style*="margin-left: auto"][style*="Latest"] {
+    margin-left: 0 !important;
+  }
+  /* Common pattern: anything with margin-left:auto in a flex row at mobile becomes wrap-friendly */
+  div[style*="display: flex"][style*="flex-wrap: wrap"] > [style*="margin-left: auto"] {
+    margin-left: 0 !important;
+  }
+  /* Post cards: tighter padding */
+  .post-card { padding: 14px !important; }
+  /* Tags page card grid */
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(240px"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-template-columns: repeat(auto-fill, minmax(320px"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Image grid in post: keep 2 columns max */
+  .post-card div[style*="grid-template-columns: 1fr 1fr"] { gap: 2px !important; }
+  /* Status bar: compress further */
+  div[style*="bottom: 0"][style*="height: 28px"] { font-size: 10px !important; }
+  div[style*="bottom: 0"][style*="height: 28px"] span { padding: 0 8px !important; }
+  /* Sub-bars and toolbars: scroll horizontally if too tight */
+  div[style*="top: 52px"][style*="height: 44px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  div[style*="top: 52px"][style*="height: 40px"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 420px) {
+  /* Very small phones */
+  .post-card { padding: 12px !important; }
+  .post-card span[style*="position: absolute"][style*="top: 10px"] { display: none !important; } /* hide #post-id corner */
+  /* Hide [v0.1.0] entirely on small screens (already in 560 but extra safety) */
+  header span[style*="border: 1px solid"][style*="padding: 2px 7px"]:first-child { display: none !important; }
+  /* Stat card values stay readable */
+  [style*="font-size: 22px"][style*="font-weight: 700"] { font-size: 18px !important; }
+}
+/* Allow horizontal scroll on tables only, not whole page */
+.row { min-width: 0 !important; }
+
 </style>
 </head>
 <body>
@@ -55,9 +200,9 @@ const TAG_COLORS = ['#00FFE5','#FF6E96','#BB9AF7','#9ECE6A','#E0AF68','#FF9E64',
 
 function TagBadge({ name, color, onRemove }) {
   return (
-    <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color, background:`${color}15`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', userSelect:'none' }}>
+    <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color, background:`${color}15`, border:`1px solid ${color}40`, borderRadius:'4px', padding:'2px 8px', userSelect:'none' }}>
       {name}
-      <span onClick={onRemove} style={{ cursor:'pointer', opacity:.7, fontSize:'12px', lineHeight:1, marginLeft:'2px' }}>×</span>
+      <span onClick={onRemove} style={{ cursor:'pointer', opacity:.7, fontSize:'13px', lineHeight:1, marginLeft:'2px' }}>×</span>
     </span>
   );
 }
@@ -67,64 +212,107 @@ function ImageThumb({ idx, onRemove }) {
   const c = cfgs[idx % 3];
   return (
     <div style={{ position:'relative', width:'60px', height:'60px', borderRadius:'6px', overflow:'hidden', background:`repeating-linear-gradient(135deg,${c.bg} 0px,${c.bg} 6px,${c.acc}15 6px,${c.acc}15 12px)`, flexShrink:0 }}>
-      <button onClick={onRemove} style={{ position:'absolute', top:'2px', right:'2px', background:'rgba(10,14,26,.8)', border:'none', borderRadius:'50%', width:'16px', height:'16px', color:'#F7768E', cursor:'pointer', fontSize:'10px', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×</button>
+      <button onClick={onRemove} style={{ position:'absolute', top:'2px', right:'2px', background:'rgba(10,14,26,.8)', border:'none', borderRadius:'50%', width:'16px', height:'16px', color:'#F7768E', cursor:'pointer', fontSize:'11px', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×</button>
     </div>
   );
 }
 
-function PostPreview({ mood, content, tags, imageCount }) {
+function PostPreview({ mood, content, tags, imageCount, files }) {
   const m = MOOD_CFG[mood] || MOOD_CFG.HAPPY;
-  const segs = [];
-  let rest = (content || '').slice(0, 300);
-  while (rest.length) {
-    const ci = rest.indexOf('```');
-    if (ci === -1) { segs.push({ t:'text', v:rest }); break; }
-    if (ci > 0) segs.push({ t:'text', v:rest.slice(0, ci) });
-    const ce = rest.indexOf('```', ci+3);
-    segs.push({ t:'code', v:rest.slice(ci+3, ce<0?undefined:ce).replace(/^[a-z]+\n/,'') });
-    rest = ce<0?'':rest.slice(ce+3);
-  }
+  const FILE_COLORS = { pdf:'#F7768E', docx:'#7DCFFF', doc:'#7DCFFF', xlsx:'#9ECE6A', xls:'#9ECE6A', txt:'#A0AEC0', csv:'#E0AF68' };
+
+  // Build image grid that matches feed: 1 full, 2 split, 3-4 grid, >4 with +N overlay
+  const renderImages = () => {
+    if (!imageCount) return null;
+    const cfgs = [
+      { bg:'#081420', acc:'#00FFE5' },
+      { bg:'#1A0A1E', acc:'#BB9AF7' },
+      { bg:'#081A0C', acc:'#9ECE6A' },
+      { bg:'#1E0C08', acc:'#FF9E64' },
+    ];
+    const slot = (i) => {
+      const c = cfgs[i % 4];
+      return <div style={{ width:'100%', height:'100%', background:`repeating-linear-gradient(135deg,${c.bg} 0px,${c.bg} 5px,${c.acc}15 5px,${c.acc}15 10px)` }} />;
+    };
+    const r = { borderRadius:'4px', overflow:'hidden' };
+    if (imageCount === 1)
+      return <div style={{ height:'140px', borderRadius:'5px', overflow:'hidden', marginBottom:'10px' }}>{slot(0)}</div>;
+    if (imageCount === 2)
+      return (
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'3px', height:'110px', borderRadius:'5px', overflow:'hidden', marginBottom:'10px' }}>
+          {[0,1].map(i => <div key={i} style={r}>{slot(i)}</div>)}
+        </div>
+      );
+    const shown = Math.min(imageCount, 4);
+    return (
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'3px', height:'130px', borderRadius:'5px', overflow:'hidden', marginBottom:'10px' }}>
+        <div style={r}>{slot(0)}</div>
+        <div style={{ display:'grid', gridTemplateRows:`repeat(${shown-1},1fr)`, gap:'3px' }}>
+          {Array.from({ length: shown - 1 }).map((_,i) => (
+            <div key={i} style={{ position:'relative', ...r }}>
+              {slot(i + 1)}
+              {imageCount > 4 && i === shown - 2 && (
+                <div style={{ position:'absolute', inset:0, background:'rgba(10,14,26,.78)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", color:'#E6EDF3', fontSize:'15px', fontWeight:700 }}>+{imageCount - 4}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
   return (
     <div style={{ background:'#11151F', border:'1px solid rgba(0,255,229,.2)', borderRadius:'8px', padding:'16px', boxShadow:'0 0 20px rgba(0,255,229,.05)' }}>
       <div style={{ display:'flex', alignItems:'flex-start', gap:'10px', marginBottom:'12px' }}>
-        <div style={{ width:'34px', height:'34px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'13px', color:'#00FFE5', flexShrink:0 }}>A</div>
+        <div style={{ width:'34px', height:'34px', borderRadius:'50%', border:'2px solid #00FFE5', background:'linear-gradient(135deg,#00FFE520,#BB9AF720)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Space Grotesk',sans-serif", fontWeight:700, fontSize:'14px', color:'#00FFE5', flexShrink:0 }}>A</div>
         <div style={{ flex:1 }}>
           <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'2px' }}>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#7DCFFF' }}>~/admin</span>
-            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#FF9E64', border:'1px solid #FF9E6440', borderRadius:'2px', padding:'0 3px' }}>[ ADMIN ]</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#7DCFFF' }}>~/admin</span>
+            <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#FF9E64', border:'1px solid #FF9E6440', borderRadius:'2px', padding:'0 3px' }}>[ ADMIN ]</span>
           </div>
-          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA' }}>just now</span>
+          <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>just now</span>
         </div>
-        <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${m.color}18`, border:`1px solid ${m.color}50`, borderRadius:'4px', padding:'2px 8px', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:m.color }}>{m.emoji} {m.label}</span>
+        <span style={{ display:'inline-flex', alignItems:'center', gap:'4px', background:`${m.color}18`, border:`1px solid ${m.color}50`, borderRadius:'4px', padding:'2px 8px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:m.color }}>{m.emoji} {m.label}</span>
       </div>
-      {content ? (
-        <div style={{ fontSize:'13px', lineHeight:'1.65', color:'#C9D1D9', marginBottom:'10px' }}>
-          {segs.map((s,i) => s.t==='code'
-            ? <pre key={i} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', background:'#070A14', border:'1px solid #2A3548', borderLeft:'2px solid rgba(158,206,106,.4)', borderRadius:'5px', padding:'8px 12px', color:'#9ECE6A', margin:'6px 0', overflowX:'auto', whiteSpace:'pre', lineHeight:'1.6' }}>{s.v.trim()}</pre>
-            : s.v.split('\n\n').map((p,j) => p.trim() ? <p key={`${i}-${j}`} style={{ marginBottom:'6px' }}>{p.trim()}</p> : null)
-          )}
-          {content.length > 300 && <span style={{ color:'#8B96AA', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>...</span>}
-        </div>
+      {content && content.replace(/<[^>]*>/g,'').trim() ? (
+        <div className="editor-area" style={{ background:'transparent', border:'none', padding:0, minHeight:0, color:'#C9D1D9', fontSize:'14px', lineHeight:'1.65', marginBottom:'10px', boxShadow:'none' }}
+          dangerouslySetInnerHTML={{ __html: content }} />
       ) : (
-        <div style={{ color:'#566176', fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontStyle:'italic', marginBottom:'10px' }}>// content preview will appear here...</div>
+        <div style={{ color:'#566176', fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', fontStyle:'italic', marginBottom:'10px' }}>// content preview will appear here...</div>
       )}
-      {imageCount > 0 && (
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'3px', height:'80px', borderRadius:'5px', overflow:'hidden', marginBottom:'10px' }}>
-          {Array.from({length:Math.min(imageCount,3)}).map((_,i) => {
-            const cfgs=[{bg:'#081420',acc:'#00FFE5'},{bg:'#1A0A1E',acc:'#BB9AF7'},{bg:'#081A0C',acc:'#9ECE6A'}];
-            const c=cfgs[i%3];
-            return <div key={i} style={{ background:`repeating-linear-gradient(135deg,${c.bg} 0,${c.bg} 6px,${c.acc}12 6px,${c.acc}12 12px)` }} />;
-          })}
+      {renderImages()}
+      {/* File attachments preview */}
+      {files && files.length > 0 && (
+        <div style={{ marginBottom:'10px' }}>
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'5px', display:'flex', alignItems:'center', gap:'5px' }}>
+            <span>// attachments</span><span style={{ color:'#566176' }}>[{files.length}]</span>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:'3px' }}>
+            {files.slice(0, 4).map((f, i) => {
+              const color = FILE_COLORS[f.type] || '#8B96AA';
+              return (
+                <div key={i} style={{ display:'flex', alignItems:'center', gap:'7px', padding:'5px 9px', background:'#1A1F2E', border:`1px solid ${color}28`, borderRadius:'5px', borderLeft:`2px solid ${color}80` }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 4px', flexShrink:0 }}>{f.type.toUpperCase()}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
+                </div>
+              );
+            })}
+            {files.length > 4 && (
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', textAlign:'center', padding:'4px' }}>+{files.length - 4} more files</div>
+            )}
+          </div>
         </div>
       )}
       {tags.length > 0 && (
         <div style={{ display:'flex', flexWrap:'wrap', gap:'5px', marginBottom:'10px' }}>
-          {tags.map(t => <span key={t.name} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:t.color, background:`${t.color}15`, border:`1px solid ${t.color}40`, borderRadius:'4px', padding:'1px 7px' }}>{t.name}</span>)}
+          {tags.map(t => <span key={t.name} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:t.color, background:`${t.color}15`, border:`1px solid ${t.color}40`, borderRadius:'4px', padding:'1px 7px' }}>{t.name}</span>)}
         </div>
       )}
       <div style={{ display:'flex', gap:'2px', paddingTop:'8px', borderTop:'1px solid #1A1F2E' }}>
         {['♡ 0','💬 0','🏷','↗'].map(a => (
-          <span key={a} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', padding:'4px 8px' }}>{a}</span>
+          <span key={a} style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#566176', padding:'4px 8px' }}>{a}</span>
         ))}
       </div>
     </div>
@@ -134,52 +322,115 @@ function PostPreview({ mood, content, tags, imageCount }) {
 function CreatePost() {
   const [mood, setMood]         = useState('HAPPY');
   const [content, setContent]   = useState('');
-  const [tagInput, setTagInput] = useState('');
+  const [showTagPicker, setShowTagPicker] = useState(false);
   const [tags, setTags]         = useState([]);
   const [images, setImages]     = useState([]);
   const [fileList, setFileList] = useState([]);
   const [showCP, setShowCP]     = useState(false);
   const [published, setPublished] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [showColor, setShowColor] = useState(false);
+  const [showHighlight, setShowHighlight] = useState(false);
+  const [showAI, setShowAI] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiResult, setAiResult] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState('');
+  const [aiSpinner, setAiSpinner] = useState(0);
+  const [linkModal, setLinkModal] = useState(false);
+  const [linkText, setLinkText]   = useState('');
+  const [linkUrl, setLinkUrl]     = useState('https://');
+  const savedSelectionRef = React.useRef(null);
   const editorRef = React.useRef(null);
 
-  // Insert text at cursor position
-  const insertAtCursor = (text) => {
-    const el = editorRef.current;
-    if (!el) return;
-    const start = el.selectionStart, end = el.selectionEnd;
-    const next = content.slice(0, start) + text + content.slice(end);
-    setContent(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + text.length, start + text.length);
-    });
+  // Execute formatting command on contentEditable
+  const exec = (cmd, val = null) => {
+    editorRef.current?.focus();
+    document.execCommand(cmd, false, val);
+    setContent(editorRef.current?.innerHTML || '');
   };
 
-  // Wrap selected text with prefix/suffix
-  const wrapSelection = (prefix, suffix = prefix, placeholder = 'text') => {
-    const el = editorRef.current;
-    if (!el) return;
-    const start = el.selectionStart, end = el.selectionEnd;
-    const sel = content.slice(start, end) || placeholder;
-    const next = content.slice(0, start) + prefix + sel + suffix + content.slice(end);
-    setContent(next);
-    requestAnimationFrame(() => {
-      el.focus();
-      el.setSelectionRange(start + prefix.length, start + prefix.length + sel.length);
-    });
+  // Insert raw text (or emoji) at cursor
+  const insertAtCursor = (text) => {
+    editorRef.current?.focus();
+    document.execCommand('insertText', false, text);
+    setContent(editorRef.current?.innerHTML || '');
+  };
+
+  // Insert HTML at cursor (used for highlight wrap, etc.)
+  const insertHTML = (html) => {
+    editorRef.current?.focus();
+    document.execCommand('insertHTML', false, html);
+    setContent(editorRef.current?.innerHTML || '');
+  };
+
+  // Save current selection range (so we can restore after opening modal)
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) savedSelectionRef.current = sel.getRangeAt(0).cloneRange();
+  };
+  const restoreSelection = () => {
+    const r = savedSelectionRef.current;
+    if (!r) return;
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+  };
+
+  const openLinkModal = () => {
+    saveSelection();
+    const sel = window.getSelection();
+    setLinkText(sel?.toString() || '');
+    setLinkUrl('https://');
+    setLinkModal(true);
+  };
+  const applyLink = () => {
+    if (!linkUrl.trim()) return;
+    editorRef.current?.focus();
+    restoreSelection();
+    const sel = window.getSelection();
+    const hasSel = sel && sel.toString().length > 0;
+    if (hasSel) {
+      exec('createLink', linkUrl);
+    } else {
+      const display = linkText || linkUrl;
+      insertHTML(`<a href="${linkUrl}">${display}</a>`);
+    }
+    setLinkModal(false);
   };
 
   const TOOLBAR = [
-    { label:'B',       title:'Bold (⌘B)',       action:() => wrapSelection('**', '**', 'bold text'), mono:true, weight:'700' },
-    { label:'I',       title:'Italic (⌘I)',      action:() => wrapSelection('*', '*', 'italic'), mono:false, italic:true },
-    { label:'</>',     title:'Inline code',      action:() => wrapSelection('`', '`', 'code'), mono:true },
-    { label:'``` ```', title:'Code block',       action:() => wrapSelection('```\n', '\n```', 'code here'), mono:true },
-    { label:'H1',      title:'Heading',          action:() => insertAtCursor('\n# '), mono:true },
-    { label:'H2',      title:'Subheading',       action:() => insertAtCursor('\n## '), mono:true },
-    { label:'—',       title:'Divider',          action:() => insertAtCursor('\n---\n'), mono:true },
-    { label:'• list',  title:'Bullet list',      action:() => insertAtCursor('\n- item\n- item\n'), mono:true },
-    { label:'link',    title:'Hyperlink',        action:() => wrapSelection('[', '](url)', 'link text'), mono:true },
+    { label:'B',  title:'Bold (⌘B)',         action:() => exec('bold'),           weight:'700' },
+    { label:'I',  title:'Italic (⌘I)',        action:() => exec('italic'),         italic:true },
+    { label:'U',  title:'Underline (⌘U)',     action:() => exec('underline'),      underline:true },
+    { label:'S',  title:'Strikethrough',      action:() => exec('strikeThrough'),  strike:true },
+    { label:'🖍', title:'Highlight background', action:() => setShowHighlight(s => !s), fontSize:'14px', toggle:'highlight' },
+    { label:'H1', title:'Heading 1',          action:() => exec('formatBlock','h1'), mono:true },
+    { label:'H2', title:'Heading 2',          action:() => exec('formatBlock','h2'), mono:true },
+    { label:'•',  title:'Bullet list',         action:() => exec('insertUnorderedList'), mono:true },
+    { label:'1.', title:'Numbered list',       action:() => exec('insertOrderedList'),   mono:true },
+    { label:'🔗', title:'Link (⌘K)',           action:() => openLinkModal(),         fontSize:'13px' },
+    { label:'✕',  title:'Clear formatting',    action:() => exec('removeFormat'), mono:true },
+  ];
+
+  const TEXT_COLORS = [
+    { color:'#E6EDF3', label:'default' },
+    { color:'#FF6E96', label:'pink'    },
+    { color:'#00FFE5', label:'cyan'    },
+    { color:'#9ECE6A', label:'green'   },
+    { color:'#E0AF68', label:'yellow'  },
+    { color:'#BB9AF7', label:'purple'  },
+    { color:'#7DCFFF', label:'blue'    },
+  ];
+
+  const HIGHLIGHT_COLORS = [
+    { color:'#E0AF6840', label:'yellow', preview:'#E0AF68' },
+    { color:'#FF6E9640', label:'pink',   preview:'#FF6E96' },
+    { color:'#00FFE540', label:'cyan',   preview:'#00FFE5' },
+    { color:'#9ECE6A40', label:'green',  preview:'#9ECE6A' },
+    { color:'#BB9AF740', label:'purple', preview:'#BB9AF7' },
+    { color:'#FF9E6440', label:'orange', preview:'#FF9E64' },
+    { color:'#7DCFFF40', label:'blue',   preview:'#7DCFFF' },
   ];
 
   const EMOJI_GROUPS = [
@@ -189,15 +440,50 @@ function CreatePost() {
     { label:'nature',emojis:['☕','🍵','🌙','☀️','🌧️','🌈','🌊','🔮','💎','🎯','🎨','📸','🎵','📚','🗒️','📌'] },
   ];
 
-  // Keyboard shortcuts
   const handleKeyDown = (e) => {
-    if (e.key === 'Tab') { e.preventDefault(); insertAtCursor('  '); return; }
     if (e.metaKey || e.ctrlKey) {
-      if (e.key === 'b') { e.preventDefault(); wrapSelection('**', '**', 'bold'); }
-      if (e.key === 'i') { e.preventDefault(); wrapSelection('*', '*', 'italic'); }
-      if (e.key === 'e') { e.preventDefault(); wrapSelection('`', '`', 'code'); }
-      if (e.key === 'k') { e.preventDefault(); wrapSelection('[', '](url)', 'link'); }
+      if (e.key === 'b') { e.preventDefault(); exec('bold'); }
+      else if (e.key === 'i') { e.preventDefault(); exec('italic'); }
+      else if (e.key === 'u') { e.preventDefault(); exec('underline'); }
+      else if (e.key === 'k' && !e.shiftKey) {
+        e.preventDefault();
+        openLinkModal();
+      }
     }
+  };
+
+  useEffect(() => {
+    if (!aiLoading) return;
+    const frames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+    const iv = setInterval(() => setAiSpinner(s => (s+1) % frames.length), 80);
+    return () => clearInterval(iv);
+  }, [aiLoading]);
+
+  const runAI = async () => {
+    if (!aiPrompt.trim()) return;
+    setAiError(''); setAiLoading(true); setAiResult('');
+    try {
+      const text = await window.claude.complete(`Bạn là trợ lý viết blog cá nhân cho "kha.blog" - phong cách dev/hacker, giọng văn thân thiện, chia sẻ thật lòng.
+
+Từ ý tưởng ngắn sau, hãy viết một bài blog ngắn (200-400 từ, tiếng Việt).
+Output định dạng HTML sạch (KHÔNG bao trong markdown code block, KHÔNG có thatch <html> hay <body>), dùng <p>, <b>, <i>, <ul><li>, <h2> nếu cần. Không sử dụng inline style.
+
+Ý tưởng: ${aiPrompt}`);
+      setAiResult((text || '').replace(/^```html?\s*/i, '').replace(/```\s*$/, '').trim());
+    } catch (e) {
+      setAiError('[ERROR] AI request failed: ' + (e?.message || 'unknown'));
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applyAI = () => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = aiResult;
+      setContent(aiResult);
+    }
+    setShowAI(false);
+    setAiResult(''); setAiPrompt('');
   };
 
   useEffect(() => {
@@ -206,13 +492,7 @@ function CreatePost() {
     return () => window.removeEventListener('keydown', h);
   }, []);
 
-  const addTag = () => {
-    const name = tagInput.trim().replace(/^#?/, '#').toLowerCase();
-    if (!name || name === '#' || tags.find(t=>t.name===name)) { setTagInput(''); return; }
-    const color = TAG_COLORS[tags.length % TAG_COLORS.length];
-    setTags([...tags, { name, color }]);
-    setTagInput('');
-  };
+  // (placeholder, hook is above)
 
   const addImage = () => { if (images.length < 10) setImages([...images, images.length]); };
 
@@ -226,7 +506,7 @@ function CreatePost() {
       <TopBar onOpenCP={() => setShowCP(true)} />
 
       {/* Sub-toolbar */}
-      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'44px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 20px', gap:'12px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'11px' }}>
+      <div style={{ position:'fixed', top:'52px', left:0, right:0, height:'44px', background:'#11151F', borderBottom:'1px solid #1F2A3A', display:'flex', alignItems:'center', padding:'0 20px', gap:'12px', zIndex:90, fontFamily:"'JetBrains Mono',monospace", fontSize:'12px' }}>
         <span style={{ color:'#8B96AA' }}>~/admin/create-post</span>
         <span style={{ color:'#566176' }}>──</span>
         <span style={{ color:'#E0AF68' }}>● draft · unsaved</span>
@@ -251,7 +531,7 @@ function CreatePost() {
                 const c = MOOD_CFG[m]; const isA = mood===m;
                 return (
                   <button key={m} onClick={() => setMood(m)} title={c.label}
-                    style={{ width:'42px', height:'42px', borderRadius:'8px', border:`2px solid ${isA ? c.color : '#2A3548'}`, background: isA ? `${c.color}18` : '#1A1F2E', fontSize:'20px', cursor:'pointer', transition:'all .15s', boxShadow: isA ? `0 0 14px ${c.color}50` : 'none', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    style={{ width:'42px', height:'42px', borderRadius:'8px', border:`2px solid ${isA ? c.color : '#2A3548'}`, background: isA ? `${c.color}18` : '#1A1F2E', fontSize:'22px', cursor:'pointer', transition:'all .15s', boxShadow: isA ? `0 0 14px ${c.color}50` : 'none', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     {c.emoji}
                   </button>
                 );
@@ -261,58 +541,123 @@ function CreatePost() {
 
           {/* Content */}
           <div style={{ position:'relative' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px', gap:'10px', flexWrap:'wrap' }}>
               <div className="sb-lbl" style={{ marginBottom:0, flex:1 }}>// content</div>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>{content.length} chars · ⌘B bold · ⌘I italic · ⌘E code · Tab indent</div>
+              <button onClick={() => setShowAI(true)}
+                style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#BB9AF7',
+                  background:'rgba(187,154,247,.08)', border:'1px solid rgba(187,154,247,.4)',
+                  borderRadius:'5px', padding:'4px 11px', cursor:'pointer',
+                  display:'inline-flex', alignItems:'center', gap:'5px',
+                  boxShadow:'0 0 10px rgba(187,154,247,.15)', whiteSpace:'nowrap' }}>
+                ✨ AI suggest
+              </button>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>⌘B bold · ⌘I italic · ⌘U underline · highlight selection to format</div>
             </div>
 
             {/* Toolbar */}
             <div style={{ display:'flex', gap:'4px', flexWrap:'nowrap', overflowX:'auto', padding:'6px 8px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', alignItems:'center', scrollbarWidth:'none', marginBottom:'6px' }}>
               {TOOLBAR.map((t, i) => (
                 <button key={i} onClick={t.action} title={t.title} className="toolbar-btn"
-                  style={{ fontFamily:t.mono?"'JetBrains Mono',monospace":'inherit', fontWeight:t.weight||'400', fontStyle:t.italic?'italic':'normal', fontSize:'11px' }}>
+                  style={{ fontFamily:t.mono?"'JetBrains Mono',monospace":'inherit',
+                    fontWeight:t.weight||'400',
+                    fontStyle:t.italic?'italic':'normal',
+                    textDecoration: t.underline?'underline': t.strike?'line-through':'none',
+                    fontSize: t.fontSize || '13px',
+                    minWidth: '30px',
+                    background: (t.toggle==='highlight' && showHighlight) ? 'rgba(224,175,104,.18)' : 'transparent',
+                    borderColor: (t.toggle==='highlight' && showHighlight) ? 'rgba(224,175,104,.5)' : '#2A3548',
+                    color: (t.toggle==='highlight' && showHighlight) ? '#E0AF68' : '#8B96AA' }}>
                   {t.label}
                 </button>
               ))}
+              {/* Text color popup trigger */}
+              <button onClick={() => setShowColor(!showColor)} title="Text color" className="toolbar-btn"
+                style={{ background:showColor?'rgba(0,255,229,.12)':'transparent', borderColor:showColor?'rgba(0,255,229,.4)':'#2A3548', color:showColor?'#00FFE5':'#8B96AA' }}>
+                A<span style={{ color:'#FF6E96' }}>▾</span>
+              </button>
               <div style={{ width:'1px', height:'18px', background:'#2A3548', margin:'0 2px' }} />
               {/* Emoji button */}
               <button onClick={() => setShowEmoji(!showEmoji)} title="Insert emoji"
                 className="toolbar-btn"
-                style={{ fontSize:'14px', background:showEmoji?'rgba(0,255,229,.12)':'transparent', borderColor:showEmoji?'rgba(0,255,229,.4)':'#2A3548', color:showEmoji?'#00FFE5':'#8B96AA' }}>
+                style={{ fontSize:'15px', background:showEmoji?'rgba(0,255,229,.12)':'transparent', borderColor:showEmoji?'rgba(0,255,229,.4)':'#2A3548', color:showEmoji?'#00FFE5':'#8B96AA' }}>
                 🙂
               </button>
             </div>
 
-            {/* Emoji picker */}
-            {showEmoji && (
-              <div style={{ position:'absolute', top:'70px', right:0, zIndex:50, background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderRadius:'8px', padding:'12px', boxShadow:'0 8px 32px rgba(0,0,0,.5)', width:'300px' }}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', marginBottom:'8px' }}>// emoji.picker · click to insert</div>
-                {EMOJI_GROUPS.map(g => (
-                  <div key={g.label} style={{ marginBottom:'8px' }}>
-                    <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color:'#566176', marginBottom:'4px' }}>{g.label}</div>
-                    <div style={{ display:'flex', flexWrap:'wrap', gap:'2px' }}>
-                      {g.emojis.map(em => (
-                        <button key={em} onClick={() => { insertAtCursor(em); setShowEmoji(false); }}
-                          style={{ width:'28px', height:'28px', background:'transparent', border:'1px solid transparent', borderRadius:'5px', cursor:'pointer', fontSize:'16px', display:'flex', alignItems:'center', justifyContent:'center', transition:'all .1s' }}
-                          onMouseEnter={e => { e.target.style.background='#232936'; e.target.style.borderColor='#2A3548'; }}
-                          onMouseLeave={e => { e.target.style.background='transparent'; e.target.style.borderColor='transparent'; }}>
-                          {em}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+            {/* Highlight picker (inline) */}
+            {showHighlight && (
+              <div style={{ background:'#1A1F2E', border:'1px solid rgba(224,175,104,.25)', borderTop:'none', borderRadius:'0 0 6px 6px', padding:'8px 12px', marginTop:'-6px', marginBottom:'6px', display:'flex', alignItems:'center', gap:'10px' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', flexShrink:0 }}>highlight:</span>
+                <div style={{ display:'flex', gap:'5px', flex:1, flexWrap:'wrap' }}>
+                  {HIGHLIGHT_COLORS.map(c => (
+                    <button key={c.color} title={c.label} onClick={() => exec('hiliteColor', c.color)}
+                      style={{ width:'26px', height:'24px', borderRadius:'4px', background:c.color, border:`1px solid ${c.preview}80`, cursor:'pointer', transition:'transform .1s', position:'relative' }}
+                      onMouseEnter={e => e.currentTarget.style.transform='scale(1.15)'}
+                      onMouseLeave={e => e.currentTarget.style.transform='scale(1)'}>
+                      <span style={{ fontSize:'11px', color:c.preview, fontWeight:600 }}>A</span>
+                    </button>
+                  ))}
+                  <button title="Remove highlight" onClick={() => { exec('hiliteColor', 'transparent'); exec('removeFormat'); }}
+                    style={{ width:'auto', height:'24px', padding:'0 10px', borderRadius:'4px', background:'transparent', border:'1px solid #2A3548', cursor:'pointer', color:'#F7768E', fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', display:'inline-flex', alignItems:'center', gap:'4px' }}>
+                    ✕ clear
+                  </button>
+                </div>
+                <button onClick={() => setShowHighlight(false)} title="Close" style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'15px', lineHeight:1, padding:'2px 6px', flexShrink:0 }}>×</button>
               </div>
             )}
 
-            {/* Textarea */}
-            <textarea
+            {/* Text color picker (inline — pushes editor down so it never overlaps) */}
+            {showColor && (
+              <div style={{ background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderTop:'none', borderRadius:'0 0 6px 6px', padding:'8px 12px', marginTop:'-6px', marginBottom:'6px', display:'flex', alignItems:'center', gap:'10px' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', flexShrink:0 }}>text.color:</span>
+                <div style={{ display:'flex', gap:'5px', flex:1, flexWrap:'wrap' }}>
+                  {TEXT_COLORS.map(c => (
+                    <button key={c.color} title={c.label} onClick={() => exec('foreColor', c.color)}
+                      style={{ width:'24px', height:'24px', borderRadius:'4px', background:c.color, border:'1px solid #2A3548', cursor:'pointer', transition:'transform .1s' }}
+                      onMouseEnter={e => e.target.style.transform='scale(1.15)'}
+                      onMouseLeave={e => e.target.style.transform='scale(1)'} />
+                  ))}
+                </div>
+                <button onClick={() => setShowColor(false)} title="Close" style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'15px', lineHeight:1, padding:'2px 6px', flexShrink:0 }}>×</button>
+              </div>
+            )}
+
+            {/* Emoji picker (inline — pushes editor down) */}
+            {showEmoji && (
+              <div style={{ background:'#1A1F2E', border:'1px solid rgba(0,255,229,.25)', borderTop:'none', borderRadius:'0 0 6px 6px', padding:'10px 12px', marginTop:'-6px', marginBottom:'6px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px' }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>// emoji.picker · click to insert</span>
+                  <button onClick={() => setShowEmoji(false)} title="Close" style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'15px', lineHeight:1, padding:'2px 6px' }}>×</button>
+                </div>
+                <div style={{ display:'flex', gap:'16px', flexWrap:'wrap' }}>
+                  {EMOJI_GROUPS.map(g => (
+                    <div key={g.label} style={{ flex:'1 1 200px', minWidth:'180px' }}>
+                      <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginBottom:'4px' }}>{g.label}</div>
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:'2px' }}>
+                        {g.emojis.map(em => (
+                          <button key={em} onClick={() => insertAtCursor(em)}
+                            style={{ width:'28px', height:'28px', background:'transparent', border:'1px solid transparent', borderRadius:'5px', cursor:'pointer', fontSize:'17px', display:'flex', alignItems:'center', justifyContent:'center', transition:'all .1s' }}
+                            onMouseEnter={e => { e.target.style.background='#232936'; e.target.style.borderColor='#2A3548'; }}
+                            onMouseLeave={e => { e.target.style.background='transparent'; e.target.style.borderColor='transparent'; }}>
+                            {em}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ContentEditable editor */}
+            <div
               ref={editorRef}
               className="editor-area"
-              value={content}
-              onChange={e => setContent(e.target.value)}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={e => setContent(e.currentTarget.innerHTML)}
               onKeyDown={handleKeyDown}
-              placeholder={`~$ start writing...\n\nTip: ⌘B bold · ⌘I italic · ⌘E inline code · ⌘K link · Tab indent`}
+              data-placeholder="Start writing... (highlight text and use toolbar to format)"
             />
           </div>
 
@@ -321,8 +666,8 @@ function CreatePost() {
             <div className="sb-lbl">// images <span style={{ color:'#566176' }}>({images.length}/10)</span></div>
             {images.length < 10 && (
               <div className="upload-zone" onClick={addImage}>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', marginBottom:'4px' }}>❯ drag & drop or click to upload</div>
-                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>PNG, JPG, WebP · max 5MB each</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#8B96AA', marginBottom:'4px' }}>❯ drag & drop or click to upload</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>PNG, JPG, WebP · max 5MB each</div>
               </div>
             )}
             {images.length > 0 && (
@@ -342,8 +687,8 @@ function CreatePost() {
               const pick = types[fileList.length % types.length];
               if(fileList.length < 20) setFileList([...fileList, { name:pick[0], type:pick[1], size:pick[2] }]);
             }} style={{ padding:'16px 20px' }}>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#8B96AA', marginBottom:'3px' }}>❯ drag & drop docs, PDFs, spreadsheets...</div>
-              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>PDF · DOC · DOCX · XLS · XLSX · TXT · CSV · max 20MB each</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'14px', color:'#8B96AA', marginBottom:'3px' }}>❯ drag & drop docs, PDFs, spreadsheets...</div>
+              <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>PDF · DOC · DOCX · XLS · XLSX · TXT · CSV · max 20MB each</div>
             </div>
             {fileList.length > 0 && (
               <div style={{ display:'flex', flexDirection:'column', gap:'4px', marginTop:'10px' }}>
@@ -353,10 +698,10 @@ function CreatePost() {
                   const label = f.type.toUpperCase();
                   return (
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:'10px', padding:'7px 12px', background:'#0A0E1A', border:`1px solid ${color}28`, borderRadius:'6px', borderLeft:`2px solid ${color}70` }}>
-                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'9px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 5px', flexShrink:0 }}>{label}</span>
-                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
-                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
-                      <button onClick={() => setFileList(fileList.filter((_,j)=>j!==i))} style={{ background:'none', border:'none', color:'#F7768E', cursor:'pointer', fontSize:'14px', lineHeight:1, flexShrink:0 }}>×</button>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color, background:`${color}18`, border:`1px solid ${color}50`, borderRadius:'3px', padding:'1px 5px', flexShrink:0 }}>{label}</span>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', color:'#C9D1D9', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{f.name}</span>
+                      <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA', flexShrink:0 }}>{f.size}</span>
+                      <button onClick={() => setFileList(fileList.filter((_,j)=>j!==i))} style={{ background:'none', border:'none', color:'#F7768E', cursor:'pointer', fontSize:'15px', lineHeight:1, flexShrink:0 }}>×</button>
                     </div>
                   );
                 })}
@@ -364,24 +709,70 @@ function CreatePost() {
             )}
           </div>
 
-          {/* Tags */}
-          <div>
-            <div className="sb-lbl">// tags</div>
+          {/* Tags — master data dropdown */}
+          <div style={{ position:'relative' }}>
+            <div className="sb-lbl">// tags <span style={{ color:'#566176', marginLeft:'4px' }}>({tags.length} selected)</span></div>
             <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', padding:'10px', background:'#0A0E1A', border:'1px solid #2A3548', borderRadius:'6px', alignItems:'center', minHeight:'44px' }}>
               {tags.map(t => <TagBadge key={t.name} name={t.name} color={t.color} onRemove={() => setTags(tags.filter(x=>x.name!==t.name))} />)}
-              <input className="tag-inp" value={tagInput} onChange={e=>setTagInput(e.target.value)}
-                onKeyDown={e => { if (e.key==='Enter'||e.key===','||e.key===' ') { e.preventDefault(); addTag(); } }}
-                placeholder="❯ add tag..." />
+              {!showTagPicker && (
+                <button onClick={() => setShowTagPicker(true)}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA',
+                    background:'transparent',
+                    border:'1px dashed #2A3548',
+                    borderRadius:'4px', padding:'3px 10px', cursor:'pointer' }}>
+                  + add tag
+                </button>
+              )}
+              {!showTagPicker && tags.length === 0 && (
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', fontStyle:'italic' }}>no tags selected</span>
+              )}
             </div>
-            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'4px' }}>Press Enter, comma or space to add</div>
+            <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginTop:'4px' }}>// select from system tags only</div>
+
+            {/* Tag picker dropdown */}
+            {showTagPicker && (() => {
+              const available = TAGS_DATA.filter(t => !tags.find(x => x.name === t.name));
+              return (
+                <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:'4px', zIndex:50, background:'#1A1F2E', border:'1px solid rgba(0,255,229,.3)', borderRadius:'8px', padding:'12px', boxShadow:'0 8px 32px rgba(0,0,0,.55)' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px' }}>
+                    <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#8B96AA' }}>
+                      // system.tags · <span style={{ color:'#00FFE5' }}>{available.length}</span> available
+                    </span>
+                    <button onClick={() => setShowTagPicker(false)} title="Close" style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'17px', lineHeight:1, padding:'0 2px' }}>×</button>
+                  </div>
+                  {available.length === 0 ? (
+                    <div style={{ textAlign:'center', padding:'18px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176' }}>
+                      ◎ all available tags selected
+                    </div>
+                  ) : (
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:'6px', maxHeight:'180px', overflowY:'auto' }}>
+                      {available.map(t => (
+                        <button key={t.name} onClick={() => setTags([...tags, { name:t.name, color:t.color }])}
+                          style={{ display:'inline-flex', alignItems:'center', gap:'6px', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:t.color,
+                            background:`${t.color}12`, border:`1px solid ${t.color}50`, borderRadius:'4px',
+                            padding:'3px 9px', cursor:'pointer', transition:'all .15s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background=`${t.color}22`; e.currentTarget.style.boxShadow=`0 0 8px ${t.color}40`; }}
+                          onMouseLeave={e => { e.currentTarget.style.background=`${t.color}12`; e.currentTarget.style.boxShadow='none'; }}>
+                          + {t.name}
+                          <span style={{ color:'#566176', fontSize:'9px' }}>{t.count}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'10px', paddingTop:'8px', borderTop:'1px solid #2A3548' }}>
+                    // can't find your tag? <a href="MyBlog Tags.html" style={{ color:'#00FFE5', textDecoration:'none' }}>manage tags →</a>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
         {/* ── PREVIEW ── */}
         <div className="preview-col" style={{ width:'380px', minWidth:'380px', padding:'20px', overflowY:'auto', background:'#0A0E1A' }}>
           <div className="sb-lbl">// live.preview</div>
-          <PostPreview mood={mood} content={content} tags={tags} imageCount={images.length} />
-          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'10px', textAlign:'center' }}>
+          <PostPreview mood={mood} content={content} tags={tags} imageCount={images.length} files={fileList} />
+          <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#566176', marginTop:'10px', textAlign:'center' }}>
             // preview updates in real-time
           </div>
         </div>
@@ -389,6 +780,138 @@ function CreatePost() {
 
       <StatusBar path="~/admin/create-post" info="● draft · unsaved" />
       {showCP && <CommandPalette onClose={() => setShowCP(false)} />}
+      {showAI && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.7)', backdropFilter:'blur(6px)', zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', padding:'30px 16px', animation:'fadeUp .15s ease' }}
+          onClick={e => e.target===e.currentTarget && !aiLoading && setShowAI(false)}>
+          <div style={{ width:'640px', maxWidth:'95vw', maxHeight:'90vh', background:'#11151F', border:'1px solid rgba(187,154,247,.35)', borderRadius:'12px', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 0 50px rgba(187,154,247,.12),0 24px 60px rgba(0,0,0,.7)' }}>
+            <div style={{ padding:'14px 20px', borderBottom:'1px solid #1F2A3A', background:'#0A0E1A', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#BB9AF7' }}>✨ ai.suggest</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>~/editor/ai-content-generator</div>
+              </div>
+              <button onClick={() => !aiLoading && setShowAI(false)} disabled={aiLoading} style={{ background:'none', border:'none', color:'#8B96AA', cursor:aiLoading?'default':'pointer', fontSize:'20px', lineHeight:1 }}>×</button>
+            </div>
+            <div style={{ flex:1, overflowY:'auto', padding:'18px 20px' }}>
+              {/* Prompt input */}
+              <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', display:'block', marginBottom:'6px' }}>YOUR IDEA · brief gist</label>
+              <textarea value={aiPrompt} onChange={e=>setAiPrompt(e.target.value)}
+                placeholder="// vd: chia sẻ ngày deploy thành công sau 3 ngày debug typo trong config..."
+                rows={3} disabled={aiLoading}
+                style={{ width:'100%', background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'Inter',sans-serif", fontSize:'13px', padding:'10px 12px', borderRadius:'6px', outline:'none', resize:'vertical', lineHeight:'1.6', marginBottom:'12px' }}
+                onFocus={e=>{ e.target.style.borderColor='#BB9AF7'; e.target.style.boxShadow='0 0 10px rgba(187,154,247,.2)'; }}
+                onBlur={e=>{ e.target.style.borderColor='#2A3548'; e.target.style.boxShadow='none'; }}
+                onKeyDown={e => { if ((e.metaKey||e.ctrlKey) && e.key === 'Enter') runAI(); }} />
+
+              {/* Action buttons */}
+              <div style={{ display:'flex', gap:'8px', alignItems:'center', marginBottom:'16px' }}>
+                <button onClick={runAI} disabled={aiLoading || !aiPrompt.trim()}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontWeight:600,
+                    color: aiLoading||!aiPrompt.trim() ? '#566176' : '#0A0E1A',
+                    background: aiLoading||!aiPrompt.trim() ? '#1A1F2E' : '#BB9AF7',
+                    border: aiLoading||!aiPrompt.trim() ? '1px solid #2A3548' : 'none',
+                    borderRadius:'6px', padding:'8px 18px', cursor: aiLoading||!aiPrompt.trim()?'default':'pointer',
+                    boxShadow: aiLoading||!aiPrompt.trim() ? 'none' : '0 0 12px rgba(187,154,247,.4)',
+                    display:'inline-flex', alignItems:'center', gap:'6px' }}>
+                  {aiLoading ? <>{['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'][aiSpinner]} generating...</> : <>{aiResult ? '↻ Regenerate' : '✨ Generate'}</>}
+                </button>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176' }}>⌘↵ to generate</span>
+              </div>
+
+              {/* Error */}
+              {aiError && (
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', color:'#F7768E', background:'rgba(247,118,142,.08)', border:'1px solid rgba(247,118,142,.3)', borderRadius:'5px', padding:'8px 12px', marginBottom:'12px' }}>
+                  {aiError}
+                </div>
+              )}
+
+              {/* Result */}
+              {aiResult && (
+                <div>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#BB9AF7', marginBottom:'6px', display:'flex', alignItems:'center', gap:'6px' }}>
+                    // ai.result <span style={{ color:'#566176' }}>· ready to apply</span>
+                  </div>
+                  <div className="editor-area" style={{ background:'#070A14', border:'1px solid rgba(187,154,247,.3)', minHeight:'120px', maxHeight:'280px', overflowY:'auto', fontSize:'14px', color:'#C9D1D9', boxShadow:'0 0 12px rgba(187,154,247,.05)' }}
+                    dangerouslySetInnerHTML={{ __html: aiResult }} />
+                </div>
+              )}
+
+              {!aiResult && !aiLoading && !aiError && (
+                <div style={{ textAlign:'center', padding:'30px 20px', fontFamily:"'JetBrains Mono',monospace", color:'#566176' }}>
+                  <div style={{ fontSize:'24px', marginBottom:'8px', opacity:.4 }}>✨</div>
+                  <div style={{ fontSize:'11px' }}>// nhập ý tưởng và click generate để AI viết bài</div>
+                </div>
+              )}
+            </div>
+            {/* Footer */}
+            <div style={{ padding:'12px 20px', borderTop:'1px solid #1F2A3A', display:'flex', gap:'8px', background:'#0A0E1A' }}>
+              <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', display:'flex', alignItems:'center' }}>
+                {aiResult ? '↵ replace editor content with AI result' : '// AI sẽ override toàn bộ editor hiện tại'}
+              </span>
+              <div style={{ marginLeft:'auto', display:'flex', gap:'8px' }}>
+                <button onClick={() => setShowAI(false)} disabled={aiLoading}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'7px 16px', cursor: aiLoading?'default':'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={applyAI} disabled={!aiResult || aiLoading}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontWeight:600,
+                    color: (!aiResult||aiLoading) ? '#566176' : '#0A0E1A',
+                    background: (!aiResult||aiLoading) ? '#1A1F2E' : '#00FFE5',
+                    border: (!aiResult||aiLoading) ? '1px solid #2A3548' : 'none',
+                    borderRadius:'6px', padding:'7px 18px', cursor:(!aiResult||aiLoading)?'default':'pointer',
+                    boxShadow:(!aiResult||aiLoading)?'none':'0 0 12px rgba(0,255,229,.3)' }}>
+                  ✓ Replace content
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {linkModal && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.65)', backdropFilter:'blur(6px)', zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', animation:'fadeUp .15s ease' }}
+          onClick={e => e.target===e.currentTarget && setLinkModal(false)}>
+          <div style={{ width:'420px', maxWidth:'92vw', background:'#11151F', border:'1px solid rgba(0,255,229,.3)', borderRadius:'10px', overflow:'hidden', boxShadow:'0 0 40px rgba(0,255,229,.1),0 20px 50px rgba(0,0,0,.6)' }}>
+            <div style={{ padding:'14px 18px', borderBottom:'1px solid #1F2A3A', background:'#0A0E1A', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#00FFE5' }}>🔗 insert.link</div>
+                <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginTop:'2px' }}>~/editor/link</div>
+              </div>
+              <button onClick={() => setLinkModal(false)} style={{ background:'none', border:'none', color:'#8B96AA', cursor:'pointer', fontSize:'20px', lineHeight:1 }}>×</button>
+            </div>
+            <div style={{ padding:'18px' }}>
+              <div style={{ marginBottom:'12px' }}>
+                <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', display:'block', marginBottom:'5px' }}>DISPLAY TEXT <span style={{ color:'#566176' }}>(if no selection)</span></label>
+                <input value={linkText} onChange={e=>setLinkText(e.target.value)} placeholder="click here..."
+                  style={{ width:'100%', background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', padding:'8px 12px', borderRadius:'6px', outline:'none' }}
+                  onFocus={e=>{ e.target.style.borderColor='#00FFE5'; e.target.style.boxShadow='0 0 10px rgba(0,255,229,.15)'; }}
+                  onBlur={e=>{ e.target.style.borderColor='#2A3548'; e.target.style.boxShadow='none'; }} />
+              </div>
+              <div style={{ marginBottom:'16px' }}>
+                <label style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#8B96AA', display:'block', marginBottom:'5px' }}>URL</label>
+                <div style={{ position:'relative' }}>
+                  <span style={{ position:'absolute', left:'10px', top:'50%', transform:'translateY(-50%)', color:'#00FFE5', fontSize:'13px', fontFamily:"'JetBrains Mono',monospace", pointerEvents:'none' }}>❯</span>
+                  <input value={linkUrl} onChange={e=>setLinkUrl(e.target.value)} autoFocus
+                    onKeyDown={e=>{ if(e.key==='Enter') applyLink(); if(e.key==='Escape') setLinkModal(false); }}
+                    placeholder="https://"
+                    style={{ width:'100%', background:'#070A14', border:'1px solid #2A3548', color:'#E6EDF3', fontFamily:"'JetBrains Mono',monospace", fontSize:'13px', padding:'8px 12px 8px 28px', borderRadius:'6px', outline:'none' }}
+                    onFocus={e=>{ e.target.style.borderColor='#00FFE5'; e.target.style.boxShadow='0 0 10px rgba(0,255,229,.15)'; }}
+                    onBlur={e=>{ e.target.style.borderColor='#2A3548'; e.target.style.boxShadow='none'; }} />
+                </div>
+              </div>
+              <div style={{ display:'flex', gap:'8px', justifyContent:'flex-end', alignItems:'center' }}>
+                <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'10px', color:'#566176', marginRight:'auto' }}>↵ insert · Esc cancel</span>
+                <button onClick={() => setLinkModal(false)}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', color:'#8B96AA', background:'#1A1F2E', border:'1px solid #2A3548', borderRadius:'6px', padding:'7px 16px', cursor:'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={applyLink}
+                  style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:'12px', fontWeight:600, color:'#0A0E1A', background:'#00FFE5', border:'none', borderRadius:'6px', padding:'7px 18px', cursor:'pointer', boxShadow:'0 0 12px rgba(0,255,229,.3)' }}>
+                  ↵ Insert Link
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

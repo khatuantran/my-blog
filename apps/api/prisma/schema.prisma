@@ -68,6 +68,13 @@ enum ReactionType {
   ANGRY
 }
 
+enum NotificationType {
+  REACTION
+  COMMENT
+  REPLY
+  SHARE
+}
+
 // ──────────────────────────────────────────────────────────
 // Models
 // ──────────────────────────────────────────────────────────
@@ -85,14 +92,16 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  posts            Post[]
-  comments         Comment[]
-  reactions        Reaction[]
-  commentLikes     CommentLike[]
-  savedPosts       SavedPost[]
-  refreshTokens    RefreshToken[]
-  actorActivities  ActivityLog[]    @relation("ActorActivities")
-  targetActivities ActivityLog[]    @relation("TargetOwnerActivities")
+  posts                    Post[]
+  comments                 Comment[]
+  reactions                Reaction[]
+  commentLikes             CommentLike[]
+  savedPosts               SavedPost[]
+  refreshTokens            RefreshToken[]
+  actorActivities          ActivityLog[]    @relation("ActorActivities")
+  targetActivities         ActivityLog[]    @relation("TargetOwnerActivities")
+  receivedNotifications    Notification[]   @relation("ReceivedNotifications")
+  sentNotifications        Notification[]   @relation("SentNotifications")
 }
 
 model Post {
@@ -104,14 +113,15 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  author    User        @relation(fields: [authorId], references: [id])
-  images    Image[]
-  files     File[]
-  comments  Comment[]
-  reactions Reaction[]
-  postTags  PostTag[]
-  savedBy   SavedPost[]
-  views     PostView[]
+  author        User           @relation(fields: [authorId], references: [id])
+  images        Image[]
+  files         File[]
+  comments      Comment[]
+  reactions     Reaction[]
+  postTags      PostTag[]
+  savedBy       SavedPost[]
+  views         PostView[]
+  notifications Notification[]
 
   @@index([createdAt])
   @@index([authorId])
@@ -284,4 +294,24 @@ model ActivityLog {
 
   @@index([actorId, createdAt])
   @@index([targetOwnerId, createdAt])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  actorId    String
+  type       NotificationType
+  targetType String
+  targetId   String
+  postId     String?
+  read       Boolean          @default(false)
+  metadata   Json?
+  createdAt  DateTime         @default(now())
+
+  recipient User  @relation("ReceivedNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor     User  @relation("SentNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  post      Post? @relation(fields: [postId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([userId, read])
 }

@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260524140000_add_notification_table
+
+- **Created:** 2026-05-24
+- **Type:** schema
+- **Entities affected:** `Notification` (new), `User.receivedNotifications/sentNotifications`, `Post.notifications`; new enum `NotificationType (REACTION/COMMENT/REPLY/SHARE)`
+- **Breaking:** no (additive only)
+- **Notes:** `targetType` and `targetId` are soft-polymorphic (no declared FK) to support both POST and COMMENT targets. `postId` FK uses `SET NULL` so notification survives post deletion (postId becomes null). FK Cascade on `userId` and `actorId` (deleted user removes their notifications). 2 indexes: `[userId, createdAt]` for list query, `[userId, read]` for unread count.
+- **Task:** T-310
+- **Rollback:** `DROP TABLE "Notification"; DROP TYPE "NotificationType";`
+
 ### 20260524125935_rename_like_to_reaction_with_type
 
 - **Created:** 2026-05-24

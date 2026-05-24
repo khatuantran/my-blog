@@ -6,6 +6,12 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-310** BE Notifications migration (M11.7, FR-14.1, BE-only):
+  - Migration `20260524140000_add_notification_table`: CREATE TABLE `"Notification"` + CREATE TYPE `"NotificationType"` (REACTION/COMMENT/REPLY/SHARE). Fields: id/userId/actorId/type/targetType(String poly)/targetId(soft-FK)/postId?(FK SetNull)/read(default false)/metadata(Json?)/createdAt. FK Cascade on userId+actorId (actor deleted → notification deleted), SetNull on postId (post deleted → postId null).
+  - Indexes: `[userId, createdAt]` (list per user DESC) + `[userId, read]` (unread count fast query).
+  - `schema.prisma`: `NotificationType` enum + `Notification` model + `User.receivedNotifications/sentNotifications` + `Post.notifications` relation.
+  - `tests/_helpers/db-reset.ts`: added `prisma.notification.deleteMany` + `prisma.activityLog.deleteMany` to cleanup between e2e tests.
+
 - **T-316** BE Reactions — rename Like → Reaction + ReactionsModule + 4 endpoints (M11.7, FR-16.x, BE-only):
   - Migration `20260524125935_rename_like_to_reaction_with_type`: data-preserving `ALTER TABLE "Like" RENAME TO "Reaction"` + `ADD COLUMN type ReactionType DEFAULT LIKE` + `ADD COLUMN updatedAt` + new index `[postId, type]`. Existing rows backfill to LIKE (zero data loss).
   - `src/reactions/reactions.service.ts` (new): `upsertReaction()` (create or change type, activity-log on first react), `removeReaction()` (404 nếu chưa react), `getReactionCounts()` (groupBy aggregate → 6-type totalCounts + topThree + myReaction for authed viewer), `listReactions()` (paginated + optional type filter), `toggleCommentLike()` (binary carry-over from LikesService, uses `prisma.commentLike`).

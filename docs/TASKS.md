@@ -308,6 +308,82 @@
 - [T-333] [P2] [F1] [FE] CreatePostPage — editor MonoSpace → Inter cho content prose (toggle var qua CSS class), image preview grid revamp giống Feed (1/2/3+ +N overlay), preview file attachment. (Foundation) - TODO
 - [T-334] [P3] [F5] [FE] Responsive sweep 8 màn cũ — port v2 5-tier breakpoint CSS từ design-file (Feed/PostDetail/Profile/Admin/Search/Tags/Login/CreatePost). Pure CSS refactor, không đổi behavior. (Foundation, NFR-02) - TODO
 
+### Backlog — M11.8: Design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes
+
+> F2 docs amendments done 2026-05-25 (FR-03.6 reply-to-comment + FR-04.7 CommentsModal pattern + FR-12.8-.12 Search expanded + FR-14.7-.13 Notifications expanded + NEW FR-17 AI generation + UC-22). DESIGN_SYSTEM.md + UI_DESIGN.md design-file sync commit `24c040e` (2026-05-24). Tasks below pending F1/F3 execute. Priority order: **F3 bugs first** (user-blocking), then F2-prereq + F1 implementations.
+>
+> **Dependency note:** F1 tasks depending FR amendments cần F2 docs commit complete (BE migration plan + API_CONTRACT updates) trước khi start implementation. Order: F3 (parallel, no deps) → F1 BE migration tasks → F1 FE implementation tasks.
+
+**🔴 F3 Bug fixes (priority CAO — user-reported, blocking core features):**
+
+- [T-340] [P1] [F3] [FE] Fix BUG-001 ReactionPicker hover gap — thiếu 250ms close debounce. Refactor `apps/web/src/components/feed/ReactionButton.tsx`: thêm `hoverTimer` useRef + `openPicker = clearTimeout + setOpen(true)` + `closePicker = setTimeout(close, 250)`. Wire `onMouseEnter`/`onMouseLeave` trên container (KHÔNG check relatedTarget). Regression test: `apps/web/tests/components/feed/ReactionButton.test.tsx` case `it('regression BUG-001: ...')` — simulate hover button → wait 100ms → hover picker → verify still open. Diff < 30 dòng. (BUG-001, FR-16.5, [[DESIGN_SYSTEM.md > Hover-reveal popover with grace period]]) - TODO
+- [T-341] [P1] [F3] [FE] Fix BUG-002 ProfileAvatar 6 visual/animation bugs + tailwind config drift. Refactor `apps/web/src/components/shared/ProfileAvatar.tsx`: add `<linearGradient>` 3 stops + `strokeDasharray="6 4"` + 2px solid border + inner+text shadow + green online dot 12×12 với pulse animation. Update `apps/web/tailwind.config.ts`: bump `glitch 9s → 8s`; refactor `pulse-status` → match design-file `pulse` (opacity + drop-shadow glow, NOT scale); add 4 keyframes (`borderRotate 8s`, `liveDot 1.5s`, `slideIn .25s`, `slideDown .2s`). Regression test: `ProfileAvatar.test.tsx` case `it('regression BUG-002: ...')` assert linearGradient + dasharray + animation duration + online dot present. (BUG-002, FR-11.1, [[DESIGN_SYSTEM.md > ProfileAvatar]]) - TODO
+- [T-342] [P2] [F3] [FE] Fix BUG-003 Login scanCard animation drift (6s → 4s + rename). Update `apps/web/tailwind.config.ts`: rename `'scan-line'` → `'scan-card'` + duration 6s → 4s + keyframe `from { top: -100% } to { top: 200% }` (NOT translateY). Update consumer LoginCard component class `animate-scan-line` → `animate-scan-card`. Regression test: `LoginCard.test.tsx` case `it('regression BUG-003: ...')`. (BUG-003, FR-01.2, [[DESIGN_SYSTEM.md > Scan card animation (Login)]]) - TODO
+
+**🟡 F2 prerequisites (BE migration + API contract — chạy trước F1 FE):**
+
+- [T-343] [P1] [F2] [BE] Migration `add_comment_parent_id_for_reply` (FR-03.6): Comment thêm `parentId String?` self-reference (FK Comment.id onDelete CASCADE) + `replyTo Json?` denorm. Add `@@index([parentId])`. Backfill: existing Comment rows giữ `parentId=null, replyTo=null`. Update CommentsService.create: nhận optional `parentId` → validate `parent.postId === current postId` + `parent.parentId === null` (depth 1 only) → reject 400 `INVALID_PARENT_DEPTH` nếu nested. Set `replyTo = { username: parent.user?.username || parent.anonymousName, isAnon: !parent.userId }` denorm. Tests: comments.service.spec.ts (4 case: insert reply happy + reject depth 2 + cascade delete + replyTo denorm) + e2e (3 case: POST reply 201 with replyTo, POST nested reply 400, DELETE parent → cascade replies). (FR-03.6) - TODO
+- [T-344] [P1] [F2] [BE] CommentsModule endpoint `GET /comments/:id/replies` (FR-03.6) — paginated list replies of a comment. Pagination per NFR-06 default `page=1&limit=20` max 50. Public role-aware (USER thấy APPROVED only). Tests: comments-replies.e2e-spec.ts (4 case: list happy + pagination + 404 comment + role-aware status filter). Update existing `GET /posts/:id/comments` extended response: top-level filter `parentId IS NULL` + include `replies: Comment[]` (max 3 first) + `replyCount`. (FR-03.6) - TODO
+- [T-345] [P2] [F2] [BE] Migration `add_notifications_bulk_endpoints` — KHÔNG cần migration DB (existing schema OK), chỉ add 2 endpoints (FR-14.10/.12): `PATCH /notifications/bulk-read { ids }` (mark multiple as read, self-scope, max 100 ids) + `DELETE /notifications/all` (clear all of current user). Update NotificationsService với 2 methods + controller routes. Tests: notifications.e2e-spec.ts thêm 4 case (bulk-read happy, bulk-read 400 >100 ids, clear-all happy, 401 anon). (FR-14.10/.12) - TODO
+
+**🟢 F1 New implementations (sau khi F2 prereq done):**
+
+_AI Content Generation (FR-17 NEW):_
+
+- [T-346] [P2] [F1] [BE] AIModule (NEW) — `AIProviderInterface` abstract + `AnthropicProvider` impl (sử dụng `@anthropic-ai/sdk`). Service `aiService.generate(prompt: string): Promise<{ html: string }>` với prompt template FR-17.4 hard-coded. Strip ` ```html` markers từ response. Endpoint `POST /ai/generate` body `{ prompt }` Zod validate length 5-500. ThrottleGuard 10 req/min/admin (per FR-17.7). JwtAuthGuard + RolesGuard ADMIN. Sentry log mỗi request `{ promptLength, resultLength, model, latencyMs }`. Error mapping: 400 INVALID_PROMPT, 403 non-admin, 429 RATE_LIMITED, 500 PROVIDER_ERROR. Env vars (DEPLOYMENT.md): `AI_PROVIDER=anthropic`, `AI_API_KEY=<sk-ant-...>`, `AI_MODEL=claude-haiku-4-5`, `AI_RATE_LIMIT_PER_MIN=10`. Tests: ai.service.spec.ts (6 case: mock provider success + strip markers + length validation + provider error map + rate limit + log) + ai.e2e-spec.ts (4 case: 200 success, 400 length, 401 anon, 403 non-admin). (FR-17) - TODO
+- [T-347] [P2] [F1] [FE] AISuggestModal component (FR-17.5/.6/.8) — 640px max-w 95vw modal portal vào body, purple theme `--pur` accent. Header `✨ ai.suggest` + path + close ×. Body: textarea + Generate button (cyan primary với braille spinner 80ms loading state) + ⌘↵ shortcut hint + error block + result preview editor-area với `dangerouslySetInnerHTML`. Footer: `✓ Replace content` cyan primary → `editorRef.current.innerHTML = aiResult` + close modal. Hook `useGenerateAI({ onSuccess, onError })` qua TanStack Query mutation. Integrate vào Create Post page button `✨ AI suggest` (purple) top-right của content section. Tests: AISuggestModal.test.tsx (5 case: open/close/generate/regenerate/replace content). (FR-17.5/.6) - TODO
+
+_CommentsModal at Feed level (FR-04.7 — DEFINITIVE pattern):_
+
+- [T-348] [P1] [F1] [FE] CommentsModal component (FR-04.7 NEW) — 640px modal portal vào body, infinite scroll (PAGE_SIZE 5) qua IntersectionObserver + AsciiSpinner loading + page indicator dots. Header avatar + admin + time + MoodBadge + close ×. Body: render `CommentItemRow` list. Footer: integrate `CommentForm` (textarea + anon toggle + ↵ Send). ReactDOM.createPortal vào `document.body`. Body scroll lock + Esc close + click backdrop close. Tests: CommentsModal.test.tsx (5 case: open/close/infinite scroll/comment submit/Esc). (FR-04.7, [[DESIGN_SYSTEM.md > CommentsModal]]) - TODO
+- [T-349] [P1] [F1] [FE] Refactor `apps/web/src/components/feed/PostCard.tsx` — đổi `💬` button từ `<Link to="/post/:id">` → `<button onClick={() => setShowComments(true)}>` mở CommentsModal. Keep Post Detail page existing cho deep-link/SEO (direct URL access OK). Update ASCII test snapshots nếu có. Tests: PostCard.test.tsx update existing test cases về `💬 click → opens modal NOT navigates`. (FR-04.7, depends T-348) - TODO
+
+_Reply to comment MVP (FR-03.6):_
+
+- [T-350] [P1] [F1] [FE] ReplyForm + ReplyRow components (FR-03.6 NEW) — `ReplyForm` inline form mở khi click `↩ Reply` trên CommentItem, header `↩ replying to <user>` blu mono, textarea Inter 13 rows 2, anon toggle, ⌘↵ submit, Esc cancel. `ReplyRow` nested under parent comment indent 40px, avatar 24×24, like dùng `♡/❤` traditional (NOT reaction picker). Reuse `useCreateComment` mutation với `parentId` param. CommentItem refactor: thêm toggle `↩ Reply / Cancel` + show replies list (max 3 default + `↳ N replies (load more)` button qua `useReplies({commentId})`). Tests: 6 case (ReplyForm submit + Esc cancel + anon toggle + ReplyRow render + nested click reply on reply hidden + load more button). (FR-03.6, depends T-343/T-344) - TODO
+
+_Search expanded (FR-12.8-.12):_
+
+- [T-351] [P2] [F1] [FE] SearchPage rewrite (FR-12.8-.12) — Hero block với label `❯ search` + Big input **Inter 18** (NOT mono, NOT 22px như spec cũ) + ⌘K badge + × clear. Filter row: 3 chips (All/Saved/Files) + 7 mood emoji buttons + reset × red. 3 empty-state sections (recent.searches + browse.tags + all.posts preview). Results state với `<Highlight>` `<mark>` cyan/20. No-results: ◎ + bash hint + clear + try-recent. ResultCard refresh top accent line + post-id corner. Verify TopBar `hideSearch={true}` đã wire. Tests: SearchPage.test.tsx (8 case: hero render + filter chip click + mood filter + empty 3 sections + results highlight + no-results + clear filters + recent.searches localStorage). (FR-12.8-.12) - TODO
+
+_Notifications expanded (FR-14.7-.13):_
+
+- [T-352] [P2] [F1] [FE] NotificationsPage rewrite (FR-14.7-.13) — Replace 2 tabs (All/Unread) với 6 type tabs (All/Unread/Reactions/Comments/Replies/Shares) + count badges. Add search input `⌕ search by user, content, post id...` với 150ms debounce client-side filter. Bulk select bar (visible khi `selected.size > 0`): `N selected` + mark read + delete + clear. SubBar buttons: `✓ mark all read` + `✕ clear all`. Toast bottom-right slideDown 2500ms cho mọi action. Hook reuse `useNotifications` qua `useInfiniteQuery` + bulk hooks `useBulkMarkRead` + `useDeleteAllNotifications`. Tests: NotificationsPage.test.tsx (10 case: 6 tab switch + search filter + bulk select + bulk mark read + bulk delete + clear all confirm + toast trigger + sticky group label + empty state both variants + reply notification replyTo display). (FR-14.7-.13, depends T-345) - TODO
+- [T-353] [P2] [F1] [FE] NotifRow split — Refactor existing NotifRow thành 2 components riêng: `NotifRowBell` (TopBar dropdown variant — 34×34/18×18/2px/4 legacy types like-comment-share-save) + `NotifRowPage` (Notifications page variant — 40×40/20×20/3px/4 new types reaction-comment-reply-share + checkbox column + replyTo field display + mark toggle + delete buttons). Files: `apps/web/src/components/layout/NotifRowBell.tsx` + `apps/web/src/pages/notifications/NotifRowPage.tsx`. Tests: 2 test files mỗi component (6 case mỗi: variant size, badge size, border-left thickness, type config, anon variant, hover state). (FR-14.13, [[DESIGN_SYSTEM.md > NotifRowBell + NotifRowPage]]) - TODO
+
+_Design-file visual sync (PostCard action + new components):_
+
+- [T-354] [P2] [F1] [FE] PostCard action row refactor (design-file 2026-05-24): bỏ SaveButton standalone khỏi action row (move sang PostActionMenu item `🔖 Save post`). Action row chỉ 3 button: `[React]` + `💬 N` + `↗ Share` + `(ml-auto) ⋯`. Tests: PostCard.test.tsx update existing case về action row buttons count + SaveButton absence. Depends T-356 (PostActionMenu). (Design sync, depends T-356) - TODO
+- [T-355] [P2] [F1] [FE] ImageLightbox component (Gap 1) — full-screen overlay portal cho image click trong ImageGrid. Header (avatar+path+meta+counter+×) + image area (max 960×70vh diagonal stripe placeholder) + thumbnail strip (only `images>1`) + footer hint. Keyboard ← → Esc, body scroll lock. Wire vào PostCard `<ImageGrid onImageClick={(idx) => setLightboxIdx(idx)} />`. Tests: 4 case (open/close/keyboard nav/multi-image thumbnail). (Design sync, [[DESIGN_SYSTEM.md > ImageLightbox]]) - TODO
+- [T-356] [P2] [F1] [FE] PostActionMenu component (Gap 2/8 hybrid) — context menu khi click `⋯` trên PostCard. 250px minWidth, header `// post.actions · #<id>`, items: user-actions (Open detail / Copy link / **🔖 Save post**) + separator `// admin` + admin-actions (Edit / Pin / Archive / Hide comments) + separator `// danger` + Delete. Click outside close. Copy link → `navigator.clipboard.writeText` + `Copied!` 900ms feedback. Admin items role-gated qua `user.role === ADMIN`. Tests: 6 case (open/close/copy link/admin gating/destructive confirm/click outside). (Design sync, [[DESIGN_SYSTEM.md > PostActionMenu]]) - TODO
+- [T-357] [P2] [F1] [FE] ReactionIcon SVG component + REACTION_CONFIG migration (Gap 6) — Create `apps/web/src/components/feed/ReactionIcon.tsx` với 6 SVG line-art inline (like/love/haha/wow/sad/angry per design-file paths). Props `{ r: ReactionConfig, size?: 18, glow?: false }`. Update `lib/reaction-config.ts`: đổi field `emoji: string` → `iconPath: (color) => JSX.Element` (hoặc inline SVG defs). Refactor ReactionButton + ReactionPicker dùng `<ReactionIcon>` thay emoji rendering. Tests: 3 case (render 6 variants + glow filter + size prop). (Design sync, [[DESIGN_SYSTEM.md > ReactionIcon]]) - TODO
+- [T-358] [P2] [F1] [FE] ReactionPicker container refactor (Gap 6) — đổi container từ pill (`rounded-full`) sang panel (`rounded-lg` 8px) + 40×40 buttons (KHÔNG 36×36) + hover `translateY(-2px) + per-color glow` (KHÔNG `scale-125`). Active state SVG icon với drop-shadow filter. Wire 250ms hover debounce (BUG-001 đã fix trong T-340, verify consistent). Tests: 4 case (panel shape NOT pill + 40×40 button + translateY hover + active glow). Depends T-357. (Design sync, [[DESIGN_SYSTEM.md > ReactionPicker]]) - TODO
+- [T-359] [P2] [F1] [FE] NotificationBell visual refactor (Gap 5) — Replace `🔔` emoji với inline SVG bell (15×15 stroke=currentColor 2px, 2 paths body+clapper). Button 32×32 với border `1px --b2` + bg `--elev` (KHÔNG no-border). Badge: ring `1.5px solid --surf` + threshold `> 9 → "9+"` (NOT 99+) + color `--bg` (NOT white). Tests: update existing NotificationBell.test.tsx (5 case: SVG render + threshold 9+/9+ display + bordered button + badge ring). (Design sync, [[DESIGN_SYSTEM.md > NotificationBell]]) - TODO
+
+**Out of M11.8 scope (defer phase 2):**
+
+- ImageCarousel Post Detail variant refresh (single-image carousel với arrows + dots — currently in `apps/web/src/components/post/`).
+- CommandPalette full refactor (8 commands grouped + ⌘K global handler — existing has basic version).
+- StatusBar full refactor (segments + per-page path/info).
+- EditProfileDrawer redesign (currently uses generic drawer, missing 4 sections layout).
+- ProfilePage hero rewrite (gradient bg + hex deco + 4 tabs + sidebar).
+- AdminPage SubBar + StatCards + Users table + Comments moderation refactor.
+- ManagePostsPage + QuickEditModal full rewrite.
+- TagsPage + TagModal NEON_COLORS picker refactor.
+- LoginCard refresh full (anonymous link + register link + bracket logo SVG).
+- AvatarMenu 7-item refactor (currently 5-6 items).
+- PostMiniCard (Profile variant) component.
+- EmojiPicker (Create Post inline 4 groups × 16).
+- TagPickerDropdown (master-data only — Create Post).
+- UploadZone shared component extract.
+- RichTextEditor contentEditable + execCommand patterns refactor.
+- LinkInsertModal + saveSelection/restoreSelection patterns.
+- Toast shared component + `useToast` hook.
+- Token system implementation (Z-index scale CSS vars + Shadow recipes CSS vars + Typography refinement tokens) — pure F5 refactor task.
+- Animation registry implementation trong `tailwind.config.ts` (12 keyframes).
+
+→ Mở các task này khi M11.8 close hoặc khi user prioritize specific feature.
+
 ### Backlog — M13: Deploy
 
 - [T-120] [P1] [F7] [Infra] Setup Vercel project (FE) + connect GitHub - TODO

@@ -98,21 +98,46 @@ AnonymousSession (standalone — track guest)
 
 ### Comment
 
-**Mục đích:** Comment trên bài viết (auth user hoặc anonymous).
+**Mục đích:** Comment trên bài viết (auth user hoặc anonymous). Support 1-level reply MVP (FR-03.6 — amended 2026-05-25).
 
-| Field         | Type                | Constraints               | Notes                                   |
-| ------------- | ------------------- | ------------------------- | --------------------------------------- |
-| id            | String (cuid)       | PK                        |                                         |
-| postId        | String              | FK Post, onDelete Cascade |                                         |
-| userId        | String?             | FK User                   | null = anonymous                        |
-| anonymousName | String?             |                           | nếu anonymous, hiển thị tên này         |
-| anonymousId   | String?             |                           | cookie UUID nếu anonymous (dedupe like) |
-| content       | Text                |                           | sanitized FE+BE                         |
-| status        | Enum(CommentStatus) | default `APPROVED`        | PENDING khi moderation queue ON         |
-| createdAt     | DateTime            | default(now())            |                                         |
+| Field         | Type                | Constraints                                   | Notes                                                                        |
+| ------------- | ------------------- | --------------------------------------------- | ---------------------------------------------------------------------------- |
+| id            | String (cuid)       | PK                                            |                                                                              |
+| postId        | String              | FK Post, onDelete Cascade                     |                                                                              |
+| userId        | String?             | FK User                                       | null = anonymous                                                             |
+| anonymousName | String?             |                                               | nếu anonymous, hiển thị tên này                                              |
+| anonymousId   | String?             |                                               | cookie UUID nếu anonymous (dedupe like)                                      |
+| content       | Text                |                                               | sanitized FE+BE                                                              |
+| status        | Enum(CommentStatus) | default `APPROVED`                            | PENDING khi moderation queue ON                                              |
+| parentId      | String?             | FK Comment (self-reference), onDelete Cascade | **NEW FR-03.6** — null = top-level; nếu set → reply                          |
+| replyTo       | Json?               |                                               | **NEW FR-03.6** — denorm `{username, isAnon}` của parent author (avoid JOIN) |
+| createdAt     | DateTime            | default(now())                                |                                                                              |
 
-**Relations:** `belongsTo` Post, `belongsTo` User (nullable), `hasMany` CommentLike
-**Indexes:** `@@index([postId, createdAt])` cho load comment theo post + sort
+**Relations:** `belongsTo` Post, `belongsTo` User (nullable), `hasMany` CommentLike, **`belongsTo` Comment (parent — NEW)**, **`hasMany` Comment (replies — NEW)**
+**Indexes:**
+
+- `@@index([postId, createdAt])` cho load comment theo post + sort
+- **`@@index([parentId])` (NEW FR-03.6)** cho fast lookup replies of a comment
+
+**Depth constraint:** Service layer VALIDATE `parentComment.parentId === null` trước khi insert reply (reject 400 `INVALID_PARENT_DEPTH` nếu reply on a reply). Depth max 1 — không cho nested reply trong reply.
+
+**Cascade:** `onDelete Cascade` từ parent → replies (xoá parent comment → tất cả replies bị xoá).
+
+**Prisma snippet (delta cho M11.8):**
+
+```prisma
+model Comment {
+  id            String        @id @default(cuid())
+  // ... existing fields
+  parentId      String?
+  replyTo       Json?         // { username: string, isAnon: boolean }
+  parent        Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[]     @relation("CommentReplies")
+
+  @@index([postId, createdAt])
+  @@index([parentId])
+}
+```
 
 ### Reaction (RENAMED từ Like — FR-16 M11.7)
 

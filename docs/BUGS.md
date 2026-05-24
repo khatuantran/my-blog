@@ -7,7 +7,99 @@
 
 ## Open
 
-_(Chưa có bug)_
+### [BUG-001] [High] [FE] ReactionPicker biến mất khi hover qua gap → user không chọn được reaction
+
+- **Status:** OPEN
+- **Reporter:** khatran — **Date:** 2026-05-25
+- **Environment:**
+  - Browser/OS: Chrome/Safari (any modern) / macOS / desktop
+  - App version: v0.4.0-alpha post-T-317 commit `84835bd`
+  - Env: local + preview + production
+  - Layer impacted: FE
+- **Related task:** T-340 (sẽ tạo trong M11.8 backlog)
+- **Related FR/component:** FR-16.5 / `apps/web/src/components/feed/ReactionButton.tsx` L86-92
+- **Mô tả:** Hover vào nút React trên PostCard → ReactionPicker popover hiện ra (6 SVG icons). User di chuột lên popover để chọn emoji nhưng picker biến mất giữa chừng → user không thể click được reaction nào.
+- **Steps to reproduce:**
+  1. Mở Feed (`/`) hoặc Post Detail (`/post/:id`).
+  2. Hover chuột vào nút `React` trên PostCard action row → ReactionPicker hiện.
+  3. Di chuột lên trên (qua khoảng gap 6px giữa nút và picker) để chọn 1 emoji.
+  4. Picker biến mất trước khi chuột kịp vào picker → user không click được.
+- **Expected:** Picker giữ open khi chuột di chuyển qua gap, user chọn được emoji.
+- **Actual:** Picker đóng giữa chừng. UX bị blocked, user không thể chọn reaction qua hover flow.
+- **Screenshot/log:** N/A (UX issue, không có error log)
+- **Root cause (preliminary — verify khi fix):** FE `ReactionButton.tsx` `onMouseLeave` handler đóng picker NGAY LẬP TỨC nếu `e.relatedTarget` không thuộc DOM tree của container (`e.currentTarget.contains(next)` returns false). Khi chuột nằm trên gap 6px (mb-2 hoặc `bottom: calc(100% + 6px)`), browser không hit element nào trong hover container → `relatedTarget` = null hoặc body → close fires. Design-file pattern dùng 250ms `setTimeout` debounce (`closePicker = () => { timer.current = setTimeout(close, 250) }` + `openPicker = clearTimeout(timer.current) + setOpen(true)`) để cho user buffer 250ms move qua gap. Reference: `design-file/MyBlog Feed.html` L840-841.
+- **Fix (proposed):** Refactor `ReactionButton.tsx` (`apps/web/src/components/feed/ReactionButton.tsx`):
+  - Thêm `const hoverTimer = useRef<NodeJS.Timeout>()`.
+  - `openPicker = () => { clearTimeout(hoverTimer.current); setPickerOpen(true); }`.
+  - `closePicker = () => { hoverTimer.current = setTimeout(() => setPickerOpen(false), 250); }`.
+  - Wire `onMouseEnter={openPicker}` + `onMouseLeave={closePicker}` trên container (KHÔNG check relatedTarget).
+- **Regression test:** `apps/web/tests/components/feed/ReactionButton.test.tsx` — case `it('regression BUG-001: picker stays open when mouse moves through 6px gap', ...)` simulate `mouseEnter` button → wait 100ms → `mouseEnter` picker → verify picker still rendered. Move out → wait 300ms → verify picker closed.
+- **Pattern reference:** `DESIGN_SYSTEM.md > Hover-reveal popover with grace period`.
+
+### [BUG-002] [High] [FE] ProfileAvatar 6 visual/animation bugs vs design-file (rotating ring + online dot + glow)
+
+- **Status:** OPEN
+- **Reporter:** khatran — **Date:** 2026-05-25
+- **Environment:**
+  - Browser/OS: any modern browser
+  - App version: v0.4.0-alpha post-T-317 commit `84835bd`
+  - Env: local + preview + production
+  - Layer impacted: FE
+- **Related task:** T-341 (sẽ tạo trong M11.8 backlog)
+- **Related FR/component:** FR-11.1 / `apps/web/src/components/shared/ProfileAvatar.tsx` + `apps/web/tailwind.config.ts`
+- **Mô tả:** ProfileAvatar trên Profile page (`/profile/:username`) có 6 lỗi visual/animation vs design-file:
+  1. Rotating ring quay quá nhanh: `spin 4s` thay vì `borderRotate 8s` (2× tốc độ design).
+  2. Stroke ring solid cyan (opacity 0.7) thay vì linear-gradient 3 stops (cyan 80% → pur 40% → mag 60%).
+  3. Dasharray `"20 12"` thay vì `"6 4"` (sai proportions).
+  4. Inner border 1px `#00FFE540` (40% opacity) thay vì 2px solid cyan full.
+  5. **Missing online status dot bottom-right** (green 12×12 với `pulse 2s` + border + shadow `0 0 8px grn`).
+  6. Missing inner shadow `0 0 20px cyan/20 + inset 0 0 20px cyan/5` + text-shadow `0 0 20px cyan/80` trên initial letter.
+- **Plus 2 related tailwind config bugs:**
+  - `glitch 9s` thay vì `glitch 8s` (Profile hero name glitch tempo lệch 1s).
+  - `pulse-status` keyframes dùng `opacity + scale 0.9` thay vì design-file `pulse` `opacity + drop-shadow glow` (effect khác hẳn — shrink vs glow).
+- **Steps to reproduce:**
+  1. Open `/profile/admin` hoặc `/me`.
+  2. Quan sát hero avatar 88px top-left của hero banner.
+  3. So sánh với `design-file/MyBlog Profile.html` L260-289 (open file trong browser).
+- **Expected:** Avatar có rotating gradient ring quay 8s + online green dot bottom-right pulsing + glow shadow + text glow.
+- **Actual:** Ring spin nhanh hơn 2x, stroke solid cyan, không có online dot, không có shadow glow.
+- **Screenshot/log:** Visual diff — capture cả 2 (current FE Profile vs `design-file/MyBlog Profile.html`).
+- **Root cause:** FE `ProfileAvatar.tsx` được implement nhanh trong M11.5 (T-098 hoặc tương tự) trước khi design-file 2026-05-24 finalize spec. Implementation chỉ cover basic case, miss nhiều chi tiết visual + animation đã chốt trong design-file v2.1.
+- **Fix (proposed):** Refactor `apps/web/src/components/shared/ProfileAvatar.tsx` theo `DESIGN_SYSTEM.md > ProfileAvatar (Profile hero — M11.5 FR-11.1 — updated 2026-05-24 design-file sync)`:
+  - Add `<linearGradient id="avatarGrad">` 3 stops + use `stroke="url(#avatarGrad)"`.
+  - Change `strokeDasharray="20 12"` → `"6 4"`.
+  - Change animation `spin 4s` → `borderRotate 8s linear infinite` (add keyframe vào `tailwind.config.ts`).
+  - Inner: border `2px solid cyan` full + shadow `0 0 20px cyan/20 + inset 0 0 20px cyan/5` + text-shadow `0 0 20px cyan/80`.
+  - Add online status dot (12×12 green bottom-right border 2px `--bg` + shadow + `animate-pulse`).
+  - `tailwind.config.ts`: bump `glitch 9s → 8s`; refactor `pulse-status` keyframes về match `pulse` (opacity .7→1 + drop-shadow glow, NOT scale shrink); add 4 new keyframes (`borderRotate 8s`, `liveDot 1.5s`, `slideIn .25s`, `slideDown .2s`).
+- **Regression test:** `apps/web/tests/components/shared/ProfileAvatar.test.tsx` — case `it('regression BUG-002: avatar has gradient ring + online dot + correct animation duration', ...)` assert (a) SVG `<linearGradient>` present, (b) dasharray `"6 4"`, (c) `borderRotate` class hoặc inline style, (d) online dot element exists với green color + pulse class.
+- **Lesson learned:** Khi implement design-file spec, ALWAYS open visual diff cuối cùng (FE rendered vs design-file HTML side-by-side trong browser) trước khi mark task DONE. Không chỉ rely vào spec doc.
+
+### [BUG-003] [Medium] [FE] Login scanCard animation chậm 50% so với design-file (6s vs 4s) + missing keyframe rename
+
+- **Status:** OPEN
+- **Reporter:** khatran — **Date:** 2026-05-25
+- **Environment:**
+  - Browser/OS: any modern browser
+  - App version: v0.4.0-alpha
+  - Env: local + preview + production
+  - Layer impacted: FE
+- **Related task:** T-342 (sẽ tạo trong M11.8 backlog)
+- **Related FR/component:** FR-01.2 LoginCard / `apps/web/tailwind.config.ts` L83 + Login terminal card component (search `scan-line` trong `apps/web/src`)
+- **Mô tả:** Trên trang Login (`/auth/login`), scan line 2px gradient cyan di chuyển từ trên xuống dưới của card với duration 6s — chậm hơn 50% so với design-file (4s). Visual feel sluggish.
+- **Steps to reproduce:**
+  1. Navigate `/auth/login`.
+  2. Observe scan line animation trên Login card (2px gradient cyan strip moving top → bottom).
+  3. Compare với `design-file/MyBlog Login.html` L191-318 (4s loop).
+- **Expected:** Scan line loop 4s (matching design-file).
+- **Actual:** Scan line loop 6s — slower than design.
+- **Screenshot/log:** Visual diff side-by-side.
+- **Root cause:** FE `tailwind.config.ts` L83: `'scan-line': 'scan-line 6s linear infinite'`. Design-file: `scanCard 4s linear infinite`. Wrong duration + wrong name (design-file convention `scanCard` for `top: -100% → 200%` pattern, FE uses generic `scan-line` for `translateY -100% → 100vh`).
+- **Fix (proposed):** Update `apps/web/tailwind.config.ts`:
+  - Rename animation `'scan-line': 'scan-line 6s ...'` → `'scan-card': 'scan-card 4s linear infinite'` (matching design-file convention).
+  - Update keyframes `scan-line: { from: { transform: 'translateY(-100%)' }, to: { transform: 'translateY(100vh)' } }` → `scan-card: { '0%': { top: '-100%' }, '100%': { top: '200%' } }`.
+  - Update consumer component (LoginCard) class `animate-scan-line` → `animate-scan-card`.
+- **Regression test:** `apps/web/tests/components/auth/LoginCard.test.tsx` — case `it('regression BUG-003: scan card animation runs 4s duration', ...)` assert element có class `animate-scan-card` (NOT `animate-scan-line`) + verify keyframe definition trong test setup.
 
 ## Fixed
 

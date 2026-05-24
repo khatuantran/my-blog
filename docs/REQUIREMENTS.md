@@ -308,6 +308,26 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Click type khác → upsert đổi type — count không đổi
 - **Postcondition:** Reaction lưu DB; nếu actor là authed + post owner khác actor → trigger Notification REACTION event (xem FR-14)
 
+### UC-22: Admin generate blog content with AI suggest (NEW 2026-05-25)
+
+- **Actor:** ADMIN
+- **Precondition:** Admin đang ở Create Post page (`/admin/create`) hoặc Quick Edit modal (`/admin/posts/:id` edit flow)
+- **Main flow:**
+  1. Click `✨ AI suggest` button (purple, top-right của content section toolbar) → mở AISuggestModal overlay
+  2. Nhập ý tưởng ngắn (5-500 chars) vào textarea, vd: "deploy MyBlog lên Vercel với GitHub Actions"
+  3. Click `✨ Generate` button (hoặc `⌘↵` shortcut) → loading state với braille spinner 80ms frame
+  4. POST `/ai/generate { prompt }` → AI provider (Claude API) → response `{ html }` clean HTML 200-400 từ tiếng Việt
+  5. Preview HTML render trong editor-area của modal với `dangerouslySetInnerHTML`
+  6. Click `✓ Replace content` → editor content override = aiResult + modal close + reset state
+- **Alternative:**
+  - Click `↻ Regenerate` (nếu đã có result) → call lại API với same prompt → new result
+  - Click `Cancel` → close modal without override editor
+  - Esc / backdrop click → close modal
+  - API error 429 RATE_LIMITED → hiển thị error block + giữ modal open, user retry sau
+  - API error 500 PROVIDER_ERROR → hiển thị `[ERROR] AI request failed: <msg>` + giữ modal open
+- **Postcondition:** Editor content trong Create Post update với AI-generated HTML (nếu user click Replace) hoặc unchanged (nếu Cancel)
+- **Linked FR:** FR-17
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -346,13 +366,24 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-03.2:** Comment cho post — auth user dùng tên user; anonymous nhập `anonymousName`. Status mặc định `APPROVED` (configurable: nếu admin bật moderation queue → mặc định `PENDING`)
 - **FR-03.3:** Save bài — CHỈ auth user, lưu vào `SavedPost`. Xem ở `/me/saved`
 - **FR-03.4:** Admin có thể xóa hoặc moderate (approve/reject) comment
-- **FR-03.5:** Like cho comment — tương tự like cho post (auth + anonymous), bảng `CommentLike` riêng
+- **FR-03.5:** Like cho comment — tương tự like cho post (auth + anonymous), bảng `CommentLike` riêng. Note: Comment dùng **binary like (♡/❤)** traditional toggle, KHÔNG dùng reaction picker multi-type (chỉ post mới có reactions — FR-16).
+- **FR-03.6 Reply to comment (NEW — amended 2026-05-25 from design-file 2026-05-24 sync):** MVP feature reply trên comment (depth 1 only — no nested reply trong reply).
+  - **Data model:** Comment thêm `parentId String?` self-reference (FK Comment.id, onDelete CASCADE), `replyTo Json?` denormalize `{username, isAnon}` của parent comment author để render `replying to @<username>` mà không cần JOIN. Index `[parentId]` cho fast lookup replies of a comment.
+  - **Depth constraint:** API + service VALIDATE `parentComment.parentId === null` trước khi insert (reject 400 nếu reply on a reply). Frontend hide `↩ Reply` button trên ReplyRow để guide UX.
+  - **Endpoints:**
+    - `POST /comments` body nhận optional `parentId` (NEW field). Response include `replyTo`.
+    - `GET /posts/:id/comments?page=&limit=` extend return shape: top-level comments + nested `replies` array per comment (limit 3 first, "load more" button cho replies > 3 — defer to phase 2).
+  - **UI (FE):** `CommentItemRow` (top-level comment wrapper) + `ReplyForm` (inline form mở khi click `↩ Reply`, anon toggle giữ giống CommentForm) + `ReplyRow` (nested under comment, indent 40px, avatar 24×24, **like dùng ♡/❤ traditional KHÔNG reaction picker**).
+  - **Notification:** Reply trên comment của user X → trigger notification type=REPLY (FR-14.1) cho X với `metadata.replyTo: @<commenterUsername>`.
 - **Acceptance:**
   - Given anonymous đã like post X → When click lại → Then unlike, count giảm
   - Given auth user save post X → When vào `/me/saved` → Then thấy post X
   - Given admin xóa comment Y → When user khác load lại → Then không thấy comment Y
+  - Given user A reply comment B của user X → Then Comment row mới với `parentId=B.id, replyTo={username:'X', isAnon:false}` + notification REPLY cho X
+  - Given user reply trên 1 reply (depth 2) → Then API trả 400 `INVALID_PARENT_DEPTH` (chỉ cho reply depth 1)
+  - Given xóa parent comment B → Then tất cả replies cascade delete (Comment.onDelete CASCADE)
 - **Linked UCs:** UC-04, UC-05, UC-07
-- **Linked Tests:** E2E-04, E2E-05, E2E-10
+- **Linked Tests:** E2E-04, E2E-05, E2E-10, comments-reply.e2e-spec.ts (NEW), ReplyForm.test.tsx (NEW)
 
 ### FR-04: Hiển thị (Feed, Detail, Filter)
 
@@ -362,12 +393,19 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-04.4:** Post Detail tại `/post/[id]` — full content + ImageCarousel (prev/next + dot indicator)
 - **FR-04.5:** View tracking — increment `Post.viewCount` 1 lần / 30 phút / session (dedupe via cookie hoặc userId)
 - **FR-04.6:** Sort dropdown FilterBar (Latest / Oldest / Most liked) — `GET /posts?sort=latest|oldest|likes`
+- **FR-04.7 CommentsModal pattern at Feed level (NEW — amended 2026-05-25 from design-file 2026-05-24 sync):** Khi user click `💬 N` button trên PostCard trong Feed → **mở `CommentsModal` popup overlay** (KHÔNG navigate `/post/:id`). Post Detail page `/post/:id` vẫn tồn tại nhưng **reserved cho deep-link / SEO** (direct URL access từ search engine, share link, bookmark).
+  - **Modal spec:** xem `DESIGN_SYSTEM.md > CommentsModal (Feed — design-file 2026-05-24) — DEFINITIVE pattern` — 640px modal max-h 90vh, infinite scroll (PAGE_SIZE 5 + IntersectionObserver), footer comment form integrated.
+  - **Reuse pattern:** Modal nội bộ dùng cùng `CommentItemRow` + `CommentForm` + `ReplyForm` + `ReplyRow` components như Post Detail page (FR-03.6). Avoid duplicate logic.
+  - **A11y:** Modal có `role="dialog" aria-modal="true" aria-label="Comments"`. Esc / backdrop click → close. Body scroll lock khi open.
+  - **Defer pagination:** PAGE_SIZE 5 cho phase 1. Match Post Detail comment list query `GET /posts/:id/comments?page=&limit=`.
 - **Acceptance:**
   - Given feed có 25 bài → When load → Then 10 bài đầu hiển thị, scroll → load 10 tiếp
   - Given filter `mood=HAPPY` → Then chỉ hiển thị bài mood HAPPY
   - Given user xem post 5 lần trong 30 phút → Then viewCount chỉ +1
+  - Given user click `💬 5` button trên PostCard Feed → **Then CommentsModal mở overlay (KHÔNG redirect)** + body scroll lock + focus trap input footer
+  - Given user truy cập trực tiếp URL `/post/abc123` (vd: từ Google search) → Then Post Detail page render (KHÔNG modal) với full content + comments inline
 - **Linked UCs:** UC-02, UC-03
-- **Linked Tests:** E2E-04, E2E-06
+- **Linked Tests:** E2E-04, E2E-06, comments-modal.test.tsx (NEW)
 
 ### FR-05: Share
 
@@ -473,13 +511,24 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-12.5:** TopBar search input wrap form, onSubmit navigate `/search?q={encodeURIComponent(value.trim())}`. `TopBar` prop `hideSearch?: boolean` — AppLayout sniff route `/search` → set true (avoid duplicate search bar).
 - **FR-12.6:** Right sidebar — 4 stat cards (Total/Images/Files/Saved) + filter.by.mood + recent.searches (localStorage 10 dedupe FIFO) + browse.tags (click → navigate `/?tag=`).
 - **FR-12.7:** Debounce input 250ms → update URL query → refetch. SEO `<meta name="robots" content="noindex">` trên `/search`.
+- **FR-12.8 Hero refresh (NEW — amended 2026-05-25 from design-file 2026-05-24 sync):** SearchPage hero block với label `❯ search` mono 11 cyan + Big input **Inter 18px** (KHÔNG mono, KHÔNG 22px như spec cũ) + `⌘K` badge inside input (opens CommandPalette) + × clear button.
+- **FR-12.9 Filter row expanded (NEW):** 3 filter chips (All / Saved / Files) + vertical divider + **7 mood emoji buttons** (30×28 square, active = mood color border + tint + glow) + reset × red link (visible khi có filter active). Single-select per group.
+- **FR-12.10 Three empty-state sections (NEW — khi `q=''` và no filter):**
+  1. `// recent.searches` — list 5 recent searches từ `localStorage('recent-searches')` (FIFO dedupe — already in FR-12.6).
+  2. `// browse.tags` — render tất cả tags từ TAGS_DATA (per-color chips with count).
+  3. `// all.posts <N> total` — scroll list ResultCard preview.
+- **FR-12.11 No-results state (NEW):** Centered `◎` 32px muted + `// no results for "<q>"` mono 14 + bash hint `$ grep -r "<q>" ./posts --no-results` mono 12 muted + 2 buttons (`← clear search` cyan + `try "<recent>"` muted x3).
+- **FR-12.12 ResultCard refresh (NEW):** Top accent line gradient on hover (`linear-gradient(90deg, transparent, cyan/30, transparent)` `::before` opacity 0→1 .2s) + post-id corner deco top-right + Highlight `<mark>` cyan/20 cho matching query.
 - **Acceptance:**
   - Given có post `content="hello world"` → When search `q=hello` → Then post xuất hiện với `<mark>hello</mark> world`
   - Given user trên `/search` → Then TopBar KHÔNG hiển thị search input (hideSearch=true)
   - Given user gõ 31 request/phút → Then request thứ 31 nhận 429 THROTTLED
   - Given empty q → Then trả `stats` toàn cục + `posts.items = []`
+  - Given user vào `/search` empty → Then 3 sections render: recent.searches + browse.tags + all.posts preview
+  - Given user filter mood=HAPPY (😊 button click) → Then results filter theo mood + chip active state cyan glow
+  - Given user search "nothing-matching-xyz" → Then no-results state hiện ◎ + bash hint + clear + try-recent buttons
 - **Linked UCs:** UC-15
-- **Linked Tests:** E2E (defer add)
+- **Linked Tests:** E2E (defer add), SearchPage.test.tsx (NEW — covers hero + filter row + 3 empty sections + no-results)
 
 ### FR-13: Activity Log (User-scope)
 
@@ -506,6 +555,17 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-14.4 Full page:** `/notifications` route (auth required) — tab All/Unread với count, list group time, **pagination** `page=1&limit=20` (max 50) theo NFR-06 với infinite scroll IntersectionObserver, bulk select checkbox, mark read/unread toggle per item, mark-all-read button, delete per item + bulk delete (max 100 ids).
 - **FR-14.5 Auto-mark read:** Click 1 notification → navigate target + PATCH `:id/read` với `read=true` (optimistic).
 - **FR-14.6 Realtime (defer):** WebSocket event `notification:new` push từ server → client room `user:<userId>` để FE invalidate query. Defer T-315; v1 dùng polling 30s.
+- **FR-14.7 NotificationsPage expanded scope (NEW — amended 2026-05-25 from design-file 2026-05-24 sync):** Trang `/notifications` mở rộng từ tab All/Unread thành **6 type tabs**:
+  - **Tabs (6):** `◉ All` / `● Unread` / `❤ Reactions` / `💬 Comments` / `↩ Replies` / `↗ Shares` (icon + label + count badge per tab). Style `.tab-btn` mono 12, active = cyan border + bg `cyan/8` + glow.
+  - **Filter logic FE:** Tab `All`/`Unread` đặc biệt (filter theo `read` flag). 4 tabs khác filter theo `n.type === tab` (REACTION/COMMENT/REPLY/SHARE).
+- **FR-14.8 Search input (NEW):** Input `⌕ search by user, content, post id...` (`.edit-inp` mono 13 padding-left 30 + × clear). Filter list theo `n.user` HOẶC `n.snippet` HOẶC `n.post` (case-insensitive substring, debounce 150ms client-side — KHÔNG gọi BE).
+- **FR-14.9 Bulk select bar (NEW):** Checkbox column (16×16) trên mỗi NotifRow. Khi `selected.size > 0` → action bar visible: `N selected` cyan label + `✓ mark read` + `✕ delete` + `clear` deselect buttons. Khi `selected.size === 0` và `filtered.length > 0` → show `☐ select all visible` button.
+- **FR-14.10 Bulk endpoints reuse:** PATCH `/notifications/bulk-read { ids }` (NEW — add endpoint) hoặc reuse PATCH `/notifications/:id/read` × N parallel (defer 1 endpoint to phase 2). DELETE `/notifications/bulk { ids }` already exists (T-312).
+- **FR-14.11 Toast feedback (NEW):** Mọi action (mark read / delete single / bulk action / mark-all / clear-all) trigger toast bottom-right slideDown 2500ms (success grn ✓ / error red ✕). Pattern xem `DESIGN_SYSTEM.md > Toast notification pattern`.
+- **FR-14.12 Clear all action (NEW):** SubBar right có button `✕ clear all` (visible khi `notifs.length > 0`) → `window.confirm("Delete all N notifications?")` HOẶC ConfirmDialog Tags variant 360px → DELETE all user notifications + toast.
+- **FR-14.13 NotifRow split variants (NEW — clarify):** Doc spec 2 components riêng cho 2 contexts (xem `DESIGN_SYSTEM.md > NotifRowBell + NotifRowPage`):
+  - **NotifRowBell** (TopBar dropdown): 34×34 avatar + 18×18 type badge + 2px border-left + 4 types (like/comment/share/save legacy).
+  - **NotifRowPage** (`/notifications` page): 40×40 avatar + 20×20 type badge + 3px border-left + 4 types (reaction/comment/reply/share new) + checkbox column + `replyTo` field display + mark toggle + delete buttons.
 - **Acceptance Criteria (Given/When/Then):**
   - Given user B react LOVE post của user A → Then Notification table có 1 row `{userId=A, actorId=B, type=REACTION, postId=<post>, metadata: {reactionType:'LOVE'}, read=false}` + bell badge của A +1
   - Given user B đổi reaction LIKE→LOVE → KHÔNG tạo notification mới (chỉ create events được log)
@@ -515,8 +575,12 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Given user A click `mark all read` → tất cả unread → read, response `{ updated: N }`, badge = 0
   - Given user A bulk delete 5 ids → response `{ deleted: 5 }`, list refresh
   - Given user khác (không phải recipient) PATCH/DELETE notification → 403
+  - Given user A vào `/notifications` → Then 6 tabs visible (All/Unread/Reactions/Comments/Replies/Shares) với count badges
+  - Given user A click tab Replies → Then list filter chỉ rows có `type === REPLY` + `from @<replyTo>` clause hiển thị
+  - Given user A search "@user1" → Then filter rows có `user.includes("@user1")` (substring case-insensitive)
+  - Given user A check 3 rows + click `✕ delete` bulk → Then DELETE `/notifications/bulk { ids: [3] }` + toast `✕ Deleted 3 notifications`
 - **Linked UCs:** UC-17, UC-18
-- **Linked Tests:** notifications.service.spec.ts + notifications.e2e-spec.ts + NotificationBell.test.tsx + NotificationsPage.test.tsx
+- **Linked Tests:** notifications.service.spec.ts + notifications.e2e-spec.ts + NotificationBell.test.tsx + NotificationsPage.test.tsx (expanded — covers 6 tabs + search + bulk + toast)
 
 ### FR-15: Admin Manage Posts
 
@@ -560,6 +624,49 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked UCs:** UC-04, UC-21
 - **Linked Tests:** reactions.service.spec.ts + reactions.e2e-spec.ts + ReactionPicker.test.tsx + migration test
 
+### FR-17: AI Content Generation (NEW — amended 2026-05-25 from design-file 2026-05-24 sync)
+
+- **FR-17.1 Scope:** Admin tạo bài viết → có thể click `✨ AI suggest` button trong Create Post → mở `AISuggestModal` → nhập ý tưởng ngắn (brief gist) → AI generate bài blog ngắn 200-400 từ tiếng Việt → preview HTML output → click `✓ Replace content` để override editor content. Defer feature cho non-admin.
+- **FR-17.2 Endpoint:** `POST /ai/generate` body `{ prompt: string }` → response `{ html: string }`. Auth required (ADMIN role only — JwtAuthGuard + RolesGuard). Rate limit 10 req/min/admin (tránh abuse + cost protection).
+  - **Request validation:** prompt length 5-500 chars (Zod schema `aiGenerateDto`).
+  - **Response shape:** `{ html: string }` clean HTML (strip leading ` ```html` + trailing ` ``` ` markers, no `<html>` hoặc `<body>` wrappers). Use `<p>`, `<b>`, `<i>`, `<ul><li>`, `<h2>` allowed; NO inline style.
+- **FR-17.3 AI provider:** v1 dùng **Anthropic Claude API** (`claude-haiku-4-5` cho cost-effective trên blog personal). Provider abstracted qua `AIProviderInterface` để future swap (OpenAI / Gemini). Env vars: `AI_PROVIDER=anthropic|openai|gemini` + `AI_API_KEY=<key>` + `AI_MODEL=<model-name>`.
+- **FR-17.4 Prompt template (backend constant):**
+
+  ```
+  Bạn là trợ lý viết blog cá nhân cho "kha.blog" — phong cách dev/hacker,
+  giọng văn thân thiện, chia sẻ thật lòng.
+
+  Từ ý tưởng ngắn sau, hãy viết một bài blog ngắn (200-400 từ, tiếng Việt).
+  Output định dạng HTML sạch (KHÔNG bao trong markdown code block, KHÔNG
+  có <html> hay <body>), dùng <p>, <b>, <i>, <ul><li>, <h2> nếu cần.
+  Không sử dụng inline style.
+
+  Ý tưởng: ${prompt}
+  ```
+
+- **FR-17.5 UI spec:** AISuggestModal 640px max-w 95vw, purple theme (`--pur` accent), backdrop blur. Header `✨ ai.suggest` + path `~/editor/ai-content-generator` + close ×. Body: textarea (`YOUR IDEA · brief gist` label uppercase mono 10) + Generate button (cyan primary `✨ Generate` / `↻ Regenerate` / spinner braille `⠋⠙⠹...` 80ms khi loading) + `⌘↵ to generate` hint + error block (red mono 11) + result preview (editor-area bg `#070A14` border `pur/30` min-h 120 max-h 280 scrollable Inter 14, `dangerouslySetInnerHTML` clean HTML). Footer: helper text + Cancel + `✓ Replace content` cyan primary (override editor content + close modal).
+- **FR-17.6 Override warning:** Footer hiển thị `// AI sẽ override toàn bộ editor hiện tại` mono 10 muted. Click `✓ Replace content` → `editorRef.current.innerHTML = aiResult` + `setContent(aiResult)` (KHÔNG confirm dialog — user đã thấy warning + preview).
+- **FR-17.7 Cost guard:** Rate limit 10 req/min/admin per FR-17.2 + log mỗi request vào Sentry (severity info, fields: `{ promptLength, resultLength, model, latencyMs }`) để monitor monthly cost. Soft limit alert nếu > 200 req/day/admin.
+- **FR-17.8 Error handling:** API errors mapped:
+  - 400 INVALID_PROMPT (prompt too short/long) → inline FE error mono 11 red.
+  - 429 RATE_LIMITED → `[ERROR] AI rate limit reached · try again in N min`.
+  - 500 PROVIDER_ERROR → `[ERROR] AI request failed: <message from provider or 'unknown'>`.
+  - Network fail FE → `[ERROR] connection lost · retry`.
+- **Acceptance Criteria (Given/When/Then):**
+  - Given admin click `✨ AI suggest` trong Create Post → Then AISuggestModal mở with empty state `✨ // nhập ý tưởng và click generate để AI viết bài` muted
+  - Given admin nhập prompt "deploy MyBlog lên Vercel" + click Generate → Then loading spinner braille + 1-3s sau result HTML preview xuất hiện với content 200-400 từ
+  - Given admin click ⌘↵ trong textarea → Then submit (same as click Generate)
+  - Given prompt empty → Then Generate button disabled
+  - Given API trả 429 RATE_LIMITED → Then error block hiển thị `[ERROR] AI rate limit reached`
+  - Given admin click `✓ Replace content` sau khi có result → Then editor content override = aiResult + modal close + reset state
+  - Given non-admin user gọi `POST /ai/generate` → Then 403 FORBIDDEN
+  - Given anonymous gọi `POST /ai/generate` → Then 401 UNAUTHORIZED
+  - Given prompt 4 chars (< 5) → Then 400 INVALID_PROMPT
+  - Given prompt 501 chars (> 500) → Then 400 INVALID_PROMPT
+- **Linked UCs:** UC-22
+- **Linked Tests:** ai.service.spec.ts (mock provider 6 case) + ai.e2e-spec.ts (4 case: success 200, rate limit 429, 401/403 auth, validation 400) + AISuggestModal.test.tsx (5 case: open/close/generate/regenerate/replace content)
+
 ## Non-Functional Requirements
 
 - **NFR-01: Performance API** — Response time p95 < 500ms. Measurement: Sentry transactions, Fly metrics.
@@ -601,6 +708,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 | FR-14 | UC-17, UC-18        | (defer)                | NotificationsModule (new)     | NotificationsPage, NotificationBell, TopBar     |
 | FR-15 | UC-19, UC-20        | (defer)                | AdminModule (extended)        | ManagePostsPage, QuickEditModal, DeleteConfirm  |
 | FR-16 | UC-04, UC-21        | (defer)                | ReactionsModule (rename Like) | PostCard ReactionPicker, ReactionList modal     |
+| FR-17 | UC-22               | (defer)                | AIModule (new)                | Create Post AISuggestModal                      |
 
 ---
 

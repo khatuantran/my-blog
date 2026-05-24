@@ -91,7 +91,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-lg text-blu">~/{user.username}</span>
             <span
-              className={`inline-flex items-center rounded-sm border font-mono text-mono-xs leading-none ${
+              className={`inline-flex items-center rounded-sm border font-mono text-mono-sm leading-none ${
                 user.role === 'ADMIN'
                   ? 'border-ora/50 bg-ora/[0.06] text-ora'
                   : user.role === 'BANNED'

@@ -50,8 +50,10 @@
     - 3 user-reported bugs logged trong BUGS.md: BUG-001 ReactionPicker hover gap (High) + BUG-002 ProfileAvatar 6 visual bugs (High) + BUG-003 Login scanCard duration drift (Medium).
     - M11.8 backlog 20 tasks T-340 to T-359 trong TASKS.md (3 F3 bug fixes priority cao + 3 F2 BE prerequisites + 14 F1 implementations).
   - Follow-up commit này (3 audit findings fix): DATA_MODEL full Comment Prisma block sync với delta snippet + CHANGELOG [Unreleased] log toàn bộ amendments + PROGRESS milestone + weekly log.
-- **Pending:** 20 M11.8 tasks chưa start. Bug fixes (T-340 ReactionPicker hover + T-341 ProfileAvatar + T-342 Login scanCard) priority cao nhất vì user-reported blocking.
-- **Next steps:** Begin T-340 — fastest priority + smallest diff (< 30 dòng, ~30 min). Unblock core reaction feature immediately. Sau đó parallel T-341 + T-342 hoặc move sang F2 BE prereq (T-343 Comment.parentId migration) tùy user.
+- **Done thêm (2026-05-25, code):**
+  - T-340 DONE: BUG-001 ReactionPicker hover gap fixed. `ReactionButton.tsx` — 250ms debounce `hoverTimer` useRef. 9/9 tests pass. CHANGELOG [Unreleased] > Fixed.
+- **Pending:** 19 M11.8 tasks còn lại. Bug fixes (T-341 ProfileAvatar + T-342 Login scanCard) còn priority cao.
+- **Next steps:** T-341 ProfileAvatar bugs hoặc T-342 Login scanCard — cùng F3 pattern tương tự T-340.
 - **Blockers:** Không có technical blocker. 5 FR amendments cần user confirm scope rõ ràng (đã spec đầy đủ trong REQUIREMENTS.md, chỉ chờ F1 task execute).
 
 ### 2026-05-24 (Week 2 — M11.7)

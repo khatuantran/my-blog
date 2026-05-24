@@ -88,15 +88,15 @@ export function TerminalCard({ path, cursorBlink = true, shaking, children, foot
                   strokeLinecap="round"
                 />
               </svg>
-              <span className="font-brand text-[14px] font-bold tracking-[-0.03em]">
+              <span className="font-brand text-[15px] font-bold tracking-[-0.03em]">
                 <span className="text-tp">kha</span>
                 <span className="text-cyan">.</span>
                 <span className="text-ts font-medium">blog</span>
               </span>
             </Link>
-            <span className="ml-1 text-[10px] text-td">v0.1.0</span>
+            <span className="ml-1 font-mono text-mono-sm text-td">v0.1.0</span>
           </div>
-          <div className="text-[12px] text-tm">
+          <div className="font-mono text-mono-md text-tm">
             {path}
             {cursorBlink && (
               <span

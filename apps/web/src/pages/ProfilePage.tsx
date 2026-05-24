@@ -91,13 +91,14 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2">
             <span className="font-mono text-lg text-blu">~/{user.username}</span>
             <span
-              className={`rounded-sm border px-2 py-0.5 font-mono text-mono-xs ${
+              className={`inline-flex items-center rounded-sm border font-mono text-mono-xs leading-none ${
                 user.role === 'ADMIN'
-                  ? 'border-ora/50 text-ora'
+                  ? 'border-ora/50 bg-ora/[0.06] text-ora'
                   : user.role === 'BANNED'
-                    ? 'border-red/50 text-red'
+                    ? 'border-red/50 bg-red/[0.06] text-red'
                     : 'border-b2 text-tm'
               }`}
+              style={{ padding: '1px 6px' }}
             >
               [ {user.role} ]
             </span>

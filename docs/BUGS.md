@@ -7,6 +7,10 @@
 
 ## Open
 
+_(Trống)_
+
+## Fixed
+
 ### [BUG-001] [High] [FE] ReactionPicker biến mất khi hover qua gap → user không chọn được reaction
 
 - **Status:** FIXED
@@ -16,7 +20,7 @@
   - App version: v0.4.0-alpha post-T-317 commit `84835bd`
   - Env: local + preview + production
   - Layer impacted: FE
-- **Related task:** T-340 (sẽ tạo trong M11.8 backlog)
+- **Related task:** T-340 (DONE 2026-05-25)
 - **Related FR/component:** FR-16.5 / `apps/web/src/components/feed/ReactionButton.tsx` L86-92
 - **Mô tả:** Hover vào nút React trên PostCard → ReactionPicker popover hiện ra (6 SVG icons). User di chuột lên popover để chọn emoji nhưng picker biến mất giữa chừng → user không thể click được reaction nào.
 - **Steps to reproduce:**
@@ -45,7 +49,7 @@
   - App version: v0.4.0-alpha post-T-317 commit `84835bd`
   - Env: local + preview + production
   - Layer impacted: FE
-- **Related task:** T-341 (sẽ tạo trong M11.8 backlog)
+- **Related task:** T-341 (DONE 2026-05-25)
 - **Related FR/component:** FR-11.1 / `apps/web/src/components/shared/ProfileAvatar.tsx` + `apps/web/tailwind.config.ts`
 - **Mô tả:** ProfileAvatar trên Profile page (`/profile/:username`) có 6 lỗi visual/animation vs design-file:
   1. Rotating ring quay quá nhanh: `spin 4s` thay vì `borderRotate 8s` (2× tốc độ design).
@@ -91,7 +95,7 @@
   - App version: v0.4.0-alpha
   - Env: local + preview + production
   - Layer impacted: FE
-- **Related task:** T-342 (sẽ tạo trong M11.8 backlog)
+- **Related task:** T-342 (DONE 2026-05-25)
 - **Related FR/component:** FR-01.2 LoginCard / `apps/web/tailwind.config.ts` L83 + Login terminal card component (search `scan-line` trong `apps/web/src`)
 - **Mô tả:** Trên trang Login (`/auth/login`), scan line 2px gradient cyan di chuyển từ trên xuống dưới của card với duration 6s — chậm hơn 50% so với design-file (4s). Visual feel sluggish.
 - **Steps to reproduce:**
@@ -136,16 +140,12 @@
 - **Fix (3 commits):**
   - `c97e1f0` ProfilePage: layout + padding (vẫn dùng 9px nên chưa fix hết).
   - `668101c` ProfilePage: font 9px → 11px (`text-mono-sm`) để brackets render đúng.
-  - **Pending commit** PostHeader + PostPreview: apply cùng pattern (`inline-flex items-center` + `leading-none` + `text-mono-sm` + `padding: 1px 6px` + `border-ora/50 bg-ora/[0.06]`).
-- **Regression test:** N/A — pure CSS styling. Visual verified manually browser side-by-side với design-file.
+  - `cd4869c` PostHeader + PostPreview: apply cùng pattern (`inline-flex items-center` + `leading-none` + `text-mono-sm` + `padding: 1px 6px` + `border-ora/50 bg-ora/[0.06]`).
+- **Regression test:** N/A — CSS-only styling fix (padding + font-size class swap + bg tint). jsdom KHÔNG render font baseline metric chính xác → class assertion test (vd `toHaveClass('text-mono-sm')`) chỉ verify code intent, không verify visual outcome. Visual verified manually 3 sites browser side-by-side với `design-file/MyBlog Profile.html L488` spec. Documented exception to CLAUDE.md F3 regression test mandate (pure-CSS visual fix). Future option: thêm Playwright screenshot test trong E2E suite nếu badge alignment regress lần nữa.
 - **Lesson learned:**
   - Bracket badges với mono font luôn cần `leading-none` + `inline-flex items-center` để vô hiệu hóa font baseline drift.
   - Tránh `text-mono-xs` (9px) cho bracketed text — quá nhỏ, baseline render không ổn định cross-browser.
   - Khi fix UI bug đa-site (cùng pattern dùng nhiều nơi), `grep` tất cả call sites trước khi commit để tránh fix-cục-bộ rồi miss spots khác.
-
-## Fixed
-
-_(Trống)_
 
 ---
 

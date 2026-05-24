@@ -52,9 +52,10 @@
   - Follow-up commit này (3 audit findings fix): DATA_MODEL full Comment Prisma block sync với delta snippet + CHANGELOG [Unreleased] log toàn bộ amendments + PROGRESS milestone + weekly log.
 - **Done thêm (2026-05-25, code):**
   - T-340 DONE: BUG-001 ReactionPicker hover gap fixed — CSS bridge instant close. 9/9 tests pass.
-  - T-341 DONE: BUG-002 ProfileAvatar 6 visual bugs fixed — gradient ring + dasharray + borderRotate 8s + glow + online dot. tailwind.config glitch 8s + pulse-status glow keyframe + 4 new keyframes. 5/5 tests pass.
-- **Pending:** 18 M11.8 tasks còn lại. T-342 (BUG-003 Login scanCard) còn lại trong bug fixes.
-- **Next steps:** T-342 Login scanCard (~30min) → unblock T-361 animation registry.
+  - T-341 DONE: BUG-002 ProfileAvatar 6 visual bugs fixed — gradient ring + dasharray + borderRotate 8s + glow + online dot. 5/5 tests pass.
+  - T-342 DONE: BUG-003 Login scanCard animation — tailwind cleanup `scan-line 6s` → `scan-card 4s` (TerminalCard đã dùng inline 4s trước). 3/3 tests pass.
+- **Pending:** 17 M11.8/M11.9 tasks còn lại. All 3 bug fixes (BUG-001/002/003) done. T-361 animation registry now unblocked.
+- **Next steps:** T-361 (animation registry verify + cursorBlink + fade-up split) hoặc T-343 BE migration reply comments.
 - **Blockers:** Không có technical blocker. 5 FR amendments cần user confirm scope rõ ràng (đã spec đầy đủ trong REQUIREMENTS.md, chỉ chờ F1 task execute).
 
 ### 2026-05-24 (Week 2 — M11.7)

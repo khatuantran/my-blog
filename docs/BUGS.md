@@ -77,7 +77,7 @@
 
 ### [BUG-003] [Medium] [FE] Login scanCard animation chậm 50% so với design-file (6s vs 4s) + missing keyframe rename
 
-- **Status:** OPEN
+- **Status:** FIXED
 - **Reporter:** khatran — **Date:** 2026-05-25
 - **Environment:**
   - Browser/OS: any modern browser

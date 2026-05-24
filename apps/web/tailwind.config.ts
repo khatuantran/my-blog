@@ -80,7 +80,7 @@ const config: Config = {
         blink: 'blink 530ms step-start infinite',
         shake: 'shake 400ms ease',
         'fade-up': 'fade-up 300ms ease',
-        'scan-line': 'scan-line 6s linear infinite',
+        'scan-card': 'scan-card 4s linear infinite',
         'border-rotate': 'borderRotate 8s linear infinite',
         'live-dot': 'liveDot 1.5s ease-in-out infinite',
         'slide-in': 'slideIn 250ms ease',
@@ -99,9 +99,9 @@ const config: Config = {
           },
           '92%': { textShadow: 'none', transform: 'none' },
         },
-        'scan-line': {
-          from: { transform: 'translateY(-100%)' },
-          to: { transform: 'translateY(100vh)' },
+        'scan-card': {
+          '0%': { top: '-100%' },
+          '100%': { top: '200%' },
         },
         'pulse-status': {
           '0%, 100%': { opacity: '1', filter: 'drop-shadow(0 0 6px #50FA7B)' },

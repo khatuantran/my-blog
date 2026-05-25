@@ -88,12 +88,18 @@ const config: Config = {
         'pulse-status': 'pulse-status 2s ease-in-out infinite',
         blink: 'blink 530ms step-start infinite',
         shake: 'shake 400ms ease',
-        'fade-up': 'fade-up 300ms ease',
         'scan-card': 'scan-card 4s linear infinite',
         'border-rotate': 'borderRotate 8s linear infinite',
         'live-dot': 'liveDot 1.5s ease-in-out infinite',
         'slide-in': 'slideIn 250ms ease',
         'slide-down': 'slideDown 200ms ease',
+        'cursor-blink': 'cursorBlink 1s steps(2) infinite',
+        // fade-up split 5 variants (T-361 — DESIGN_SYSTEM Motion table)
+        'fade-up-xs': 'fade-up 120ms ease', // picker, dropdown small
+        'fade-up-sm': 'fade-up 150ms ease', // default modal
+        'fade-up': 'fade-up 200ms ease', // DeleteConfirm (was 300ms generic)
+        'fade-up-md': 'fade-up 250ms ease', // drawer
+        'fade-up-lg': 'fade-up 350ms ease', // Login card
       },
       keyframes: {
         glitch: {
@@ -144,6 +150,10 @@ const config: Config = {
         slideDown: {
           from: { opacity: '0', transform: 'translateY(-8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        cursorBlink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
         },
       },
     },

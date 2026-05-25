@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-361 FE Animation registry consolidation (M11.9 foundation)** (2026-05-25, FE): `tailwind.config.ts` add `cursorBlink 1s steps(2)` keyframe (cho Search caret + terminal cursor) + split `fade-up 300ms` thành 5 variants per DESIGN_SYSTEM Motion table: `fade-up-xs 120ms` (picker/dropdown small), `fade-up-sm 150ms` (default modal), `fade-up 200ms` (DeleteConfirm — bump from 300ms generic), `fade-up-md 250ms` (drawer), `fade-up-lg 350ms` (Login card). Verified existing 7 keyframes from T-341/T-342: glitch 8s, pulse-status (drop-shadow), blink, shake, scan-card, borderRotate, liveDot, slideIn, slideDown. 324/324 FE tests pass — non-breaking additive change.
+
 - **T-350 FE ReplyForm + ReplyRow + CommentItem refactor (FR-03.6 reply MVP complete)** (2026-05-25, FE): 2 NEW components + 1 refactor + 1 hook + types/service updates:
   - `apps/web/src/components/feed/ReplyForm.tsx` (NEW): inline form opens khi click ↩ Reply. Header `↩ replying to @parentuser` blu+cyan. Textarea Inter 13 rows 2 auto-focus. Anon toggle + name input. ⌘↵/Ctrl↵ submit. Esc cancel. Reuse `useCreateComment` mutation với `parentId` param.
   - `apps/web/src/components/feed/ReplyRow.tsx` (NEW): nested under parent indent `ml-10` (40px), avatar size `xs` (24×24), like với `♡/❤` binary (NOT reaction picker). Show `↩ @parentname` từ `reply.replyTo` denorm.

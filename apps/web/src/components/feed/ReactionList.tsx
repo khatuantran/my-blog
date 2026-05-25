@@ -74,7 +74,7 @@ export function ReactionList({ postId, onClose }: Props) {
             aria-selected={tab === 'ALL'}
             onClick={() => setTab('ALL')}
             data-testid="reaction-tab-ALL"
-            className={`rounded-sm border border-b2 bg-elev px-2.5 py-1 font-mono text-mono-xs cursor-pointer ${
+            className={`rounded-sm border border-b2 bg-elev px-2.5 py-1 font-mono text-mono-sm cursor-pointer ${
               tab === 'ALL' ? 'border-cyan/50 text-cyan' : 'text-tm hover:text-tp'
             }`}
           >
@@ -90,7 +90,7 @@ export function ReactionList({ postId, onClose }: Props) {
                 aria-selected={tab === r.type}
                 onClick={() => setTab(r.type)}
                 data-testid={`reaction-tab-${r.type}`}
-                className={`rounded-sm border border-b2 bg-elev px-2.5 py-1 font-mono text-mono-xs cursor-pointer ${
+                className={`rounded-sm border border-b2 bg-elev px-2.5 py-1 font-mono text-mono-sm cursor-pointer ${
                   tab === r.type ? 'border-cyan/50 text-cyan' : 'text-tm hover:text-tp'
                 }`}
               >
@@ -123,7 +123,7 @@ export function ReactionList({ postId, onClose }: Props) {
                   <span className="flex-1 font-mono text-mono-sm text-tp">
                     {item.actor?.username ?? '(anonymous)'}
                   </span>
-                  <span className="font-mono text-mono-xs text-td">
+                  <span className="font-mono text-mono-sm text-td">
                     {formatRelative(item.createdAt)}
                   </span>
                 </li>

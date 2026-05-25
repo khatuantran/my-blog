@@ -195,7 +195,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
                   >
                     <span className="text-sm">{item.icon}</span>
                     <span className="flex-1 text-[13px]">{item.label}</span>
-                    {item.kbd && <span className="font-mono text-mono-xs text-tm">{item.kbd}</span>}
+                    {item.kbd && <span className="font-mono text-mono-sm text-tm">{item.kbd}</span>}
                   </Link>
                 </div>
               ))}
@@ -213,7 +213,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
                     <span className="flex-1 text-[13px]">
                       {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
                     </span>
-                    <span className="font-mono text-mono-xs text-tm">⌘Q</span>
+                    <span className="font-mono text-mono-sm text-tm">⌘Q</span>
                   </button>
                 </>
               )}

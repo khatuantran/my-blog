@@ -43,7 +43,7 @@ export function PostList({ mood, sort = 'latest', onTotal }: Props) {
     return (
       <div className="py-12 text-center font-mono">
         <div className="mb-2 text-tm">// connection lost</div>
-        <div className="text-mono-xs text-td">$ retry: refresh page</div>
+        <div className="text-mono-sm text-td">$ retry: refresh page</div>
       </div>
     );
   }
@@ -55,7 +55,7 @@ export function PostList({ mood, sort = 'latest', onTotal }: Props) {
       <div className="py-16 text-center font-mono">
         <div className="mb-3 text-5xl opacity-30">◐</div>
         <div className="mb-1.5 text-tm">// no posts matching filter</div>
-        <div className="text-mono-xs text-td">$ cd ../feed &amp;&amp; ls -la --all-moods</div>
+        <div className="text-mono-sm text-td">$ cd ../feed &amp;&amp; ls -la --all-moods</div>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export function PostList({ mood, sort = 'latest', onTotal }: Props) {
           </span>
         )}
         {!hasNextPage && posts.length > 0 && (
-          <span className="text-mono-xs text-td">// end of feed · {posts.length} posts loaded</span>
+          <span className="text-mono-sm text-td">// end of feed · {posts.length} posts loaded</span>
         )}
       </div>
     </>

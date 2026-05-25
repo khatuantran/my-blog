@@ -75,7 +75,7 @@ function GroupLabel({ group }: { group: 'today' | 'yesterday' | 'older' }) {
   const label =
     group === 'today' ? '// today' : group === 'yesterday' ? '// yesterday' : '// older';
   return (
-    <div className="px-3 py-1.5 font-mono text-mono-xs text-tm border-b border-b1 bg-bg/50">
+    <div className="px-3 py-1.5 font-mono text-mono-sm text-tm border-b border-b1 bg-bg/50">
       {label}
     </div>
   );
@@ -108,7 +108,7 @@ function NotificationRow({
       )}
       <div className="flex-1 min-w-0">
         <p className="font-mono text-[12px] text-ts leading-snug break-words">{truncated}</p>
-        <span className="font-mono text-mono-xs text-tm mt-0.5 block">
+        <span className="font-mono text-mono-sm text-tm mt-0.5 block">
           {formatRelative(item.createdAt)}
         </span>
       </div>
@@ -223,7 +223,7 @@ export function NotificationBell() {
                 data-testid="notification-mark-all-read"
                 onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
-                className="font-mono text-mono-xs text-grn hover:text-tp transition-colors disabled:opacity-50"
+                className="font-mono text-mono-sm text-grn hover:text-tp transition-colors disabled:opacity-50"
               >
                 ✓ mark all read
               </button>
@@ -236,7 +236,7 @@ export function NotificationBell() {
               type="button"
               data-testid="notification-tab-all"
               onClick={() => setTab('all')}
-              className={`flex-1 py-1.5 font-mono text-mono-xs transition-colors ${
+              className={`flex-1 py-1.5 font-mono text-mono-sm transition-colors ${
                 tab === 'all' ? 'text-cyan border-b-2 border-cyan -mb-px' : 'text-tm hover:text-ts'
               }`}
             >
@@ -246,7 +246,7 @@ export function NotificationBell() {
               type="button"
               data-testid="notification-tab-unread"
               onClick={() => setTab('unread')}
-              className={`flex-1 py-1.5 font-mono text-mono-xs transition-colors ${
+              className={`flex-1 py-1.5 font-mono text-mono-sm transition-colors ${
                 tab === 'unread'
                   ? 'text-cyan border-b-2 border-cyan -mb-px'
                   : 'text-tm hover:text-ts'

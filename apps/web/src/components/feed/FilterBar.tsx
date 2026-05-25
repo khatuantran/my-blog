@@ -49,7 +49,7 @@ export function FilterBar({
   const sortLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? 'Latest';
   return (
     <div className="mb-4">
-      <div className="mb-2 flex items-center gap-2.5 font-mono text-mono-xs text-tm">
+      <div className="mb-2 flex items-center gap-2.5 font-mono text-mono-sm text-tm">
         <span>// feed.posts{typeof total === 'number' ? ` · ${total} total` : ''}</span>
         {activeMood && (
           <span style={{ color: MOOD_CFG[activeMood].color }}>

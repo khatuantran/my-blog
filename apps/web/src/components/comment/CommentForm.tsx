@@ -80,7 +80,7 @@ export function CommentForm({ postId }: Props) {
           <button
             type="button"
             onClick={() => setAsAnon((v) => !v)}
-            className={`rounded-sm border px-2 py-1 font-mono text-mono-xs transition-colors ${
+            className={`rounded-sm border px-2 py-1 font-mono text-mono-sm transition-colors ${
               asAnon
                 ? 'border-cyan/50 bg-cyan/10 text-cyan'
                 : 'border-b2 bg-elev text-tm hover:text-tp'
@@ -101,7 +101,7 @@ export function CommentForm({ postId }: Props) {
       </div>
 
       {m.isError && (
-        <div className="mt-2 font-mono text-mono-xs text-red">
+        <div className="mt-2 font-mono text-mono-sm text-red">
           // failed to post comment — try again
         </div>
       )}

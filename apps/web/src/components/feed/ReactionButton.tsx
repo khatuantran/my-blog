@@ -131,7 +131,7 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
       )}
 
       {gone && (
-        <span className="ml-2 font-mono text-mono-xs text-red" role="alert">
+        <span className="ml-2 font-mono text-mono-sm text-red" role="alert">
           // reactions endpoint unavailable
         </span>
       )}

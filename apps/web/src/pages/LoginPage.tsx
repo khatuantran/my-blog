@@ -53,7 +53,7 @@ export default function LoginPage() {
       path="~/auth/login"
       shaking={shaking}
       footer={
-        <div className="mt-3.5 flex justify-between font-mono text-[10px] text-td">
+        <div className="mt-3.5 flex justify-between font-mono text-mono-sm text-td">
           <span>
             <span className="animate-pulse-status text-grn">●</span> connected to server
           </span>
@@ -61,12 +61,12 @@ export default function LoginPage() {
         </div>
       }
     >
-      <div className="mb-[18px] text-[10px] text-tm">// authenticate to continue</div>
+      <div className="mb-[18px] text-mono-sm text-tm">// authenticate to continue</div>
 
       <form onSubmit={onSubmit} aria-label="Login form">
         {/* Username */}
         <div className="mb-3.5">
-          <div className="mb-1.5 text-[10px] text-tm">username</div>
+          <div className="mb-1.5 text-mono-sm text-tm">username</div>
           <div className="relative">
             <span
               aria-hidden="true"
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
         {/* Password */}
         <div className="mb-5">
-          <div className="mb-1.5 text-[10px] text-tm">password</div>
+          <div className="mb-1.5 text-mono-sm text-tm">password</div>
           <div className="relative">
             <span
               aria-hidden="true"
@@ -156,7 +156,7 @@ export default function LoginPage() {
         {/* Divider */}
         <div className="my-[18px] flex items-center gap-2.5">
           <div className="h-px flex-1 bg-b1" />
-          <span className="text-[10px] text-td">── or ──</span>
+          <span className="text-mono-sm text-td">── or ──</span>
           <div className="h-px flex-1 bg-b1" />
         </div>
 

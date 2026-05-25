@@ -61,7 +61,7 @@ export default function RegisterPage() {
       path="~/auth/register"
       shaking={shaking}
       footer={
-        <div className="mt-3.5 flex justify-between font-mono text-[10px] text-td">
+        <div className="mt-3.5 flex justify-between font-mono text-mono-sm text-td">
           <span>
             <span className="animate-pulse-status text-grn">●</span> connected to server
           </span>
@@ -69,12 +69,12 @@ export default function RegisterPage() {
         </div>
       }
     >
-      <div className="mb-[18px] text-[10px] text-tm">// create new account</div>
+      <div className="mb-[18px] text-mono-sm text-tm">// create new account</div>
 
       <form onSubmit={onSubmit} aria-label="Register form">
         {/* Username */}
         <div className="mb-3.5">
-          <div className="mb-1.5 text-[10px] text-tm">username</div>
+          <div className="mb-1.5 text-mono-sm text-tm">username</div>
           <div className="relative">
             <span
               aria-hidden="true"
@@ -94,12 +94,12 @@ export default function RegisterPage() {
               style={{ border: '1px solid #2A3548' }}
             />
           </div>
-          <div className="mt-1 text-[10px] text-td">// 3-32 chars, alphanumeric + - _</div>
+          <div className="mt-1 text-mono-sm text-td">// 3-32 chars, alphanumeric + - _</div>
         </div>
 
         {/* Password */}
         <div className="mb-3.5">
-          <div className="mb-1.5 text-[10px] text-tm">password</div>
+          <div className="mb-1.5 text-mono-sm text-tm">password</div>
           <div className="relative">
             <span
               aria-hidden="true"
@@ -130,7 +130,7 @@ export default function RegisterPage() {
 
         {/* Email (optional) */}
         <div className="mb-5">
-          <div className="mb-1.5 text-[10px] text-tm">
+          <div className="mb-1.5 text-mono-sm text-tm">
             email <span className="text-td">// optional</span>
           </div>
           <div className="relative">

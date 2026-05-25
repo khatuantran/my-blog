@@ -9,7 +9,7 @@ type Props = {
 
 const VARIANT_TEXT: Record<Variant, string> = {
   card: 'text-body',
-  detail: 'text-[15px] leading-[1.75]',
+  detail: 'text-body leading-[1.75]',
 };
 
 export function PostContent({ content, variant = 'card' }: Props) {

@@ -129,11 +129,11 @@ export function CommandPalette({ open, onClose }: Props) {
                       isSel ? 'bg-cyan/[0.08]' : 'hover:bg-cyan/[0.08]'
                     }`}
                   >
-                    <div className="w-7 h-7 rounded-[5px] bg-over flex items-center justify-center text-[13px] shrink-0">
+                    <div className="w-7 h-7 rounded-[5px] bg-over flex items-center justify-center text-mono-md shrink-0">
                       {cmd.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-[13px] text-tp">{cmd.label}</div>
+                      <div className="text-mono-md text-tp">{cmd.label}</div>
                       {cmd.desc && <div className="font-mono text-mono-sm text-tm">{cmd.desc}</div>}
                     </div>
                     {cmd.keys && (

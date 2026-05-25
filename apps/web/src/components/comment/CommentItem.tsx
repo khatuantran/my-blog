@@ -51,7 +51,7 @@ export function CommentItem({ comment }: Props) {
         <span className="font-mono text-mono-sm text-tm">{formatRelative(comment.createdAt)}</span>
       </div>
       <div
-        className="mb-2 whitespace-pre-wrap text-[13px] leading-[1.6]"
+        className="mb-2 whitespace-pre-wrap text-mono-md leading-[1.6]"
         style={{ color: '#C9D1D9' }}
       >
         {comment.content}

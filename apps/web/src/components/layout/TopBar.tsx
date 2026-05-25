@@ -100,7 +100,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
         >
           <span
             aria-hidden="true"
-            className="absolute left-[10px] top-1/2 -translate-y-1/2 text-tm text-[13px] pointer-events-none"
+            className="absolute left-[10px] top-1/2 -translate-y-1/2 text-tm text-mono-md pointer-events-none"
           >
             ⌕
           </span>
@@ -110,7 +110,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
             placeholder="~$ search posts, tags, users..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full bg-bg border border-b2 text-ts font-mono text-[13px] pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
+            className="w-full bg-bg border border-b2 text-ts font-mono text-mono-md pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
           />
           <button
             type="button"
@@ -142,7 +142,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
             onClick={() => setShowMenu((v) => !v)}
             aria-label="User menu"
             aria-expanded={showMenu}
-            className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-[13px] text-cyan cursor-pointer transition-shadow relative ${
+            className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-mono-md text-cyan cursor-pointer transition-shadow relative ${
               showMenu ? 'shadow-glow-cyan-md' : 'shadow-glow-cyan-sm'
             }`}
             style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
@@ -167,7 +167,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
               <div className="px-2.5 pt-2 pb-2.5 border-b border-b2 mb-1">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-[11px] text-cyan font-bold font-brand"
+                    className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-mono-sm text-cyan font-bold font-brand"
                     style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
                   >
                     {initial}
@@ -194,7 +194,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
                     className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[5px] no-underline transition-colors hover:bg-cyan/10 ${COLOR_CLASS[item.color]}`}
                   >
                     <span className="text-sm">{item.icon}</span>
-                    <span className="flex-1 text-[13px]">{item.label}</span>
+                    <span className="flex-1 text-mono-md">{item.label}</span>
                     {item.kbd && <span className="font-mono text-mono-sm text-tm">{item.kbd}</span>}
                   </Link>
                 </div>
@@ -210,7 +210,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
                     className="flex w-full items-center gap-2 px-2.5 py-1.5 rounded-[5px] border-none bg-transparent text-left text-red transition-colors hover:bg-red/10 disabled:opacity-50"
                   >
                     <span className="text-sm">🚪</span>
-                    <span className="flex-1 text-[13px]">
+                    <span className="flex-1 text-mono-md">
                       {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
                     </span>
                     <span className="font-mono text-mono-sm text-tm">⌘Q</span>

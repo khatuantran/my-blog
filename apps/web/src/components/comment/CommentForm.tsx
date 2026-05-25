@@ -57,7 +57,7 @@ export function CommentForm({ postId }: Props) {
         aria-label="Comment text"
         maxLength={CONTENT_MAX}
         rows={3}
-        className="w-full resize-y rounded-md border border-b2 bg-bg p-3 font-sans text-[13px] text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+        className="w-full resize-y rounded-md border border-b2 bg-bg p-3 font-sans text-mono-md text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
       />
 
       <div className="mt-3 flex items-center gap-3">

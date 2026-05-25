@@ -65,7 +65,7 @@ function AvatarSm({ username, avatarUrl }: { username: string; avatarUrl: string
     );
   }
   return (
-    <div className="w-7 h-7 rounded-full shrink-0 bg-cyan/20 border border-cyan/40 flex items-center justify-center font-brand font-bold text-[11px] text-cyan">
+    <div className="w-7 h-7 rounded-full shrink-0 bg-cyan/20 border border-cyan/40 flex items-center justify-center font-brand font-bold text-mono-sm text-cyan">
       {initial}
     </div>
   );
@@ -102,12 +102,12 @@ function NotificationRow({
       {item.actor ? (
         <AvatarSm username={item.actor.username} avatarUrl={item.actor.avatarUrl} />
       ) : (
-        <div className="w-7 h-7 rounded-full shrink-0 bg-b2 flex items-center justify-center text-tm text-[11px]">
+        <div className="w-7 h-7 rounded-full shrink-0 bg-b2 flex items-center justify-center text-tm text-mono-sm">
           ?
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="font-mono text-[12px] text-ts leading-snug break-words">{truncated}</p>
+        <p className="font-mono text-mono text-ts leading-snug break-words">{truncated}</p>
         <span className="font-mono text-mono-sm text-tm mt-0.5 block">
           {formatRelative(item.createdAt)}
         </span>

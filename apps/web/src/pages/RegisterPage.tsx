@@ -90,7 +90,7 @@ export default function RegisterPage() {
               autoComplete="username"
               autoFocus
               aria-label="Username"
-              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-[14px] text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-mono-lg text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
               style={{ border: '1px solid #2A3548' }}
             />
           </div>
@@ -114,14 +114,14 @@ export default function RegisterPage() {
               placeholder="min 8 chars..."
               autoComplete="new-password"
               aria-label="Password"
-              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-10 font-mono text-[14px] text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-10 font-mono text-mono-lg text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
               style={{ border: '1px solid #2A3548' }}
             />
             <button
               type="button"
               onClick={() => setShowPw((v) => !v)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 border-none bg-transparent text-[13px] text-tm"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 border-none bg-transparent text-mono-md text-tm"
             >
               {showPw ? '🙈' : '👁'}
             </button>
@@ -147,7 +147,7 @@ export default function RegisterPage() {
               placeholder="you@example.com"
               autoComplete="email"
               aria-label="Email"
-              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-[14px] text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-mono-lg text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
               style={{ border: '1px solid #2A3548' }}
             />
           </div>
@@ -157,7 +157,7 @@ export default function RegisterPage() {
         {error && (
           <div
             role="alert"
-            className="mb-3.5 rounded-sm px-3 py-2 font-mono text-[12px] text-red"
+            className="mb-3.5 rounded-sm px-3 py-2 font-mono text-mono text-red"
             style={{
               background: 'rgba(247,118,142,.08)',
               border: '1px solid rgba(247,118,142,.3)',
@@ -171,7 +171,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={m.isPending}
-          className="w-full cursor-pointer rounded-md py-[11px] font-mono text-[13px] font-semibold text-cyan transition-all hover:bg-cyan/[0.14] disabled:cursor-default disabled:text-tm"
+          className="w-full cursor-pointer rounded-md py-[11px] font-mono text-mono-md font-semibold text-cyan transition-all hover:bg-cyan/[0.14] disabled:cursor-default disabled:text-tm"
           style={{
             background: m.isPending ? '#1A1F2E' : 'rgba(0,255,229,.08)',
             border: `1px solid ${m.isPending ? '#2A3548' : 'rgba(0,255,229,.4)'}`,
@@ -188,7 +188,7 @@ export default function RegisterPage() {
         </button>
 
         {/* Login link */}
-        <div className="mt-4 text-center text-[11px] text-td">
+        <div className="mt-4 text-center text-mono-sm text-td">
           // already have account?{' '}
           <Link to="/auth/login" className="text-blu no-underline hover:underline">
             ❯ sign in

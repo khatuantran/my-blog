@@ -819,6 +819,32 @@ Composite wrapper kết hợp [[#ReactionPicker (FR-16, M11.7 — updated 2026-0
 - **Reference:** `design-file/MyBlog Feed.html` L605-714.
 - **Code drift (flag F1/F2):** FE `apps/web/src/components/feed/PostCard.tsx` hiện link `<Link to="/post/...">` cho `💬` — cần đổi sang `onClick` mở modal + implement `CommentsModal.tsx`. Cần F2 amend FR-13 (Comments pattern) trước F1.
 
+### ReplyForm (FR-03.6 — depth-1 reply inline form)
+
+- **Mục đích:** Inline form mở khi user click `↩ Reply` trên CommentItem để reply 1 comment (depth 1 only per FR-03.6).
+- **Trigger:** CommentItem `↩ Reply` button → toggle `showReplyForm` state → render `<ReplyForm>` inline ngay dưới comment.
+- **Container:** `rounded-md border border-cyan/30 bg-bg/40 p-3` — subtle cyan accent để distinguish khỏi parent comment.
+- **Header:** `↩ replying to @<parentUsername>` — blu mono 11px + cyan accent cho username (denormalized from `comment.replyTo.username` field).
+- **Textarea:** Inter 13px (`text-mono-md`), 2 rows, auto-focus on open, max 1000 chars, placeholder `// reply to @<parent>...`.
+- **Submit shortcuts:** ⌘↵ / Ctrl↵ submit (KHÔNG plain Enter — prevent accidental submit). Buttons: Cancel (border b2) + ⌘↵ Reply (cyan primary).
+- **Anon toggle:** Bật khi auth user muốn reply anonymously — same pattern như CommentForm. `[as anon]` button + name input khi enabled.
+- **Cancel:** Esc keyboard, Cancel button click — both fire `onClose()` callback. Parent component (CommentItem) responsible cho clearing form state.
+- **Error state:** Mutation error → `// failed — try again` mono 11 red.
+- **Mutation:** Reuse `useCreateComment` mutation với `dto.parentId` set. Server validates parent depth + cross-post. onSuccess → clear content + close form.
+- **File:** `apps/web/src/components/feed/ReplyForm.tsx`.
+
+### ReplyRow (FR-03.6 — nested reply display under parent)
+
+- **Mục đích:** Nested reply display under parent CommentItem, indent để visually communicate parent-child relationship.
+- **Container:** `ml-10` (40px indent) `rounded-md border border-b2 bg-bg/40 p-2.5` — subtle elevation, smaller padding than CommentItem.
+- **Avatar:** size `xs` (24×24, font 10px) — smaller than CommentItem's `sm` (28×28) để emphasize hierarchy.
+- **Header row:** `<Avatar xs> @<author>` blu mono 11 + (optional) `↩ @<replyToUsername>` cyan accent từ denormalized `reply.replyTo` field + `·` separator + relative time mono 11 muted.
+- **Content:** Inter `text-mono-md` (13px), line-height 1.55, wrap pre-wrap, color `#C9D1D9`.
+- **Like button:** Traditional `♡` (unliked) / `❤` (liked, magenta) binary toggle — **KHÔNG reaction picker.** Replies inherit Comment-style binary like, NOT Post-style reactions. Smaller size than CommentItem (`px-1.5 py-0.5`).
+- **NO Reply button:** Replies KHÔNG nested (depth 1 only per FR-03.6). Server enforces `INVALID_PARENT_DEPTH` 400 nếu cố reply on reply.
+- **Anonymous variant:** `Anon · <name>` display, KHÔNG show `replyTo` arrow (nullable field).
+- **File:** `apps/web/src/components/feed/ReplyRow.tsx`.
+
 ### AvatarMenu (TopBar dropdown — design-file 2026-05-24)
 
 - **Mục đích:** Click avatar TopBar → dropdown menu 7 items.

@@ -16,7 +16,7 @@ export function ImageThumb({ url, idx, onRemove, uploading }: Props) {
         <ImgSlot idx={idx} />
       )}
       {uploading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-bg/70 font-mono text-mono-xs text-cyan">
+        <div className="absolute inset-0 flex items-center justify-center bg-bg/70 font-mono text-mono-sm text-cyan">
           …
         </div>
       )}

@@ -60,7 +60,7 @@ export default function ProfilePage() {
         <div className="text-tm">
           {is404 ? `// user @${username} not found` : '// failed to load profile'}
         </div>
-        <Link to="/" className="mt-3 inline-block text-mono-xs text-cyan hover:underline">
+        <Link to="/" className="mt-3 inline-block text-mono-sm text-cyan hover:underline">
           ← back to feed
         </Link>
       </div>
@@ -105,7 +105,7 @@ export default function ProfilePage() {
           </div>
           {user.title && <div className="mt-1 text-sm text-ts">{user.title}</div>}
           {user.bio && <div className="mt-2 line-clamp-3 text-sm text-tm">{user.bio}</div>}
-          <div className="mt-3 flex flex-wrap gap-3 font-mono text-mono-xs text-tm">
+          <div className="mt-3 flex flex-wrap gap-3 font-mono text-mono-sm text-tm">
             <span>
               <span className="text-cyan">{formatStat(stats?.postsCount ?? 0)}</span> posts
             </span>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
         {isSelf && (
           <Link
             to="?edit=1"
-            className="rounded-sm border border-cyan/40 bg-cyan/10 px-3 py-1.5 font-mono text-mono-xs text-cyan hover:bg-cyan/20"
+            className="rounded-sm border border-cyan/40 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20"
           >
             ✎ Edit Profile
           </Link>
@@ -163,13 +163,13 @@ export default function ProfilePage() {
                 </Block>
                 <Block title="// skills.stack">
                   {(user.skills?.length ?? 0) === 0 ? (
-                    <div className="font-mono text-mono-xs text-td">// no skills added</div>
+                    <div className="font-mono text-mono-sm text-td">// no skills added</div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {user.skills!.map((s) => (
                         <span
                           key={s.name}
-                          className="rounded-sm border px-2 py-0.5 font-mono text-mono-xs"
+                          className="rounded-sm border px-2 py-0.5 font-mono text-mono-sm"
                           style={{
                             color: s.color,
                             borderColor: `${s.color}50`,
@@ -184,7 +184,7 @@ export default function ProfilePage() {
                 </Block>
                 <Block title="// tags.used">
                   {(stats?.tagsUsed.length ?? 0) === 0 ? (
-                    <div className="font-mono text-mono-xs text-td">// no tags yet</div>
+                    <div className="font-mono text-mono-sm text-td">// no tags yet</div>
                   ) : (
                     <div className="flex flex-wrap gap-1.5">
                       {stats!.tagsUsed.map((t) => (
@@ -204,13 +204,13 @@ export default function ProfilePage() {
         >
           <Block title="// skills.top">
             {(user.skills?.length ?? 0) === 0 ? (
-              <div className="font-mono text-mono-xs text-td">// none</div>
+              <div className="font-mono text-mono-sm text-td">// none</div>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {user.skills!.slice(0, 6).map((s) => (
                   <span
                     key={s.name}
-                    className="rounded-sm border px-2 py-0.5 font-mono text-mono-xs"
+                    className="rounded-sm border px-2 py-0.5 font-mono text-mono-sm"
                     style={{
                       color: s.color,
                       borderColor: `${s.color}50`,
@@ -226,7 +226,7 @@ export default function ProfilePage() {
 
           <Block title="// mood.breakdown">
             {moodTotal === 0 ? (
-              <div className="font-mono text-mono-xs text-td">// no posts yet</div>
+              <div className="font-mono text-mono-sm text-td">// no posts yet</div>
             ) : (
               <div className="space-y-1.5">
                 {moodEntries.map((e) => (
@@ -240,13 +240,13 @@ export default function ProfilePage() {
             {stats ? (
               <HeatmapGrid cells={stats.heatmap28d} />
             ) : (
-              <div className="font-mono text-mono-xs text-td">⠋</div>
+              <div className="font-mono text-mono-sm text-td">⠋</div>
             )}
           </Block>
 
           <Block title="// tags.used">
             {(stats?.tagsUsed.length ?? 0) === 0 ? (
-              <div className="font-mono text-mono-xs text-td">// none</div>
+              <div className="font-mono text-mono-sm text-td">// none</div>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {stats!.tagsUsed.slice(0, 8).map((t) => (
@@ -266,7 +266,7 @@ export default function ProfilePage() {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-md border border-b2 bg-surf p-3">
-      <div className="mb-2 font-mono text-mono-xs text-tm">{title}</div>
+      <div className="mb-2 font-mono text-mono-sm text-tm">{title}</div>
       {children}
     </div>
   );
@@ -275,12 +275,12 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 function PostsTab({ userId }: { userId: string }) {
   const { data, isLoading } = usePostsInfinite({});
   if (isLoading) {
-    return <div className="py-8 text-center font-mono text-mono-xs text-tm">⠋ loading...</div>;
+    return <div className="py-8 text-center font-mono text-mono-sm text-tm">⠋ loading...</div>;
   }
   const posts: Post[] =
     data?.pages.flatMap((p) => p.items).filter((p) => p.author.id === userId) ?? [];
   if (posts.length === 0) {
-    return <div className="py-12 text-center font-mono text-mono-xs text-tm">// no posts yet</div>;
+    return <div className="py-12 text-center font-mono text-mono-sm text-tm">// no posts yet</div>;
   }
   return (
     <>
@@ -297,10 +297,10 @@ function SavedTab() {
     queryFn: () => listSavedPosts(),
   });
   if (isLoading)
-    return <div className="py-8 text-center font-mono text-mono-xs text-tm">⠋ loading...</div>;
+    return <div className="py-8 text-center font-mono text-mono-sm text-tm">⠋ loading...</div>;
   if (!data || data.items.length === 0)
     return (
-      <div className="py-12 text-center font-mono text-mono-xs text-tm">// no saved posts</div>
+      <div className="py-12 text-center font-mono text-mono-sm text-tm">// no saved posts</div>
     );
   return (
     <>

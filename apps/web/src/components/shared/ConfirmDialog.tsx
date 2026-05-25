@@ -49,7 +49,7 @@ export function ConfirmDialog({
           destructive ? 'border-red/30' : 'border-b2'
         }`}
       >
-        <div className={`mb-2 font-mono text-mono-xs ${destructive ? 'text-red' : 'text-tm'}`}>
+        <div className={`mb-2 font-mono text-mono-sm ${destructive ? 'text-red' : 'text-tm'}`}>
           {destructive ? '⚠️ ' : ''}
           {title}
         </div>
@@ -59,7 +59,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onCancel}
             disabled={pending}
-            className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-xs text-tm transition-colors hover:border-b3 hover:text-tp disabled:opacity-50"
+            className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-sm text-tm transition-colors hover:border-b3 hover:text-tp disabled:opacity-50"
           >
             {cancelLabel}
           </button>
@@ -67,7 +67,7 @@ export function ConfirmDialog({
             type="button"
             onClick={onConfirm}
             disabled={pending}
-            className={`rounded-sm border px-3 py-1.5 font-mono text-mono-xs transition-colors disabled:opacity-50 ${
+            className={`rounded-sm border px-3 py-1.5 font-mono text-mono-sm transition-colors disabled:opacity-50 ${
               destructive
                 ? 'border-red/50 bg-red/10 text-red hover:bg-red/20'
                 : 'border-cyan/50 bg-cyan/10 text-cyan hover:bg-cyan/20'

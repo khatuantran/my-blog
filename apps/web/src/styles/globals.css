@@ -85,7 +85,7 @@
 @layer components {
   /* Section label: `// label` + flex-1 hr line. Used in page asides + panels. */
   .sb-lbl {
-    @apply mb-2 flex items-center gap-2 font-mono text-mono-xs text-tm;
+    @apply mb-2 flex items-center gap-2 font-mono text-mono-sm text-tm;
     letter-spacing: 0.05em;
   }
   .sb-lbl::after {

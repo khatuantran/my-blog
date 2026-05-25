@@ -69,12 +69,12 @@ export function TagModal({
         onSubmit={handleSubmit}
         className="w-[480px] max-w-full rounded-lg border border-b2 bg-elev p-5 shadow-xl"
       >
-        <div className="mb-3 font-mono text-mono-xs text-tm">
+        <div className="mb-3 font-mono text-mono-sm text-tm">
           {variant === 'create' ? '// create.tag' : '// edit.tag'}
         </div>
 
         <div className="mb-3">
-          <label htmlFor="tag-name" className="mb-1 block font-mono text-mono-xs text-tm">
+          <label htmlFor="tag-name" className="mb-1 block font-mono text-mono-sm text-tm">
             name (auto # prefix · lowercase)
           </label>
           <input
@@ -90,7 +90,7 @@ export function TagModal({
         </div>
 
         <div className="mb-3">
-          <div className="mb-1 font-mono text-mono-xs text-tm">color</div>
+          <div className="mb-1 font-mono text-mono-sm text-tm">color</div>
           <div className="flex flex-wrap gap-1.5">
             {TAG_COLORS.map((c) => (
               <button
@@ -109,7 +109,7 @@ export function TagModal({
         </div>
 
         <div className="mb-3">
-          <label htmlFor="tag-desc" className="mb-1 block font-mono text-mono-xs text-tm">
+          <label htmlFor="tag-desc" className="mb-1 block font-mono text-mono-sm text-tm">
             description <span className="text-td">// optional, max 280</span>
           </label>
           <textarea
@@ -121,20 +121,20 @@ export function TagModal({
             placeholder="Brief description..."
             className="w-full resize-y rounded-sm border border-b2 bg-bg px-3 py-2 font-mono text-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm"
           />
-          <div className="mt-1 text-right font-mono text-mono-xs text-td">
+          <div className="mt-1 text-right font-mono text-mono-sm text-td">
             {description.length}/280
           </div>
         </div>
 
         <div className="mb-4">
-          <div className="mb-1 font-mono text-mono-xs text-tm">// preview</div>
+          <div className="mb-1 font-mono text-mono-sm text-tm">// preview</div>
           <TagPill name={name.replace(/^#/, '') || 'preview'} color={color} />
         </div>
 
         {error && (
           <div
             role="alert"
-            className="mb-3 rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-xs text-red"
+            className="mb-3 rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
           >
             {error}
           </div>
@@ -145,14 +145,14 @@ export function TagModal({
             type="button"
             onClick={onClose}
             disabled={pending}
-            className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-xs text-tm hover:text-tp disabled:opacity-50"
+            className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-sm text-tm hover:text-tp disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={pending || !name.trim()}
-            className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-xs text-cyan hover:bg-cyan/20 disabled:opacity-50"
+            className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:opacity-50"
           >
             {pending ? '⠋ ...' : variant === 'create' ? 'Create' : 'Save'}
           </button>

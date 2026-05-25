@@ -18,7 +18,7 @@ export function FileAttachments({ files }: Props) {
   if (!files || files.length === 0) return null;
   return (
     <div className="mb-3">
-      <div className="mb-1.5 flex items-center gap-1.5 font-mono text-mono-xs text-tm">
+      <div className="mb-1.5 flex items-center gap-1.5 font-mono text-mono-sm text-tm">
         <span>// attachments</span>
         <span className="text-td">[{files.length}]</span>
       </div>
@@ -50,14 +50,14 @@ export function FileAttachments({ files }: Props) {
               >
                 {f.name}
               </span>
-              <span className="shrink-0 font-mono text-mono-xs text-tm">{formatBytes(f.size)}</span>
+              <span className="shrink-0 font-mono text-mono-sm text-tm">{formatBytes(f.size)}</span>
               <a
                 href={f.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 download={f.name}
                 aria-label={`Download ${f.name}`}
-                className="shrink-0 rounded-sm px-2 py-px font-mono text-mono-xs hover:opacity-100"
+                className="shrink-0 rounded-sm px-2 py-px font-mono text-mono-sm hover:opacity-100"
                 style={{
                   color,
                   background: `${color}10`,

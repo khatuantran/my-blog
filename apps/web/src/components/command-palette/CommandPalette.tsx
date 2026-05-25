@@ -98,7 +98,7 @@ export function CommandPalette({ open, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="font-mono text-mono-xs text-tm bg-over border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer hover:text-tp"
+            className="font-mono text-mono-sm text-tm bg-over border border-b2 rounded-[3px] px-[7px] py-[2px] cursor-pointer hover:text-tp"
           >
             Esc
           </button>
@@ -107,7 +107,7 @@ export function CommandPalette({ open, onClose }: Props) {
         <div className="max-h-[340px] overflow-y-auto">
           {groups.map(({ group, items }) => (
             <div key={group}>
-              <div className="font-mono text-mono-xs text-tm px-4 pt-2.5 pb-1 tracking-[0.05em]">
+              <div className="font-mono text-mono-sm text-tm px-4 pt-2.5 pb-1 tracking-[0.05em]">
                 // {group}
               </div>
               {items.map((cmd) => {
@@ -134,14 +134,14 @@ export function CommandPalette({ open, onClose }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[13px] text-tp">{cmd.label}</div>
-                      {cmd.desc && <div className="font-mono text-mono-xs text-tm">{cmd.desc}</div>}
+                      {cmd.desc && <div className="font-mono text-mono-sm text-tm">{cmd.desc}</div>}
                     </div>
                     {cmd.keys && (
                       <div className="flex gap-1">
                         {cmd.keys.map((k, i) => (
                           <span
                             key={i}
-                            className="font-mono text-mono-xs text-ts bg-over border border-b2 rounded-[3px] px-1.5 py-[1px]"
+                            className="font-mono text-mono-sm text-ts bg-over border border-b2 rounded-[3px] px-1.5 py-[1px]"
                           >
                             {k}
                           </span>
@@ -160,7 +160,7 @@ export function CommandPalette({ open, onClose }: Props) {
           )}
         </div>
 
-        <div className="px-4 py-2 border-t border-b1 flex gap-4 font-mono text-mono-xs text-tm">
+        <div className="px-4 py-2 border-t border-b1 flex gap-4 font-mono text-mono-sm text-tm">
           <span>↑↓ navigate</span>
           <span>↵ select</span>
           <span>Esc close</span>

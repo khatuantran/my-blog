@@ -44,7 +44,7 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
               [ ADMIN ]
             </span>
           </div>
-          <span className="font-mono text-mono-xs text-tm">just now</span>
+          <span className="font-mono text-mono-sm text-tm">just now</span>
         </div>
         <MoodBadge mood={mood} />
       </div>
@@ -53,7 +53,7 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
       {content ? (
         <>
           <PostContent content={display} variant="card" />
-          {truncated && <div className="-mt-2 mb-3 font-mono text-mono-xs text-tm">...</div>}
+          {truncated && <div className="-mt-2 mb-3 font-mono text-mono-sm text-tm">...</div>}
         </>
       ) : (
         <div className="mb-3 font-mono text-mono italic text-td">

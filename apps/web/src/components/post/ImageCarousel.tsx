@@ -84,7 +84,7 @@ export function ImageCarousel({ images }: Props) {
           </button>
 
           {/* Counter + dots */}
-          <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-b2 bg-bg/80 px-3 py-1 font-mono text-mono-xs text-tm">
+          <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-b2 bg-bg/80 px-3 py-1 font-mono text-mono-sm text-tm">
             <div className="flex gap-1.5" role="tablist" aria-label="Image selector">
               {images.map((_, i) => (
                 <button

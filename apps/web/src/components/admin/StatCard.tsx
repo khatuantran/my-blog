@@ -22,9 +22,9 @@ export function StatCard({ label, value, delta, color, sparkline }: Props) {
       data-testid={`stat-card-${label.toLowerCase()}`}
     >
       <div className="mb-2.5 flex items-start justify-between">
-        <span className="font-mono text-mono-xs text-tm tracking-[0.08em]">{label}</span>
+        <span className="font-mono text-mono-sm text-tm tracking-[0.08em]">{label}</span>
         {typeof delta === 'number' && (
-          <span className="font-mono text-mono-xs" style={{ color }}>
+          <span className="font-mono text-mono-sm" style={{ color }}>
             {formatDelta(delta)} today
           </span>
         )}

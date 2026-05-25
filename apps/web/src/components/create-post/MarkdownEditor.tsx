@@ -97,7 +97,7 @@ export function MarkdownEditor({
         style={{ minHeight }}
         className="w-full resize-y rounded-md border border-b2 bg-bg p-3 font-sans text-[14px] leading-[1.65] text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
       />
-      <div className="mt-1.5 font-mono text-mono-xs text-tm">
+      <div className="mt-1.5 font-mono text-mono-sm text-tm">
         // markdown supported · {value.length} chars
       </div>
     </div>

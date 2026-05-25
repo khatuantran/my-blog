@@ -33,7 +33,7 @@ export function SegmentedToggle<T extends string>({
             aria-checked={isActive}
             aria-label={opt.label}
             onClick={() => onChange(opt.value)}
-            className={`rounded-sm px-2 py-1 font-mono text-mono-xs transition-colors ${
+            className={`rounded-sm px-2 py-1 font-mono text-mono-sm transition-colors ${
               isActive ? 'bg-elev text-cyan' : 'text-tm hover:text-ts'
             }`}
           >

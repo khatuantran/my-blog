@@ -31,9 +31,9 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
           <span className="font-mono text-sm" style={{ color }}>
             {tag.name}
           </span>
-          <span className="ml-2 font-mono text-mono-xs text-tm">{tag.postCount} posts</span>
+          <span className="ml-2 font-mono text-mono-sm text-tm">{tag.postCount} posts</span>
           {tag.description && (
-            <span className="truncate font-mono text-mono-xs text-td">{tag.description}</span>
+            <span className="truncate font-mono text-mono-sm text-td">{tag.description}</span>
           )}
         </Link>
         <Sparkline data={tag.sparkline7d} color={color} width={60} height={16} />
@@ -43,7 +43,7 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
               type="button"
               onClick={() => onEdit?.(tag)}
               aria-label={`Edit tag ${tag.name}`}
-              className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-xs text-tm hover:border-cyan/50 hover:text-cyan"
+              className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-sm text-tm hover:border-cyan/50 hover:text-cyan"
             >
               ✎
             </button>
@@ -51,7 +51,7 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
               type="button"
               onClick={() => onDelete?.(tag)}
               aria-label={`Delete tag ${tag.name}`}
-              className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-xs text-tm hover:border-red/50 hover:text-red"
+              className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-sm text-tm hover:border-red/50 hover:text-red"
             >
               🗑
             </button>
@@ -74,12 +74,12 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
               {tag.name}
             </span>
           </div>
-          <span className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-xs text-tm">
+          <span className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-sm text-tm">
             {tag.postCount}
           </span>
         </div>
         {tag.description && (
-          <div className="mb-2 truncate font-mono text-mono-xs text-td" title={tag.description}>
+          <div className="mb-2 truncate font-mono text-mono-sm text-td" title={tag.description}>
             {tag.description}
           </div>
         )}
@@ -101,7 +101,7 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
             type="button"
             onClick={() => onEdit?.(tag)}
             aria-label={`Edit tag ${tag.name}`}
-            className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-xs text-tm hover:border-cyan/50 hover:text-cyan"
+            className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-sm text-tm hover:border-cyan/50 hover:text-cyan"
           >
             ✎
           </button>
@@ -109,7 +109,7 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
             type="button"
             onClick={() => onDelete?.(tag)}
             aria-label={`Delete tag ${tag.name}`}
-            className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-xs text-tm hover:border-red/50 hover:text-red"
+            className="rounded-sm border border-b2 bg-elev px-2 py-1 font-mono text-mono-sm text-tm hover:border-red/50 hover:text-red"
           >
             🗑
           </button>

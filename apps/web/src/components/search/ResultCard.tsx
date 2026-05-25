@@ -32,7 +32,7 @@ export function ResultCard({ post, query }: Props) {
       data-testid={`result-card-${post.id}`}
       className="block rounded-md border border-b2 bg-surf p-4 no-underline transition-colors hover:border-cyan/40"
     >
-      <div className="mb-2 flex items-center gap-2 font-mono text-mono-xs text-tm">
+      <div className="mb-2 flex items-center gap-2 font-mono text-mono-sm text-tm">
         <span className="text-blu">~/{post.author.username}</span>
         <span>·</span>
         <MoodBadge mood={post.mood} />

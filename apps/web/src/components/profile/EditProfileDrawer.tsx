@@ -121,12 +121,12 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <div className="font-mono text-mono-xs text-tm">// edit.profile</div>
+          <div className="font-mono text-mono-sm text-tm">// edit.profile</div>
           <button
             type="button"
             aria-label="Close drawer"
             onClick={onClose}
-            className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-xs text-tm hover:text-tp"
+            className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-sm text-tm hover:text-tp"
           >
             ×
           </button>
@@ -134,7 +134,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
 
         {/* Profile section */}
         <form onSubmit={handleProfileSubmit} className="mb-6 space-y-3">
-          <div className="font-mono text-mono-xs text-tm">// profile</div>
+          <div className="font-mono text-mono-sm text-tm">// profile</div>
           <Field label="Title (max 80)">
             <input
               type="text"
@@ -154,7 +154,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
               placeholder="Tell people about yourself..."
               className="w-full resize-y rounded-sm border border-b2 bg-bg px-3 py-2 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm"
             />
-            <div className="mt-1 text-right font-mono text-mono-xs text-td">{bio.length}/500</div>
+            <div className="mt-1 text-right font-mono text-mono-sm text-td">{bio.length}/500</div>
           </Field>
           <Field label="Skills (max 20)">
             <SkillChipInput value={skills} onChange={setSkills} />
@@ -162,7 +162,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           {profileError && (
             <div
               role="alert"
-              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-xs text-red"
+              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
             >
               {profileError}
             </div>
@@ -170,7 +170,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           <button
             type="submit"
             disabled={updateMut.isPending}
-            className="w-full rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-2 font-mono text-mono-xs text-cyan hover:bg-cyan/20 disabled:opacity-50"
+            className="w-full rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-2 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:opacity-50"
           >
             {updateMut.isPending ? '⠋ saving...' : 'Save profile'}
           </button>
@@ -178,7 +178,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
 
         {/* Security section */}
         <form onSubmit={handlePwSubmit} className="space-y-3">
-          <div className="font-mono text-mono-xs text-tm">// security</div>
+          <div className="font-mono text-mono-sm text-tm">// security</div>
           <Field label="Current password">
             <input
               type="password"
@@ -210,20 +210,20 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           {pwError && (
             <div
               role="alert"
-              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-xs text-red"
+              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
             >
               {pwError}
             </div>
           )}
           {pwOk && (
-            <div className="rounded-sm border border-grn/40 bg-grn/[0.08] px-3 py-2 font-mono text-mono-xs text-grn">
+            <div className="rounded-sm border border-grn/40 bg-grn/[0.08] px-3 py-2 font-mono text-mono-sm text-grn">
               ✓ password changed
             </div>
           )}
           <button
             type="submit"
             disabled={pwMut.isPending || !currentPw || !newPw || !confirmPw}
-            className="w-full rounded-sm border border-pur/50 bg-pur/10 px-3 py-2 font-mono text-mono-xs text-pur hover:bg-pur/20 disabled:opacity-50"
+            className="w-full rounded-sm border border-pur/50 bg-pur/10 px-3 py-2 font-mono text-mono-sm text-pur hover:bg-pur/20 disabled:opacity-50"
           >
             {pwMut.isPending ? '⠋ updating...' : 'Change password'}
           </button>
@@ -236,7 +236,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1 font-mono text-mono-xs text-tm">{label}</div>
+      <div className="mb-1 font-mono text-mono-sm text-tm">{label}</div>
       {children}
     </label>
   );

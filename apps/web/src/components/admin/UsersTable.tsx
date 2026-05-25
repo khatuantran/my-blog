@@ -28,7 +28,7 @@ export function UsersTable() {
   return (
     <div className="overflow-x-auto rounded-md border border-b2 bg-surf">
       <table className="w-full text-left font-mono text-mono-sm">
-        <thead className="border-b border-b1 text-mono-xs uppercase text-tm">
+        <thead className="border-b border-b1 text-mono-sm uppercase text-tm">
           <tr>
             <th className="px-3 py-2">Username</th>
             <th className="px-3 py-2">Role</th>
@@ -49,7 +49,7 @@ export function UsersTable() {
                 <td className="px-3 py-2 text-blu">~/{u.username}</td>
                 <td className="px-3 py-2">
                   <span
-                    className="rounded-sm px-1.5 py-0.5 font-mono text-mono-xs"
+                    className="rounded-sm px-1.5 py-0.5 font-mono text-mono-sm"
                     style={{
                       color: ROLE_COLOR[u.role],
                       border: `1px solid ${ROLE_COLOR[u.role]}50`,
@@ -62,14 +62,14 @@ export function UsersTable() {
                 <td className="px-3 py-2 text-tm">{u.email ?? '—'}</td>
                 <td className="px-3 py-2 text-right">
                   {u.role === 'ADMIN' ? (
-                    <span className="text-mono-xs text-td">—</span>
+                    <span className="text-mono-sm text-td">—</span>
                   ) : (
                     <button
                       type="button"
                       onClick={() => m.mutate({ userId: u.id, banned })}
                       disabled={m.isPending}
                       aria-label={banned ? `Unban ${u.username}` : `Ban ${u.username}`}
-                      className={`rounded-sm border px-2 py-0.5 font-mono text-mono-xs transition-colors disabled:opacity-50 ${
+                      className={`rounded-sm border px-2 py-0.5 font-mono text-mono-sm transition-colors disabled:opacity-50 ${
                         banned
                           ? 'border-grn/50 text-grn hover:bg-grn/10'
                           : 'border-red/50 text-red hover:bg-red/10'

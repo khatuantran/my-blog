@@ -13,7 +13,7 @@ export default function SavedPage() {
 
   return (
     <div className="mx-auto max-w-[820px] px-6 py-4">
-      <div className="mb-4 font-mono text-mono-xs text-tm">
+      <div className="mb-4 font-mono text-mono-sm text-tm">
         // saved.posts{data ? ` · ${data.total} items` : ''}
       </div>
 
@@ -22,7 +22,7 @@ export default function SavedPage() {
       {isError && (
         <div className="py-12 text-center font-mono">
           <div className="mb-2 text-tm">// failed to load saved posts</div>
-          <div className="text-mono-xs text-td">$ retry: refresh page</div>
+          <div className="text-mono-sm text-td">$ retry: refresh page</div>
         </div>
       )}
 
@@ -30,7 +30,7 @@ export default function SavedPage() {
         <div className="py-16 text-center font-mono">
           <div className="mb-3 text-5xl opacity-30">🔖</div>
           <div className="mb-1.5 text-tm">// no saved posts yet</div>
-          <div className="text-mono-xs text-td">
+          <div className="text-mono-sm text-td">
             $ browse{' '}
             <Link to="/" className="text-cyan hover:underline">
               feed

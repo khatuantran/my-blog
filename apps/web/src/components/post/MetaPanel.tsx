@@ -102,7 +102,7 @@ export function MetaPanel({ post }: Props) {
 
       <div>
         <div className="sb-lbl">// related</div>
-        <div className="font-mono text-mono-xs text-td">// coming soon · M11</div>
+        <div className="font-mono text-mono-sm text-td">// coming soon · M11</div>
       </div>
     </aside>
   );

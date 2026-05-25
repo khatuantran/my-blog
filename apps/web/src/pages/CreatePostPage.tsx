@@ -178,7 +178,7 @@ export default function CreatePostPage() {
         >
           <div className="sb-lbl">// live.preview</div>
           <PostPreview mood={mood} content={trimmed} tags={tags} imageCount={images.length} />
-          <div className="mt-2 font-mono text-mono-xs text-td">// preview updates real-time</div>
+          <div className="mt-2 font-mono text-mono-sm text-td">// preview updates real-time</div>
         </aside>
       </div>
     </div>

@@ -81,7 +81,7 @@ export default function SearchPage() {
       <section className="mb-6">
         <BigSearchInput value={input} onChange={setInput} autoFocus />
         <div className="mx-auto mt-4 flex max-w-[720px] flex-wrap items-center gap-2">
-          <span className="font-mono text-mono-xs text-td">type:</span>
+          <span className="font-mono text-mono-sm text-td">type:</span>
           {TYPE_OPTIONS.map((opt) => (
             <FilterChip
               key={opt.value}
@@ -91,7 +91,7 @@ export default function SearchPage() {
               {opt.label}
             </FilterChip>
           ))}
-          <span className="ml-3 font-mono text-mono-xs text-td">mood:</span>
+          <span className="ml-3 font-mono text-mono-sm text-td">mood:</span>
           {MOOD_KEYS.slice(0, 5).map((m) => (
             <FilterChip
               key={m}
@@ -109,15 +109,15 @@ export default function SearchPage() {
       <div className="flex gap-5">
         <main className="min-w-0 flex-1">
           {isLoading && (
-            <div className="py-12 text-center font-mono text-mono-xs text-tm">⠋ searching...</div>
+            <div className="py-12 text-center font-mono text-mono-sm text-tm">⠋ searching...</div>
           )}
           {isThrottled && (
-            <div className="rounded-md border border-yel/40 bg-yel/[0.08] p-3 font-mono text-mono-xs text-yel">
+            <div className="rounded-md border border-yel/40 bg-yel/[0.08] p-3 font-mono text-mono-sm text-yel">
               // too many searches · please retry shortly
             </div>
           )}
           {isError && !isThrottled && (
-            <div className="rounded-md border border-red/40 bg-red/[0.08] p-3 font-mono text-mono-xs text-red">
+            <div className="rounded-md border border-red/40 bg-red/[0.08] p-3 font-mono text-mono-sm text-red">
               // search failed · try again
             </div>
           )}
@@ -135,7 +135,7 @@ export default function SearchPage() {
           {/* Posts results */}
           {data && data.posts.items.length > 0 && (
             <section className="mb-4">
-              <div className="mb-2 font-mono text-mono-xs text-tm">
+              <div className="mb-2 font-mono text-mono-sm text-tm">
                 // results · {data.posts.total} match{data.posts.total === 1 ? '' : 'es'}
               </div>
               <div className="space-y-2">
@@ -149,7 +149,7 @@ export default function SearchPage() {
           {/* Tags results */}
           {data && data.tags.length > 0 && (
             <section className="mb-4">
-              <div className="mb-2 font-mono text-mono-xs text-tm">// tags</div>
+              <div className="mb-2 font-mono text-mono-sm text-tm">// tags</div>
               <div className="flex flex-wrap gap-1.5">
                 {data.tags.map((t) => (
                   <Link
@@ -167,15 +167,15 @@ export default function SearchPage() {
           {/* Files results */}
           {data && data.files.length > 0 && (
             <section className="mb-4">
-              <div className="mb-2 font-mono text-mono-xs text-tm">// files</div>
+              <div className="mb-2 font-mono text-mono-sm text-tm">// files</div>
               <div className="space-y-1">
                 {data.files.map((f) => (
                   <Link
                     key={f.id}
                     to={`/post/${f.postId}`}
-                    className="flex items-center gap-2 rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-xs text-tp no-underline hover:border-cyan/40"
+                    className="flex items-center gap-2 rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-sm text-tp no-underline hover:border-cyan/40"
                   >
-                    <span className="rounded-sm border border-b2 bg-elev px-1.5 py-0.5 text-mono-xs text-tm">
+                    <span className="rounded-sm border border-b2 bg-elev px-1.5 py-0.5 text-mono-sm text-tm">
                       {f.type}
                     </span>
                     {f.name}
@@ -194,7 +194,7 @@ export default function SearchPage() {
 
           {recent.length > 0 && (
             <div className="rounded-md border border-b2 bg-surf p-3">
-              <div className="mb-2 flex items-center justify-between font-mono text-mono-xs text-tm">
+              <div className="mb-2 flex items-center justify-between font-mono text-mono-sm text-tm">
                 <span>// recent.searches</span>
                 <button
                   type="button"
@@ -216,7 +216,7 @@ export default function SearchPage() {
                         next.set('q', q);
                         setParams(next, { replace: true });
                       }}
-                      className="block w-full truncate text-left font-mono text-mono-xs text-ts hover:text-cyan"
+                      className="block w-full truncate text-left font-mono text-mono-sm text-ts hover:text-cyan"
                     >
                       <span className="text-td">• </span>
                       {q}
@@ -238,7 +238,7 @@ function StatBox({ label, value, color }: { label: string; value: number; color:
       className="rounded-md border border-b2 bg-surf p-2.5"
       style={{ borderLeft: `3px solid var(--${color})` }}
     >
-      <div className="font-mono text-mono-xs uppercase tracking-wider text-tm">{label}</div>
+      <div className="font-mono text-mono-sm uppercase tracking-wider text-tm">{label}</div>
       <div className={`mt-0.5 font-brand text-display text-${color}`}>{value}</div>
     </div>
   );

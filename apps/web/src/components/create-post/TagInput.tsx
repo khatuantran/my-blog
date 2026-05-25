@@ -57,7 +57,7 @@ export function TagInput({ value, onChange, maxCount = MAX_TAGS }: Props) {
               type="button"
               onClick={() => removeTag(t.name)}
               aria-label={`Remove tag #${t.name}`}
-              className="border-none bg-transparent font-mono text-mono-xs text-tm hover:text-red"
+              className="border-none bg-transparent font-mono text-mono-sm text-tm hover:text-red"
             >
               ×
             </button>
@@ -74,7 +74,7 @@ export function TagInput({ value, onChange, maxCount = MAX_TAGS }: Props) {
           className="min-w-[120px] flex-1 border-none bg-transparent font-mono text-mono-sm text-tp outline-none placeholder:text-tm disabled:opacity-50"
         />
       </div>
-      <div className="mt-1.5 font-mono text-mono-xs text-tm">
+      <div className="mt-1.5 font-mono text-mono-sm text-tm">
         Press Enter, comma or space · {value.length}/{maxCount}
       </div>
     </div>

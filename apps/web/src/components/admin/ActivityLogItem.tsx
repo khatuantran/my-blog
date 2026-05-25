@@ -14,7 +14,7 @@ export function ActivityLogItem({ icon, message, color, time }: Props) {
         {icon}
       </span>
       <span className="flex-1 truncate font-mono text-mono-sm text-tp">{message}</span>
-      <span className="shrink-0 font-mono text-mono-xs text-tm">{time}</span>
+      <span className="shrink-0 font-mono text-mono-sm text-tm">{time}</span>
     </div>
   );
 }

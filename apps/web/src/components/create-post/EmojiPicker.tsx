@@ -133,7 +133,7 @@ export function EmojiPicker({ open, onSelect, onClose }: Props) {
             type="button"
             aria-selected={activeGroup === i}
             onClick={() => setActiveGroup(i)}
-            className={`-mb-px border-b-2 px-3 py-1 font-mono text-mono-xs transition-colors ${
+            className={`-mb-px border-b-2 px-3 py-1 font-mono text-mono-sm transition-colors ${
               activeGroup === i
                 ? 'border-cyan text-cyan'
                 : 'border-transparent text-tm hover:text-ts'

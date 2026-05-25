@@ -88,7 +88,7 @@ export function ProfileActivityList({ userId }: Props) {
       {hasNextPage && (
         <div ref={sentinelRef} className="h-8" aria-hidden>
           {isFetchingNextPage && (
-            <span className="font-mono text-mono-xs text-tm">// loading more...</span>
+            <span className="font-mono text-mono-sm text-tm">// loading more...</span>
           )}
         </div>
       )}
@@ -137,7 +137,7 @@ function ProfileActivityItem({ item }: { item: ActivityItem }) {
           </>
         )}
       </span>
-      <span className="shrink-0 font-mono text-mono-xs text-tm">
+      <span className="shrink-0 font-mono text-mono-sm text-tm">
         {formatRelative(item.createdAt)}
       </span>
     </div>

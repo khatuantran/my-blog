@@ -40,7 +40,7 @@ export function SkillChipInput({ value, onChange, max = 20 }: Props) {
         {value.map((s) => (
           <span
             key={s.name}
-            className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 font-mono text-mono-xs"
+            className="inline-flex items-center gap-1 rounded-sm border px-2 py-0.5 font-mono text-mono-sm"
             style={{
               color: s.color,
               borderColor: `${s.color}50`,
@@ -65,11 +65,11 @@ export function SkillChipInput({ value, onChange, max = 20 }: Props) {
           onKeyDown={handleKey}
           placeholder="❯ add skill..."
           maxLength={32}
-          className="min-w-[120px] flex-1 bg-transparent font-mono text-mono-xs text-tp outline-none placeholder:text-td"
+          className="min-w-[120px] flex-1 bg-transparent font-mono text-mono-sm text-tp outline-none placeholder:text-td"
           disabled={value.length >= max}
         />
       </div>
-      <div className="mt-1 text-right font-mono text-mono-xs text-td">
+      <div className="mt-1 text-right font-mono text-mono-sm text-td">
         // max {max} · {value.length} used
       </div>
     </div>

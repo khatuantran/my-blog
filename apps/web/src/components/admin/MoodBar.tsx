@@ -16,11 +16,11 @@ export function MoodBar({ mood, count, total }: Props) {
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="text-sm">{cfg.emoji}</span>
-          <span className="font-mono text-mono-xs" style={{ color: cfg.color }}>
+          <span className="font-mono text-mono-sm" style={{ color: cfg.color }}>
             {cfg.label}
           </span>
         </div>
-        <span className="font-mono text-mono-xs text-tm">
+        <span className="font-mono text-mono-sm text-tm">
           {count} <span className="text-td">·</span> {pct}%
         </span>
       </div>

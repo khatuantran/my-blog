@@ -109,7 +109,7 @@ export default function TagsPage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-6">
-      <div className="mb-4 font-mono text-mono-xs text-tm">// tags.all</div>
+      <div className="mb-4 font-mono text-mono-sm text-tm">// tags.all</div>
 
       {/* Stat cards */}
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -146,7 +146,7 @@ export default function TagsPage() {
               setModalError(null);
               setModal({ variant: 'create' });
             }}
-            className="ml-auto rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-xs text-cyan hover:bg-cyan/20"
+            className="ml-auto rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20"
           >
             + New Tag
           </button>
@@ -256,7 +256,7 @@ function StatBox({ label, value, color }: { label: string; value: string; color:
       className={`rounded-md border border-b2 bg-surf p-3 text-${color}`}
       style={{ borderLeft: `3px solid var(--${color})` }}
     >
-      <div className="font-mono text-mono-xs uppercase tracking-wider text-tm">{label}</div>
+      <div className="font-mono text-mono-sm uppercase tracking-wider text-tm">{label}</div>
       <div className="mt-1 font-brand text-display text-tp">{value}</div>
     </div>
   );
@@ -272,7 +272,7 @@ function SortDropdown({ sort, onChange }: { sort: TagSort; onChange: (s: TagSort
         aria-label="Sort tags"
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono-xs text-tm hover:text-tp"
+        className="rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
       >
         sort: {SORT_OPTIONS.find((o) => o.value === sort)?.label} ▾
       </button>
@@ -291,7 +291,7 @@ function SortDropdown({ sort, onChange }: { sort: TagSort; onChange: (s: TagSort
                   onChange(opt.value);
                   setOpen(false);
                 }}
-                className={`block w-full px-3 py-1.5 text-left font-mono text-mono-xs hover:bg-cyan/10 ${
+                className={`block w-full px-3 py-1.5 text-left font-mono text-mono-sm hover:bg-cyan/10 ${
                   sort === opt.value ? 'text-cyan' : 'text-ts'
                 }`}
               >

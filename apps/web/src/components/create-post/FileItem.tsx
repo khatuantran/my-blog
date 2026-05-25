@@ -30,14 +30,14 @@ export function FileItem({ name, type, size, onRemove, uploading }: Props) {
       >
         {name}
       </span>
-      <span className="shrink-0 font-mono text-mono-xs text-tm">
+      <span className="shrink-0 font-mono text-mono-sm text-tm">
         {uploading ? 'uploading…' : formatBytes(size)}
       </span>
       <button
         type="button"
         onClick={onRemove}
         aria-label={`Remove ${name}`}
-        className="shrink-0 rounded-sm border-none bg-transparent px-1.5 font-mono text-mono-xs text-red hover:bg-red/10"
+        className="shrink-0 rounded-sm border-none bg-transparent px-1.5 font-mono text-mono-sm text-red hover:bg-red/10"
       >
         ×
       </button>

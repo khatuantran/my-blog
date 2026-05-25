@@ -36,6 +36,8 @@ function toCommentResponse(c: CommentWithRelations): CommentResponseDto {
       : null,
     anonymousName: c.anonymousName,
     likesCount: c._count.likes,
+    parentId: c.parentId,
+    replyTo: c.replyTo as { username: string; isAnon: boolean } | null,
     createdAt: c.createdAt,
   };
 }
@@ -126,12 +128,41 @@ export class CommentsService {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
 
-    const data: Prisma.CommentCreateInput = viewer.userId
+    let replyTo: { username: string; isAnon: boolean } | null = null;
+    if (dto.parentId) {
+      const parent = await this.prisma.comment.findUnique({
+        where: { id: dto.parentId },
+        include: { user: { select: { username: true } } },
+      });
+      if (!parent) {
+        throw new NotFoundException({
+          code: 'PARENT_COMMENT_NOT_FOUND',
+          message: 'Parent comment không tồn tại',
+        });
+      }
+      if (parent.postId !== postId) {
+        throw new BadRequestException({
+          code: 'INVALID_PARENT_POST',
+          message: 'Parent comment thuộc post khác',
+        });
+      }
+      if (parent.parentId !== null) {
+        throw new BadRequestException({
+          code: 'INVALID_PARENT_DEPTH',
+          message: 'Reply chỉ depth 1 — không reply vào reply',
+        });
+      }
+      replyTo = {
+        username: parent.user?.username ?? parent.anonymousName ?? 'anonymous',
+        isAnon: !parent.userId,
+      };
+    }
+
+    const baseData = viewer.userId
       ? {
           content: dto.content,
           post: { connect: { id: postId } },
           user: { connect: { id: viewer.userId } },
-          // anonymousName ignored cho auth user
         }
       : {
           content: dto.content,
@@ -139,6 +170,13 @@ export class CommentsService {
           anonymousId: viewer.anonymousId,
           anonymousName: dto.anonymousName ?? null,
         };
+    const data: Prisma.CommentCreateInput = dto.parentId
+      ? {
+          ...baseData,
+          parent: { connect: { id: dto.parentId } },
+          replyTo: replyTo as Prisma.InputJsonValue,
+        }
+      : baseData;
 
     const comment = await this.prisma.comment.create({ data, include: COMMENT_INCLUDE });
     this.logger.log(

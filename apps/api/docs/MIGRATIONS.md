@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260525033356_add_comment_parent_id_for_reply
+
+- **Created:** 2026-05-25
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `Comment` (+2 columns `parentId String?`, `replyTo Json?`, +1 self-FK CASCADE, +1 index `[parentId]`)
+- **Breaking:** no — existing rows giữ `parentId=NULL, replyTo=NULL`.
+- **Notes:** FR-03.6 reply-to-comment MVP. Self-relation `Comment.parentId → Comment.id` ON DELETE CASCADE. `replyTo` JSONB denormalized với shape `{ username, isAnon }` để FE render `@parentuser` không cần JOIN. Depth-1 only validation enforced ở service layer (`INVALID_PARENT_DEPTH` 400 nếu `parent.parentId !== null`). Cross-post validation (`INVALID_PARENT_POST`). Auto-gen migration SQL bị stale Reaction constraint rename (legacy artifact từ migration trước) — manually cleaned, chỉ giữ Comment changes.
+- **Task:** T-343
+- **Rollback:** `prisma migrate resolve --rolled-back 20260525033356_add_comment_parent_id_for_reply` + manual SQL `ALTER TABLE "Comment" DROP CONSTRAINT "Comment_parentId_fkey"; DROP INDEX "Comment_parentId_idx"; ALTER TABLE "Comment" DROP COLUMN "parentId", DROP COLUMN "replyTo";`
+
 ### 20260524140000_add_notification_table
 
 - **Created:** 2026-05-24

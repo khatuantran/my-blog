@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Added
+
+- **T-343 BE Migration Comment.parentId + replyTo (FR-03.6 reply-to-comment MVP)** (2026-05-25, BE): Prisma schema thêm `Comment.parentId String?` self-relation (CASCADE delete) + `replyTo Json?` denormalized `{ username, isAnon }` + `@@index([parentId])`. Migration `20260525033356_add_comment_parent_id_for_reply` (auto-gen có stale Reaction constraint rename, manually cleaned). CommentsService.create accept `parentId`, validate depth-1 only (reject `INVALID_PARENT_DEPTH` 400), cross-post (reject `INVALID_PARENT_POST` 400), denormalize parent author into `replyTo`. CommentResponseDto thêm `parentId` + `replyTo` fields. Tests: 4 unit (happy + depth-2 reject + cross-post reject + anon parent) + 3 e2e (201 reply + 400 nested + DELETE cascade). 20/20 unit + 22/22 e2e pass.
+
 ### Changed
 
 - **Typography token foundation + screen font-size sync sweep** (2026-05-25, FE, T-360 partial — 8 code commits + 1 spec commit):

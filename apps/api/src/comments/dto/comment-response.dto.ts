@@ -37,6 +37,16 @@ export class CommentResponseDto {
   @ApiProperty({ example: 3 })
   likesCount!: number;
 
+  @ApiProperty({ example: 'cmpa-comment-parent', nullable: true })
+  parentId!: string | null;
+
+  @ApiProperty({
+    example: { username: 'kha', isAnon: false },
+    nullable: true,
+    description: 'Denormalized parent author info (reply only)',
+  })
+  replyTo!: { username: string; isAnon: boolean } | null;
+
   @ApiProperty({ example: '2026-05-18T10:00:00.000Z' })
   createdAt!: Date;
 }

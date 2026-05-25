@@ -19,4 +19,12 @@ export class CreateCommentDto {
   @MinLength(1)
   @MaxLength(50)
   anonymousName?: string;
+
+  @ApiPropertyOptional({
+    example: 'cmpa-comment-1',
+    description: 'Parent comment id để reply (FR-03.6, depth 1 only)',
+  })
+  @IsOptional()
+  @IsString()
+  parentId?: string;
 }

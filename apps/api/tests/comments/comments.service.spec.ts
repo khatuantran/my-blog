@@ -26,6 +26,8 @@ const baseComment = {
   anonymousName: null,
   content: 'hi',
   status: CommentStatus.APPROVED,
+  parentId: null,
+  replyTo: null,
   createdAt: new Date('2026-05-18T00:00:00Z'),
   user: baseUser,
   _count: { likes: 2 },
@@ -167,6 +169,75 @@ describe('CommentsService', () => {
       await service.create('p1', { anonymousId: '0x1' }, { content: 'hi' });
       const arg = prisma.comment.create.mock.calls[0][0];
       expect(arg.data.anonymousName).toBeNull();
+    });
+
+    describe('reply (FR-03.6)', () => {
+      const parentComment = {
+        id: 'parent1',
+        postId: 'p1',
+        userId: 'author1',
+        anonymousName: null,
+        parentId: null,
+        user: { username: 'parentuser' },
+      };
+
+      it('regression FR-03.6: reply happy path → replyTo denormalized', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+        prisma.comment.findUnique.mockResolvedValue(parentComment);
+        prisma.comment.create.mockResolvedValue({
+          ...baseComment,
+          parentId: 'parent1',
+          replyTo: { username: 'parentuser', isAnon: false },
+        });
+        const res = await service.create(
+          'p1',
+          { userId: 'u1' },
+          { content: 'hi', parentId: 'parent1' },
+        );
+        const arg = prisma.comment.create.mock.calls[0][0];
+        expect(arg.data.parent).toEqual({ connect: { id: 'parent1' } });
+        expect(arg.data.replyTo).toEqual({ username: 'parentuser', isAnon: false });
+        expect(res.parentId).toBe('parent1');
+        expect(res.replyTo).toEqual({ username: 'parentuser', isAnon: false });
+      });
+
+      it('regression FR-03.6: reject depth 2 → 400 INVALID_PARENT_DEPTH', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+        prisma.comment.findUnique.mockResolvedValue({ ...parentComment, parentId: 'grandparent' });
+        await expect(
+          service.create('p1', { userId: 'u1' }, { content: 'x', parentId: 'parent1' }),
+        ).rejects.toMatchObject({
+          response: { code: 'INVALID_PARENT_DEPTH' },
+        });
+      });
+
+      it('regression FR-03.6: parent comment khác post → 400 INVALID_PARENT_POST', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+        prisma.comment.findUnique.mockResolvedValue({ ...parentComment, postId: 'p2' });
+        await expect(
+          service.create('p1', { userId: 'u1' }, { content: 'x', parentId: 'parent1' }),
+        ).rejects.toMatchObject({
+          response: { code: 'INVALID_PARENT_POST' },
+        });
+      });
+
+      it('regression FR-03.6: anonymous parent → replyTo isAnon=true', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'author1' });
+        prisma.comment.findUnique.mockResolvedValue({
+          ...parentComment,
+          userId: null,
+          user: null,
+          anonymousName: 'Khách',
+        });
+        prisma.comment.create.mockResolvedValue({
+          ...baseComment,
+          parentId: 'parent1',
+          replyTo: { username: 'Khách', isAnon: true },
+        });
+        await service.create('p1', { userId: 'u1' }, { content: 'hi', parentId: 'parent1' });
+        const arg = prisma.comment.create.mock.calls[0][0];
+        expect(arg.data.replyTo).toEqual({ username: 'Khách', isAnon: true });
+      });
     });
 
     it('auth user comment → createNotification COMMENT called', async () => {

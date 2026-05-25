@@ -138,6 +138,70 @@ describe('Comments (e2e)', () => {
       expect(db!.userId).toBe(userId);
       expect(db!.anonymousId).toBeNull();
     });
+
+    it('regression FR-03.6: 201 reply with parentId → replyTo denormalized', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const parent = await makeComment(prisma, {
+        postId: post.id,
+        userId: adminId,
+        content: 'parent',
+      });
+      const res = await request(app.getHttpServer())
+        .post(`/posts/${post.id}/comments`)
+        .set('Cookie', userCookies)
+        .send({ content: 'reply', parentId: parent.id })
+        .expect(201);
+      expect(res.body.data.parentId).toBe(parent.id);
+      expect(res.body.data.replyTo).toEqual({ username: 'test-admin', isAnon: false });
+    });
+
+    it('regression FR-03.6: 400 nested reply (depth 2) → INVALID_PARENT_DEPTH', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const parent = await makeComment(prisma, {
+        postId: post.id,
+        userId: adminId,
+        content: 'parent',
+      });
+      const reply1 = await prisma.comment.create({
+        data: {
+          postId: post.id,
+          userId: userId,
+          content: 'reply1',
+          parentId: parent.id,
+          status: CommentStatus.APPROVED,
+        },
+      });
+      const res = await request(app.getHttpServer())
+        .post(`/posts/${post.id}/comments`)
+        .set('Cookie', userCookies)
+        .send({ content: 'nested', parentId: reply1.id })
+        .expect(400);
+      expect(res.body.error.code).toBe('INVALID_PARENT_DEPTH');
+    });
+
+    it('regression FR-03.6: DELETE parent → cascade replies', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+      const parent = await makeComment(prisma, {
+        postId: post.id,
+        userId: adminId,
+        content: 'parent',
+      });
+      await prisma.comment.create({
+        data: {
+          postId: post.id,
+          userId: userId,
+          content: 'reply',
+          parentId: parent.id,
+          status: CommentStatus.APPROVED,
+        },
+      });
+      await request(app.getHttpServer())
+        .delete(`/comments/${parent.id}`)
+        .set('Cookie', adminCookies)
+        .expect(204);
+      const remaining = await prisma.comment.findMany({ where: { postId: post.id } });
+      expect(remaining).toHaveLength(0);
+    });
   });
 
   describe('DELETE /comments/:id', () => {

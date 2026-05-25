@@ -1,5 +1,10 @@
 import { apiFetch } from './client';
-import type { Comment, CreateCommentDto, PaginatedComments } from '@/types/api';
+import type {
+  Comment,
+  CommentRepliesResponse,
+  CreateCommentDto,
+  PaginatedComments,
+} from '@/types/api';
 
 export function listPostComments(
   postId: string,
@@ -19,4 +24,17 @@ export function createComment(postId: string, dto: CreateCommentDto): Promise<Co
     method: 'POST',
     body: JSON.stringify(dto),
   });
+}
+
+export function listCommentReplies(
+  commentId: string,
+  params: { page?: number; limit?: number } = {},
+): Promise<CommentRepliesResponse> {
+  const qs = new URLSearchParams();
+  if (params.page) qs.set('page', String(params.page));
+  if (params.limit) qs.set('limit', String(params.limit));
+  const s = qs.toString();
+  return apiFetch<CommentRepliesResponse>(
+    `/comments/${encodeURIComponent(commentId)}/replies${s ? `?${s}` : ''}`,
+  );
 }

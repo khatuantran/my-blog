@@ -19,6 +19,8 @@ export const qk = {
   },
   comments: {
     list: (postId: string) => ['comments', 'list', postId] as const,
+    replies: (commentId: string, params: { page?: number; limit?: number } = {}) =>
+      ['comments', 'replies', commentId, params] as const,
   },
   saved: {
     all: ['saved'] as const,

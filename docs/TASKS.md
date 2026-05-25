@@ -340,7 +340,7 @@ _CommentsModal at Feed level (FR-04.7 — DEFINITIVE pattern):_
 
 _Reply to comment MVP (FR-03.6):_
 
-- [T-350] [P1] [F1] [FE] ReplyForm + ReplyRow components (FR-03.6 NEW) — `ReplyForm` inline form mở khi click `↩ Reply` trên CommentItem, header `↩ replying to <user>` blu mono, textarea Inter 13 rows 2, anon toggle, ⌘↵ submit, Esc cancel. `ReplyRow` nested under parent comment indent 40px, avatar 24×24, like dùng `♡/❤` traditional (NOT reaction picker). Reuse `useCreateComment` mutation với `parentId` param. CommentItem refactor: thêm toggle `↩ Reply / Cancel` + show replies list (max 3 default + `↳ N replies (load more)` button qua `useReplies({commentId})`). Tests: 6 case (ReplyForm submit + Esc cancel + anon toggle + ReplyRow render + nested click reply on reply hidden + load more button). (FR-03.6, depends T-343/T-344) - TODO
+- [T-350] [P1] [F1] [FE] ReplyForm + ReplyRow components (FR-03.6 NEW) — `ReplyForm` inline form mở khi click `↩ Reply` trên CommentItem, header `↩ replying to <user>` blu mono, textarea Inter 13 rows 2, anon toggle, ⌘↵ submit, Esc cancel. `ReplyRow` nested under parent comment indent 40px, avatar 24×24, like dùng `♡/❤` traditional (NOT reaction picker). Reuse `useCreateComment` mutation với `parentId` param. CommentItem refactor: thêm toggle `↩ Reply / Cancel` + show replies list (max 3 default + `↳ N replies (load more)` button qua `useReplies({commentId})`). Tests: 6 case (ReplyForm submit + Esc cancel + anon toggle + ReplyRow render + nested click reply on reply hidden + load more button). (FR-03.6, depends T-343/T-344) - DONE 2026-05-25
 
 _Search expanded (FR-12.8-.12):_
 

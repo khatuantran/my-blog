@@ -71,12 +71,21 @@ describe('CommentItem', () => {
     expect(screen.getByText('4')).toBeInTheDocument();
   });
 
-  it('Reply button disabled (defer)', () => {
+  it('regression FR-03.6: Reply button toggles ReplyForm (NOT disabled)', async () => {
+    const user = userEvent.setup();
+    const comment = makeComment();
     render(
       <TestProviders>
-        <CommentItem comment={makeComment()} />
+        <CommentItem comment={comment} />
       </TestProviders>,
     );
-    expect(screen.getByRole('button', { name: /reply/i })).toBeDisabled();
+    const btn = screen.getByTestId(`reply-toggle-${comment.id}`);
+    expect(btn).not.toBeDisabled();
+    expect(screen.queryByTestId(`reply-form-${comment.id}`)).not.toBeInTheDocument();
+    await user.click(btn);
+    expect(screen.getByTestId(`reply-form-${comment.id}`)).toBeInTheDocument();
+    // Click again → cancel
+    await user.click(btn);
+    expect(screen.queryByTestId(`reply-form-${comment.id}`)).not.toBeInTheDocument();
   });
 });

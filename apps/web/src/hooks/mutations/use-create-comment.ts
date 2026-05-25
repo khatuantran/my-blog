@@ -43,9 +43,13 @@ export function useCreateComment() {
       if (ctx?.prev) qc.setQueryData(qk.comments.list(postId), ctx.prev);
     },
 
-    onSettled: (_data, _err, { postId }) => {
+    onSettled: (_data, _err, { postId, dto }) => {
       qc.invalidateQueries({ queryKey: qk.comments.list(postId) });
       qc.invalidateQueries({ queryKey: qk.posts.detail(postId) });
+      // Reply: invalidate replies list của parent (FR-03.6)
+      if (dto.parentId) {
+        qc.invalidateQueries({ queryKey: ['comments', 'replies', dto.parentId] });
+      }
     },
   });
 }

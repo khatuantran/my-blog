@@ -1,4 +1,4 @@
-type Size = 'sm' | 'md' | 'lg';
+type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 type Props = {
   username?: string | null;
@@ -7,8 +7,8 @@ type Props = {
   online?: boolean;
 };
 
-const SIZE_PX: Record<Size, number> = { sm: 28, md: 36, lg: 52 };
-const FONT_PX: Record<Size, number> = { sm: 11, md: 14, lg: 18 };
+const SIZE_PX: Record<Size, number> = { xs: 24, sm: 28, md: 36, lg: 52 };
+const FONT_PX: Record<Size, number> = { xs: 10, sm: 11, md: 14, lg: 18 };
 
 // Circle avatar: gradient cyan→purple bg + cyan border + initial uppercase.
 // Online dot bottom-right optional. Port từ design Avatar pattern.

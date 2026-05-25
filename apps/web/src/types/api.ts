@@ -191,6 +191,11 @@ export type Comment = {
   anonymousName: string | null;
   likeCount: number;
   liked?: boolean;
+  parentId?: string | null;
+  replyTo?: { username: string; isAnon: boolean } | null;
+  // Top-level comment includes replies preview (max 3) + replyCount (FR-03.6)
+  replies?: Comment[];
+  replyCount?: number;
   createdAt: string;
 };
 
@@ -201,9 +206,17 @@ export type PaginatedComments = {
   limit: number;
 };
 
+export type CommentRepliesResponse = {
+  items: Comment[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
 export type CreateCommentDto = {
   content: string;
   anonymousName?: string;
+  parentId?: string;
 };
 
 export type TrackViewResponse = {

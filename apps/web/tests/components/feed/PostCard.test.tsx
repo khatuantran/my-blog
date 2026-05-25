@@ -77,15 +77,24 @@ describe('PostCard', () => {
     });
   });
 
-  it('comment link navigates to /post/:id', () => {
+  it('regression FR-04.7: comment button opens CommentsModal (NOT navigate to /post/:id)', async () => {
     const post = makePost({ id: 'abc123', counts: { reactions: 0, comments: 7 } });
+    const user = userEvent.setup();
     render(
       <TestProviders>
         <PostCard post={post} />
       </TestProviders>,
     );
-    const link = screen.getByLabelText(/view 7 comments/i);
-    expect(link).toHaveAttribute('href', '/post/abc123');
+    const btn = screen.getByLabelText(/view 7 comments/i);
+    expect(btn.tagName).toBe('BUTTON');
+    expect(btn).not.toHaveAttribute('href');
+    // Modal not yet rendered
+    expect(screen.queryByTestId('comments-modal')).not.toBeInTheDocument();
+    await user.click(btn);
+    // Modal opens after click
+    await waitFor(() => {
+      expect(screen.getByTestId('comments-modal')).toBeInTheDocument();
+    });
   });
 
   it('hiển thị ImageGrid + FileAttachments khi post có media', () => {

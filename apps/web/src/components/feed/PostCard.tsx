@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { useState } from 'react';
 import { PostHeader } from '@/components/post/PostHeader';
 import { PostContent } from '@/components/post/PostContent';
 import { ImageGrid } from '@/components/post/ImageGrid';
@@ -6,6 +6,7 @@ import { FileAttachments } from '@/components/post/FileAttachments';
 import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from './ReactionButton';
 import { SaveButton } from './SaveButton';
+import { CommentsModal } from './CommentsModal';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 // Full PostCard match design-file/MyBlog Feed.html:186-269.
 // Container hover: cyan border + glow + top gradient line.
 export function PostCard({ post, delay = 0 }: Props) {
+  const [showComments, setShowComments] = useState(false);
+
   return (
     <article
       className="post-card-hover group relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up hover:border-cyan/45 hover:shadow-glow-cyan-lg"
@@ -66,14 +69,16 @@ export function PostCard({ post, delay = 0 }: Props) {
           topReactions={post.topReactions}
           count={post.counts.reactions}
         />
-        <Link
-          to={`/post/${post.id}`}
-          className="flex items-center gap-1 rounded-sm px-2.5 py-1 font-mono text-mono text-tm no-underline transition-colors hover:bg-elev hover:text-tp"
+        <button
+          type="button"
+          onClick={() => setShowComments(true)}
+          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
           aria-label={`View ${post.counts.comments} comments`}
+          data-testid={`post-comments-btn-${post.id}`}
         >
           <span className="text-sm">💬</span>
           <span>{post.counts.comments}</span>
-        </Link>
+        </button>
         <SaveButton postId={post.id} saved={!!post.saved} />
         <button
           type="button"
@@ -93,6 +98,14 @@ export function PostCard({ post, delay = 0 }: Props) {
           </button>
         </div>
       </div>
+
+      {showComments && (
+        <CommentsModal
+          postId={post.id}
+          postExcerpt={post.content.slice(0, 80)}
+          onClose={() => setShowComments(false)}
+        />
+      )}
     </article>
   );
 }

@@ -574,6 +574,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/comments/{id}/replies': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List replies of a comment (FR-03.6, paginated, role-aware status filter) */
+    get: operations['CommentsController_listReplies'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/comments/{id}': {
     parameters: {
       query?: never;
@@ -1205,6 +1222,16 @@ export interface components {
       anonymousName: Record<string, never> | null;
       /** @example 3 */
       likesCount: number;
+      /** @example cmpa-comment-parent */
+      parentId: Record<string, never> | null;
+      /**
+       * @description Denormalized parent author info (reply only)
+       * @example {
+       *       "username": "kha",
+       *       "isAnon": false
+       *     }
+       */
+      replyTo: Record<string, never> | null;
       /**
        * Format: date-time
        * @example 2026-05-18T10:00:00.000Z
@@ -1222,6 +1249,20 @@ export interface components {
        * @example Khách qua đường
        */
       anonymousName?: string;
+      /**
+       * @description Parent comment id để reply (FR-03.6, depth 1 only)
+       * @example cmpa-comment-1
+       */
+      parentId?: string;
+    };
+    CommentRepliesResponseDto: {
+      items: components['schemas']['CommentResponseDto'][];
+      /** @example 42 */
+      total: number;
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
     };
     UpdateCommentStatusDto: {
       /**
@@ -2230,6 +2271,30 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['CommentResponseDto'];
+        };
+      };
+    };
+  };
+  CommentsController_listReplies: {
+    parameters: {
+      query?: {
+        page?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['CommentRepliesResponseDto'];
         };
       };
     };

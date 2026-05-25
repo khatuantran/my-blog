@@ -12,7 +12,19 @@ const COMMENT_INCLUDE = {
   _count: { select: { likes: true } },
 } satisfies Prisma.CommentInclude;
 
+const COMMENT_TOPLEVEL_INCLUDE = {
+  ...COMMENT_INCLUDE,
+  replies: {
+    where: { status: CommentStatus.APPROVED },
+    include: COMMENT_INCLUDE,
+    orderBy: { createdAt: 'asc' as const },
+    take: 3,
+  },
+  _count: { select: { likes: true, replies: true } },
+} satisfies Prisma.CommentInclude;
+
 type CommentWithRelations = Prisma.CommentGetPayload<{ include: typeof COMMENT_INCLUDE }>;
+type CommentWithReplies = Prisma.CommentGetPayload<{ include: typeof COMMENT_TOPLEVEL_INCLUDE }>;
 
 export interface Viewer {
   userId?: string;
@@ -39,6 +51,16 @@ function toCommentResponse(c: CommentWithRelations): CommentResponseDto {
     parentId: c.parentId,
     replyTo: c.replyTo as { username: string; isAnon: boolean } | null,
     createdAt: c.createdAt,
+  };
+}
+
+function toTopLevelCommentResponse(
+  c: CommentWithReplies,
+): CommentResponseDto & { replies: CommentResponseDto[]; replyCount: number } {
+  return {
+    ...toCommentResponse(c),
+    replies: c.replies.map(toCommentResponse),
+    replyCount: c._count.replies,
   };
 }
 
@@ -90,7 +112,9 @@ export class CommentsService {
   async list(
     postId: string,
     viewerRole: Role | undefined,
-  ): Promise<{ items: CommentResponseDto[] }> {
+  ): Promise<{
+    items: (CommentResponseDto & { replies: CommentResponseDto[]; replyCount: number })[];
+  }> {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
       select: { id: true },
@@ -99,17 +123,18 @@ export class CommentsService {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
     }
 
-    const where: Prisma.CommentWhereInput = { postId };
+    // FR-03.6: top-level comments only (parentId IS NULL), include first 3 replies + replyCount
+    const where: Prisma.CommentWhereInput = { postId, parentId: null };
     if (viewerRole !== Role.ADMIN) {
       where.status = CommentStatus.APPROVED;
     }
 
     const items = await this.prisma.comment.findMany({
       where,
-      include: COMMENT_INCLUDE,
+      include: COMMENT_TOPLEVEL_INCLUDE,
       orderBy: { createdAt: 'asc' },
     });
-    return { items: items.map(toCommentResponse) };
+    return { items: items.map(toTopLevelCommentResponse) };
   }
 
   async create(postId: string, viewer: Viewer, dto: CreateCommentDto): Promise<CommentResponseDto> {
@@ -204,6 +229,42 @@ export class CommentsService {
       }
     }
     return toCommentResponse(comment);
+  }
+
+  async listReplies(
+    parentId: string,
+    page: number,
+    limit: number,
+    viewerRole: Role | undefined,
+  ): Promise<{ items: CommentResponseDto[]; total: number; page: number; limit: number }> {
+    const parent = await this.prisma.comment.findUnique({
+      where: { id: parentId },
+      select: { id: true },
+    });
+    if (!parent) {
+      throw new NotFoundException({
+        code: 'COMMENT_NOT_FOUND',
+        message: 'Parent comment không tồn tại',
+      });
+    }
+
+    const where: Prisma.CommentWhereInput = { parentId };
+    if (viewerRole !== Role.ADMIN) {
+      where.status = CommentStatus.APPROVED;
+    }
+
+    const [rows, total] = await Promise.all([
+      this.prisma.comment.findMany({
+        where,
+        include: COMMENT_INCLUDE,
+        orderBy: { createdAt: 'asc' },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prisma.comment.count({ where }),
+    ]);
+
+    return { items: rows.map(toCommentResponse), total, page, limit };
   }
 
   async findById(id: string): Promise<void> {

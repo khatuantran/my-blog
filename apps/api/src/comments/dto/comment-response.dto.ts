@@ -55,3 +55,17 @@ export class CommentsListResponseDto {
   @ApiProperty({ type: [CommentResponseDto] })
   items!: CommentResponseDto[];
 }
+
+export class CommentRepliesResponseDto {
+  @ApiProperty({ type: [CommentResponseDto] })
+  items!: CommentResponseDto[];
+
+  @ApiProperty({ example: 42 })
+  total!: number;
+
+  @ApiProperty({ example: 1 })
+  page!: number;
+
+  @ApiProperty({ example: 20 })
+  limit!: number;
+}

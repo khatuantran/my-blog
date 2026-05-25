@@ -815,6 +815,38 @@ paths:
                 $ref: '#/components/schemas/CommentResponseDto'
       tags:
         - comments
+  /comments/{id}/replies:
+    get:
+      operationId: CommentsController_listReplies
+      summary: List replies of a comment (FR-03.6, paginated, role-aware status filter)
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: page
+          required: false
+          in: query
+          schema:
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentRepliesResponseDto'
+      tags:
+        - comments
   /comments/{id}:
     delete:
       operationId: CommentsController_remove
@@ -1893,6 +1925,17 @@ components:
         likesCount:
           type: number
           example: 3
+        parentId:
+          type: object
+          example: cmpa-comment-parent
+          nullable: true
+        replyTo:
+          type: object
+          example:
+            username: kha
+            isAnon: false
+          nullable: true
+          description: Denormalized parent author info (reply only)
         createdAt:
           format: date-time
           type: string
@@ -1905,6 +1948,8 @@ components:
         - author
         - anonymousName
         - likesCount
+        - parentId
+        - replyTo
         - createdAt
     CommentsListResponseDto:
       type: object
@@ -1929,8 +1974,33 @@ components:
           description: Tên hiển thị cho anonymous (ignored nếu auth)
           minLength: 1
           maxLength: 50
+        parentId:
+          type: string
+          example: cmpa-comment-1
+          description: Parent comment id để reply (FR-03.6, depth 1 only)
       required:
         - content
+    CommentRepliesResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResponseDto'
+        total:
+          type: number
+          example: 42
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 20
+      required:
+        - items
+        - total
+        - page
+        - limit
     UpdateCommentStatusDto:
       type: object
       properties:

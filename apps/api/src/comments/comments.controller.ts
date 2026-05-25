@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,8 +23,13 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { JwtOptionalAuthGuard } from '../common/guards/jwt-optional-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { CommentsService } from './comments.service';
-import { CommentResponseDto, CommentsListResponseDto } from './dto/comment-response.dto';
+import {
+  CommentRepliesResponseDto,
+  CommentResponseDto,
+  CommentsListResponseDto,
+} from './dto/comment-response.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { ListRepliesDto } from './dto/list-replies.dto';
 import { UpdateCommentStatusDto } from './dto/update-status.dto';
 
 @ApiTags('comments')
@@ -58,6 +64,21 @@ export class CommentsController {
     @AnonymousId() anonymousId: string | undefined,
   ): Promise<CommentResponseDto> {
     return this.comments.create(postId, { userId: user?.sub, anonymousId }, dto);
+  }
+
+  @Get('comments/:id/replies')
+  @Public()
+  @UseGuards(JwtOptionalAuthGuard)
+  @ApiOperation({
+    summary: 'List replies of a comment (FR-03.6, paginated, role-aware status filter)',
+  })
+  @ApiResponse({ status: 200, type: CommentRepliesResponseDto })
+  listReplies(
+    @Param('id') id: string,
+    @Query() query: ListRepliesDto,
+    @CurrentUser() user: AuthenticatedUser | undefined,
+  ): Promise<CommentRepliesResponseDto> {
+    return this.comments.listReplies(id, query.page, query.limit, user?.role);
   }
 
   @Delete('comments/:id')

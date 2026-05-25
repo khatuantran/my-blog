@@ -154,6 +154,7 @@ export class CommentsService {
     }
 
     let replyTo: { username: string; isAnon: boolean } | null = null;
+    let parentForNotify: { id: string; userId: string | null } | null = null;
     if (dto.parentId) {
       const parent = await this.prisma.comment.findUnique({
         where: { id: dto.parentId },
@@ -181,6 +182,7 @@ export class CommentsService {
         username: parent.user?.username ?? parent.anonymousName ?? 'anonymous',
         isAnon: !parent.userId,
       };
+      parentForNotify = { id: parent.id, userId: parent.userId };
     }
 
     const baseData = viewer.userId
@@ -216,16 +218,33 @@ export class CommentsService {
         targetOwnerId: post.authorId,
       });
       try {
-        await this.notifications.createNotification({
-          userId: post.authorId,
-          actorId: viewer.userId,
-          type: NotificationType.COMMENT,
-          targetType: 'POST',
-          targetId: postId,
-          postId,
-        });
+        if (parentForNotify) {
+          // FR-14.1: Reply → REPLY notification to parent comment author
+          // Skip nếu parent anonymous (userId null) hoặc self-reply (avoid spam)
+          if (parentForNotify.userId && parentForNotify.userId !== viewer.userId) {
+            await this.notifications.createNotification({
+              userId: parentForNotify.userId,
+              actorId: viewer.userId,
+              type: NotificationType.REPLY,
+              targetType: 'COMMENT',
+              targetId: parentForNotify.id,
+              postId,
+              metadata: { replyTo: { username: comment.user?.username ?? 'unknown' } },
+            });
+          }
+        } else {
+          // Top-level comment → COMMENT notification to post author
+          await this.notifications.createNotification({
+            userId: post.authorId,
+            actorId: viewer.userId,
+            type: NotificationType.COMMENT,
+            targetType: 'POST',
+            targetId: postId,
+            postId,
+          });
+        }
       } catch (err) {
-        this.logger.warn(`createNotification COMMENT failed: ${err}`);
+        this.logger.warn(`createNotification failed: ${err}`);
       }
     }
     return toCommentResponse(comment);

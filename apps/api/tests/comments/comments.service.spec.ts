@@ -30,7 +30,8 @@ const baseComment = {
   replyTo: null,
   createdAt: new Date('2026-05-18T00:00:00Z'),
   user: baseUser,
-  _count: { likes: 2 },
+  replies: [],
+  _count: { likes: 2, replies: 0 },
 };
 
 describe('CommentsService', () => {
@@ -67,13 +68,13 @@ describe('CommentsService', () => {
       await expect(service.list('nope', undefined)).rejects.toThrow(NotFoundException);
     });
 
-    it('non-admin: where filter APPROVED + orderBy createdAt asc', async () => {
+    it('non-admin: where filter APPROVED + parentId NULL (top-level only) + orderBy createdAt asc', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
       prisma.comment.findMany.mockResolvedValue([baseComment]);
       const res = await service.list('p1', Role.USER);
       expect(prisma.comment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { postId: 'p1', status: CommentStatus.APPROVED },
+          where: { postId: 'p1', parentId: null, status: CommentStatus.APPROVED },
           orderBy: { createdAt: 'asc' },
         }),
       );
@@ -81,21 +82,23 @@ describe('CommentsService', () => {
       expect(res.items[0].likesCount).toBe(2);
     });
 
-    it('admin: where KHÔNG filter status', async () => {
+    it('admin: where filter parentId NULL (top-level) nhưng KHÔNG filter status', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
       prisma.comment.findMany.mockResolvedValue([baseComment]);
       await service.list('p1', Role.ADMIN);
       expect(prisma.comment.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { postId: 'p1' } }),
+        expect.objectContaining({ where: { postId: 'p1', parentId: null } }),
       );
     });
 
-    it('undefined viewerRole (anonymous) filter APPROVED', async () => {
+    it('undefined viewerRole (anonymous) filter APPROVED + parentId NULL', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
       prisma.comment.findMany.mockResolvedValue([]);
       await service.list('p1', undefined);
       expect(prisma.comment.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { postId: 'p1', status: CommentStatus.APPROVED } }),
+        expect.objectContaining({
+          where: { postId: 'p1', parentId: null, status: CommentStatus.APPROVED },
+        }),
       );
     });
 
@@ -199,6 +202,51 @@ describe('CommentsService', () => {
         expect(arg.data.replyTo).toEqual({ username: 'parentuser', isAnon: false });
         expect(res.parentId).toBe('parent1');
         expect(res.replyTo).toEqual({ username: 'parentuser', isAnon: false });
+      });
+
+      it('regression FR-14.1: reply triggers REPLY notification to parent author (NOT COMMENT to post author)', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'postauthor1' });
+        prisma.comment.findUnique.mockResolvedValue(parentComment);
+        prisma.comment.create.mockResolvedValue({
+          ...baseComment,
+          parentId: 'parent1',
+          replyTo: { username: 'parentuser', isAnon: false },
+        });
+        await service.create('p1', { userId: 'u1' }, { content: 'hi', parentId: 'parent1' });
+        // Assert: REPLY type to parent author (author1), NOT COMMENT to post author (postauthor1)
+        expect(createNotification).toHaveBeenCalledWith(
+          expect.objectContaining({
+            userId: 'author1', // parent comment author
+            actorId: 'u1',
+            type: 'REPLY',
+            targetType: 'COMMENT',
+            targetId: 'parent1',
+            postId: 'p1',
+            metadata: { replyTo: { username: 'kha' } }, // commenter username từ baseComment.user
+          }),
+        );
+        // NOT COMMENT type to post author
+        expect(createNotification).not.toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'COMMENT', userId: 'postauthor1' }),
+        );
+      });
+
+      it('regression FR-14.1: skip REPLY notification nếu parent comment anonymous (userId null)', async () => {
+        prisma.post.findUnique.mockResolvedValue({ id: 'p1', authorId: 'postauthor1' });
+        prisma.comment.findUnique.mockResolvedValue({
+          ...parentComment,
+          userId: null,
+          user: null,
+          anonymousName: 'Khách',
+        });
+        prisma.comment.create.mockResolvedValue({
+          ...baseComment,
+          parentId: 'parent1',
+          replyTo: { username: 'Khách', isAnon: true },
+        });
+        await service.create('p1', { userId: 'u1' }, { content: 'hi', parentId: 'parent1' });
+        // Assert: createNotification NOT called (parent anonymous = no recipient)
+        expect(createNotification).not.toHaveBeenCalled();
       });
 
       it('regression FR-03.6: reject depth 2 → 400 INVALID_PARENT_DEPTH', async () => {

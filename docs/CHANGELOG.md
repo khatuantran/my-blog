@@ -42,6 +42,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **T-379 BUG-005 [High] REPLY notification missing — replies fire wrong COMMENT notification** (2026-05-25, BE): T-343 audit follow-up. `comments.service.ts` create() branch logic — `dto.parentId` set → `NotificationType.REPLY` to parent comment author với `metadata.replyTo: { username }`. Skip nếu parent anonymous (userId null) hoặc self-reply (avoid spam). Top-level comment giữ COMMENT → post author behavior. 2 new unit tests (REPLY trigger + anon parent skip). Plus stale list() test mocks updated cho T-344 refactor (`parentId: null` filter + `_count.replies` field). 22/22 unit + 27/27 e2e pass.
 - **T-342 BUG-003 [Medium] Login scanCard animation drift** (2026-05-25, FE): `tailwind.config.ts` rename `scan-line 6s` → `scan-card 4s` + keyframe `top: -100%→200%` (was `translateY`). Note: `TerminalCard.tsx` đã dùng inline `scanCardStripe 4s` (correct) từ trước — tailwind entry là dead code nhưng được cleanup cho consistency. Regression test: `tests/components/auth/TerminalCard.test.tsx` 3 cases.
 - **T-378 BUG-004 [Low] ADMIN badge vertical alignment + undersized font (3 sites)** (2026-05-25, FE):
   - `c97e1f0` ProfilePage hero: layout + padding fix (`inline-flex items-center` + `leading-none` + `padding: 1px 6px` + `bg-{ora|red}/[0.06]`).

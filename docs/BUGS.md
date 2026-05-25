@@ -11,6 +11,30 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-005] [High] [BE] REPLY notification missing — replies fire wrong COMMENT notification to post author
+
+- **Status:** FIXED
+- **Reporter:** khatran (post-T-343 audit) — **Date:** 2026-05-25
+- **Environment:** local + preview + production / Layer: BE
+- **Related task:** T-379 (DONE 2026-05-25)
+- **Related FR/component:** FR-14.1 + FR-03.6 L377 / `apps/api/src/comments/comments.service.ts` L210-230
+- **Mô tả:** Khi user reply 1 comment, BE luôn fire `NotificationType.COMMENT` đến `post.authorId` thay vì `NotificationType.REPLY` đến parent comment author. Parent comment author KHÔNG nhận notification khi có reply. Post author nhận sai COMMENT spam cho mọi reply trong thread.
+- **Steps to reproduce:**
+  1. User A (postauthor) tạo post P
+  2. User B comment top-level on P → notification COMMENT đến A ✓ (đúng)
+  3. User C reply comment của B trên P → **BUG:** notification COMMENT đến A (sai recipient + sai type); B KHÔNG nhận gì
+- **Expected:** Step 3 fires `NotificationType.REPLY` đến B (parent author) với `metadata.replyTo: { username: '<C.username>' }`.
+- **Actual:** Step 3 fires `NotificationType.COMMENT` đến A. B không có notification.
+- **Root cause:** T-343 BE migration thêm `parentId` field + depth validation nhưng **MISS implement REPLY notification branch logic** trong `create()`. Notification hook chưa được update để check `dto.parentId` và switch recipient/type. Lý do miss: spec REQUIREMENTS.md L377 + L552 chỉ note ở margin, dễ overlook trong main implementation work. Audit post-T-343 catch được.
+- **Fix:** Refactor `comments.service.ts` `create()` — declare `parentForNotify` ở outer scope, branch notification logic:
+  - `dto.parentId` set + parent.userId exists + !== viewer.userId → REPLY notification to parent author với `metadata.replyTo`
+  - Parent anonymous (userId null) hoặc self-reply → skip notification
+  - Top-level (no parentId) → COMMENT to post author (giữ existing behavior)
+- **Regression test:** `apps/api/tests/comments/comments.service.spec.ts` — 2 new cases trong `describe('reply (FR-03.6)')`:
+  - `it('regression FR-14.1: reply triggers REPLY notification to parent author (NOT COMMENT to post author)', ...)`
+  - `it('regression FR-14.1: skip REPLY notification nếu parent comment anonymous (userId null)', ...)`
+- **Lesson learned:** Khi implement migration tasks (T-343 style), KHÔNG chỉ implement schema + DTO validation — cần audit side-effects (notification hooks, activity log) per spec. Cross-ref FR-14 series trong REQUIREMENTS khi touch notification-trigger paths.
+
 ### [BUG-001] [High] [FE] ReactionPicker biến mất khi hover qua gap → user không chọn được reaction
 
 - **Status:** FIXED

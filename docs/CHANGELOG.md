@@ -13,6 +13,14 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
   - **Test update:** `PostContent.test.tsx` — regex `/14px/` → `/text-body/` sau khi spec đổi sang 15px (test-stale-assumption per CLAUDE.md). 313/313 FE tests pass.
   - **Deferred:** Notifications page (skeleton only — T-314/T-352) + Manage Posts page (greenfield T-372) + v2.1 variant tokens (`text-h1-hero 26`, `text-input-hero 18`, `text-display-sm 24`, `text-mono-tiny 7-8`, `text-display-glyph 32-48`) + Z-index 9 tiers + Shadow recipes 10 tokens + Letter-spacing + Line-height tokens — all remain TODO trong T-360 chính.
 
+- **T-360 Wave 1-3 Full token migration sweep** (2026-05-25 follow-up — 4 code commits):
+  - **Wave 1a** (`b653d8a`): Migrate text-mono-xs → text-mono-sm cho 7 files (Feed + Comment + Notifications + Layout, 17 occurrences) — UI labels/badges/hints/kbd shortcuts.
+  - **Wave 1b** (`b0ce57c`): Bulk migrate text-mono-xs → text-mono-sm cho 24 remaining files (Admin/Profile/Tags/Search/Saved/CreatePost/Post/Shared + globals.css `.sb-lbl`). Keep PostCard hex ID corner deco (only file dùng text-mono-xs đúng spec).
+  - **Wave 2** (`8e06e29`): Login + Register form labels text-[10px] → text-mono-sm (11px) per design-file Login.html L254/258/293/310 (10 occurrences). Status dot text-[8px] giữ nguyên (design intentional 7-8px).
+  - **Wave 3** (`3e3f1e2`): Convert 38+ hardcoded text-[XYpx] → token classes (text-mono-sm/mono/mono-md/mono-lg/body). Kept arbitrary cho contexts không có clean token (text-[8/9/10px] status/icons, text-[15px] font-brand, text-[18px] emoji).
+  - **Wave 4 UNCLEAR resolved** automatically trong Wave 1b (`.sb-lbl` globals.css + EmojiPicker + ModerationQueue đã swap).
+  - **Result:** Token migration ~85% done. Còn lại 19 arbitrary `text-[XYpx]` legitimate (no clean token mapping). 313/313 FE tests pass.
+
 ### Fixed
 
 - **T-342 BUG-003 [Medium] Login scanCard animation drift** (2026-05-25, FE): `tailwind.config.ts` rename `scan-line 6s` → `scan-card 4s` + keyframe `top: -100%→200%` (was `translateY`). Note: `TerminalCard.tsx` đã dùng inline `scanCardStripe 4s` (correct) từ trước — tailwind entry là dead code nhưng được cleanup cho consistency. Regression test: `tests/components/auth/TerminalCard.test.tsx` 3 cases.

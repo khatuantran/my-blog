@@ -1,6 +1,6 @@
 # Progress Tracker
 
-## Trạng thái tổng: 🟢 Implementation Phase (68% — 13/19)
+## Trạng thái tổng: 🟢 Implementation Phase (74% — 14/19)
 
 ## Milestone
 
@@ -24,9 +24,9 @@
 | M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                                                                      | ⬜ Todo               |             |
 | M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)                                                       | 🟡 Doing              | 2026-06-05  |
 | M11.8 | design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes (FR-17 AI / FR-03.6 reply / FR-04.7 modal / FR-12 search / FR-14 notifs) | 🟡 Doing              | 2026-06-12  |
-| M11.9 | Design-file phase 2 polish — components + token system + page rewrites (18 tasks T-360→T-377; SUPERSEDES M11.7 T-321/322/323)        | ⬜ Todo               | 2026-06-26  |
+| M11.9 | Design-file phase 2 polish — components + token system + page rewrites (18 tasks T-360→T-377; SUPERSEDES M11.7 T-321/322/323)        | ✅ Done               | 2026-05-26  |
 
-## Tỉ lệ hoàn thành: 68% (13/19 milestone)
+## Tỉ lệ hoàn thành: 74% (14/19 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 
@@ -36,6 +36,7 @@
 
 ### 2026-05-26 (UI Design Fidelity Review)
 
+- **🎯 M11.9 COMPLETE (18/18 tasks T-360→T-377 DONE):** Design-file phase 2 polish closed early (target 2026-06-26, achieved 2026-05-26). Token foundation (T-360/361/362), shared component extracts (T-363/364/365/366), Create Post editor stack (T-367/368/369), page rewrites (T-370 Login, T-371 Admin, T-372 Manage Posts greenfield, T-373 Tags, T-374 Profile + T-375 PostMiniCard + T-376 EditProfileDrawer, T-377 ImageCarousel). FE test suite 384/384 pass. Tổng tiến độ 68% → 74% (14/19).
 - **Done (docs-only):** UI Design Fidelity Review across **8 implemented screens** (Login / Feed / Post Detail / Profile / Search / Tags / Admin / Create Post). Playwright Chromium 1440×900 render both sides: design HTML prototypes (via local HTTP server :8765 — bypass CORS for external `.jsx`) and FE actual at `:5173` (admin login for `/admin` + `/admin/create`). 16 screenshots saved `/tmp/ui-review-all/<slug>/{design,fe}.png`.
 - **Findings:**
   - ✅ **Search** — visual + behavior match design.

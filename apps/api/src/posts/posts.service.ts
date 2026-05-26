@@ -1,12 +1,14 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { Prisma, ReactionType } from '@prisma/client';
+import { Prisma, PostStatus, ReactionType } from '@prisma/client';
 import { ActivityService } from '../activity/activity.service';
 import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
 import { TagsService, normalizeTagName as normalizeTagNameImpl } from '../tags/tags.service';
 import type { CreatePostDto } from './dto/create-post.dto';
 import type { UpdatePostDto } from './dto/update-post.dto';
 import type { ListPostsDto } from './dto/list-posts.dto';
+
+export { PostStatus };
 
 // Re-export for backward compat (tests import from posts.service)
 export const normalizeTagName = normalizeTagNameImpl;
@@ -32,6 +34,7 @@ export interface PostView {
   id: string;
   content: string;
   mood: PostWithRelations['mood'];
+  status: PostStatus;
   viewCount: number;
   author: PostWithRelations['author'];
   tags: { id: string; name: string; color: string | null }[];
@@ -52,6 +55,7 @@ export function toPostView(
     id: post.id,
     content: post.content,
     mood: post.mood,
+    status: post.status,
     viewCount: post.viewCount,
     author: post.author,
     tags: post.postTags.map((pt) => ({
@@ -142,7 +146,7 @@ export class PostsService {
     query: ListPostsDto,
     viewer?: PostsViewer,
   ): Promise<{ items: PostView[]; total: number; page: number; limit: number }> {
-    const where: Prisma.PostWhereInput = {};
+    const where: Prisma.PostWhereInput = { status: PostStatus.PUBLISHED };
     if (query.mood) where.mood = query.mood;
     if (query.tag) {
       const tagName = normalizeTagName(query.tag);
@@ -317,6 +321,9 @@ export class PostsService {
         data: {
           ...(dto.content !== undefined ? { content: dto.content } : {}),
           ...(dto.mood !== undefined ? { mood: dto.mood } : {}),
+          ...('status' in dto && dto.status !== undefined
+            ? { status: dto.status as PostStatus }
+            : {}),
         },
         include: POST_INCLUDE,
       });
@@ -379,6 +386,45 @@ export class PostsService {
     });
 
     return { viewCount: updated.viewCount, counted: true };
+  }
+
+  async adminList(query: {
+    page: number;
+    limit: number;
+    status?: PostStatus;
+    mood?: string;
+    sort?: string;
+    q?: string;
+  }): Promise<{ items: PostView[]; total: number; page: number; limit: number }> {
+    const where: Prisma.PostWhereInput = {};
+    if (query.status) where.status = query.status;
+    if (query.mood) where.mood = query.mood as PostWithRelations['mood'];
+    if (query.q) where.content = { contains: query.q, mode: 'insensitive' };
+
+    const orderBy: Prisma.PostOrderByWithRelationInput =
+      query.sort === 'oldest'
+        ? { createdAt: 'asc' }
+        : query.sort === 'likes'
+          ? { reactions: { _count: 'desc' } }
+          : { createdAt: 'desc' };
+
+    const [items, total] = await Promise.all([
+      this.prisma.post.findMany({
+        where,
+        include: POST_INCLUDE,
+        orderBy,
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.prisma.post.count({ where }),
+    ]);
+
+    return {
+      items: items.map((p) => toPostView(p)),
+      total,
+      page: query.page,
+      limit: query.limit,
+    };
   }
 
   async remove(id: string): Promise<void> {

@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260526000000_add_post_status_enum
+
+- **Created:** 2026-05-26
+- **Type:** schema
+- **Entities affected:** `Post` (new `status PostStatus @default(PUBLISHED)` field + `@@index([status])`); new enum `PostStatus (PUBLISHED/DRAFT/ARCHIVED)`
+- **Breaking:** no — default `PUBLISHED` preserves all existing rows behavior in public feed
+- **Notes:** Enables admin draft/archive workflows (T-372 ManagePostsPage). `PostsService.list()` now explicitly filters `status=PUBLISHED` (was implicit — all posts). `adminList()` new method returns all statuses. PATCH `/admin/posts/:id` accepts `status` field.
+- **Task:** T-320
+- **Rollback:** `prisma migrate resolve --rolled-back 20260526000000_add_post_status_enum` + `ALTER TABLE "Post" DROP COLUMN status; DROP TYPE "PostStatus";`
+
 ### 20260525033356_add_comment_parent_id_for_reply
 
 - **Created:** 2026-05-25

@@ -1,5 +1,13 @@
 import { PrismaService } from 'nestjs-prisma';
-import { CommentStatus, Mood, Role, type Comment, type Post, type User } from '@prisma/client';
+import {
+  CommentStatus,
+  Mood,
+  PostStatus,
+  Role,
+  type Comment,
+  type Post,
+  type User,
+} from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const TEST_PASSWORD = 'test-password-123';
@@ -30,6 +38,7 @@ export async function makePost(
     authorId: string;
     content?: string;
     mood?: Mood;
+    status?: PostStatus;
     tagNames?: string[];
   },
 ): Promise<Post> {
@@ -41,6 +50,7 @@ export async function makePost(
     data: {
       content: opts.content ?? 'test post content',
       mood: opts.mood ?? Mood.HAPPY,
+      status: opts.status ?? PostStatus.PUBLISHED,
       authorId: opts.authorId,
       postTags: { create: tags.map((t) => ({ tagId: t.id })) },
     },

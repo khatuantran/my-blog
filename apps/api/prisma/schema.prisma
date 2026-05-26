@@ -75,6 +75,12 @@ enum NotificationType {
   SHARE
 }
 
+enum PostStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
 // ──────────────────────────────────────────────────────────
 // Models
 // ──────────────────────────────────────────────────────────
@@ -105,13 +111,14 @@ model User {
 }
 
 model Post {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   content   String
   mood      Mood
-  viewCount Int      @default(0)
+  status    PostStatus @default(PUBLISHED)
+  viewCount Int        @default(0)
   authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   author        User           @relation(fields: [authorId], references: [id])
   images        Image[]
@@ -125,6 +132,7 @@ model Post {
 
   @@index([createdAt])
   @@index([authorId])
+  @@index([status])
 }
 
 model Image {

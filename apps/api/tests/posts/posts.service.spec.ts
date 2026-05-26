@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { FileType, Mood, Role } from '@prisma/client';
+import { FileType, Mood, PostStatus, Role } from '@prisma/client';
 import { ActivityService } from '@/activity/activity.service';
 import { CloudinaryService } from '@/files/cloudinary.service';
 import { TagsService } from '@/tags/tags.service';
@@ -28,6 +28,7 @@ const basePost = {
   id: 'p1',
   content: 'hello',
   mood: Mood.HAPPY,
+  status: PostStatus.PUBLISHED,
   viewCount: 0,
   authorId: 'admin-id',
   createdAt: new Date('2026-05-17T00:00:00Z'),
@@ -116,7 +117,7 @@ describe('PostsService', () => {
 
       expect(prisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { mood: Mood.HAPPY },
+          where: { status: PostStatus.PUBLISHED, mood: Mood.HAPPY },
           skip: 10,
           take: 10,
           orderBy: { createdAt: 'desc' },
@@ -134,7 +135,7 @@ describe('PostsService', () => {
       await service.list({ page: 1, limit: 10, tag: '#Dev', sort: 'latest' });
       expect(prisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { postTags: { some: { tag: { name: 'dev' } } } },
+          where: { status: PostStatus.PUBLISHED, postTags: { some: { tag: { name: 'dev' } } } },
         }),
       );
     });
@@ -143,7 +144,9 @@ describe('PostsService', () => {
       prisma.post.findMany.mockResolvedValue([]);
       prisma.post.count.mockResolvedValue(0);
       await service.list({ page: 1, limit: 10, sort: 'latest' });
-      expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+      expect(prisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { status: PostStatus.PUBLISHED } }),
+      );
     });
 
     it('sort=likes → orderBy reactions _count desc', async () => {
@@ -161,6 +164,28 @@ describe('PostsService', () => {
       await service.list({ page: 1, limit: 10, sort: 'oldest' });
       expect(prisma.post.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ orderBy: { createdAt: 'asc' } }),
+      );
+    });
+  });
+
+  describe('adminList', () => {
+    it('T-320: no status filter → returns all posts (no status where clause)', async () => {
+      prisma.post.findMany.mockResolvedValue([basePost]);
+      prisma.post.count.mockResolvedValue(1);
+
+      await service.adminList({ page: 1, limit: 20 });
+
+      expect(prisma.post.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: {} }));
+    });
+
+    it('T-320: status=DRAFT filter applied', async () => {
+      prisma.post.findMany.mockResolvedValue([]);
+      prisma.post.count.mockResolvedValue(0);
+
+      await service.adminList({ page: 1, limit: 20, status: PostStatus.DRAFT });
+
+      expect(prisma.post.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { status: PostStatus.DRAFT } }),
       );
     });
   });

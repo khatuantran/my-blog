@@ -761,6 +761,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/posts': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List all posts (any status) with filters */
+    get: operations['AdminController_listPosts'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/admin/posts/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Hard-delete post + Cloudinary assets */
+    delete: operations['AdminController_deletePost'];
+    options?: never;
+    head?: never;
+    /** Update post content/mood/status/tags */
+    patch: operations['AdminController_updatePost'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1385,6 +1420,21 @@ export interface components {
     };
     HeatmapResponseDto: {
       days: components['schemas']['HeatmapDayDto'][];
+    };
+    UpdateAdminPostDto: {
+      /** @example Updated content */
+      content?: string;
+      /** @enum {string} */
+      mood?: 'HAPPY' | 'EXCITED' | 'THOUGHTFUL' | 'CALM' | 'SAD' | 'GRATEFUL' | 'ANGRY';
+      /** @enum {string} */
+      status?: 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+      /**
+       * @example [
+       *       "dev",
+       *       "tech"
+       *     ]
+       */
+      tags?: string[];
     };
   };
   responses: never;
@@ -2495,6 +2545,71 @@ export interface operations {
         content: {
           'application/json': components['schemas']['HeatmapResponseDto'];
         };
+      };
+    };
+  };
+  AdminController_listPosts: {
+    parameters: {
+      query?: {
+        status?: 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+        mood?: 'HAPPY' | 'EXCITED' | 'THOUGHTFUL' | 'CALM' | 'SAD' | 'GRATEFUL' | 'ANGRY';
+        sort?: 'latest' | 'oldest' | 'likes';
+        /** @description Full-text search in content */
+        q?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminController_deletePost: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdminController_updatePost: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateAdminPostDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

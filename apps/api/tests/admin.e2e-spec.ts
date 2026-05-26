@@ -1,6 +1,6 @@
 import request from 'supertest';
 import type { INestApplication } from '@nestjs/common';
-import { Mood, Role } from '@prisma/client';
+import { Mood, PostStatus, Role } from '@prisma/client';
 import type { PrismaService } from 'nestjs-prisma';
 import { createTestApp } from './_helpers/test-app';
 import { resetDb } from './_helpers/db-reset';
@@ -191,6 +191,88 @@ describe('Admin (e2e)', () => {
         .get('/admin/comments?status=BOGUS')
         .set('Cookie', adminCookies)
         .expect(400);
+    });
+  });
+
+  describe('GET /admin/posts', () => {
+    it('401 no cookie', async () => {
+      await request(app.getHttpServer()).get('/admin/posts').expect(401);
+    });
+
+    it('403 USER role', async () => {
+      await request(app.getHttpServer()).get('/admin/posts').set('Cookie', userCookies).expect(403);
+    });
+
+    it('T-320: 200 admin — returns all posts including DRAFT', async () => {
+      await makePost(prisma, { authorId: adminId, status: PostStatus.PUBLISHED });
+      await makePost(prisma, { authorId: adminId, status: PostStatus.DRAFT });
+      await makePost(prisma, { authorId: adminId, status: PostStatus.ARCHIVED });
+
+      const res = await request(app.getHttpServer())
+        .get('/admin/posts')
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(res.body.data.total).toBe(3);
+      expect(res.body.data.items).toHaveLength(3);
+    });
+
+    it('T-320: filter status=DRAFT returns only drafts', async () => {
+      await makePost(prisma, { authorId: adminId, status: PostStatus.PUBLISHED });
+      await makePost(prisma, { authorId: adminId, status: PostStatus.DRAFT });
+
+      const res = await request(app.getHttpServer())
+        .get('/admin/posts?status=DRAFT')
+        .set('Cookie', adminCookies)
+        .expect(200);
+
+      expect(res.body.data.total).toBe(1);
+      expect(res.body.data.items[0].status).toBe('DRAFT');
+    });
+  });
+
+  describe('PATCH /admin/posts/:id', () => {
+    it('T-320: 200 admin — update status to ARCHIVED', async () => {
+      const post = await makePost(prisma, { authorId: adminId, status: PostStatus.PUBLISHED });
+
+      const res = await request(app.getHttpServer())
+        .patch(`/admin/posts/${post.id}`)
+        .set('Cookie', adminCookies)
+        .send({ status: 'ARCHIVED' })
+        .expect(200);
+
+      expect(res.body.data.status).toBe('ARCHIVED');
+    });
+
+    it('T-320: 404 patch non-existent post', async () => {
+      await request(app.getHttpServer())
+        .patch('/admin/posts/nonexistent-id')
+        .set('Cookie', adminCookies)
+        .send({ status: 'DRAFT' })
+        .expect(404);
+    });
+  });
+
+  describe('DELETE /admin/posts/:id', () => {
+    it('T-320: 204 admin — delete post', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+
+      await request(app.getHttpServer())
+        .delete(`/admin/posts/${post.id}`)
+        .set('Cookie', adminCookies)
+        .expect(204);
+
+      const deleted = await prisma.post.findUnique({ where: { id: post.id } });
+      expect(deleted).toBeNull();
+    });
+
+    it('T-320: 403 USER cannot delete', async () => {
+      const post = await makePost(prisma, { authorId: adminId });
+
+      await request(app.getHttpServer())
+        .delete(`/admin/posts/${post.id}`)
+        .set('Cookie', userCookies)
+        .expect(403);
     });
   });
 });

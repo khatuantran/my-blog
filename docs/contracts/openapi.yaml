@@ -1033,6 +1033,90 @@ paths:
                 $ref: '#/components/schemas/HeatmapResponseDto'
       tags:
         - admin
+  /admin/posts:
+    get:
+      operationId: AdminController_listPosts
+      summary: List all posts (any status) with filters
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - PUBLISHED
+              - DRAFT
+              - ARCHIVED
+            type: string
+        - name: mood
+          required: false
+          in: query
+          schema:
+            enum:
+              - HAPPY
+              - EXCITED
+              - THOUGHTFUL
+              - CALM
+              - SAD
+              - GRATEFUL
+              - ANGRY
+            type: string
+        - name: sort
+          required: false
+          in: query
+          schema:
+            default: latest
+            enum:
+              - latest
+              - oldest
+              - likes
+            type: string
+        - name: q
+          required: false
+          in: query
+          description: Full-text search in content
+          schema:
+            example: hello world
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - admin
+  /admin/posts/{id}:
+    patch:
+      operationId: AdminController_updatePost
+      summary: Update post content/mood/status/tags
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAdminPostDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - admin
+    delete:
+      operationId: AdminController_deletePost
+      summary: Hard-delete post + Cloudinary assets
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - admin
 info:
   title: MyBlog API
   description: REST + WebSocket contract — auto-generated from NestJS Swagger
@@ -2233,3 +2317,32 @@ components:
             $ref: '#/components/schemas/HeatmapDayDto'
       required:
         - days
+    UpdateAdminPostDto:
+      type: object
+      properties:
+        content:
+          type: string
+          example: Updated content
+        mood:
+          type: string
+          enum:
+            - HAPPY
+            - EXCITED
+            - THOUGHTFUL
+            - CALM
+            - SAD
+            - GRATEFUL
+            - ANGRY
+        status:
+          type: string
+          enum:
+            - PUBLISHED
+            - DRAFT
+            - ARCHIVED
+        tags:
+          example:
+            - dev
+            - tech
+          type: array
+          items:
+            type: string

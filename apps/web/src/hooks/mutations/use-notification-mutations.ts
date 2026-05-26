@@ -3,6 +3,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
+  bulkDeleteNotifications,
   bulkMarkNotificationsRead,
   deleteAllNotifications,
 } from '@/services/api/notifications';
@@ -32,6 +33,16 @@ export function useDeleteNotification() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteNotification(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.notifications.all });
+    },
+  });
+}
+
+export function useBulkDeleteNotifications() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (ids: string[]) => bulkDeleteNotifications(ids),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.notifications.all });
     },

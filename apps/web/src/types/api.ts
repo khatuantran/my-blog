@@ -341,6 +341,7 @@ export type NotificationActor = {
 
 export type NotificationMetadata = {
   reactionType?: string;
+  replyTo?: { username: string };
 };
 
 export type NotificationItem = {

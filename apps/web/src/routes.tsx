@@ -16,6 +16,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ManagePostsPage = lazy(() => import('./pages/ManagePostsPage'));
+const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export const routes: RouteObject[] = [
@@ -36,6 +37,14 @@ export const routes: RouteObject[] = [
       { path: 'profile/:username', element: <ProfilePage /> },
       { path: 'me', element: <MeRedirect /> },
       { path: 'search', element: <SearchPage /> },
+      {
+        path: 'notifications',
+        element: (
+          <ProtectedRoute>
+            <NotificationsPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: 'admin',
         element: (

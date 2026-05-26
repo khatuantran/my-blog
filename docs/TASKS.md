@@ -380,7 +380,7 @@ _Design-file visual sync (PostCard action + new components):_
 
 **🟢 Theme B: Shared components extract (P1/P2):**
 
-- [T-362] [P1] [F1] [FE] Toast shared component + `useToast` hook + `<ToastProvider>` context — `apps/web/src/components/shared/Toast.tsx` + `hooks/use-toast.ts` (NEW). 3 variants (success grn ✓ / error red ✕ / info cyan ℹ) + position fixed bottom-right 44/20 + auto-dismiss 2500ms + slideDown 200ms anim. API `showToast(msg, type?)`. Provider wrap trong AppLayout. Tests: 4 case (3 variants + auto-dismiss timer). ([[DESIGN_SYSTEM.md > Toast notification pattern]]) - TODO
+- [T-362] [P1] [F1] [FE] Toast shared component + `useToast` hook + `<ToastProvider>` context — `apps/web/src/components/shared/Toast.tsx` + `hooks/use-toast.ts` (NEW). 3 variants (success grn ✓ / error red ✕ / info cyan ℹ) + position fixed bottom-right 44/20 + auto-dismiss 2500ms + slideDown 200ms anim. API `showToast(msg, type?)`. Provider wrap trong AppLayout. Tests: 4 case (3 variants + auto-dismiss timer). ([[DESIGN_SYSTEM.md > Toast notification pattern]]) - DONE 2026-05-25
 - [T-363] [P2] [F5] [FE] UploadZone extract to shared — Move `apps/web/src/components/create-post/UploadZone.tsx` → `components/shared/UploadZone.tsx`. Add `accept` + `maxSizeMB` + `hint` props for reuse. Update Create Post imports. Tests: 3 case (render hint / accept prop / file callback). - TODO
 
 **🟣 Theme C: TopBar + shared layout refactor (P2):**

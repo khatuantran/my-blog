@@ -6,6 +6,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-362 FE Toast shared component + useToast hook + ToastProvider** (2026-05-25, FE): `apps/web/src/components/shared/Toast.tsx` + `apps/web/src/hooks/use-toast.ts` (NEW). React Context Provider wrapping AppLayout. `useToast()` hook returns `{ showToast(msg, type), toasts, dismiss }`. 3 variants per DESIGN_SYSTEM L911-923: success (✓ grn), error (✕ red), info (ℹ cyan). Position `fixed bottom-11 right-5 z-[200]`. Auto-dismiss 2500ms via setTimeout. Slide-down 200ms animation. Stack rendering cho multiple concurrent toasts. Tests: 4 cases (3 variants + auto-dismiss fake timer). 328/328 FE tests pass.
 - **T-361 FE Animation registry consolidation (M11.9 foundation)** (2026-05-25, FE): `tailwind.config.ts` add `cursorBlink 1s steps(2)` keyframe (cho Search caret + terminal cursor) + split `fade-up 300ms` thành 5 variants per DESIGN_SYSTEM Motion table: `fade-up-xs 120ms` (picker/dropdown small), `fade-up-sm 150ms` (default modal), `fade-up 200ms` (DeleteConfirm — bump from 300ms generic), `fade-up-md 250ms` (drawer), `fade-up-lg 350ms` (Login card). Verified existing 7 keyframes from T-341/T-342: glitch 8s, pulse-status (drop-shadow), blink, shake, scan-card, borderRotate, liveDot, slideIn, slideDown. 324/324 FE tests pass — non-breaking additive change.
 
 - **T-350 FE ReplyForm + ReplyRow + CommentItem refactor (FR-03.6 reply MVP complete)** (2026-05-25, FE): 2 NEW components + 1 refactor + 1 hook + types/service updates:

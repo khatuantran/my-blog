@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
 import { CommandPalette } from '../command-palette/CommandPalette';
+import { ToastProvider } from '@/components/shared/Toast';
 import { useCommandPalette } from '@/hooks/use-command-palette';
 import { useAuth } from '@/hooks/use-auth';
 import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
@@ -35,29 +36,31 @@ export function AppLayout() {
   }, [toggle]);
 
   return (
-    <div className="min-h-screen bg-bg text-tp font-sans antialiased">
-      <TopBar onOpenCommandPalette={() => setOpen(true)} hideSearch={pathname === '/search'} />
+    <ToastProvider>
+      <div className="min-h-screen bg-bg text-tp font-sans antialiased">
+        <TopBar onOpenCommandPalette={() => setOpen(true)} hideSearch={pathname === '/search'} />
 
-      <main className="pt-[52px] pb-[28px] min-h-screen">
-        <Outlet />
-      </main>
+        <main className="pt-[52px] pb-[28px] min-h-screen">
+          <Outlet />
+        </main>
 
-      <StatusBar path={pathLabel(pathname)} />
+        <StatusBar path={pathLabel(pathname)} />
 
-      <CommandPalette open={open} onClose={() => setOpen(false)} />
+        <CommandPalette open={open} onClose={() => setOpen(false)} />
 
-      {isHydrating && (
-        <div
-          role="status"
-          aria-live="polite"
-          aria-label="Initializing session"
-          className="fixed inset-0 z-[300] flex items-center justify-center bg-bg font-mono text-mono text-tm"
-        >
-          <span className="flex items-center gap-2">
-            <AsciiSpinner /> initializing session...
-          </span>
-        </div>
-      )}
-    </div>
+        {isHydrating && (
+          <div
+            role="status"
+            aria-live="polite"
+            aria-label="Initializing session"
+            className="fixed inset-0 z-[300] flex items-center justify-center bg-bg font-mono text-mono text-tm"
+          >
+            <span className="flex items-center gap-2">
+              <AsciiSpinner /> initializing session...
+            </span>
+          </div>
+        )}
+      </div>
+    </ToastProvider>
   );
 }

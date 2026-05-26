@@ -11,11 +11,23 @@ type Props = {
 };
 
 export function EditProfileDrawer({ open, user, onClose }: Props) {
+  // basic.info
+  const [name, setName] = useState(user.name ?? '');
   const [title, setTitle] = useState(user.title ?? '');
   const [bio, setBio] = useState(user.bio ?? '');
+
+  // contact.links
+  const [location, setLocation] = useState(user.location ?? '');
+  const [bornYear, setBornYear] = useState(user.bornYear ? String(user.bornYear) : '');
+  const [github, setGithub] = useState(user.github ?? '');
+  const [website, setWebsite] = useState(user.website ?? '');
+
+  // skills.stack
   const [skills, setSkills] = useState<Skill[]>(user.skills ?? []);
+
   const [profileError, setProfileError] = useState<string | null>(null);
 
+  // security
   const [currentPw, setCurrentPw] = useState('');
   const [newPw, setNewPw] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
@@ -27,8 +39,13 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
 
   useEffect(() => {
     if (!open) return;
+    setName(user.name ?? '');
     setTitle(user.title ?? '');
     setBio(user.bio ?? '');
+    setLocation(user.location ?? '');
+    setBornYear(user.bornYear ? String(user.bornYear) : '');
+    setGithub(user.github ?? '');
+    setWebsite(user.website ?? '');
     setSkills(user.skills ?? []);
     setProfileError(null);
     setCurrentPw('');
@@ -52,8 +69,18 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
   function handleProfileSubmit(e: React.FormEvent) {
     e.preventDefault();
     setProfileError(null);
+    const body: Parameters<typeof updateMut.mutate>[0]['body'] = {
+      title: title || undefined,
+      bio: bio || undefined,
+      skills,
+      name: name || undefined,
+      location: location || undefined,
+      bornYear: bornYear ? Number(bornYear) : undefined,
+      github: github || undefined,
+      website: website || undefined,
+    };
     updateMut.mutate(
-      { id: user.id, body: { title, bio, skills } },
+      { id: user.id, body },
       {
         onSuccess: () => onClose(),
         onError: (err) => {
@@ -107,20 +134,19 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Edit profile"
-      className="fixed inset-0 z-50"
+      className="fixed inset-0 z-[300]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden />
 
-      {/* Drawer panel */}
       <aside
-        className="absolute right-0 top-0 h-full w-full max-w-[420px] overflow-y-auto border-l border-b2 bg-surf p-5"
+        className="animate-slide-in absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col border-l border-b2 bg-surf"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
+        {/* Sticky header */}
+        <div className="flex shrink-0 items-center justify-between border-b border-b2 px-5 py-3">
           <div className="font-mono text-mono-sm text-tm">// edit.profile</div>
           <button
             type="button"
@@ -132,103 +158,210 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           </button>
         </div>
 
-        {/* Profile section */}
-        <form onSubmit={handleProfileSubmit} className="mb-6 space-y-3">
-          <div className="font-mono text-mono-sm text-tm">// profile</div>
-          <Field label="Title (max 80)">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={80}
-              placeholder="Full-stack Developer"
-              className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
-          </Field>
-          <Field label="Bio (max 500)">
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              maxLength={500}
-              rows={4}
-              placeholder="Tell people about yourself..."
-              className="w-full resize-y rounded-sm border border-b2 bg-bg px-3 py-2 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
-            <div className="mt-1 text-right font-mono text-mono-sm text-td">{bio.length}/500</div>
-          </Field>
-          <Field label="Skills (max 20)">
-            <SkillChipInput value={skills} onChange={setSkills} />
-          </Field>
-          {profileError && (
-            <div
-              role="alert"
-              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
-            >
-              {profileError}
-            </div>
-          )}
-          <button
-            type="submit"
-            disabled={updateMut.isPending}
-            className="w-full rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-2 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:opacity-50"
-          >
-            {updateMut.isPending ? '⠋ saving...' : 'Save profile'}
-          </button>
-        </form>
+        {/* Scrollable body */}
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          <form id="profile-form" onSubmit={handleProfileSubmit} className="space-y-5">
+            {/* Section 1: basic.info */}
+            <Section title="// basic.info">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Full name">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={80}
+                    placeholder="Jane Doe"
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Handle">
+                  <input
+                    type="text"
+                    value={`@${user.username}`}
+                    readOnly
+                    aria-label="Handle (read-only)"
+                    className={`${inputCls} cursor-default opacity-50`}
+                  />
+                </Field>
+              </div>
+              <Field label="Title (max 80)">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={80}
+                  placeholder="Full-stack Developer"
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Bio (max 500)">
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={500}
+                  rows={4}
+                  placeholder="Tell people about yourself..."
+                  className={`${inputCls} resize-y py-2`}
+                />
+                <div className="mt-1 text-right font-mono text-mono-sm text-td">
+                  {bio.length}/500
+                </div>
+              </Field>
+            </Section>
 
-        {/* Security section */}
-        <form onSubmit={handlePwSubmit} className="space-y-3">
-          <div className="font-mono text-mono-sm text-tm">// security</div>
-          <Field label="Current password">
-            <input
-              type="password"
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              autoComplete="current-password"
-              className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
-          </Field>
-          <Field label="New password (min 5)">
-            <input
-              type="password"
-              value={newPw}
-              onChange={(e) => setNewPw(e.target.value)}
-              autoComplete="new-password"
-              minLength={5}
-              className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
-          </Field>
-          <Field label="Confirm new password">
-            <input
-              type="password"
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              autoComplete="new-password"
-              className="w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
-          </Field>
-          {pwError && (
-            <div
-              role="alert"
-              className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
-            >
-              {pwError}
-            </div>
-          )}
-          {pwOk && (
-            <div className="rounded-sm border border-grn/40 bg-grn/[0.08] px-3 py-2 font-mono text-mono-sm text-grn">
-              ✓ password changed
-            </div>
-          )}
+            {/* Section 2: contact.links */}
+            <Section title="// contact.links">
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Location">
+                  <input
+                    type="text"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    maxLength={80}
+                    placeholder="Ho Chi Minh City"
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Born year">
+                  <input
+                    type="number"
+                    value={bornYear}
+                    onChange={(e) => setBornYear(e.target.value)}
+                    min={1900}
+                    max={new Date().getFullYear()}
+                    placeholder="1995"
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="GitHub">
+                  <input
+                    type="text"
+                    value={github}
+                    onChange={(e) => setGithub(e.target.value)}
+                    maxLength={120}
+                    placeholder="github.com/handle"
+                    className={inputCls}
+                  />
+                </Field>
+                <Field label="Website">
+                  <input
+                    type="text"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    maxLength={200}
+                    placeholder="https://yoursite.com"
+                    className={inputCls}
+                  />
+                </Field>
+              </div>
+            </Section>
+
+            {/* Section 3: skills.stack */}
+            <Section title="// skills.stack">
+              <Field label="Skills (max 20)">
+                <SkillChipInput value={skills} onChange={setSkills} />
+              </Field>
+            </Section>
+
+            {profileError && (
+              <div
+                role="alert"
+                className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
+              >
+                {profileError}
+              </div>
+            )}
+          </form>
+
+          {/* Section 4: security (separate form) */}
+          <form onSubmit={handlePwSubmit} className="mt-5 space-y-3">
+            <Section title="// security">
+              <Field label="Current password">
+                <input
+                  type="password"
+                  value={currentPw}
+                  onChange={(e) => setCurrentPw(e.target.value)}
+                  autoComplete="current-password"
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="New password (min 5)">
+                <input
+                  type="password"
+                  value={newPw}
+                  onChange={(e) => setNewPw(e.target.value)}
+                  autoComplete="new-password"
+                  minLength={5}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Confirm new password">
+                <input
+                  type="password"
+                  value={confirmPw}
+                  onChange={(e) => setConfirmPw(e.target.value)}
+                  autoComplete="new-password"
+                  className={inputCls}
+                />
+              </Field>
+              {pwError && (
+                <div
+                  role="alert"
+                  className="rounded-sm border border-red/40 bg-red/[0.08] px-3 py-2 font-mono text-mono-sm text-red"
+                >
+                  {pwError}
+                </div>
+              )}
+              {pwOk && (
+                <div className="rounded-sm border border-grn/40 bg-grn/[0.08] px-3 py-2 font-mono text-mono-sm text-grn">
+                  ✓ password changed
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={pwMut.isPending || !currentPw || !newPw || !confirmPw}
+                className="w-full rounded-sm border border-pur/50 bg-pur/10 px-3 py-2 font-mono text-mono-sm text-pur hover:bg-pur/20 disabled:opacity-50"
+              >
+                {pwMut.isPending ? '⠋ updating...' : 'Change password'}
+              </button>
+            </Section>
+          </form>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-b2 px-5 py-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-sm border border-b2 px-4 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
+          >
+            Cancel
+          </button>
           <button
             type="submit"
-            disabled={pwMut.isPending || !currentPw || !newPw || !confirmPw}
-            className="w-full rounded-sm border border-pur/50 bg-pur/10 px-3 py-2 font-mono text-mono-sm text-pur hover:bg-pur/20 disabled:opacity-50"
+            form="profile-form"
+            disabled={updateMut.isPending}
+            className="rounded-sm border border-cyan/50 bg-cyan/10 px-4 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:opacity-50"
           >
-            {pwMut.isPending ? '⠋ updating...' : 'Change password'}
+            {updateMut.isPending ? '⠋ saving...' : '✓ Save Changes'}
           </button>
-        </form>
+        </div>
       </aside>
+    </div>
+  );
+}
+
+const inputCls =
+  'w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm';
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="sb-lbl font-mono text-mono-sm text-tm">{title}</div>
+        <div className="h-px flex-1 bg-b2" />
+      </div>
+      {children}
     </div>
   );
 }

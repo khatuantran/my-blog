@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TAG_COLORS } from '@/lib/tag-colors';
+import { NEON_COLORS } from '@/lib/tag-colors';
 import type { Skill } from '@/types/api';
 
 type Props = {
@@ -16,7 +16,7 @@ export function SkillChipInput({ value, onChange, max = 20 }: Props) {
     if (!name) return;
     if (value.some((s) => s.name.toLowerCase() === name.toLowerCase())) return;
     if (value.length >= max) return;
-    const color = TAG_COLORS[value.length % TAG_COLORS.length];
+    const color = NEON_COLORS[value.length % NEON_COLORS.length];
     onChange([...value, { name, color }]);
     setInput('');
   }

@@ -17,6 +17,11 @@ export type AdminUser = {
   title?: string | null;
   bio?: string | null;
   skills?: Skill[];
+  name?: string | null;
+  location?: string | null;
+  bornYear?: number | null;
+  github?: string | null;
+  website?: string | null;
   createdAt: string;
 };
 
@@ -39,6 +44,11 @@ export type UpdateUserPayload = {
   title?: string;
   bio?: string;
   skills?: Skill[];
+  name?: string;
+  location?: string;
+  bornYear?: number;
+  github?: string;
+  website?: string;
 };
 
 export type SearchType = 'all' | 'posts' | 'files' | 'tags';

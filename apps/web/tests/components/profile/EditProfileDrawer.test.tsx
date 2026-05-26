@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { mswServer } from '../../_helpers/msw-server';
+import { NEON_COLORS } from '@/lib/tag-colors';
 import type { ProfileUser } from '@/types/api';
 
 const API = 'http://localhost:3001';
@@ -27,18 +28,45 @@ function wrap(ui: React.ReactElement) {
   return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
 }
 
-describe('EditProfileDrawer (T-222, FR-11.3)', () => {
+describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
   it('open=false → null', () => {
     const { container } = wrap(<EditProfileDrawer open={false} user={USER} onClose={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders pre-filled title/bio + skills + close button', () => {
+  it('T-376: renders all 4 section headers', () => {
     wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
-    expect(screen.getByRole('dialog', { name: /edit profile/i })).toBeInTheDocument();
+    expect(screen.getByText('// basic.info')).toBeInTheDocument();
+    expect(screen.getByText('// contact.links')).toBeInTheDocument();
+    expect(screen.getByText('// skills.stack')).toBeInTheDocument();
+    expect(screen.getByText('// security')).toBeInTheDocument();
+  });
+
+  it('T-376: basic.info pre-fills title + bio; handle is readonly @username', () => {
+    wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
     expect(screen.getByDisplayValue('Dev')).toBeInTheDocument();
     expect(screen.getByDisplayValue('hi')).toBeInTheDocument();
-    expect(screen.getByText('TS')).toBeInTheDocument();
+    const handle = screen.getByLabelText(/handle \(read-only\)/i);
+    expect(handle).toHaveValue('@alice');
+    expect(handle).toHaveAttribute('readonly');
+  });
+
+  it('T-376: contact.links section renders location + born year + github + website fields', () => {
+    wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
+    expect(screen.getByLabelText('Location')).toBeInTheDocument();
+    expect(screen.getByLabelText('Born year')).toBeInTheDocument();
+    expect(screen.getByLabelText('GitHub')).toBeInTheDocument();
+    expect(screen.getByLabelText('Website')).toBeInTheDocument();
+  });
+
+  it('T-376: SkillChipInput uses NEON_COLORS — new skill chip added correctly', () => {
+    wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
+    const addInput = screen.getByLabelText(/add skill/i);
+    fireEvent.change(addInput, { target: { value: 'React' } });
+    fireEvent.keyDown(addInput, { key: 'Enter' });
+    expect(screen.getByText('React')).toBeInTheDocument();
+    // Verify NEON_COLORS export has 8 entries (8-cycle palette)
+    expect(NEON_COLORS).toHaveLength(8);
   });
 
   it('Esc → onClose fired', () => {
@@ -48,7 +76,7 @@ describe('EditProfileDrawer (T-222, FR-11.3)', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('Save profile → PATCH /users/:id + onClose', async () => {
+  it('T-376: ✓ Save Changes button → PATCH /users/:id + onClose', async () => {
     let patched: { id?: string; body?: unknown } = {};
     mswServer.use(
       http.patch(`${API}/users/:id`, async ({ request, params }) => {
@@ -58,9 +86,8 @@ describe('EditProfileDrawer (T-222, FR-11.3)', () => {
     );
     const onClose = vi.fn();
     wrap(<EditProfileDrawer open user={USER} onClose={onClose} />);
-    const titleInput = screen.getByDisplayValue('Dev');
-    fireEvent.change(titleInput, { target: { value: 'New Title' } });
-    fireEvent.click(screen.getByRole('button', { name: /save profile/i }));
+    fireEvent.change(screen.getByDisplayValue('Dev'), { target: { value: 'New Title' } });
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
     await waitFor(() => expect(patched.id).toBe('u-alice'));
     expect(patched.body).toMatchObject({ title: 'New Title' });
     await waitFor(() => expect(onClose).toHaveBeenCalled());

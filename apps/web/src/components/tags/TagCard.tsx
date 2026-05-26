@@ -7,11 +7,20 @@ type Props = {
   maxCount: number;
   variant?: 'grid' | 'list';
   isAdmin?: boolean;
+  index?: number;
   onEdit?: (tag: TagWithStats) => void;
   onDelete?: (tag: TagWithStats) => void;
 };
 
-export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDelete }: Props) {
+export function TagCard({
+  tag,
+  maxCount,
+  variant = 'grid',
+  isAdmin,
+  index,
+  onEdit,
+  onDelete,
+}: Props) {
   const color = tag.color ?? '#00FFE5';
   const pct = maxCount > 0 ? Math.min(100, (tag.postCount / maxCount) * 100) : 0;
   const href = `/?tag=${encodeURIComponent(tag.name.replace(/^#/, ''))}`;
@@ -64,8 +73,15 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
   return (
     <div
       data-testid={`tag-card-${tag.name}`}
-      className="group relative rounded-md border border-b2 bg-surf p-4 transition-all hover:border-cyan/40 hover:shadow-glow-cyan-sm"
+      className="group relative overflow-hidden rounded-md border border-b2 bg-surf p-4 transition-all animate-fade-up hover:border-cyan/40 hover:shadow-glow-cyan-sm"
+      style={{ animationDelay: `${(index ?? 0) * 60}ms`, animationFillMode: 'both' }}
     >
+      {/* Top accent line — visible on hover */}
+      <div
+        aria-hidden
+        className="absolute left-0 top-0 h-[2px] w-full opacity-0 transition-opacity group-hover:opacity-100"
+        style={{ background: color }}
+      />
       <Link to={href} className="block no-underline">
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -87,7 +103,7 @@ export function TagCard({ tag, maxCount, variant = 'grid', isAdmin, onEdit, onDe
           <Sparkline data={tag.sparkline7d} color={color} width={60} height={20} />
         </div>
         <div
-          className="h-1 w-full overflow-hidden rounded-sm bg-b1"
+          className="h-[2px] w-full overflow-hidden bg-b1"
           aria-valuenow={pct}
           aria-label={`${Math.round(pct)}% of max usage`}
           role="progressbar"

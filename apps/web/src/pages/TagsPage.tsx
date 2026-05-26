@@ -169,11 +169,12 @@ export default function TagsPage() {
 
       {items.length > 0 && view === 'grid' && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map((t) => (
+          {items.map((t, i) => (
             <TagCard
               key={t.id}
               tag={t}
               maxCount={maxCount}
+              index={i}
               isAdmin={isAdmin}
               onEdit={(tag) => {
                 setModalError(null);

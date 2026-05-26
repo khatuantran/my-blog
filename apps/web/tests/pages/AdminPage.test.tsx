@@ -61,6 +61,37 @@ beforeEach(() => {
               avatarUrl: null,
               createdAt: '2026-01-01T00:00:00.000Z',
             },
+            {
+              id: 'u1',
+              username: 'user1',
+              email: 'u1@x.com',
+              role: 'USER',
+              avatarUrl: null,
+              createdAt: '2026-01-15T00:00:00.000Z',
+            },
+          ],
+          total: 2,
+          page: 1,
+          limit: 20,
+        },
+      }),
+    ),
+    http.get(`${API_URL}/admin/comments`, () =>
+      HttpResponse.json({
+        data: {
+          items: [
+            {
+              id: 'c1',
+              postId: 'p1',
+              content: 'pending comment content',
+              status: 'PENDING',
+              createdAt: '2026-05-26T00:00:00.000Z',
+              anonymousName: 'Anon#1',
+              anonymousId: 'anon1',
+              userId: null,
+              author: null,
+              post: { id: 'p1', content: 'some post' },
+            },
           ],
           total: 1,
           page: 1,
@@ -109,5 +140,31 @@ describe('AdminPage', () => {
     renderAt('/admin');
     expect(await screen.findByText('~/admin')).toBeInTheDocument();
     expect(screen.getByText('// comments.moderation')).toBeInTheDocument();
+  });
+
+  it('T-371: SubBar has ✏️ New Post → /admin/create + 🏷 Tags → /tags links', async () => {
+    renderAt('/admin');
+    const newPostLink = await screen.findByTestId('subbar-new-post');
+    expect(newPostLink).toHaveAttribute('href', '/admin/create');
+    const tagsLink = screen.getByTestId('subbar-tags');
+    expect(tagsLink).toHaveAttribute('href', '/tags');
+  });
+
+  it('T-371: UsersTable actions — Ban button for non-admin + View button for all users', async () => {
+    renderAt('/admin');
+    // Ban button only for non-admin
+    expect(await screen.findByRole('button', { name: /ban user1/i })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /ban admin/i })).toBeNull();
+    // View button for both
+    const viewButtons = screen.getAllByRole('button', { name: /view/i });
+    expect(viewButtons.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('T-371: comments.moderation pending badge shows when PENDING comments exist', async () => {
+    renderAt('/admin');
+    await screen.findByText('// comments.moderation');
+    await waitFor(() => {
+      expect(screen.getByTestId('pending-badge')).toHaveTextContent('1 pending');
+    });
   });
 });

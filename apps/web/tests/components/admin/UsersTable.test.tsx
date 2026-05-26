@@ -51,8 +51,8 @@ describe('UsersTable', () => {
 
     expect(await screen.findByText('~/admin')).toBeInTheDocument();
     expect(screen.getByText('~/user1')).toBeInTheDocument();
-    expect(screen.getByText('ADMIN')).toBeInTheDocument();
-    expect(screen.getByText('USER')).toBeInTheDocument();
+    expect(screen.getByText('[ ADMIN ]')).toBeInTheDocument();
+    expect(screen.getByText('[ USER ]')).toBeInTheDocument();
   });
 
   it('Ban button click → POST /users/:id/ban + refetch', async () => {

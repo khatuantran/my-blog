@@ -6,21 +6,20 @@ type Props = {
   images: ImageItem[];
 };
 
-// Full carousel — prev/next buttons + dot indicator + counter + keyboard nav.
-// Match design-file/MyBlog Post Detail.html ImageCarousel section.
+const NAV_BTN =
+  'absolute top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-b2 font-mono text-tp transition-colors hover:border-cyan hover:text-cyan';
+
 export function ImageCarousel({ images }: Props) {
   const [idx, setIdx] = useState(0);
   const [broken, setBroken] = useState<Record<number, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const count = images?.length ?? 0;
 
-  // Reset khi images thay đổi (e.g. nav to different post)
   useEffect(() => {
     setIdx(0);
     setBroken({});
   }, [images]);
 
-  // Keyboard nav khi container focused
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -64,45 +63,53 @@ export function ImageCarousel({ images }: Props) {
 
       {count > 1 && (
         <>
-          {/* Prev */}
+          {/* Prev arrow — 44px round, frosted glass */}
           <button
             type="button"
             onClick={() => setIdx((i) => (i - 1 + count) % count)}
             aria-label="Previous image"
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full border border-b2 bg-bg/80 px-3 py-1 font-mono text-tp hover:border-cyan hover:bg-bg"
+            className={`${NAV_BTN} left-3`}
+            style={{ background: 'rgba(10,14,26,.75)', backdropFilter: 'blur(4px)' }}
           >
             ←
           </button>
-          {/* Next */}
+
+          {/* Next arrow — 44px round, frosted glass */}
           <button
             type="button"
             onClick={() => setIdx((i) => (i + 1) % count)}
             aria-label="Next image"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-b2 bg-bg/80 px-3 py-1 font-mono text-tp hover:border-cyan hover:bg-bg"
+            className={`${NAV_BTN} right-3`}
+            style={{ background: 'rgba(10,14,26,.75)', backdropFilter: 'blur(4px)' }}
           >
             →
           </button>
 
-          {/* Counter + dots */}
-          <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-b2 bg-bg/80 px-3 py-1 font-mono text-mono-sm text-tm">
-            <div className="flex gap-1.5" role="tablist" aria-label="Image selector">
-              {images.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === idx}
-                  aria-label={`Go to image ${i + 1}`}
-                  onClick={() => setIdx(i)}
-                  className={`h-2 w-2 rounded-full transition-colors ${
-                    i === idx ? 'bg-cyan' : 'bg-b2 hover:bg-b3'
-                  }`}
-                />
-              ))}
-            </div>
-            <span>
-              {idx + 1}/{count}
-            </span>
+          {/* Pagination dots — centered bottom */}
+          <div
+            className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5"
+            role="tablist"
+            aria-label="Image selector"
+          >
+            {images.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === idx}
+                aria-label={`Go to image ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className={`rounded-full transition-all ${
+                  i === idx ? 'h-1.5 w-[18px] bg-cyan' : 'h-1.5 w-1.5 bg-b2 hover:bg-b3'
+                }`}
+                style={i === idx ? { boxShadow: '0 0 6px var(--cyan)' } : undefined}
+              />
+            ))}
+          </div>
+
+          {/* Counter — bottom-right */}
+          <div className="absolute bottom-3 right-3 font-mono text-[11px] text-td">
+            {idx + 1}/{count}
           </div>
         </>
       )}

@@ -1286,7 +1286,7 @@ Apply to `_` cursor after `~/auth/login`, cycle 530ms.
 
 **Added tokens — Shadow recipes (10):** `--shadow-glow-cyan-xs/sm/md/lg + --shadow-glow-<color>-md + --shadow-drop-sm/md/lg/xl + --shadow-stack`. See `### Shadow recipes` section.
 
-**Added tokens — Animation registry / motion tokens:** `motion-borderrotate 8s linear`, `motion-livedot 1.5s`, `motion-slidein 250ms`, `motion-slidedown 200ms`, `motion-scancard 4s` (renamed + duration bump). See updated `### Motion` table.
+**Added tokens — Animation registry / motion tokens:** `motion-borderrotate 8s linear`, `motion-livedot 1.5s`, `motion-slidein 250ms`, `motion-slidedown 200ms`, `motion-scancard 4s` (renamed + duration bump). **T-361 follow-up (2026-05-25, commit `38e3758`):** add `motion-cursorblink 1s steps(2)` keyframe (cho Search caret + terminal cursor) + split `fade-up 300ms` thành 5 variants (`fade-up-xs 120ms` picker / `fade-up-sm 150ms` default modal / `fade-up 200ms` DeleteConfirm / `fade-up-md 250ms` drawer / `fade-up-lg 350ms` Login card). See updated `### Motion` table.
 
 **Added tokens — palette/colors:** `NEON_COLORS` 8-color array alias `--accents` (cyan/mag/pur/grn/yel/ora/blu/red) for tag color picker. `TEXT_COLORS` 7 (default/pink/cyan/green/yellow/purple/blue) cho Create Post text color popover. `HIGHLIGHT_COLORS` 7 với `/40` transparency suffix cho highlight popover. `EMOJI_GROUPS` 4×16 cho EmojiPicker.
 

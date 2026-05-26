@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MoodPicker } from '@/components/create-post/MoodPicker';
 import { MarkdownEditor } from '@/components/create-post/MarkdownEditor';
-import { UploadZone, type UploadEntry } from '@/components/create-post/UploadZone';
+import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
 import { TagInput, type TagDraft } from '@/components/create-post/TagInput';
 import { PostPreview } from '@/components/create-post/PostPreview';
 import { useCreatePost } from '@/hooks/mutations/use-create-post';

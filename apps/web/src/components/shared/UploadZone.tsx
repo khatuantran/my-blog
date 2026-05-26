@@ -14,6 +14,10 @@ type Props = {
   variant: 'image' | 'file';
   value: UploadEntry[];
   onChange: (next: UploadEntry[]) => void;
+  /** Optional override for the drop-zone hint line (default: `❯ drag & drop or click — N slots left`). */
+  hint?: string;
+  /** Optional max file size in MB. Files exceeding this are silently skipped (T-363). */
+  maxSizeMB?: number;
 };
 
 // Pending item tracking — file đang upload + temp local URL.
@@ -27,6 +31,8 @@ export function UploadZone({
   variant,
   value,
   onChange,
+  hint,
+  maxSizeMB,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<Pending[]>([]);
@@ -36,7 +42,10 @@ export function UploadZone({
   const full = remaining === 0;
 
   async function handleFiles(list: FileList | File[]) {
-    const files = Array.from(list).slice(0, remaining);
+    const sizeLimitBytes = maxSizeMB ? maxSizeMB * 1024 * 1024 : Infinity;
+    const files = Array.from(list)
+      .filter((f) => f.size <= sizeLimitBytes)
+      .slice(0, remaining);
     for (const file of files) {
       const id = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const previewUrl = variant === 'image' ? URL.createObjectURL(file) : undefined;
@@ -99,6 +108,8 @@ export function UploadZone({
           <>
             // max reached ({maxCount}/{maxCount})
           </>
+        ) : hint ? (
+          <>{hint}</>
         ) : (
           <>❯ drag &amp; drop or click — {remaining} slots left</>
         )}

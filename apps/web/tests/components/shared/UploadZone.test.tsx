@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { http, HttpResponse } from 'msw';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { UploadZone, type UploadEntry } from '@/components/create-post/UploadZone';
+import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
 import { TestProviders } from '../../_helpers/test-providers';
 import { mswServer } from '../../_helpers/msw-server';
 
@@ -46,7 +46,13 @@ beforeEach(() => {
   );
 });
 
-function Wrapper(props: { variant: 'image' | 'file'; maxCount?: number; initial?: UploadEntry[] }) {
+function Wrapper(props: {
+  variant: 'image' | 'file';
+  maxCount?: number;
+  initial?: UploadEntry[];
+  hint?: string;
+  maxSizeMB?: number;
+}) {
   const [value, setValue] = useState<UploadEntry[]>(props.initial ?? []);
   return (
     <UploadZone
@@ -56,6 +62,8 @@ function Wrapper(props: { variant: 'image' | 'file'; maxCount?: number; initial?
       variant={props.variant}
       value={value}
       onChange={setValue}
+      hint={props.hint}
+      maxSizeMB={props.maxSizeMB}
     />
   );
 }
@@ -114,6 +122,43 @@ describe('UploadZone', () => {
     await waitFor(() => {
       expect(document.querySelector('img')).toBeNull();
     });
+  });
+
+  // T-363 new prop coverage
+  it('T-363: renders custom hint when provided (overrides default slot-count text)', () => {
+    render(
+      <TestProviders>
+        <Wrapper variant="image" hint="❯ paste your screenshot here" />
+      </TestProviders>,
+    );
+    expect(screen.getByText('❯ paste your screenshot here')).toBeInTheDocument();
+    expect(screen.queryByText(/slots left/)).not.toBeInTheDocument();
+  });
+
+  it('T-363: accept prop wires to underlying input attribute', () => {
+    render(
+      <TestProviders>
+        <Wrapper variant="file" />
+      </TestProviders>,
+    );
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input.accept).toBe('.pdf');
+  });
+
+  it('T-363: maxSizeMB rejects oversized file (onChange not called for >limit)', async () => {
+    const user = userEvent.setup();
+    render(
+      <TestProviders>
+        <Wrapper variant="file" maxSizeMB={0.001} />
+      </TestProviders>,
+    );
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    // 2KB file vs 0.001MB (~1KB) limit → filtered out before Cloudinary upload.
+    const oversized = new File([new Uint8Array(2048)], 'big.pdf', { type: 'application/pdf' });
+    await user.upload(input, oversized);
+    // Wait a tick — no upload should fire, no asset list rendered.
+    await new Promise((r) => setTimeout(r, 100));
+    expect(screen.queryByText('big.pdf')).not.toBeInTheDocument();
   });
 
   it('file variant renders FileItem rows', () => {

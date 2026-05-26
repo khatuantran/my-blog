@@ -41,7 +41,7 @@
   - ✅ **Search** — visual + behavior match design.
   - ⚠️ **6 minor drift** (Login cursor blink, Feed StatusBar segments + Share icon prefix, Post Detail ImageCarousel layout, Profile hero, Tags TagModal NEON, Create Post toolbar 6→11 + AISuggestModal) — all already covered by existing M11.9 backlog tasks (T-370/371/373/374/368/347), no duplicate tasks needed.
   - ❌ **Admin broken** — NEW [BUG-006](docs/BUGS.md) Critical P0 `TypeError: stats.posts.total undefined` blocking entire `/admin` page. Logged + T-380 fix task created.
-- **Open follow-up:** T-380 (Fix BUG-006 — investigate H1 BE shape drift / H2 hook race / H3 auth envelope) — P0 next priority.
+- **Done (code fix same day):** T-380 fix BUG-006 — root cause confirmed H1 BE/FE contract drift (M11.7 multi-reaction migration renamed BE `likes` → `reactions`, FE consumer + MSW mock vẫn dùng `likes`). Fix: FE rename `likes` → `reactions` 3 sites (admin.ts type + AdminPage.tsx JSX/label + AdminPage.test.tsx MSW mock) + new regression test case. 5/5 AdminPage + 341/341 full FE pass.
 - **Deferred (out of review scope):** Notifications page (T-314 TODO) + Manage Posts page (T-372 greenfield) — no FE route yet.
 
 ### 2026-05-25 (Week 2 — M11.8 kickoff)

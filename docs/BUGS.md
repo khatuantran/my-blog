@@ -7,33 +7,32 @@
 
 ## Open
 
+_(Trống)_
+
+## Fixed
+
 ### [BUG-006] [Critical] [FE] AdminPage `/admin` crash — TypeError `Cannot read properties of undefined (reading 'total')`
 
-- **Status:** OPEN
+- **Status:** FIXED
 - **Reporter:** khatran (UI Design Fidelity Review) — **Date:** 2026-05-26
 - **Environment:** local (postgres-main :5434 + API :3000 + FE :5173) / Chromium Playwright 1440×900 / Layer: FE
-- **Related task:** T-380 (TODO, P0 F3)
-- **Related FR/component:** FR-07 admin dashboard / `apps/web/src/pages/AdminPage.tsx` L62-83 + `apps/web/src/hooks/queries/use-admin-stats.ts` + `apps/web/src/services/api/admin.ts` (`AdminStatsResponse`)
+- **Related task:** T-380 (DONE 2026-05-26)
+- **Related FR/component:** FR-07 admin dashboard / `apps/web/src/pages/AdminPage.tsx` L67-73 + `apps/web/src/services/api/admin.ts` (`AdminStats` type) + `apps/web/tests/pages/AdminPage.test.tsx` MSW mock
 - **Screenshot:** `/tmp/ui-review-all/admin/fe.png` (FE crash) vs `/tmp/ui-review-all/admin/design.png` (design reference)
-- **Mô tả:** Khi navigate `/admin` (login admin OK, ProtectedRoute pass) page render crash với uncaught TypeError. 4 StatCards (POSTS/LIKES/COMMENTS/VIEWS) destructure `stats.posts.total`, `stats.likes.total`, `stats.comments.total`, `stats.views.total`. Loading guard `statsQ.isLoading` + `stats ? (...)` đã có, nhưng khi `statsQ.data` truthy với shape mismatch → `stats.posts` undefined → `.total` throws. Toàn page Admin blocking, không thể access dashboard/users table/moderation queue.
+- **Mô tả:** Khi navigate `/admin` (login admin OK, ProtectedRoute pass) page render crash với uncaught TypeError. 4 StatCards (POSTS/LIKES/COMMENTS/VIEWS) destructure `stats.likes.total` → undefined → `.total` throws. Toàn page Admin blocking, không thể access dashboard/users table/moderation queue.
 - **Steps to reproduce:**
   1. Login `admin`/`admin-password` qua `/auth/login`.
   2. Navigate `/admin`.
   3. Page render crash; React error boundary catch (hoặc whitescreen tùy build).
 - **Expected:** Page render SubBar + 4 StatCards + 2-col + UsersTable + ModerationQueue như `design-file/MyBlog Admin.html`.
-- **Actual:** TypeError `Cannot read properties of undefined (reading 'total')` tại `AdminPage.tsx:62` (`stats.posts.total`).
-- **Root cause hypothesis (chưa investigate):**
-  - **H1 — Response shape mismatch:** BE `GET /admin/stats` trả shape khác `AdminStatsResponse` interface (vd: thiếu `posts` field hoặc nested khác). Cần verify BE response vs `admin.ts:20-23`.
-  - **H2 — Hook race:** `statsQ.data` ngắn ngủi truthy với partial object (vd: `{}`) trước khi populated → `stats.posts` undefined. Loading guard không cover trường hợp này.
-  - **H3 — Auth/role gate khác expect:** API response error envelope không bị `useQuery` reject → trả vào `data` → shape lạ.
-- **Fix direction (defer T-380 investigation):**
-  - Verify BE actual response qua curl `GET /admin/stats` với admin JWT.
-  - Defensive destructure: `stats?.posts?.total ?? 0` cho 4 StatCards.
-  - Đồng bộ type guard runtime (Zod parse?) hoặc tighten loading guard `!statsQ.isSuccess`.
-  - Plus regression test `tests/pages/AdminPage.test.tsx` cover empty/loading/partial/success.
-- **Lesson learned (preliminary):** Loading guard `stats ? :` không đủ — TanStack Query `data` có thể truthy với shape không khớp interface (server contract drift). Cần Zod parse layer hoặc defensive optional chaining ở callsite.
-
-## Fixed
+- **Actual:** TypeError `Cannot read properties of undefined (reading 'total')` tại `AdminPage.tsx:69` (`stats.likes.total`).
+- **Root cause:** BE/FE contract drift từ M11.7 multi-reaction migration. BE [admin-response.dto.ts:20](apps/api/src/admin/dto/admin-response.dto.ts#L20) + [openapi.yaml StatsResponseDto](docs/contracts/openapi.yaml) đã rename field `likes` → `reactions` (multi-reaction terminology). FE consumer ([AdminPage.tsx:67-73](apps/web/src/pages/AdminPage.tsx#L67) + type [admin.ts:21](apps/web/src/services/api/admin.ts#L21)) vẫn dùng `likes`. BE returns `{posts, reactions, comments, views}` → FE reads `stats.likes` → undefined → crash. Test [AdminPage.test.tsx MSW mock:35](apps/web/tests/pages/AdminPage.test.tsx#L35) cũng dùng `likes:` nên không catch được drift (mock copy của FE bug, không phải BE real shape).
+- **Fix:** FE migrate `likes` → `reactions` 3 sites:
+  - `apps/web/src/services/api/admin.ts` L21 — type field `likes: MetricBucket` → `reactions: MetricBucket`.
+  - `apps/web/src/pages/AdminPage.tsx` L18 STAT_COLORS key + L67-73 StatCard destructure + label `"LIKES"` → `"REACTIONS"`.
+  - `apps/web/tests/pages/AdminPage.test.tsx` L35 MSW mock field rename.
+- **Regression test:** `apps/web/tests/pages/AdminPage.test.tsx` — new case `it('regression BUG-006: reads stats.reactions (not stats.likes) — BE renamed field in M11.7 multi-reaction migration')` assert `REACTIONS` label visible + value `287` render + no exception. 5/5 AdminPage + 341/341 full FE suite pass.
+- **Lesson learned:** MSW mocks copy from FE consumer's expectations, không phải từ BE actual shape — drift giữa openapi contract và FE consumer escape detection. **Action item (defer to follow-up task):** T-302 OpenAPI cutover (TASKS.md L266) sẽ wire `api.generated.ts` từ openapi.yaml làm source-of-truth, eliminate hand-typed drift. Trong khi chờ T-302, regression test cho BUG-006 đảm bảo specific field `reactions` không tự ý đổi lại.
 
 ### [BUG-005] [High] [BE] REPLY notification missing — replies fire wrong COMMENT notification to post author
 

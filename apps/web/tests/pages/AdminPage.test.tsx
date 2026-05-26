@@ -32,7 +32,7 @@ beforeEach(() => {
       HttpResponse.json({
         data: {
           posts: { total: 42, sparkline: [1, 2, 3, 5, 8], deltaToday: 5 },
-          likes: { total: 287, sparkline: [10, 20, 35], deltaToday: 24 },
+          reactions: { total: 287, sparkline: [10, 20, 35], deltaToday: 24 },
           comments: { total: 64, sparkline: [2, 4, 8], deltaToday: 3 },
           views: { total: 1234, sparkline: [100, 200, 500], deltaToday: 89 },
         },
@@ -76,9 +76,18 @@ describe('AdminPage', () => {
     renderAt('/admin');
     expect((await screen.findAllByText('~/admin/dashboard')).length).toBeGreaterThan(0);
     expect(await screen.findByText('42')).toBeInTheDocument(); // posts
-    expect(screen.getByText('287')).toBeInTheDocument(); // likes
+    expect(screen.getByText('287')).toBeInTheDocument(); // reactions
     expect(screen.getByText('64')).toBeInTheDocument(); // comments
     expect(screen.getByText('1.2k')).toBeInTheDocument(); // views formatted
+  });
+
+  it('regression BUG-006: reads stats.reactions (not stats.likes) — BE renamed field in M11.7 multi-reaction migration', async () => {
+    // BE returns `reactions` field (per StatsResponseDto + openapi.yaml). FE used to
+    // read `stats.likes.total` → undefined crash. This test ensures the FE/BE contract
+    // alignment is enforced — REACTIONS label visible + value rendered + no exception.
+    renderAt('/admin');
+    expect(await screen.findByText('REACTIONS')).toBeInTheDocument();
+    expect(screen.getByText('287')).toBeInTheDocument();
   });
 
   it('renders mood.distribution với 7 mood bars (zero-fill missing moods)', async () => {

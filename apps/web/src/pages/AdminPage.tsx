@@ -16,7 +16,7 @@ function formatViews(n: number): string {
 
 const STAT_COLORS = {
   posts: '#00FFE5',
-  likes: '#FF6E96',
+  reactions: '#FF6E96',
   comments: '#BB9AF7',
   views: '#9ECE6A',
 } as const;
@@ -65,11 +65,11 @@ export default function AdminPage() {
               sparkline={stats.posts.sparkline}
             />
             <StatCard
-              label="LIKES"
-              value={stats.likes.total}
-              delta={stats.likes.deltaToday}
-              color={STAT_COLORS.likes}
-              sparkline={stats.likes.sparkline}
+              label="REACTIONS"
+              value={stats.reactions.total}
+              delta={stats.reactions.deltaToday}
+              color={STAT_COLORS.reactions}
+              sparkline={stats.reactions.sparkline}
             />
             <StatCard
               label="COMMENTS"

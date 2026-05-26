@@ -18,7 +18,7 @@ export type MetricBucket = {
 
 export type AdminStats = {
   posts: MetricBucket;
-  likes: MetricBucket;
+  reactions: MetricBucket;
   comments: MetricBucket;
   views: MetricBucket;
 };

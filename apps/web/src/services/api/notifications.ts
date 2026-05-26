@@ -1,6 +1,8 @@
 import { apiFetch } from './client';
 import type {
   BulkDeleteNotificationsResponse,
+  BulkMarkReadResponse,
+  DeleteAllNotificationsResponse,
   ListNotificationsParams,
   MarkAllReadResponse,
   MarkReadResponse,
@@ -45,5 +47,18 @@ export function bulkDeleteNotifications(ids: string[]): Promise<BulkDeleteNotifi
   return apiFetch<BulkDeleteNotificationsResponse>('/notifications/bulk', {
     method: 'DELETE',
     body: JSON.stringify({ ids }),
+  });
+}
+
+export function bulkMarkNotificationsRead(ids: string[]): Promise<BulkMarkReadResponse> {
+  return apiFetch<BulkMarkReadResponse>('/notifications/bulk-read', {
+    method: 'PATCH',
+    body: JSON.stringify({ ids }),
+  });
+}
+
+export function deleteAllNotifications(): Promise<DeleteAllNotificationsResponse> {
+  return apiFetch<DeleteAllNotificationsResponse>('/notifications/all', {
+    method: 'DELETE',
   });
 }

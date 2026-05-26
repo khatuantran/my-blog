@@ -225,6 +225,40 @@ export interface paths {
     patch: operations['NotificationsController_markRead'];
     trace?: never;
   };
+  '/notifications/bulk-read': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Đánh dấu nhiều notification đã đọc (self-scope, ids khác user bị skip) */
+    patch: operations['NotificationsController_bulkMarkRead'];
+    trace?: never;
+  };
+  '/notifications/all': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Xóa tất cả notification của current user */
+    delete: operations['NotificationsController_deleteAll'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/notifications/bulk': {
     parameters: {
       query?: never;
@@ -872,6 +906,9 @@ export interface components {
     MarkReadDto: {
       /** @example true */
       read: boolean;
+    };
+    BulkMarkReadDto: {
+      ids: string[];
     };
     BulkDeleteDto: {
       ids: string[];
@@ -1694,6 +1731,44 @@ export interface operations {
         'application/json': components['schemas']['MarkReadDto'];
       };
     };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_bulkMarkRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['BulkMarkReadDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_deleteAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {

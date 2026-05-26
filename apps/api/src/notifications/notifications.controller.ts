@@ -15,6 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { BulkDeleteDto } from './dto/bulk-delete.dto';
+import { BulkMarkReadDto } from './dto/bulk-mark-read.dto';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 import { MarkReadDto } from './dto/mark-read.dto';
 import { NotificationsService } from './notifications.service';
@@ -57,6 +58,25 @@ export class NotificationsController {
     @Body() dto: MarkReadDto,
   ) {
     return this.notifications.markRead(user.sub, id, dto.read);
+  }
+
+  // Static route MUST be declared before :id to avoid route conflict
+  @Patch('bulk-read')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Đánh dấu nhiều notification đã đọc (self-scope, ids khác user bị skip)',
+  })
+  @ApiResponse({ status: 200 })
+  bulkMarkRead(@CurrentUser() user: AuthenticatedUser, @Body() dto: BulkMarkReadDto) {
+    return this.notifications.bulkMarkRead(user.sub, dto.ids);
+  }
+
+  @Delete('all')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xóa tất cả notification của current user' })
+  @ApiResponse({ status: 200 })
+  deleteAll(@CurrentUser() user: AuthenticatedUser) {
+    return this.notifications.deleteAll(user.sub);
   }
 
   // Static route MUST be declared before :id to avoid route conflict

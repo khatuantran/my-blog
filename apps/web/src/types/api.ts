@@ -380,6 +380,14 @@ export type BulkDeleteNotificationsResponse = {
   deleted: number;
 };
 
+export type BulkMarkReadResponse = {
+  updated: number;
+};
+
+export type DeleteAllNotificationsResponse = {
+  deleted: number;
+};
+
 export type ListNotificationsParams = {
   filter?: 'all' | 'unread';
   page?: number;

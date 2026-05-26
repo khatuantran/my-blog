@@ -191,4 +191,64 @@ describe('Notifications (e2e)', () => {
         .expect(400);
     });
   });
+
+  describe('PATCH /notifications/bulk-read', () => {
+    it('200 marks own notifications as read, silently skips other user ids', async () => {
+      const n1 = await makeNotification(prisma, { userId: aliceId, actorId: bobId, read: false });
+      const n2 = await makeNotification(prisma, { userId: aliceId, actorId: bobId, read: false });
+      const bobNotif = await makeNotification(prisma, {
+        userId: bobId,
+        actorId: aliceId,
+        read: false,
+      });
+
+      const res = await request(app.getHttpServer())
+        .patch('/notifications/bulk-read')
+        .set('Cookie', aliceCookies)
+        .send({ ids: [n1.id, n2.id, bobNotif.id] })
+        .expect(200);
+
+      expect(res.body.data.updated).toBe(2);
+      const n1Updated = await prisma.notification.findUnique({ where: { id: n1.id } });
+      expect(n1Updated?.read).toBe(true);
+    });
+
+    it('400 when ids array exceeds 100', async () => {
+      const ids = Array.from({ length: 101 }, () => 'fake-id');
+      await request(app.getHttpServer())
+        .patch('/notifications/bulk-read')
+        .set('Cookie', aliceCookies)
+        .send({ ids })
+        .expect(400);
+    });
+
+    it('401 when anonymous', async () => {
+      await request(app.getHttpServer())
+        .patch('/notifications/bulk-read')
+        .send({ ids: ['fake-id'] })
+        .expect(401);
+    });
+  });
+
+  describe('DELETE /notifications/all', () => {
+    it('200 deletes all notifications of current user', async () => {
+      await makeNotification(prisma, { userId: aliceId, actorId: bobId });
+      await makeNotification(prisma, { userId: aliceId, actorId: bobId });
+      const bobNotif = await makeNotification(prisma, { userId: bobId, actorId: aliceId });
+
+      const res = await request(app.getHttpServer())
+        .delete('/notifications/all')
+        .set('Cookie', aliceCookies)
+        .expect(200);
+
+      expect(res.body.data.deleted).toBe(2);
+      // bob's notification untouched
+      const still = await prisma.notification.findUnique({ where: { id: bobNotif.id } });
+      expect(still).not.toBeNull();
+    });
+
+    it('401 when anonymous', async () => {
+      await request(app.getHttpServer()).delete('/notifications/all').expect(401);
+    });
+  });
 });

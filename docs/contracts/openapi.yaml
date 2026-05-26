@@ -223,6 +223,32 @@ paths:
           description: ''
       tags:
         - notifications
+  /notifications/bulk-read:
+    patch:
+      operationId: NotificationsController_bulkMarkRead
+      summary: Đánh dấu nhiều notification đã đọc (self-scope, ids khác user bị skip)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkMarkReadDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
+  /notifications/all:
+    delete:
+      operationId: NotificationsController_deleteAll
+      summary: Xóa tất cả notification của current user
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - notifications
   /notifications/bulk:
     delete:
       operationId: NotificationsController_deleteBulk
@@ -1303,6 +1329,16 @@ components:
           example: true
       required:
         - read
+    BulkMarkReadDto:
+      type: object
+      properties:
+        ids:
+          maxItems: 100
+          type: array
+          items:
+            type: string
+      required:
+        - ids
     BulkDeleteDto:
       type: object
       properties:

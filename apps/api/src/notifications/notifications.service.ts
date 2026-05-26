@@ -144,4 +144,19 @@ export class NotificationsService {
     });
     return { deleted: result.count };
   }
+
+  async bulkMarkRead(userId: string, ids: string[]) {
+    const result = await this.prisma.notification.updateMany({
+      where: { id: { in: ids }, userId },
+      data: { read: true },
+    });
+    return { updated: result.count };
+  }
+
+  async deleteAll(userId: string) {
+    const result = await this.prisma.notification.deleteMany({
+      where: { userId },
+    });
+    return { deleted: result.count };
+  }
 }

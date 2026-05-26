@@ -36,6 +36,7 @@
 
 ### 2026-05-26 (UI Design Fidelity Review)
 
+- **Done (T-345 BE Notifications bulk endpoints):** `PATCH /notifications/bulk-read` + `DELETE /notifications/all` — 2 service methods + 2 controller routes + `BulkMarkReadDto`. FE: 2 service functions + 2 mutation hooks (`useBulkMarkRead` + `useDeleteAllNotifications`). OpenAPI regenerated + FE types synced. 6 new e2e cases, 209/209 BE e2e pass. Unblocks T-352.
 - **🎯 M11.9 COMPLETE (18/18 tasks T-360→T-377 DONE):** Design-file phase 2 polish closed early (target 2026-06-26, achieved 2026-05-26). Token foundation (T-360/361/362), shared component extracts (T-363/364/365/366), Create Post editor stack (T-367/368/369), page rewrites (T-370 Login, T-371 Admin, T-372 Manage Posts greenfield, T-373 Tags, T-374 Profile + T-375 PostMiniCard + T-376 EditProfileDrawer, T-377 ImageCarousel). FE test suite 384/384 pass. Tổng tiến độ 68% → 74% (14/19).
 - **Done (docs-only):** UI Design Fidelity Review across **8 implemented screens** (Login / Feed / Post Detail / Profile / Search / Tags / Admin / Create Post). Playwright Chromium 1440×900 render both sides: design HTML prototypes (via local HTTP server :8765 — bypass CORS for external `.jsx`) and FE actual at `:5173` (admin login for `/admin` + `/admin/create`). 16 screenshots saved `/tmp/ui-review-all/<slug>/{design,fe}.png`.
 - **Findings:**

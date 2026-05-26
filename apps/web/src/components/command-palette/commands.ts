@@ -10,34 +10,12 @@ export type Command = {
   keys?: string[];
 };
 
+// T-365 — 8-command palette per DESIGN_SYSTEM L237 + design-file v2 spec.
+// navigate (5): Feed ⌘1 / Saved ⌘2 / Create Post ⌘N / Admin ⌘3 / Tags ⌘4
+// actions (2): Toggle theme ⌘T / Logout ⌘Q
+// recent: placeholder (no usage tracking yet — render `// no recent activity` row)
 export const COMMANDS: Command[] = [
-  {
-    id: 'r-feed',
-    group: 'recent',
-    icon: '📡',
-    label: 'Go to feed',
-    desc: '~/feed',
-    to: '/',
-    keys: ['⌘', 'G'],
-  },
-  {
-    id: 'r-search',
-    group: 'recent',
-    icon: '🔍',
-    label: 'Search posts',
-    desc: '~/search',
-    to: '/search',
-    keys: ['/'],
-  },
-  {
-    id: 'r-create',
-    group: 'recent',
-    icon: '✏️',
-    label: 'Create new post',
-    desc: '~/admin/create',
-    to: '/admin/create',
-    keys: ['⌘', 'N'],
-  },
+  // navigate group
   {
     id: 'n-feed',
     group: 'navigate',
@@ -57,28 +35,13 @@ export const COMMANDS: Command[] = [
     keys: ['⌘', '2'],
   },
   {
-    id: 'n-tags',
+    id: 'n-create',
     group: 'navigate',
-    icon: '🏷',
-    label: '~/tags',
-    desc: 'Browse tags',
-    to: '/tags',
-  },
-  {
-    id: 'n-profile',
-    group: 'navigate',
-    icon: '👤',
-    label: '~/profile',
-    desc: 'Your profile',
-    to: '/me',
-  },
-  {
-    id: 'n-search',
-    group: 'navigate',
-    icon: '⌕',
-    label: '~/search',
-    desc: 'Full-text search',
-    to: '/search',
+    icon: '✏️',
+    label: 'Create Post',
+    desc: '~/admin/create',
+    to: '/admin/create',
+    keys: ['⌘', 'N'],
   },
   {
     id: 'n-admin',
@@ -89,7 +52,24 @@ export const COMMANDS: Command[] = [
     to: '/admin',
     keys: ['⌘', '3'],
   },
-  { id: 'a-theme', group: 'actions', icon: '🌙', label: 'Toggle theme', to: '/', keys: ['⌘', 'T'] },
+  {
+    id: 'n-tags',
+    group: 'navigate',
+    icon: '🏷',
+    label: '~/tags',
+    desc: 'Browse tags',
+    to: '/tags',
+    keys: ['⌘', '4'],
+  },
+  // actions group
+  {
+    id: 'a-theme',
+    group: 'actions',
+    icon: '🌙',
+    label: 'Toggle theme',
+    to: '/',
+    keys: ['⌘', 'T'],
+  },
   {
     id: 'a-logout',
     group: 'actions',
@@ -108,8 +88,14 @@ export function filterCommands(query: string): Command[] {
   );
 }
 
-export function groupCommands(cmds: Command[]): { group: CommandGroup; items: Command[] }[] {
-  const groups: CommandGroup[] = [];
-  for (const c of cmds) if (!groups.includes(c.group)) groups.push(c.group);
-  return groups.map((group) => ({ group, items: cmds.filter((c) => c.group === group) }));
+// Preserve display order: recent → navigate → actions. Recent group always rendered
+// (placeholder shown when items empty + no query filter). Other groups hidden when empty.
+export function groupCommands(
+  cmds: Command[],
+  hasQuery: boolean = false,
+): { group: CommandGroup; items: Command[] }[] {
+  const order: CommandGroup[] = ['recent', 'navigate', 'actions'];
+  return order
+    .map((group) => ({ group, items: cmds.filter((c) => c.group === group) }))
+    .filter((g) => g.items.length > 0 || (g.group === 'recent' && !hasQuery));
 }

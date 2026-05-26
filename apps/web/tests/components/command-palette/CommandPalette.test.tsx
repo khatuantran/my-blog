@@ -31,11 +31,13 @@ describe('CommandPalette', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('render dialog với input + groups khi open=true', () => {
+  it('render dialog với input + 3 group sections khi open=true (T-365: recent placeholder + navigate + actions)', () => {
     renderCP();
     expect(screen.getByRole('dialog', { name: /command palette/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/type a command/i)).toBeInTheDocument();
     expect(screen.getByText('// recent')).toBeInTheDocument();
+    // T-365: recent group renders with placeholder row since no tracking yet.
+    expect(screen.getByTestId('command-palette-recent-empty')).toBeInTheDocument();
     expect(screen.getByText('// navigate')).toBeInTheDocument();
     expect(screen.getByText('// actions')).toBeInTheDocument();
   });
@@ -70,10 +72,11 @@ describe('CommandPalette', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('Enter key → navigate to selected command + onClose', () => {
+  it('Enter key → navigate to selected command + onClose (T-365: first nav item ~/feed)', () => {
+    // T-365 test-stale-assumption: recent group is placeholder now, so selected[0] = first navigate item (Feed).
     const { onClose } = renderCP();
     fireEvent.keyDown(window, { key: 'Enter' });
-    expect(navigateMock).toHaveBeenCalledWith('/'); // first command "Go to feed" → /
+    expect(navigateMock).toHaveBeenCalledWith('/'); // first selectable command "~/feed" → /
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -85,10 +88,11 @@ describe('CommandPalette', () => {
     expect(options[1]).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('click item navigates + closes', async () => {
+  it('click item navigates + closes (T-365: Create Post moved to navigate group)', async () => {
+    // T-365 test-stale-assumption: Create Post entry moved from recent group → navigate group.
     const user = userEvent.setup();
     const { onClose } = renderCP();
-    await user.click(screen.getByText('Create new post'));
+    await user.click(screen.getByText('Create Post'));
     expect(navigateMock).toHaveBeenCalledWith('/admin/create');
     expect(onClose).toHaveBeenCalled();
   });
@@ -107,17 +111,15 @@ describe('CommandPalette', () => {
     expect(navigateMock).toHaveBeenCalledWith('/tags');
   });
 
-  it('Profile nav entry routes /me (T-234)', async () => {
-    const user = userEvent.setup();
+  // T-365 test-stale-assumption: Profile + Search entries removed from palette per design v2 spec.
+  // Profile still accessible via AvatarMenu, Search via TopBar input.
+  it('T-365: navigate group contains 5 entries (Feed/Saved/Create Post/Admin/Tags) — no Profile/Search', () => {
     renderCP();
-    await user.click(screen.getByText('~/profile'));
-    expect(navigateMock).toHaveBeenCalledWith('/me');
-  });
-
-  it('Search recent entry fix routes /search (T-234)', async () => {
-    const user = userEvent.setup();
-    renderCP();
-    await user.click(screen.getByText('Search posts'));
-    expect(navigateMock).toHaveBeenCalledWith('/search');
+    // 5 nav items + 2 action items = 7 selectable options (recent placeholder is not role=option).
+    const options = screen.getAllByRole('option');
+    expect(options.length).toBe(7);
+    expect(screen.queryByText('~/profile')).toBeNull();
+    // Note: "Search posts" was the old recent-group label. Confirm not present in any new commands.
+    expect(screen.queryByText('Search posts')).toBeNull();
   });
 });

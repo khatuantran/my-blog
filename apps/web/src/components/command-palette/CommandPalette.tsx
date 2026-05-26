@@ -15,7 +15,7 @@ export function CommandPalette({ open, onClose }: Props) {
   const navigate = useNavigate();
 
   const filtered: Command[] = useMemo(() => filterCommands(query), [query]);
-  const groups = useMemo(() => groupCommands(filtered), [filtered]);
+  const groups = useMemo(() => groupCommands(filtered, query.length > 0), [filtered, query]);
 
   // Reset state mỗi lần open
   useEffect(() => {
@@ -72,7 +72,7 @@ export function CommandPalette({ open, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
-      className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200] flex items-start justify-center pt-[100px] animate-fade-up"
+      className="fixed inset-0 bg-black/70 backdrop-blur-md z-dropdown flex items-start justify-center pt-[100px] animate-fade-up-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -107,9 +107,17 @@ export function CommandPalette({ open, onClose }: Props) {
         <div className="max-h-[340px] overflow-y-auto">
           {groups.map(({ group, items }) => (
             <div key={group}>
-              <div className="font-mono text-mono-sm text-tm px-4 pt-2.5 pb-1 tracking-[0.05em]">
+              <div className="font-mono text-mono-sm text-tm px-4 pt-2.5 pb-1 tracking-wide-1">
                 // {group}
               </div>
+              {group === 'recent' && items.length === 0 && (
+                <div
+                  className="px-4 py-2 font-mono text-mono-sm text-td italic"
+                  data-testid="command-palette-recent-empty"
+                >
+                  // no recent activity yet
+                </div>
+              )}
               {items.map((cmd) => {
                 runningIdx += 1;
                 const isSel = runningIdx === selected;

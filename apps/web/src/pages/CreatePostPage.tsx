@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MoodPicker } from '@/components/create-post/MoodPicker';
-import { RichTextEditor } from '@/components/create-post/RichTextEditor';
+import { RichTextEditor, type RichTextEditorHandle } from '@/components/create-post/RichTextEditor';
+import { LinkInsertModal } from '@/components/create-post/LinkInsertModal';
 import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
 import { TagPickerDropdown, type TagDraft } from '@/components/create-post/TagPickerDropdown';
 import { PostPreview } from '@/components/create-post/PostPreview';
@@ -20,6 +21,9 @@ export default function CreatePostPage() {
   const [images, setImages] = useState<UploadEntry[]>([]);
   const [files, setFiles] = useState<UploadEntry[]>([]);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkInitialText, setLinkInitialText] = useState('');
+  const editorRef = useRef<RichTextEditorHandle>(null);
   const m = useCreatePost();
 
   const trimmed = content.trim();
@@ -132,7 +136,15 @@ export default function CreatePostPage() {
 
           <section>
             <div className="sb-lbl">// content</div>
-            <RichTextEditor value={content} onChange={setContent} />
+            <RichTextEditor
+              ref={editorRef}
+              value={content}
+              onChange={setContent}
+              onRequestLink={(selectedText) => {
+                setLinkInitialText(selectedText);
+                setShowLinkModal(true);
+              }}
+            />
           </section>
 
           <section>
@@ -181,6 +193,12 @@ export default function CreatePostPage() {
           <div className="mt-2 font-mono text-mono-sm text-td">// preview updates real-time</div>
         </aside>
       </div>
+      <LinkInsertModal
+        open={showLinkModal}
+        initialText={linkInitialText}
+        onApply={(url, label) => editorRef.current?.applyLink(url, label)}
+        onClose={() => setShowLinkModal(false)}
+      />
     </div>
   );
 }

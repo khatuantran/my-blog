@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RichTextEditor } from '@/components/create-post/RichTextEditor';
 
-function Wrapper(props: { initial?: string; onRequestLink?: () => void }) {
+function Wrapper(props: { initial?: string; onRequestLink?: (selectedText: string) => void }) {
   const [value, setValue] = useState(props.initial ?? '');
   return <RichTextEditor value={value} onChange={setValue} onRequestLink={props.onRequestLink} />;
 }

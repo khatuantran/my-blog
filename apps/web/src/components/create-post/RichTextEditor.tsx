@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+
+export interface RichTextEditorHandle {
+  applyLink: (url: string, label: string) => void;
+}
 
 type Props = {
   value: string; // HTML string
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
-  /** Optional callback for 🔗 button (T-369 LinkInsertModal will wire this). */
-  onRequestLink?: () => void;
+  /** T-369: callback invoked when 🔗 clicked; receives selected text (may be empty). */
+  onRequestLink?: (selectedText: string) => void;
 };
 
 type TextColor = { color: string; label: string };
@@ -34,16 +38,14 @@ const HIGHLIGHT_COLORS: HighlightColor[] = [
   { color: '#7DCFFF40', label: 'blue', preview: '#7DCFFF' },
 ];
 
-// RichTextEditor (T-368) — contentEditable rich-text editor per design-file v2 spec.
+// RichTextEditor (T-368/T-369) — contentEditable rich-text editor per design-file v2 spec.
 // Renders 11-button toolbar + 2 inline color popovers + keyboard shortcuts.
+// Exposes RichTextEditorHandle.applyLink for LinkInsertModal integration (T-369).
 // Output: HTML string (admin-only content creation — no sanitization needed yet).
-export function RichTextEditor({
-  value,
-  onChange,
-  placeholder = '~$ start writing...',
-  minHeight = 280,
-  onRequestLink,
-}: Props) {
+export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function RichTextEditor(
+  { value, onChange, placeholder = '~$ start writing...', minHeight = 280, onRequestLink },
+  ref,
+) {
   const editorRef = useRef<HTMLDivElement>(null);
   const savedSelectionRef = useRef<Range | null>(null);
   const [showColor, setShowColor] = useState(false);
@@ -66,7 +68,7 @@ export function RichTextEditor({
     }
   }, [value]);
 
-  // Range API patterns — exposed for internal use + future programmatic insert hooks.
+  // Range API patterns — exposed for internal use + programmatic insert hooks.
   function exec(cmd: string, val?: string) {
     editorRef.current?.focus();
     document.execCommand(cmd, false, val);
@@ -97,9 +99,10 @@ export function RichTextEditor({
   function handleLinkClick() {
     saveSelection();
     if (onRequestLink) {
-      onRequestLink();
+      const sel = window.getSelection();
+      onRequestLink(sel?.toString() ?? '');
     } else {
-      // T-369 will provide LinkInsertModal. Fallback for standalone use: window.prompt.
+      // Fallback for standalone use (T-369 wires LinkInsertModal via onRequestLink).
       const url = window.prompt('Enter URL', 'https://');
       if (!url) return;
       restoreSelection();
@@ -125,11 +128,39 @@ export function RichTextEditor({
     setShowHighlight(false);
   }
 
+  // Stable-ref pattern: keep latest handlers in a ref so the keydown listener installs
+  // once (no churn on every render) yet always calls fresh closures.
+  const handlersRef = useRef({
+    exec,
+    handleLinkClick,
+    applyLink: (_url: string, _label: string) => {},
+  });
+  handlersRef.current = {
+    exec,
+    handleLinkClick,
+    applyLink(url: string, label: string) {
+      restoreSelection();
+      const sel = window.getSelection();
+      const hasSel = sel && sel.toString().length > 0;
+      if (hasSel) {
+        exec('createLink', url);
+      } else {
+        insertHTML(`<a href="${url}">${label || url}</a>`);
+      }
+    },
+  };
+
+  // Expose applyLink for LinkInsertModal (T-369) — deps [] is intentional; the actual
+  // implementation always delegates to handlersRef.current which is always fresh.
+  useImperativeHandle(
+    ref,
+    () => ({
+      applyLink: (url: string, label: string) => handlersRef.current.applyLink(url, label),
+    }),
+    [],
+  );
+
   // Keyboard shortcuts — only fire when editor has focus.
-  // Stable-ref pattern: keep latest exec + handleLinkClick in a ref so the keydown
-  // listener installs once (no churn on every render) yet always calls fresh handlers.
-  const handlersRef = useRef({ exec, handleLinkClick });
-  handlersRef.current = { exec, handleLinkClick };
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const editor = editorRef.current;
@@ -272,7 +303,7 @@ export function RichTextEditor({
       </div>
     </div>
   );
-}
+});
 
 type ToolbarBtnProps = {
   label: string;

@@ -62,19 +62,30 @@ describe('PostCard', () => {
     });
   });
 
-  it('click save → toggle saved state', async () => {
-    const user = userEvent.setup();
+  it('regression T-354: SaveButton REMOVED từ action row (moved to PostActionMenu)', () => {
     const post = makePost({ id: 'p1', saved: false });
     render(
       <TestProviders>
         <PostCard post={post} />
       </TestProviders>,
     );
-    const saveBtn = screen.getByRole('button', { name: /save post/i });
-    await user.click(saveBtn);
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /unsave post/i })).toBeInTheDocument();
-    });
+    // SaveButton standalone đã được move sang PostActionMenu (T-354 refactor)
+    expect(screen.queryByRole('button', { name: /save post/i })).not.toBeInTheDocument();
+    // ⋯ More actions trigger present (opens PostActionMenu containing Save)
+    expect(screen.getByTestId('post-action-trigger-p1')).toBeInTheDocument();
+  });
+
+  it('regression T-354: ⋯ button toggles PostActionMenu', async () => {
+    const user = userEvent.setup();
+    const post = makePost({ id: 'p1' });
+    render(
+      <TestProviders>
+        <PostCard post={post} />
+      </TestProviders>,
+    );
+    expect(screen.queryByTestId('post-action-menu-p1')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('post-action-trigger-p1'));
+    expect(screen.getByTestId('post-action-menu-p1')).toBeInTheDocument();
   });
 
   it('regression FR-04.7: comment button opens CommentsModal (NOT navigate to /post/:id)', async () => {

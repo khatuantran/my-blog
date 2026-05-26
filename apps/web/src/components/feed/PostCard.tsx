@@ -5,8 +5,8 @@ import { ImageGrid } from '@/components/post/ImageGrid';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from './ReactionButton';
-import { SaveButton } from './SaveButton';
 import { CommentsModal } from './CommentsModal';
+import { PostActionMenu } from './PostActionMenu';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
 // Container hover: cyan border + glow + top gradient line.
 export function PostCard({ post, delay = 0 }: Props) {
   const [showComments, setShowComments] = useState(false);
+  const [showActionMenu, setShowActionMenu] = useState(false);
 
   return (
     <article
@@ -79,7 +80,6 @@ export function PostCard({ post, delay = 0 }: Props) {
           <span className="text-sm">💬</span>
           <span>{post.counts.comments}</span>
         </button>
-        <SaveButton postId={post.id} saved={!!post.saved} />
         <button
           type="button"
           aria-label="Share post (placeholder)"
@@ -88,14 +88,20 @@ export function PostCard({ post, delay = 0 }: Props) {
           <span>↗</span>
           <span>Share</span>
         </button>
-        <div className="ml-auto">
+        <div className="relative ml-auto">
           <button
             type="button"
+            onClick={() => setShowActionMenu((v) => !v)}
             aria-label="More actions"
+            aria-expanded={showActionMenu}
+            data-testid={`post-action-trigger-${post.id}`}
             className="rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer hover:bg-elev hover:text-tp"
           >
             ⋯
           </button>
+          {showActionMenu && (
+            <PostActionMenu post={post} onClose={() => setShowActionMenu(false)} />
+          )}
         </div>
       </div>
 

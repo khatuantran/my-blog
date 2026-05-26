@@ -2,6 +2,7 @@ type Tab<T extends string> = {
   value: T;
   label: string;
   hidden?: boolean;
+  count?: number;
 };
 
 type Props<T extends string> = {
@@ -29,6 +30,11 @@ export function TabButtons<T extends string>({ value, tabs, onChange }: Props<T>
               }`}
             >
               {t.label}
+              {t.count !== undefined && (
+                <span className="ml-1.5 rounded-sm bg-b2 px-1 py-0.5 font-mono text-[10px] text-tm">
+                  {t.count}
+                </span>
+              )}
             </button>
           );
         })}

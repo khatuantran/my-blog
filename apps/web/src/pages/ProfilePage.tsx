@@ -11,7 +11,7 @@ import { HeatmapGrid } from '@/components/shared/HeatmapGrid';
 import { TabButtons } from '@/components/shared/TabButtons';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { ProfileActivityList } from '@/components/profile/ProfileActivityList';
-import { PostCard } from '@/components/feed/PostCard';
+import { PostMiniCard } from '@/components/profile/PostMiniCard';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { TagPill } from '@/components/shared/TagPill';
 import { MOOD_KEYS } from '@/lib/mood-config';
@@ -41,6 +41,12 @@ export default function ProfilePage() {
   function closeEditor() {
     const next = new URLSearchParams(params);
     next.delete('edit');
+    setParams(next, { replace: true });
+  }
+
+  function openEditor() {
+    const next = new URLSearchParams(params);
+    next.set('edit', '1');
     setParams(next, { replace: true });
   }
 
@@ -84,52 +90,94 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-6">
-      {/* Hero */}
-      <section className="mb-5 flex items-start gap-5 rounded-md border border-b2 bg-surf p-5">
-        <ProfileAvatar username={user.username} avatarUrl={user.avatarUrl} size={88} />
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-mono-lg text-blu">~/{user.username}</span>
-            <span
-              className={`inline-flex items-center rounded-sm border font-mono text-mono-sm leading-none ${
-                user.role === 'ADMIN'
-                  ? 'border-ora/50 bg-ora/[0.06] text-ora'
-                  : user.role === 'BANNED'
-                    ? 'border-red/50 bg-red/[0.06] text-red'
-                    : 'border-b2 text-tm'
-              }`}
-              style={{ padding: '1px 6px' }}
-            >
-              [ {user.role} ]
-            </span>
-          </div>
-          {user.title && <div className="mt-1 text-sm text-ts">{user.title}</div>}
-          {user.bio && <div className="mt-2 line-clamp-3 text-sm text-tm">{user.bio}</div>}
-          <div className="mt-3 flex flex-wrap gap-3 font-mono text-mono-sm text-tm">
-            <span>
-              <span className="text-cyan">{formatStat(stats?.postsCount ?? 0)}</span> posts
-            </span>
-            <span>
-              <span className="text-mag">{formatStat(stats?.likesReceived ?? 0)}</span> likes
-            </span>
-            <span>
-              <span className="text-grn">{formatStat(stats?.viewsTotal ?? 0)}</span> views
-            </span>
-            {(stats?.streak ?? 0) > 0 && (
-              <span>
-                🔥 <span className="text-ora">{stats?.streak}</span>-day streak
-              </span>
-            )}
-          </div>
+      {/* Hero banner */}
+      <section
+        className="relative mb-5 overflow-hidden rounded-lg border border-b2 p-6"
+        style={{ background: 'linear-gradient(180deg, #0F1525, #0A0E1A)' }}
+        data-testid="profile-hero"
+      >
+        {/* Hex deco corner */}
+        <div
+          aria-hidden
+          className="absolute right-4 top-3 select-none text-right font-mono text-[11px] leading-snug text-b2"
+        >
+          <div>01001101</div>
+          <div>uid:{user.id.slice(0, 8)}</div>
+          <div>pid:{user.id.slice(-4)}</div>
         </div>
-        {isSelf && (
-          <Link
-            to="?edit=1"
-            className="rounded-sm border border-cyan/40 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20"
-          >
-            ✎ Edit Profile
-          </Link>
-        )}
+
+        <div className="flex items-start gap-5">
+          <ProfileAvatar username={user.username} avatarUrl={user.avatarUrl} size={88} />
+
+          <div className="min-w-0 flex-1">
+            {/* Name row */}
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <span
+                className="font-brand text-[26px] font-bold text-tp animate-glitch"
+                data-testid="profile-username"
+              >
+                ~/{user.username}
+              </span>
+              <span
+                className={`inline-flex items-center rounded-sm border font-mono text-mono-sm leading-none ${
+                  user.role === 'ADMIN'
+                    ? 'border-ora/50 bg-ora/[0.06] text-ora'
+                    : user.role === 'BANNED'
+                      ? 'border-red/50 bg-red/[0.06] text-red'
+                      : 'border-b2 text-tm'
+                }`}
+                style={{ padding: '1px 6px' }}
+              >
+                [ {user.role} ]
+              </span>
+            </div>
+
+            {/* Handle */}
+            <div className="mb-1 font-mono text-[14px] text-cyan">@{user.username}</div>
+
+            {user.title && <div className="mb-1 text-sm text-ts">{user.title}</div>}
+            {user.bio && <div className="mb-2 line-clamp-3 text-sm text-tm">{user.bio}</div>}
+
+            {/* Meta stats row */}
+            <div className="flex flex-wrap gap-3 font-mono text-mono-sm text-tm">
+              <span>
+                <span className="text-cyan">{formatStat(stats?.postsCount ?? 0)}</span> posts
+              </span>
+              <span>
+                <span className="text-mag">{formatStat(stats?.likesReceived ?? 0)}</span> likes
+              </span>
+              <span>
+                <span className="text-grn">{formatStat(stats?.viewsTotal ?? 0)}</span> views
+              </span>
+              {(stats?.streak ?? 0) > 0 && (
+                <span>
+                  🔥 <span className="text-ora">{stats?.streak}</span>-day streak
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons (self only) */}
+          {isSelf && (
+            <div className="flex shrink-0 flex-col gap-2">
+              <Link
+                to="/admin/create"
+                className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20"
+                aria-label="New Post"
+              >
+                ✏️ New Post
+              </Link>
+              <button
+                type="button"
+                onClick={openEditor}
+                aria-label="Edit Profile"
+                className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
+              >
+                ⚙️ Settings
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Layout: main + sidebar */}
@@ -138,7 +186,7 @@ export default function ProfilePage() {
           <TabButtons<Tab>
             value={tab}
             tabs={[
-              { value: 'posts', label: 'Posts' },
+              { value: 'posts', label: 'Posts', count: stats?.postsCount },
               { value: 'saved', label: 'Saved', hidden: !canViewSaved },
               { value: 'activity', label: 'Activity', hidden: !canViewSaved },
               { value: 'about', label: 'About' },
@@ -150,8 +198,16 @@ export default function ProfilePage() {
             {tab === 'posts' && <PostsTab userId={user.id} />}
             {tab === 'saved' && canViewSaved && <SavedTab />}
             {tab === 'activity' && canViewSaved && (
-              <div className="rounded-md border border-b2 bg-surf p-4">
-                <ProfileActivityList userId={user.id} />
+              <div className="space-y-4">
+                {stats && (
+                  <div className="rounded-md border border-b2 bg-surf p-4">
+                    <div className="mb-2 font-mono text-mono-sm text-tm">// activity.28d</div>
+                    <HeatmapGrid cells={stats.heatmap28d} />
+                  </div>
+                )}
+                <div className="rounded-md border border-b2 bg-surf p-4">
+                  <ProfileActivityList userId={user.id} />
+                </div>
               </div>
             )}
             {tab === 'about' && (
@@ -182,17 +238,7 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </Block>
-                <Block title="// tags.used">
-                  {(stats?.tagsUsed.length ?? 0) === 0 ? (
-                    <div className="font-mono text-mono-sm text-td">// no tags yet</div>
-                  ) : (
-                    <div className="flex flex-wrap gap-1.5">
-                      {stats!.tagsUsed.map((t) => (
-                        <TagPill key={t.name} name={t.name} color={t.color} />
-                      ))}
-                    </div>
-                  )}
-                </Block>
+                {stats && <InfoGrid stats={stats} joinedAt={user.createdAt} />}
               </div>
             )}
           </div>
@@ -272,6 +318,45 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
+function InfoGrid({
+  stats,
+  joinedAt,
+}: {
+  stats: NonNullable<ReturnType<typeof useUserStats>['data']>;
+  joinedAt: string;
+}) {
+  const joined = new Date(joinedAt).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
+  const topMood = Object.entries(stats.moodBreakdown).sort(([, a], [, b]) => b - a)[0];
+  const topTag = stats.tagsUsed[0];
+
+  const rows: [string, string][] = [
+    ['joined', joined],
+    ['posts', String(stats.postsCount)],
+    ['likes received', String(stats.likesReceived)],
+    ['comments', String(stats.commentsReceived)],
+    ['views', String(stats.viewsTotal)],
+    ['streak', `${stats.streak}d`],
+    ['top mood', topMood ? topMood[0].toLowerCase() : '—'],
+    ['top tag', topTag ? topTag.name : '—'],
+  ];
+
+  return (
+    <Block title="// info">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-baseline gap-1">
+            <dt className="font-mono text-[11px] text-td">{k}:</dt>
+            <dd className="font-mono text-[12px] text-ts">{v}</dd>
+          </div>
+        ))}
+      </dl>
+    </Block>
+  );
+}
+
 function PostsTab({ userId }: { userId: string }) {
   const { data, isLoading } = usePostsInfinite({});
   if (isLoading) {
@@ -283,11 +368,11 @@ function PostsTab({ userId }: { userId: string }) {
     return <div className="py-12 text-center font-mono text-mono-sm text-tm">// no posts yet</div>;
   }
   return (
-    <>
-      {posts.map((p, i) => (
-        <PostCard key={p.id} post={p} delay={i * 40} />
+    <div className="space-y-3">
+      {posts.map((p) => (
+        <PostMiniCard key={p.id} post={p} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -303,10 +388,10 @@ function SavedTab() {
       <div className="py-12 text-center font-mono text-mono-sm text-tm">// no saved posts</div>
     );
   return (
-    <>
-      {data.items.map((p, i) => (
-        <PostCard key={p.id} post={p} delay={i * 40} />
+    <div className="space-y-3">
+      {data.items.map((p) => (
+        <PostMiniCard key={p.id} post={p} />
       ))}
-    </>
+    </div>
   );
 }

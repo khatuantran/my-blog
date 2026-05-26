@@ -58,7 +58,7 @@ function statsResponse() {
   };
 }
 
-describe('ProfilePage (T-221, FR-11)', () => {
+describe('ProfilePage (T-221, T-374, FR-11)', () => {
   beforeEach(() => {
     useAuthStore.setState({
       user: {
@@ -82,27 +82,51 @@ describe('ProfilePage (T-221, FR-11)', () => {
 
   it('renders hero — username + title + bio + stats', async () => {
     wrap('/profile/alice');
-    await waitFor(() => expect(screen.getByText('~/alice')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    expect(screen.getByText(/\/alice/)).toBeInTheDocument();
     expect(screen.getByText('Full-stack Dev')).toBeInTheDocument();
     expect(screen.getByText('curious')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText('42')).toBeInTheDocument());
+    // stats appear in hero meta row; tab badge also shows postsCount → use getAllByText
+    await waitFor(() => expect(screen.getAllByText('42').length).toBeGreaterThan(0));
     expect(screen.getByText('287')).toBeInTheDocument();
     expect(screen.getByText('1.2k')).toBeInTheDocument();
     expect(screen.getByText(/day streak/i)).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
   });
 
-  it('non-self viewer → no "Edit Profile" button + Saved tab hidden', async () => {
+  it('T-374: hero has gradient background style', async () => {
     wrap('/profile/alice');
-    await waitFor(() => expect(screen.getByText('~/alice')).toBeInTheDocument());
-    expect(screen.queryByRole('link', { name: /edit profile/i })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('profile-hero')).toBeInTheDocument());
+    const hero = screen.getByTestId('profile-hero');
+    expect(hero.style.background).toContain('linear-gradient');
+  });
+
+  it('T-374: username has animate-glitch class', async () => {
+    wrap('/profile/alice');
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    expect(screen.getByTestId('profile-username')).toHaveClass('animate-glitch');
+  });
+
+  it('T-374: hex deco corner renders uid/pid fragments', async () => {
+    wrap('/profile/alice');
+    await waitFor(() => expect(screen.getByTestId('profile-hero')).toBeInTheDocument());
+    // uid fragment from user.id slice (0,8)
+    expect(screen.getByText(/uid:u-alice/i)).toBeInTheDocument();
+  });
+
+  it('non-self viewer → no action buttons + Saved tab hidden', async () => {
+    wrap('/profile/alice');
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    // test-stale-assumption: "Edit Profile" link replaced by ✏️ New Post + ⚙️ Settings buttons (self only)
+    expect(screen.queryByRole('link', { name: /new post/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /edit profile/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: 'Saved' })).not.toBeInTheDocument();
   });
 
-  it('self viewer → "Edit Profile" link + Saved tab visible', async () => {
+  it('T-374: self viewer → ✏️ New Post link + ⚙️ Settings button + Saved tab', async () => {
     useAuthStore.setState({
       user: {
-        id: 'u-alice', // matches profile user id
+        id: 'u-alice',
         username: 'alice',
         email: null,
         role: 'USER',
@@ -112,8 +136,9 @@ describe('ProfilePage (T-221, FR-11)', () => {
       status: 'authed',
     });
     wrap('/profile/alice');
-    await waitFor(() => expect(screen.getByText('~/alice')).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /edit profile/i })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    expect(screen.getByRole('link', { name: /new post/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /edit profile/i })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Saved' })).toBeInTheDocument();
   });
 
@@ -127,12 +152,77 @@ describe('ProfilePage (T-221, FR-11)', () => {
     await waitFor(() => expect(screen.getByText(/user @nope not found/i)).toBeInTheDocument());
   });
 
-  it('about tab → renders bio/skills/tags.used sections', async () => {
+  it('T-374: Posts tab renders PostMiniCard items (not PostCard)', async () => {
+    mswServer.use(
+      http.get(`${API}/posts`, () =>
+        HttpResponse.json({
+          items: [
+            {
+              id: 'p1',
+              content: 'Mini card content here',
+              mood: 'HAPPY',
+              viewCount: 0,
+              author: {
+                id: 'u-alice',
+                username: 'alice',
+                avatarUrl: null,
+                role: 'USER',
+                title: null,
+              },
+              tags: [],
+              images: [],
+              files: [],
+              counts: { reactions: 0, comments: 0 },
+              topReactions: [],
+              myReaction: null,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+          total: 1,
+          page: 1,
+          limit: 10,
+        }),
+      ),
+    );
+    wrap('/profile/alice');
+    await waitFor(() => expect(screen.getByText('Mini card content here')).toBeInTheDocument());
+    // PostMiniCard has "read →" link; PostCard does not
+    expect(screen.getByRole('link', { name: /read post p1/i })).toBeInTheDocument();
+  });
+
+  it('T-374: Activity tab shows HeatmapGrid', async () => {
+    useAuthStore.setState({
+      user: {
+        id: 'u-alice',
+        username: 'alice',
+        email: null,
+        role: 'USER',
+        avatarUrl: null,
+        createdAt: new Date().toISOString(),
+      },
+      status: 'authed',
+    });
+    mswServer.use(
+      http.get(`${API}/users/u-alice/activity`, () =>
+        HttpResponse.json({ data: { items: [], total: 0 } }),
+      ),
+    );
+    wrap('/profile/alice?tab=activity');
+    await waitFor(() => expect(screen.getByText('// activity.28d')).toBeInTheDocument());
+    // HeatmapGrid renders 28 cells as divs
+    const hero = screen.getByTestId('profile-hero');
+    expect(hero).toBeInTheDocument();
+  });
+
+  it('about tab → renders bio/skills/info grid sections', async () => {
     wrap('/profile/alice?tab=about');
-    await waitFor(() => expect(screen.getByText('~/alice')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
     expect(screen.getByText('// about.me')).toBeInTheDocument();
     expect(screen.getByText('// skills.stack')).toBeInTheDocument();
-    // TagPill cho 'code'
     await waitFor(() => expect(screen.getAllByText(/code/i).length).toBeGreaterThan(0));
+    // Info grid
+    await waitFor(() => expect(screen.getByText('// info')).toBeInTheDocument());
+    expect(screen.getByText('joined:')).toBeInTheDocument();
   });
 });

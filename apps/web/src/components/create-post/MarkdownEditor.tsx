@@ -65,7 +65,7 @@ export function MarkdownEditor({
 
   return (
     <div>
-      <div className="relative mb-2 flex flex-wrap items-center gap-1">
+      <div className="mb-2 flex flex-wrap items-center gap-1">
         {TOOLBAR.map((btn) => (
           <button
             key={btn.label}
@@ -86,8 +86,9 @@ export function MarkdownEditor({
         >
           😀
         </button>
-        <EmojiPicker open={showEmoji} onSelect={applyEmoji} onClose={() => setShowEmoji(false)} />
       </div>
+      {/* T-366: EmojiPicker now renders inline below toolbar (pushes textarea down). */}
+      <EmojiPicker open={showEmoji} onSelect={applyEmoji} onClose={() => setShowEmoji(false)} />
       <textarea
         ref={ref}
         value={value}

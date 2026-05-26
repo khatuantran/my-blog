@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 type Group = { label: string; emojis: string[] };
 
@@ -96,8 +96,10 @@ type Props = {
   onClose: () => void;
 };
 
+// EmojiPicker (T-366) — inline 4-group stack per DESIGN_SYSTEM L510 + design-file v2.
+// Replaces the previous tabbed popup. Renders below editor toolbar pushing content down
+// (NOT absolute positioned) so layout flows naturally without overlap concerns.
 export function EmojiPicker({ open, onSelect, onClose }: Props) {
-  const [activeGroup, setActiveGroup] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -105,15 +107,8 @@ export function EmojiPicker({ open, onSelect, onClose }: Props) {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose();
     }
-    function onClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-    }
     document.addEventListener('keydown', onKey);
-    document.addEventListener('mousedown', onClick);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('mousedown', onClick);
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -123,44 +118,49 @@ export function EmojiPicker({ open, onSelect, onClose }: Props) {
       ref={ref}
       role="dialog"
       aria-label="Emoji picker"
-      className="absolute z-30 mt-1 w-[320px] rounded-lg border border-b2 bg-surf p-2 shadow-xl"
+      data-testid="emoji-picker"
+      className="mt-2 rounded-lg border border-b2 bg-surf p-3"
     >
-      <div role="tablist" className="mb-2 flex gap-1 border-b border-b2">
-        {GROUPS.map((g, i) => (
-          <button
-            key={g.label}
-            role="tab"
-            type="button"
-            aria-selected={activeGroup === i}
-            onClick={() => setActiveGroup(i)}
-            className={`-mb-px border-b-2 px-3 py-1 font-mono text-mono-sm transition-colors ${
-              activeGroup === i
-                ? 'border-cyan text-cyan'
-                : 'border-transparent text-tm hover:text-ts'
-            }`}
-          >
-            {g.label}
-          </button>
-        ))}
+      <div className="mb-2 flex items-center justify-between">
+        <span className="font-mono text-mono-tiny uppercase tracking-wide-3 text-td">
+          // pick an emoji
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close emoji picker"
+          data-testid="emoji-picker-close"
+          className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-sm text-tm hover:text-tp"
+        >
+          ×
+        </button>
       </div>
-      <div
-        role="grid"
-        aria-label={`${GROUPS[activeGroup].label} emojis`}
-        className="grid grid-cols-8 gap-1"
-      >
-        {GROUPS[activeGroup].emojis.map((em) => (
-          <button
-            key={em}
-            type="button"
-            role="gridcell"
-            aria-label={`Insert ${em}`}
-            onClick={() => onSelect(em)}
-            className="flex h-8 w-8 items-center justify-center rounded-sm text-base hover:bg-cyan/10"
-          >
-            {em}
-          </button>
-        ))}
-      </div>
+
+      {GROUPS.map((group) => (
+        <section
+          key={group.label}
+          data-testid={`emoji-picker-group-${group.label}`}
+          className="mb-3 last:mb-0"
+        >
+          <div className="mb-1 font-mono text-mono-tiny uppercase tracking-wide-2 text-tm">
+            // {group.label}
+          </div>
+          <div role="grid" aria-label={`${group.label} emojis`} className="grid grid-cols-8 gap-1">
+            {group.emojis.map((em) => (
+              <button
+                key={em}
+                type="button"
+                role="gridcell"
+                aria-label={`Insert ${em}`}
+                onClick={() => onSelect(em)}
+                className="flex h-7 w-7 items-center justify-center rounded-sm text-base hover:bg-over"
+              >
+                {em}
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

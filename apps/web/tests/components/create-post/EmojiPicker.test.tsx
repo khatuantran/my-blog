@@ -2,33 +2,44 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { EmojiPicker } from '@/components/create-post/EmojiPicker';
 
-describe('EmojiPicker (T-240, FR-02.7)', () => {
+describe('EmojiPicker (T-366 inline refactor)', () => {
   it('open=false → null', () => {
     const { container } = render(<EmojiPicker open={false} onSelect={vi.fn()} onClose={vi.fn()} />);
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders 4 tab groups + active default faces', () => {
+  it('T-366: renders 4 groups simultaneously (faces/hands/dev/nature) — no tabs', () => {
+    // T-366 test-stale-assumption: was tabbed popup, now inline stack — all 4 groups visible at once.
     render(<EmojiPicker open onSelect={vi.fn()} onClose={vi.fn()} />);
-    const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(4);
-    expect(tabs.map((t) => t.textContent)).toEqual(['faces', 'hands', 'dev', 'nature']);
-    expect(screen.getByRole('tab', { name: 'faces' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.queryAllByRole('tab')).toHaveLength(0); // no tabs anymore
+    expect(screen.getByTestId('emoji-picker-group-faces')).toBeInTheDocument();
+    expect(screen.getByTestId('emoji-picker-group-hands')).toBeInTheDocument();
+    expect(screen.getByTestId('emoji-picker-group-dev')).toBeInTheDocument();
+    expect(screen.getByTestId('emoji-picker-group-nature')).toBeInTheDocument();
   });
 
-  it('switch tab → grid emoji updates', () => {
+  it('T-366: 16 emojis per group (64 total gridcells across 4 groups)', () => {
     render(<EmojiPicker open onSelect={vi.fn()} onClose={vi.fn()} />);
-    fireEvent.click(screen.getByRole('tab', { name: 'dev' }));
-    expect(screen.getByRole('grid', { name: /dev emojis/i })).toBeInTheDocument();
-    // dev tab contains 💻
-    expect(screen.getByLabelText('Insert 💻')).toBeInTheDocument();
+    expect(screen.getAllByRole('gridcell')).toHaveLength(64);
+    // Spot-check one emoji per group
+    expect(screen.getByLabelText('Insert 😊')).toBeInTheDocument(); // faces
+    expect(screen.getByLabelText('Insert 👋')).toBeInTheDocument(); // hands
+    expect(screen.getByLabelText('Insert 💻')).toBeInTheDocument(); // dev
+    expect(screen.getByLabelText('Insert ☕')).toBeInTheDocument(); // nature
   });
 
-  it('click emoji → onSelect fired', () => {
+  it('T-366: click emoji → onSelect fired with correct char', () => {
     const onSelect = vi.fn();
     render(<EmojiPicker open onSelect={onSelect} onClose={vi.fn()} />);
-    fireEvent.click(screen.getByLabelText('Insert 😊'));
-    expect(onSelect).toHaveBeenCalledWith('😊');
+    fireEvent.click(screen.getByLabelText('Insert 💻'));
+    expect(onSelect).toHaveBeenCalledWith('💻');
+  });
+
+  it('T-366: × close button fires onClose', () => {
+    const onClose = vi.fn();
+    render(<EmojiPicker open onSelect={vi.fn()} onClose={onClose} />);
+    fireEvent.click(screen.getByTestId('emoji-picker-close'));
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('Esc key → onClose', () => {
@@ -36,23 +47,5 @@ describe('EmojiPicker (T-240, FR-02.7)', () => {
     render(<EmojiPicker open onSelect={vi.fn()} onClose={onClose} />);
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalled();
-  });
-
-  it('outside click → onClose', () => {
-    const onClose = vi.fn();
-    render(
-      <div>
-        <button data-testid="outside">outside</button>
-        <EmojiPicker open onSelect={vi.fn()} onClose={onClose} />
-      </div>,
-    );
-    fireEvent.mouseDown(screen.getByTestId('outside'));
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('each tab có 16 emoji', () => {
-    render(<EmojiPicker open onSelect={vi.fn()} onClose={vi.fn()} />);
-    // faces tab default
-    expect(screen.getAllByRole('gridcell')).toHaveLength(16);
   });
 });

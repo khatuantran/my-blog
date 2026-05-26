@@ -4,7 +4,7 @@ import { PostContent } from '@/components/post/PostContent';
 import { TagPill } from '@/components/shared/TagPill';
 import { ImgSlot } from '@/components/post/ImgSlot';
 import type { Mood } from '@/lib/mood-config';
-import type { TagDraft } from './TagInput';
+import type { TagDraft } from './TagPickerDropdown';
 
 type Props = {
   mood: Mood;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { MoodPicker } from '@/components/create-post/MoodPicker';
 import { MarkdownEditor } from '@/components/create-post/MarkdownEditor';
 import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
-import { TagInput, type TagDraft } from '@/components/create-post/TagInput';
+import { TagPickerDropdown, type TagDraft } from '@/components/create-post/TagPickerDropdown';
 import { PostPreview } from '@/components/create-post/PostPreview';
 import { useCreatePost } from '@/hooks/mutations/use-create-post';
 import { deriveFileType } from '@/lib/file-config';
@@ -167,7 +167,7 @@ export default function CreatePostPage() {
 
           <section>
             <div className="sb-lbl">// tags</div>
-            <TagInput value={tags} onChange={setTags} />
+            <TagPickerDropdown value={tags} onChange={setTags} />
           </section>
         </div>
 

@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Notes
+
+- **UI Design Fidelity Review — 8 implemented screens** (2026-05-26, Docs): Compare `design-file/MyBlog *.html` prototypes vs FE actual `http://localhost:5173` via Playwright Chromium @ 1440×900. 16 screenshots saved `/tmp/ui-review-all/<slug>/{design,fe}.png`. Result: ✅ Search match · ⚠️ 6 minor drift (Login/Feed/Post Detail/Profile/Tags/Create Post — covered by existing M11.9 tasks T-370/371/373/374/368/347) · ❌ Admin broken (NEW BUG-006 Critical P0 → T-380 fix task TODO). Read-only audit — no code changes.
+
 ### Added
 
 - **T-355 FE ImageLightbox component (M11.9 design polish)** (2026-05-25, FE): NEW `apps/web/src/components/feed/ImageLightbox.tsx` — full-screen image viewer portal via `createPortal(document.body)`. Header (path + counter `N/M` + close ×) + image area (max-h 70vh, max-w 960px, object-contain) + thumbnail strip (chỉ render khi `images.length > 1`) + footer hint. Nav arrows 44px round backdrop-blur (chỉ multi-image). Keyboard: Esc close, ← prev (wrap), → next (wrap). Body scroll lock + animate-fade-up-xs (T-361 token). `ImageGrid` refactor: thêm `onImageClick?: (idx: number) => void` prop + button wrapper around ImageCell khi callback provided. PostCard wire: `setLightboxIdx` state + conditional `<ImageLightbox>` render. Tests: 5 cases (open render+counter+close button + keyboard nav wrap-around + Esc close + thumbnail strip click jump + single image skip strip/arrows). 340/340 FE pass.

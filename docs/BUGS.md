@@ -7,7 +7,31 @@
 
 ## Open
 
-_(Trống)_
+### [BUG-006] [Critical] [FE] AdminPage `/admin` crash — TypeError `Cannot read properties of undefined (reading 'total')`
+
+- **Status:** OPEN
+- **Reporter:** khatran (UI Design Fidelity Review) — **Date:** 2026-05-26
+- **Environment:** local (postgres-main :5434 + API :3000 + FE :5173) / Chromium Playwright 1440×900 / Layer: FE
+- **Related task:** T-380 (TODO, P0 F3)
+- **Related FR/component:** FR-07 admin dashboard / `apps/web/src/pages/AdminPage.tsx` L62-83 + `apps/web/src/hooks/queries/use-admin-stats.ts` + `apps/web/src/services/api/admin.ts` (`AdminStatsResponse`)
+- **Screenshot:** `/tmp/ui-review-all/admin/fe.png` (FE crash) vs `/tmp/ui-review-all/admin/design.png` (design reference)
+- **Mô tả:** Khi navigate `/admin` (login admin OK, ProtectedRoute pass) page render crash với uncaught TypeError. 4 StatCards (POSTS/LIKES/COMMENTS/VIEWS) destructure `stats.posts.total`, `stats.likes.total`, `stats.comments.total`, `stats.views.total`. Loading guard `statsQ.isLoading` + `stats ? (...)` đã có, nhưng khi `statsQ.data` truthy với shape mismatch → `stats.posts` undefined → `.total` throws. Toàn page Admin blocking, không thể access dashboard/users table/moderation queue.
+- **Steps to reproduce:**
+  1. Login `admin`/`admin-password` qua `/auth/login`.
+  2. Navigate `/admin`.
+  3. Page render crash; React error boundary catch (hoặc whitescreen tùy build).
+- **Expected:** Page render SubBar + 4 StatCards + 2-col + UsersTable + ModerationQueue như `design-file/MyBlog Admin.html`.
+- **Actual:** TypeError `Cannot read properties of undefined (reading 'total')` tại `AdminPage.tsx:62` (`stats.posts.total`).
+- **Root cause hypothesis (chưa investigate):**
+  - **H1 — Response shape mismatch:** BE `GET /admin/stats` trả shape khác `AdminStatsResponse` interface (vd: thiếu `posts` field hoặc nested khác). Cần verify BE response vs `admin.ts:20-23`.
+  - **H2 — Hook race:** `statsQ.data` ngắn ngủi truthy với partial object (vd: `{}`) trước khi populated → `stats.posts` undefined. Loading guard không cover trường hợp này.
+  - **H3 — Auth/role gate khác expect:** API response error envelope không bị `useQuery` reject → trả vào `data` → shape lạ.
+- **Fix direction (defer T-380 investigation):**
+  - Verify BE actual response qua curl `GET /admin/stats` với admin JWT.
+  - Defensive destructure: `stats?.posts?.total ?? 0` cho 4 StatCards.
+  - Đồng bộ type guard runtime (Zod parse?) hoặc tighten loading guard `!statsQ.isSuccess`.
+  - Plus regression test `tests/pages/AdminPage.test.tsx` cover empty/loading/partial/success.
+- **Lesson learned (preliminary):** Loading guard `stats ? :` không đủ — TanStack Query `data` có thể truthy với shape không khớp interface (server contract drift). Cần Zod parse layer hoặc defensive optional chaining ở callsite.
 
 ## Fixed
 

@@ -34,6 +34,16 @@
 
 ## Weekly Log
 
+### 2026-05-26 (UI Design Fidelity Review)
+
+- **Done (docs-only):** UI Design Fidelity Review across **8 implemented screens** (Login / Feed / Post Detail / Profile / Search / Tags / Admin / Create Post). Playwright Chromium 1440×900 render both sides: design HTML prototypes (via local HTTP server :8765 — bypass CORS for external `.jsx`) and FE actual at `:5173` (admin login for `/admin` + `/admin/create`). 16 screenshots saved `/tmp/ui-review-all/<slug>/{design,fe}.png`.
+- **Findings:**
+  - ✅ **Search** — visual + behavior match design.
+  - ⚠️ **6 minor drift** (Login cursor blink, Feed StatusBar segments + Share icon prefix, Post Detail ImageCarousel layout, Profile hero, Tags TagModal NEON, Create Post toolbar 6→11 + AISuggestModal) — all already covered by existing M11.9 backlog tasks (T-370/371/373/374/368/347), no duplicate tasks needed.
+  - ❌ **Admin broken** — NEW [BUG-006](docs/BUGS.md) Critical P0 `TypeError: stats.posts.total undefined` blocking entire `/admin` page. Logged + T-380 fix task created.
+- **Open follow-up:** T-380 (Fix BUG-006 — investigate H1 BE shape drift / H2 hook race / H3 auth envelope) — P0 next priority.
+- **Deferred (out of review scope):** Notifications page (T-314 TODO) + Manage Posts page (T-372 greenfield) — no FE route yet.
+
 ### 2026-05-25 (Week 2 — M11.8 kickoff)
 
 - **Done (docs-only commits, no code changes):**

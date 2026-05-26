@@ -10,33 +10,58 @@ export type ImageItem = {
 
 type Props = {
   images: ImageItem[];
+  onImageClick?: (idx: number) => void;
 };
 
 // Single cell: <img> với onError fallback sang <ImgSlot>.
-function ImageCell({ image, idx }: { image: ImageItem; idx: number }) {
+function ImageCell({
+  image,
+  idx,
+  onClick,
+}: {
+  image: ImageItem;
+  idx: number;
+  onClick?: () => void;
+}) {
   const [broken, setBroken] = useState(false);
-  if (!image.url || broken) return <ImgSlot idx={idx} />;
+  const inner =
+    !image.url || broken ? (
+      <ImgSlot idx={idx} />
+    ) : (
+      <img
+        src={image.url}
+        alt=""
+        loading="lazy"
+        onError={() => setBroken(true)}
+        className="h-full w-full object-cover"
+      />
+    );
+
+  if (!onClick) return inner;
   return (
-    <img
-      src={image.url}
-      alt=""
-      loading="lazy"
-      onError={() => setBroken(true)}
-      className="h-full w-full object-cover"
-    />
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Open image ${idx + 1}`}
+      data-testid={`image-grid-cell-${idx}`}
+      className="block h-full w-full border-none bg-transparent p-0 cursor-pointer"
+    >
+      {inner}
+    </button>
   );
 }
 
 // Responsive grid layout 1/2/3+ images. Port từ design-file/myblog-components.jsx:161-188.
 // 1: single 200px. 2: 2-col 160px. 3+: 2-col left-big + right stacked, last cell `+N` overlay.
-export function ImageGrid({ images }: Props) {
+export function ImageGrid({ images, onImageClick }: Props) {
   if (!images || images.length === 0) return null;
   const count = images.length;
+  const handle = (idx: number) => (onImageClick ? () => onImageClick(idx) : undefined);
 
   if (count === 1) {
     return (
       <div className="mb-3 h-[200px] overflow-hidden rounded-sm">
-        <ImageCell image={images[0]} idx={0} />
+        <ImageCell image={images[0]} idx={0} onClick={handle(0)} />
       </div>
     );
   }
@@ -46,7 +71,7 @@ export function ImageGrid({ images }: Props) {
       <div className="mb-3 grid h-[160px] grid-cols-2 gap-[3px] overflow-hidden rounded-md">
         {images.slice(0, 2).map((img, i) => (
           <div key={img.id ?? i} className="overflow-hidden rounded-sm">
-            <ImageCell image={img} idx={i} />
+            <ImageCell image={img} idx={i} onClick={handle(i)} />
           </div>
         ))}
       </div>
@@ -60,14 +85,14 @@ export function ImageGrid({ images }: Props) {
   return (
     <div className="mb-3 grid h-[180px] grid-cols-2 gap-[3px] overflow-hidden rounded-md">
       <div className="overflow-hidden rounded-sm">
-        <ImageCell image={main} idx={0} />
+        <ImageCell image={main} idx={0} onClick={handle(0)} />
       </div>
       <div className="grid gap-[3px]" style={{ gridTemplateRows: `repeat(${rest.length}, 1fr)` }}>
         {rest.map((img, i) => (
           <div key={img.id ?? i + 1} className="relative overflow-hidden rounded-sm">
-            <ImageCell image={img} idx={i + 1} />
+            <ImageCell image={img} idx={i + 1} onClick={handle(i + 1)} />
             {count > 4 && i === rest.length - 1 && (
-              <div className="absolute inset-0 flex items-center justify-center bg-bg/[0.78]">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-bg/[0.78]">
                 <span className="font-mono text-lg font-bold text-tp">+{count - 4}</span>
               </div>
             )}

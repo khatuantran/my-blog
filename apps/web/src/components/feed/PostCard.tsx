@@ -7,6 +7,7 @@ import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from './ReactionButton';
 import { CommentsModal } from './CommentsModal';
 import { PostActionMenu } from './PostActionMenu';
+import { ImageLightbox } from './ImageLightbox';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 export function PostCard({ post, delay = 0 }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   return (
     <article
@@ -42,7 +44,7 @@ export function PostCard({ post, delay = 0 }: Props) {
 
       <PostContent content={post.content} variant="card" />
 
-      <ImageGrid images={post.images} />
+      <ImageGrid images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
       <FileAttachments files={post.files} />
 
       {post.tags.length > 0 && (
@@ -110,6 +112,15 @@ export function PostCard({ post, delay = 0 }: Props) {
           postId={post.id}
           postExcerpt={post.content.slice(0, 80)}
           onClose={() => setShowComments(false)}
+        />
+      )}
+
+      {lightboxIdx !== null && (
+        <ImageLightbox
+          images={post.images}
+          startIdx={lightboxIdx}
+          postPath={`~/post/${post.id.slice(-6)}`}
+          onClose={() => setLightboxIdx(null)}
         />
       )}
     </article>

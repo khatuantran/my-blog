@@ -31,6 +31,17 @@
     --fs-ui: 11px;
     --fs-ui-text: 13px;
     --fs-body: 15px;
+    /* Z-index scale (T-360 — DESIGN_SYSTEM > Z-index scale L147) */
+    --z-base: 0;
+    --z-popover: 50;
+    --z-popover-2: 60;
+    --z-subbar: 90;
+    --z-topbar: 100;
+    --z-dropdown: 200;
+    --z-modal: 300;
+    --z-modal-stacked: 400;
+    --z-lightbox: 500;
+    --z-dev-tweaks: 9999;
   }
 
   html,

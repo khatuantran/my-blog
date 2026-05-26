@@ -50,6 +50,7 @@ const config: Config = {
       },
       fontSize: {
         // mono variants (JetBrains Mono)
+        'mono-tiny': ['8px', { lineHeight: '1.3' }],
         'mono-xs': ['9px', { lineHeight: '1.3' }],
         'mono-sm': ['11px', { lineHeight: '1.4' }],
         mono: ['12px', { lineHeight: '1.5' }],
@@ -58,11 +59,41 @@ const config: Config = {
         // Inter base body/caption
         small: ['13px', { lineHeight: '1.5' }],
         body: ['15px', { lineHeight: '1.65' }],
+        // Inter input variant (T-360 v2.1)
+        'input-hero': ['18px', { lineHeight: '1.4' }],
         // Heading scale (Space Grotesk for h1/h2 + display, Inter for h3)
         h3: ['14px', { lineHeight: '1.4', fontWeight: '600' }],
         h2: ['18px', { lineHeight: '1.4', fontWeight: '600' }],
         h1: ['22px', { lineHeight: '1.3', fontWeight: '600' }],
+        'h1-hero': ['26px', { lineHeight: '1.2', fontWeight: '700' }],
+        'display-sm': ['24px', { lineHeight: '1', fontWeight: '700' }],
         display: ['28px', { lineHeight: '1', fontWeight: '700' }],
+        'display-glyph': ['40px', { lineHeight: '1', fontWeight: '700' }],
+      },
+      letterSpacing: {
+        // T-360 — DESIGN_SYSTEM Typography section labels + table headers
+        'wide-1': '0.05em',
+        'wide-2': '0.06em',
+        'wide-3': '0.08em',
+      },
+      lineHeight: {
+        // T-360 — DESIGN_SYSTEM micro typography (bio / sidebar / mini sparkline)
+        'relaxed-1': '1.75',
+        'relaxed-2': '1.8',
+        'relaxed-3': '1.9',
+      },
+      zIndex: {
+        // T-360 — DESIGN_SYSTEM Z-index scale L147 (synced với :root vars in globals.css)
+        base: 'var(--z-base)',
+        popover: 'var(--z-popover)',
+        'popover-2': 'var(--z-popover-2)',
+        subbar: 'var(--z-subbar)',
+        topbar: 'var(--z-topbar)',
+        dropdown: 'var(--z-dropdown)',
+        modal: 'var(--z-modal)',
+        'modal-stacked': 'var(--z-modal-stacked)',
+        lightbox: 'var(--z-lightbox)',
+        'dev-tweaks': 'var(--z-dev-tweaks)',
       },
       spacing: {
         '1.5': '6px',
@@ -78,10 +109,30 @@ const config: Config = {
         sm: '0 1px 2px rgba(0,0,0,.05)',
         md: '0 4px 12px rgba(0,0,0,.08)',
         lg: '0 12px 32px rgba(0,0,0,.4)',
-        'glow-cyan-sm': '0 0 8px rgba(0,255,229,.15)',
-        'glow-cyan-md': '0 0 14px rgba(0,255,229,.22)',
-        'glow-cyan-lg': '0 0 24px rgba(0,255,229,.1), 0 4px 24px rgba(0,0,0,.3)',
+        // T-360 Shadow recipes — DESIGN_SYSTEM L163
+        // Cyan glow scale (4 tiers per spec)
+        'glow-cyan-xs': '0 0 7px rgba(0, 255, 229, 0.5)',
+        'glow-cyan-sm': '0 0 12px rgba(0, 255, 229, 0.18)',
+        'glow-cyan-md': '0 0 22px rgba(0, 255, 229, 0.12)',
+        'glow-cyan-lg': '0 0 45px rgba(0, 255, 229, 0.12), 0 4px 24px rgba(0, 0, 0, 0.3)',
+        // Backward-compat (pre-T-360 callsites)
         'glow-cyan-xl': '0 0 40px rgba(0,255,229,.22), 0 8px 32px rgba(0,0,0,.4)',
+        // Per-color glow-md — ReactionPicker hover, mood badge, tag color hover
+        'glow-mag-md': '0 0 12px rgba(255, 110, 150, 0.5)',
+        'glow-pur-md': '0 0 12px rgba(187, 154, 247, 0.5)',
+        'glow-grn-md': '0 0 12px rgba(158, 206, 106, 0.5)',
+        'glow-yel-md': '0 0 12px rgba(224, 175, 104, 0.5)',
+        'glow-ora-md': '0 0 12px rgba(255, 158, 100, 0.5)',
+        'glow-red-md': '0 0 12px rgba(247, 118, 142, 0.5)',
+        'glow-blu-md': '0 0 12px rgba(125, 207, 255, 0.5)',
+        // Drop shadow scale
+        'drop-sm': '0 4px 20px rgba(0, 0, 0, 0.4)',
+        'drop-md': '0 12px 40px rgba(0, 0, 0, 0.55)',
+        'drop-lg': '0 20px 56px rgba(0, 0, 0, 0.7)',
+        'drop-xl': '-20px 0 60px rgba(0, 0, 0, 0.8)',
+        // Compound modal recipe (glow-cyan-lg + drop-lg)
+        stack:
+          '0 0 45px rgba(0, 255, 229, 0.12), 0 4px 24px rgba(0, 0, 0, 0.3), 0 20px 56px rgba(0, 0, 0, 0.7)',
       },
       animation: {
         glitch: 'glitch 8s infinite',

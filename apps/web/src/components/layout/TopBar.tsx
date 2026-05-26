@@ -1,60 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { Logo } from './Logo';
 import { NotificationBell } from './NotificationBell';
+import { AvatarMenu } from './AvatarMenu';
 import { useAuth } from '@/hooks/use-auth';
-import { useLogout } from '@/hooks/mutations/use-logout';
 
 type Props = {
   onOpenCommandPalette: () => void;
   hideSearch?: boolean;
 };
 
-type ColorKey = 'cyan' | 'pur' | 'yel' | 'tp' | 'red';
-type MenuItem = {
-  icon: string;
-  label: string;
-  to: string;
-  kbd?: string;
-  color: ColorKey;
-  separatorBefore?: boolean;
-  adminOnly?: boolean;
-};
-
-const COLOR_CLASS: Record<ColorKey, string> = {
-  cyan: 'text-cyan',
-  pur: 'text-pur',
-  yel: 'text-yel',
-  tp: 'text-tp',
-  red: 'text-red',
-};
-
-const AUTHED_MENU: MenuItem[] = [
-  {
-    icon: '✏️',
-    label: 'Create Post',
-    to: '/admin/create',
-    kbd: '⌘N',
-    color: 'cyan',
-    adminOnly: true,
-  },
-  { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur', adminOnly: true },
-  { icon: '🔖', label: 'Saved', to: '/saved', kbd: '⌘2', color: 'yel' },
-  { icon: '👤', label: 'Profile', to: '/me', color: 'tp', separatorBefore: true },
-];
-
-const GUEST_MENU: MenuItem[] = [
-  { icon: '🔑', label: 'Login', to: '/auth/login', color: 'cyan' },
-  { icon: '✨', label: 'Register', to: '/auth/register', color: 'pur' },
-];
-
 export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
   const navigate = useNavigate();
-  const { user, isAuthed } = useAuth();
-  const logoutMutation = useLogout();
-  const [showMenu, setShowMenu] = useState(false);
+  const { isAuthed } = useAuth();
   const [searchInput, setSearchInput] = useState('');
-  const menuRef = useRef<HTMLDivElement>(null);
 
   function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -62,26 +21,6 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
     if (!q) return;
     navigate(`/search?q=${encodeURIComponent(q)}`);
     setSearchInput('');
-  }
-  const initial = (user?.username[0] ?? '?').toUpperCase();
-  const isAdmin = user?.role === 'ADMIN';
-  const menuItems = isAuthed ? AUTHED_MENU.filter((i) => !i.adminOnly || isAdmin) : GUEST_MENU;
-
-  useEffect(() => {
-    function handler(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setShowMenu(false);
-      }
-    }
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  function handleLogout() {
-    setShowMenu(false);
-    logoutMutation.mutate(undefined, {
-      onSettled: () => navigate('/auth/login', { replace: true }),
-    });
   }
 
   return (
@@ -135,91 +74,8 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
         {/* Notification bell — authed only */}
         {isAuthed && <NotificationBell />}
 
-        {/* Avatar + dropdown */}
-        <div ref={menuRef} className="relative">
-          <button
-            type="button"
-            onClick={() => setShowMenu((v) => !v)}
-            aria-label="User menu"
-            aria-expanded={showMenu}
-            className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-mono-md text-cyan cursor-pointer transition-shadow relative ${
-              showMenu ? 'shadow-glow-cyan-md' : 'shadow-glow-cyan-sm'
-            }`}
-            style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
-          >
-            {initial}
-            <span
-              aria-hidden="true"
-              className="absolute -bottom-[1px] -right-[1px] w-2 h-2 bg-grn rounded-full"
-              style={{ border: '1.5px solid #11151F', boxShadow: '0 0 5px #9ECE6A' }}
-            />
-          </button>
-
-          {showMenu && (
-            <div
-              role="menu"
-              className="absolute top-[42px] right-0 bg-elev rounded-lg min-w-[210px] p-1.5 z-[200] animate-fade-up"
-              style={{
-                border: '1px solid rgba(0,255,229,.25)',
-                boxShadow: '0 0 30px rgba(0,255,229,.1),0 12px 40px rgba(0,0,0,.6)',
-              }}
-            >
-              <div className="px-2.5 pt-2 pb-2.5 border-b border-b2 mb-1">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-mono-sm text-cyan font-bold font-brand"
-                    style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
-                  >
-                    {initial}
-                  </div>
-                  <div>
-                    <div className="font-mono text-mono-sm text-blu">
-                      ~/{user?.username ?? 'guest'}
-                    </div>
-                    {isAdmin && (
-                      <div className="font-mono text-mono-sm text-ora mt-px leading-none">
-                        [ ADMIN ]
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              {menuItems.map((item, i) => (
-                <div key={i}>
-                  {item.separatorBefore && <div className="h-px bg-b2 my-1" />}
-                  <Link
-                    to={item.to}
-                    role="menuitem"
-                    onClick={() => setShowMenu(false)}
-                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-[5px] no-underline transition-colors hover:bg-cyan/10 ${COLOR_CLASS[item.color]}`}
-                  >
-                    <span className="text-sm">{item.icon}</span>
-                    <span className="flex-1 text-mono-md">{item.label}</span>
-                    {item.kbd && <span className="font-mono text-mono-sm text-tm">{item.kbd}</span>}
-                  </Link>
-                </div>
-              ))}
-              {isAuthed && (
-                <>
-                  <div className="h-px bg-b2 my-1" />
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={handleLogout}
-                    disabled={logoutMutation.isPending}
-                    className="flex w-full items-center gap-2 px-2.5 py-1.5 rounded-[5px] border-none bg-transparent text-left text-red transition-colors hover:bg-red/10 disabled:opacity-50"
-                  >
-                    <span className="text-sm">🚪</span>
-                    <span className="flex-1 text-mono-md">
-                      {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
-                    </span>
-                    <span className="font-mono text-mono-sm text-tm">⌘Q</span>
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+        {/* AvatarMenu (T-364) — 7-item dropdown */}
+        <AvatarMenu />
       </div>
     </header>
   );

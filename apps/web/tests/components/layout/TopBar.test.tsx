@@ -50,11 +50,12 @@ describe('TopBar — authed admin (default)', () => {
     expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
-  it('dropdown menu hiển thị authed admin items + Logout', async () => {
+  it('dropdown menu hiển thị authed admin items + Logout (T-364: Manage Posts/Admin/Manage Tags/Profile spec)', async () => {
+    // T-364 test-stale-assumption: design v2 swaps "Create Post / Saved" → "Manage Posts / Manage Tags / System Settings".
     const user = userEvent.setup();
     renderTopBar();
     await user.click(screen.getByRole('button', { name: /user menu/i }));
-    expect(screen.getByText('Create Post')).toBeInTheDocument();
+    expect(screen.getByText('Manage Posts')).toBeInTheDocument();
     expect(screen.getByText('Admin Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
     expect(screen.getByText('[ ADMIN ]')).toBeInTheDocument();
@@ -64,9 +65,9 @@ describe('TopBar — authed admin (default)', () => {
     const user = userEvent.setup();
     renderTopBar();
     await user.click(screen.getByRole('button', { name: /user menu/i }));
-    expect(screen.getByText('Create Post')).toBeInTheDocument();
+    expect(screen.getByText('Manage Posts')).toBeInTheDocument();
     fireEvent.mouseDown(document.body);
-    expect(screen.queryByText('Create Post')).not.toBeInTheDocument();
+    expect(screen.queryByText('Manage Posts')).not.toBeInTheDocument();
   });
 
   it('click Logout → POST /auth/logout + clear store + navigate /auth/login', async () => {
@@ -123,24 +124,27 @@ describe('TopBar — authed USER (non-admin)', () => {
     });
   });
 
-  it('dropdown ẩn admin-only items (Create Post + Admin Dashboard)', async () => {
+  it('dropdown ẩn admin-only items (Manage Posts + Admin Dashboard) — T-364 stale-assumption update', async () => {
+    // T-364 test-stale-assumption: design v2 menu uses Manage Posts/Manage Tags/System Settings instead of Create Post/Saved.
+    // Non-admin user keeps Manage Tags + Profile + System Settings (disabled) + Logout.
     const user = userEvent.setup();
     renderTopBar();
     await user.click(screen.getByRole('button', { name: /user menu/i }));
-    expect(screen.queryByText('Create Post')).toBeNull();
+    expect(screen.queryByText('Manage Posts')).toBeNull();
     expect(screen.queryByText('Admin Dashboard')).toBeNull();
     expect(screen.getByText('Profile')).toBeInTheDocument();
-    expect(screen.getByText('Saved')).toBeInTheDocument();
+    expect(screen.getByText('Manage Tags')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
     expect(screen.queryByText('[ ADMIN ]')).toBeNull();
   });
 
-  it('Profile link wire → /me, Saved → /saved (T-223)', async () => {
+  it('Profile link wire → /me (T-364: Saved removed from menu per design v2)', async () => {
+    // T-364 test-stale-assumption: "Saved" entry removed from AvatarMenu per design-file spec.
+    // /saved route still exists, just not surfaced in this menu.
     const user = userEvent.setup();
     renderTopBar();
     await user.click(screen.getByRole('button', { name: /user menu/i }));
     expect(screen.getByRole('menuitem', { name: /profile/i })).toHaveAttribute('href', '/me');
-    expect(screen.getByRole('menuitem', { name: /saved/i })).toHaveAttribute('href', '/saved');
   });
 
   it('hideSearch=true → search input not rendered (T-232)', () => {

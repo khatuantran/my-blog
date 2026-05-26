@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useReactionList } from '@/hooks/queries/use-reaction-list';
 import { REACTION_CONFIG, REACTION_LIST } from '@/lib/reaction-config';
+import { ReactionIcon } from './ReactionIcon';
 import type { ReactionType } from '@/types/api';
 
 type Props = {
@@ -94,7 +95,10 @@ export function ReactionList({ postId, onClose }: Props) {
                   tab === r.type ? 'border-cyan/50 text-cyan' : 'text-tm hover:text-tp'
                 }`}
               >
-                <span aria-hidden="true">{r.emoji}</span> {r.label} ({n})
+                <span aria-hidden="true" className="inline-flex align-middle">
+                  <ReactionIcon r={r} size={14} />
+                </span>{' '}
+                {r.label} ({n})
               </button>
             );
           })}
@@ -117,8 +121,8 @@ export function ReactionList({ postId, onClose }: Props) {
                   key={`${item.actor?.id ?? 'anon'}-${idx}`}
                   className="flex items-center gap-3 py-2"
                 >
-                  <span aria-hidden="true" className="text-base">
-                    {cfg.emoji}
+                  <span aria-hidden="true" className="inline-flex">
+                    <ReactionIcon r={cfg} size={18} />
                   </span>
                   <span className="flex-1 font-mono text-mono-sm text-tp">
                     {item.actor?.username ?? '(anonymous)'}

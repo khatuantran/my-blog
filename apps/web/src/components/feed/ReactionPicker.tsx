@@ -1,4 +1,5 @@
 import { REACTION_LIST } from '@/lib/reaction-config';
+import { ReactionIcon } from './ReactionIcon';
 import type { ReactionType } from '@/types/api';
 
 type Props = {
@@ -32,7 +33,7 @@ export function ReactionPicker({ open, selected, onPick }: Props) {
               isSelected ? 'scale-110 bg-elev' : ''
             }`}
           >
-            <span aria-hidden="true">{r.emoji}</span>
+            <ReactionIcon r={r} size={20} glow={isSelected} />
           </button>
         );
       })}

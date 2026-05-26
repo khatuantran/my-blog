@@ -4,6 +4,7 @@ import { ApiError } from '@/services/api/client';
 import { REACTION_CONFIG } from '@/lib/reaction-config';
 import { ReactionPicker } from './ReactionPicker';
 import { ReactionList } from './ReactionList';
+import { ReactionIcon } from './ReactionIcon';
 import type { ReactionType } from '@/types/api';
 
 type Props = {
@@ -105,8 +106,8 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
         } ${gone ? 'cursor-not-allowed opacity-50' : ''}`}
         style={activeCfg ? { color: activeCfg.color } : undefined}
       >
-        <span aria-hidden="true" className="text-sm">
-          {activeCfg ? activeCfg.emoji : '👍'}
+        <span aria-hidden="true" className="inline-flex">
+          <ReactionIcon r={activeCfg ?? REACTION_CONFIG.LIKE} size={16} glow={!!activeCfg} />
         </span>
         <span>{activeCfg ? activeCfg.label : 'React'}</span>
       </button>
@@ -119,10 +120,10 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
           data-testid={`reaction-count-${postId}`}
           className="flex items-center gap-0.5 rounded-sm border-none bg-transparent px-1.5 py-1 font-mono text-mono text-tm cursor-pointer hover:bg-elev hover:text-tp"
         >
-          <span aria-hidden="true" className="flex">
+          <span aria-hidden="true" className="flex items-center">
             {displayTop.slice(0, 3).map((t) => (
               <span key={t} className="-ml-0.5 first:ml-0">
-                {REACTION_CONFIG[t].emoji}
+                <ReactionIcon r={t} size={14} />
               </span>
             ))}
           </span>

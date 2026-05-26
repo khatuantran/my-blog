@@ -184,6 +184,33 @@ export type PaginatedPosts = {
 
 export type PostSort = 'latest' | 'oldest' | 'likes';
 
+export type PostStatus = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
+
+export type AdminPost = Post & { status: PostStatus };
+
+export type PaginatedAdminPosts = {
+  items: AdminPost[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type ListAdminPostsParams = {
+  status?: PostStatus;
+  mood?: Mood;
+  sort?: PostSort;
+  q?: string;
+  page?: number;
+  limit?: number;
+};
+
+export type UpdateAdminPostPayload = {
+  status?: PostStatus;
+  mood?: Mood;
+  content?: string;
+  tags?: string[];
+};
+
 export type ListPostsParams = {
   page?: number;
   limit?: number;

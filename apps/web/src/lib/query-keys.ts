@@ -3,6 +3,7 @@
 
 import type {
   ListActivityParams,
+  ListAdminPostsParams,
   ListNotificationsParams,
   ListPostsParams,
   ListReactionsParams,
@@ -40,6 +41,7 @@ export const qk = {
     heatmap: ['admin', 'heatmap'] as const,
     comments: (params: { status?: string; page?: number; limit?: number } = {}) =>
       ['admin', 'comments', params] as const,
+    posts: (params: ListAdminPostsParams = {}) => ['admin', 'posts', params] as const,
   },
   tags: {
     all: ['tags'] as const,

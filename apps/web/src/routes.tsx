@@ -15,6 +15,7 @@ const MeRedirect = lazy(() => import('./pages/MeRedirect'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ManagePostsPage = lazy(() => import('./pages/ManagePostsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 export const routes: RouteObject[] = [
@@ -40,6 +41,14 @@ export const routes: RouteObject[] = [
         element: (
           <ProtectedRoute requireRole="ADMIN">
             <AdminPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/posts',
+        element: (
+          <ProtectedRoute requireRole="ADMIN">
+            <ManagePostsPage />
           </ProtectedRoute>
         ),
       },

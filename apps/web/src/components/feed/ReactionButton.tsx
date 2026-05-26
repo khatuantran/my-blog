@@ -89,7 +89,10 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
     >
       <ReactionPicker open={pickerOpen} selected={active} onPick={pickReaction} />
       {pickerOpen && <div aria-hidden="true" className="absolute bottom-full left-0 right-0 h-3" />}
-
+      {/* Merged React button + inline count per design-file Feed.html L893-901.
+          Whole button toggles reaction. The `· {count}` portion is a nested span
+          with stopPropagation that opens ReactionList modal — keeps detail view
+          accessible without a separate count badge button. */}
       <button
         type="button"
         onClick={handleClick}
@@ -104,39 +107,44 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
         className={`flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono cursor-pointer transition-colors hover:bg-elev ${
           active ? 'text-tp' : 'text-tm hover:text-tp'
         } ${gone ? 'cursor-not-allowed opacity-50' : ''}`}
-        style={activeCfg ? { color: activeCfg.color } : undefined}
+        style={
+          activeCfg
+            ? { color: activeCfg.color, textShadow: `0 0 8px ${activeCfg.color}60` }
+            : undefined
+        }
       >
         <span aria-hidden="true" className="inline-flex">
           <ReactionIcon r={activeCfg ?? REACTION_CONFIG.LIKE} size={16} glow={!!activeCfg} />
         </span>
         <span>{activeCfg ? activeCfg.label : 'React'}</span>
-      </button>
-
-      {displayCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setListOpen(true)}
-          aria-label={`View ${displayCount} reactions`}
-          data-testid={`reaction-count-${postId}`}
-          className="flex items-center gap-0.5 rounded-sm border-none bg-transparent px-1.5 py-1 font-mono text-mono text-tm cursor-pointer hover:bg-elev hover:text-tp"
-        >
-          <span aria-hidden="true" className="flex items-center">
-            {displayTop.slice(0, 3).map((t) => (
-              <span key={t} className="-ml-0.5 first:ml-0">
-                <ReactionIcon r={t} size={14} />
-              </span>
-            ))}
+        {displayCount > 0 && (
+          <span
+            role="button"
+            tabIndex={0}
+            aria-label={`View ${displayCount} reactions`}
+            data-testid={`reaction-count-${postId}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setListOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                setListOpen(true);
+              }
+            }}
+            className="ml-1 text-td hover:text-tp hover:underline cursor-pointer"
+          >
+            · {displayCount}
           </span>
-          <span className="ml-1">{displayCount}</span>
-        </button>
-      )}
-
+        )}
+      </button>{' '}
       {gone && (
         <span className="ml-2 font-mono text-mono-sm text-red" role="alert">
           // reactions endpoint unavailable
         </span>
       )}
-
       {listOpen && <ReactionList postId={postId} onClose={() => setListOpen(false)} />}
     </div>
   );

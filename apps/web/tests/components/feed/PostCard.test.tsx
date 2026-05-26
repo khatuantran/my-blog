@@ -40,7 +40,8 @@ describe('PostCard', () => {
     );
     expect(screen.getByText('~/admin')).toBeInTheDocument();
     expect(screen.getByText('hello world')).toBeInTheDocument();
-    expect(screen.getByText('5')).toBeInTheDocument(); // reaction count
+    // T-358 polish (2026-05-26): reaction count merged into React button as `· N`.
+    expect(screen.getByText('· 5')).toBeInTheDocument(); // reaction count
     expect(screen.getByText('3')).toBeInTheDocument(); // comment count
     expect(screen.getByText('#code')).toBeInTheDocument();
   });

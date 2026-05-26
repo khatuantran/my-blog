@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MoodPicker } from '@/components/create-post/MoodPicker';
-import { MarkdownEditor } from '@/components/create-post/MarkdownEditor';
+import { RichTextEditor } from '@/components/create-post/RichTextEditor';
 import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
 import { TagPickerDropdown, type TagDraft } from '@/components/create-post/TagPickerDropdown';
 import { PostPreview } from '@/components/create-post/PostPreview';
@@ -132,7 +132,7 @@ export default function CreatePostPage() {
 
           <section>
             <div className="sb-lbl">// content</div>
-            <MarkdownEditor value={content} onChange={setContent} />
+            <RichTextEditor value={content} onChange={setContent} />
           </section>
 
           <section>

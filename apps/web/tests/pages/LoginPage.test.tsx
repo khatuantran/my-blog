@@ -105,4 +105,36 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: /show password/i }));
     expect(pw).toHaveAttribute('type', 'text');
   });
+
+  it('T-370: anonymous link → href /', async () => {
+    renderLogin();
+    await screen.findByLabelText(/username/i);
+    const anonLink = screen.getByTestId('anon-link');
+    expect(anonLink).toHaveTextContent('Continue as anonymous →');
+    expect(anonLink).toHaveAttribute('href', '/');
+  });
+
+  it('T-370: register link → /auth/register', async () => {
+    renderLogin();
+    await screen.findByLabelText(/username/i);
+    const regLink = screen.getByTestId('register-link');
+    expect(regLink).toHaveTextContent('❯ register here');
+    expect(regLink).toHaveAttribute('href', '/auth/register');
+  });
+
+  it('T-370: bracket logo SVG renders 2 polylines (cyan < + purple >)', async () => {
+    const { container } = renderLogin();
+    await screen.findByLabelText(/username/i);
+    const polylines = container.querySelectorAll('polyline');
+    expect(polylines.length).toBe(2);
+    expect(polylines[0]).toHaveAttribute('stroke', '#00FFE5');
+    expect(polylines[1]).toHaveAttribute('stroke', '#BB9AF7');
+  });
+
+  it('T-370: bottom mini status shows pulse dot + build sha', async () => {
+    renderLogin();
+    await screen.findByLabelText(/username/i);
+    expect(screen.getByText(/connected to server/)).toBeInTheDocument();
+    expect(screen.getByText(/build:/)).toBeInTheDocument();
+  });
 });

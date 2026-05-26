@@ -163,11 +163,12 @@ export default function LoginPage() {
         {/* Anonymous */}
         <Link
           to="/"
-          className="block rounded-md py-2.5 text-center text-[12px] text-pur no-underline transition-all hover:bg-pur/[0.08]"
+          className="block rounded-md py-[9px] text-center font-mono text-[13px] text-pur no-underline transition-all hover:bg-pur/[0.08]"
           style={{
             background: 'rgba(187,154,247,.05)',
             border: '1px solid rgba(187,154,247,.2)',
           }}
+          data-testid="anon-link"
         >
           Continue as anonymous →
         </Link>
@@ -175,7 +176,11 @@ export default function LoginPage() {
         {/* Register link */}
         <div className="mt-4 text-center text-mono-sm text-td">
           // no account?{' '}
-          <Link to="/auth/register" className="text-blu no-underline hover:underline">
+          <Link
+            to="/auth/register"
+            data-testid="register-link"
+            className="text-blu no-underline hover:underline"
+          >
             ❯ register here
           </Link>
         </div>

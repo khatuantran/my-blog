@@ -3,7 +3,7 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import { Mood } from '@prisma/client';
 
-export const SEARCH_TYPE_VALUES = ['all', 'posts', 'files', 'tags'] as const;
+export const SEARCH_TYPE_VALUES = ['all', 'posts', 'files', 'tags', 'saved'] as const;
 export type SearchType = (typeof SEARCH_TYPE_VALUES)[number];
 
 export class SearchDto {

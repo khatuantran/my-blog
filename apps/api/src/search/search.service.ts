@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma } from '@prisma/client';
 import {
@@ -31,6 +31,12 @@ export class SearchService {
   async search(query: SearchDto, viewer?: PostsViewer): Promise<SearchResult> {
     const viewerUserId = viewer?.userId;
     const q = (query.q ?? '').trim();
+
+    // type=saved requires authed user (T-381, FR-12.9)
+    if (query.type === 'saved' && !viewerUserId) {
+      throw new UnauthorizedException('Authentication required for saved search');
+    }
+
     const includePosts = query.type === 'all' || query.type === 'posts';
     const includeFiles = query.type === 'all' || query.type === 'files';
     const includeTags = query.type === 'all' || query.type === 'tags';
@@ -45,6 +51,41 @@ export class SearchService {
         : Promise.resolve(0),
     ]);
     const stats: SearchStats = { totalPosts, withImages, withFiles, savedCount };
+
+    // type=saved branch — list user's saved posts (ignore q for now, apply mood if set)
+    if (query.type === 'saved' && viewerUserId) {
+      const postWhere: Prisma.PostWhereInput = {
+        savedBy: { some: { userId: viewerUserId } },
+      };
+      if (query.mood) postWhere.mood = query.mood;
+      if (q.length > 0) postWhere.content = { contains: q, mode: 'insensitive' };
+      const [rows, total] = await Promise.all([
+        this.prisma.post.findMany({
+          where: postWhere,
+          include: POST_INCLUDE,
+          orderBy: { createdAt: 'desc' },
+          skip: (query.page - 1) * query.limit,
+          take: query.limit,
+        }),
+        this.prisma.post.count({ where: postWhere }),
+      ]);
+      const metaMap = await buildReactionMetaMap(
+        this.prisma,
+        rows.map((r) => r.id),
+        viewer,
+      );
+      return {
+        posts: {
+          items: rows.map((r) => toPostView(r, metaMap.get(r.id))),
+          total,
+          page: query.page,
+          limit: query.limit,
+        },
+        files: [],
+        tags: [],
+        stats,
+      };
+    }
 
     // Empty query → empty result + stats only
     if (q.length === 0) {

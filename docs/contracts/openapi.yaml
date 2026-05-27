@@ -968,6 +968,7 @@ paths:
               - posts
               - files
               - tags
+              - saved
             type: string
         - name: mood
           required: false

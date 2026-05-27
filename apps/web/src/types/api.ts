@@ -51,7 +51,7 @@ export type UpdateUserPayload = {
   website?: string;
 };
 
-export type SearchType = 'all' | 'posts' | 'files' | 'tags';
+export type SearchType = 'all' | 'posts' | 'files' | 'tags' | 'saved';
 
 export type SearchStats = {
   totalPosts: number;

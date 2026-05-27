@@ -2513,7 +2513,7 @@ export interface operations {
       query?: {
         /** @description Search query (empty → stats only) */
         q?: string;
-        type?: 'all' | 'posts' | 'files' | 'tags';
+        type?: 'all' | 'posts' | 'files' | 'tags' | 'saved';
         mood?: 'HAPPY' | 'EXCITED' | 'THOUGHTFUL' | 'CALM' | 'SAD' | 'GRATEFUL' | 'ANGRY';
       };
       header?: never;

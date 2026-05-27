@@ -1,15 +1,18 @@
 import request from 'supertest';
 import type { INestApplication } from '@nestjs/common';
-import { Mood } from '@prisma/client';
+import { Mood, Role } from '@prisma/client';
 import type { PrismaService } from 'nestjs-prisma';
 import { createTestApp } from './_helpers/test-app';
 import { resetDb } from './_helpers/db-reset';
-import { makePost } from './_helpers/factory';
+import { loginAs } from './_helpers/auth';
+import { makePost, makeUser } from './_helpers/factory';
 
 describe('Search (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let adminId: string;
+  let aliceId: string;
+  let aliceCookies: string;
 
   beforeAll(async () => {
     ({ app, prisma } = await createTestApp());
@@ -19,6 +22,9 @@ describe('Search (e2e)', () => {
     await resetDb(prisma);
     const admin = await prisma.user.findUnique({ where: { username: 'test-admin' } });
     adminId = admin!.id;
+    const alice = await makeUser(prisma, { username: 'alice', role: Role.USER });
+    aliceId = alice.id;
+    aliceCookies = await loginAs(app, { username: alice.username, password: alice.rawPassword });
   });
 
   afterAll(async () => {
@@ -84,6 +90,45 @@ describe('Search (e2e)', () => {
 
     it('400 mood invalid value rejected', async () => {
       await request(app.getHttpServer()).get('/search?q=x&mood=NOPE').expect(400);
+    });
+
+    it('T-381: 200 type=saved authed → returns user saved posts only', async () => {
+      const p1 = await makePost(prisma, { authorId: adminId, content: 'post one' });
+      const p2 = await makePost(prisma, { authorId: adminId, content: 'post two' });
+      await makePost(prisma, { authorId: adminId, content: 'post three' });
+      await prisma.savedPost.create({ data: { userId: aliceId, postId: p1.id } });
+      await prisma.savedPost.create({ data: { userId: aliceId, postId: p2.id } });
+
+      const res = await request(app.getHttpServer())
+        .get('/search?type=saved')
+        .set('Cookie', aliceCookies)
+        .expect(200);
+
+      const ids = res.body.data.posts.items.map((p: { id: string }) => p.id).sort();
+      expect(ids).toEqual([p1.id, p2.id].sort());
+      expect(res.body.data.posts.total).toBe(2);
+      expect(res.body.data.files).toEqual([]);
+      expect(res.body.data.tags).toEqual([]);
+    });
+
+    it('T-381: 401 type=saved anonymous → unauthorized', async () => {
+      await request(app.getHttpServer()).get('/search?type=saved').expect(401);
+    });
+
+    it('T-381: 200 type=saved + mood filter narrows results', async () => {
+      const p1 = await makePost(prisma, { authorId: adminId, mood: Mood.HAPPY });
+      const p2 = await makePost(prisma, { authorId: adminId, mood: Mood.SAD });
+      await prisma.savedPost.create({ data: { userId: aliceId, postId: p1.id } });
+      await prisma.savedPost.create({ data: { userId: aliceId, postId: p2.id } });
+
+      const res = await request(app.getHttpServer())
+        .get('/search?type=saved&mood=HAPPY')
+        .set('Cookie', aliceCookies)
+        .expect(200);
+
+      expect(res.body.data.posts.items).toHaveLength(1);
+      expect(res.body.data.posts.items[0].id).toBe(p1.id);
+      expect(res.body.data.posts.items[0].mood).toBe('HAPPY');
     });
 
     it('stats.withImages + stats.withFiles accurate', async () => {

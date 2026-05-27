@@ -6,40 +6,11 @@ import {
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
 } from '@/hooks/mutations/use-notification-mutations';
-import { formatRelative } from '@/lib/format-date';
-import type { NotificationItem, NotificationType } from '@/types/api';
+import { notifTargetPath } from '@/lib/notification-format';
+import { NotifRowBell } from '@/components/layout/NotifRowBell';
+import type { NotificationItem } from '@/types/api';
 
 type TabFilter = 'all' | 'unread';
-
-function notificationVerb(item: NotificationItem): string {
-  const actor = item.actor?.username ?? 'Someone';
-  switch (item.type as NotificationType) {
-    case 'REACTION': {
-      const emoji = item.metadata?.reactionType ? reactionEmoji(item.metadata.reactionType) : '👍';
-      return `${actor} reacted ${emoji} to your post`;
-    }
-    case 'COMMENT':
-      return `${actor} commented on your post`;
-    case 'REPLY':
-      return `${actor} replied to your comment`;
-    case 'SHARE':
-      return `${actor} shared your post`;
-    default:
-      return `${actor} interacted with your post`;
-  }
-}
-
-function reactionEmoji(type: string): string {
-  const map: Record<string, string> = {
-    LIKE: '👍',
-    LOVE: '❤️',
-    HAHA: '😆',
-    WOW: '😮',
-    SAD: '😢',
-    ANGRY: '😡',
-  };
-  return map[type] ?? '👍';
-}
 
 function getTimeGroup(iso: string): 'today' | 'yesterday' | 'older' {
   const d = new Date(iso);
@@ -52,25 +23,6 @@ function getTimeGroup(iso: string): 'today' | 'yesterday' | 'older' {
   return 'older';
 }
 
-function getTargetPath(item: NotificationItem): string {
-  const id = item.postId ?? (item.targetType === 'POST' ? item.targetId : null);
-  return id ? `/post/${id}` : '/';
-}
-
-function AvatarSm({ username, avatarUrl }: { username: string; avatarUrl: string | null }) {
-  const initial = username[0]?.toUpperCase() ?? '?';
-  if (avatarUrl) {
-    return (
-      <img src={avatarUrl} alt={username} className="w-7 h-7 rounded-full shrink-0 object-cover" />
-    );
-  }
-  return (
-    <div className="w-7 h-7 rounded-full shrink-0 bg-cyan/20 border border-cyan/40 flex items-center justify-center font-brand font-bold text-mono-sm text-cyan">
-      {initial}
-    </div>
-  );
-}
-
 function GroupLabel({ group }: { group: 'today' | 'yesterday' | 'older' }) {
   const label =
     group === 'today' ? '// today' : group === 'yesterday' ? '// yesterday' : '// older';
@@ -78,44 +30,6 @@ function GroupLabel({ group }: { group: 'today' | 'yesterday' | 'older' }) {
     <div className="px-3 py-1.5 font-mono text-mono-sm text-tm border-b border-b1 bg-bg/50">
       {label}
     </div>
-  );
-}
-
-function NotificationRow({
-  item,
-  onClickItem,
-}: {
-  item: NotificationItem;
-  onClickItem: (item: NotificationItem) => void;
-}) {
-  const verb = notificationVerb(item);
-  const truncated = verb.length > 60 ? verb.slice(0, 57) + '...' : verb;
-  return (
-    <button
-      type="button"
-      data-testid={`notification-item-${item.id}`}
-      onClick={() => onClickItem(item)}
-      className={`w-full flex items-start gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-cyan/5 ${
-        !item.read ? 'bg-cyan/[0.03]' : ''
-      }`}
-    >
-      {item.actor ? (
-        <AvatarSm username={item.actor.username} avatarUrl={item.actor.avatarUrl} />
-      ) : (
-        <div className="w-7 h-7 rounded-full shrink-0 bg-b2 flex items-center justify-center text-tm text-mono-sm">
-          ?
-        </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="font-mono text-mono text-ts leading-snug break-words">{truncated}</p>
-        <span className="font-mono text-mono-sm text-tm mt-0.5 block">
-          {formatRelative(item.createdAt)}
-        </span>
-      </div>
-      {!item.read && (
-        <span aria-hidden="true" className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blu shrink-0" />
-      )}
-    </button>
   );
 }
 
@@ -162,7 +76,7 @@ export function NotificationBell() {
     if (!item.read) {
       markRead.mutate({ id: item.id, read: true });
     }
-    navigate(getTargetPath(item));
+    navigate(notifTargetPath(item));
   }
 
   // Group items by time
@@ -276,7 +190,7 @@ export function NotificationBell() {
                 <div key={group}>
                   <GroupLabel group={group} />
                   {groupItems.map((item) => (
-                    <NotificationRow key={item.id} item={item} onClickItem={handleClickItem} />
+                    <NotifRowBell key={item.id} notif={item} onClickItem={handleClickItem} />
                   ))}
                 </div>
               ))}

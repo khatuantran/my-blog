@@ -138,7 +138,12 @@ describe('NotificationBell (T-313)', () => {
     await waitFor(() => expect(screen.getByTestId('notification-dropdown')).toBeInTheDocument());
     // Switch to Unread tab
     await user.click(screen.getByTestId('notification-tab-unread'));
-    expect(await screen.findByText('alice reacted 👍 to your post')).toBeInTheDocument();
+    // T-353: NotifRowBell renders content split into spans — actor (blu) + cfg.verb (td) + 'your post' (td).
+    // Emoji moved from verb text into the type badge.
+    const row = await screen.findByTestId('notification-item-n-unread');
+    expect(row).toHaveTextContent('alice');
+    expect(row).toHaveTextContent('reacted to');
+    expect(row).toHaveTextContent('your post');
   });
 
   it('6. click item → navigate + gọi mark-read', async () => {

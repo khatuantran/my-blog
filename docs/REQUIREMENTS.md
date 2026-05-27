@@ -563,9 +563,9 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-14.10 Bulk endpoints reuse:** PATCH `/notifications/bulk-read { ids }` (NEW — add endpoint) hoặc reuse PATCH `/notifications/:id/read` × N parallel (defer 1 endpoint to phase 2). DELETE `/notifications/bulk { ids }` already exists (T-312).
 - **FR-14.11 Toast feedback (NEW):** Mọi action (mark read / delete single / bulk action / mark-all / clear-all) trigger toast bottom-right slideDown 2500ms (success grn ✓ / error red ✕). Pattern xem `DESIGN_SYSTEM.md > Toast notification pattern`.
 - **FR-14.12 Clear all action (NEW):** SubBar right có button `✕ clear all` (visible khi `notifs.length > 0`) → `window.confirm("Delete all N notifications?")` HOẶC ConfirmDialog Tags variant 360px → DELETE all user notifications + toast.
-- **FR-14.13 NotifRow split variants (NEW — clarify):** Doc spec 2 components riêng cho 2 contexts (xem `DESIGN_SYSTEM.md > NotifRowBell + NotifRowPage`):
-  - **NotifRowBell** (TopBar dropdown): 34×34 avatar + 18×18 type badge + 2px border-left + 4 types (like/comment/share/save legacy).
-  - **NotifRowPage** (`/notifications` page): 40×40 avatar + 20×20 type badge + 3px border-left + 4 types (reaction/comment/reply/share new) + checkbox column + `replyTo` field display + mark toggle + delete buttons.
+- **FR-14.13 NotifRow split variants (NEW — clarify):** Doc spec 2 components riêng cho 2 contexts (xem `DESIGN_SYSTEM.md > NotifRowBell + NotifRowPage`). Cả 2 dùng cùng 4 type của `NotificationType` enum (REACTION/COMMENT/REPLY/SHARE — đồng bộ với BE data, KHÔNG dùng legacy types như like/save từ design-file cũ):
+  - **NotifRowBell** (TopBar dropdown — compact): 34×34 avatar + 18×18 type badge + 2px border-left, click-only navigate, không action button.
+  - **NotifRowPage** (`/notifications` page — full): 40×40 avatar + 20×20 type badge + 3px border-left + checkbox column + `replyTo` field display + mark toggle + delete buttons.
 - **Acceptance Criteria (Given/When/Then):**
   - Given user B react LOVE post của user A → Then Notification table có 1 row `{userId=A, actorId=B, type=REACTION, postId=<post>, metadata: {reactionType:'LOVE'}, read=false}` + bell badge của A +1
   - Given user B đổi reaction LIKE→LOVE → KHÔNG tạo notification mới (chỉ create events được log)

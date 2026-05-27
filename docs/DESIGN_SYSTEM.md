@@ -936,9 +936,13 @@ Composite wrapper kết hợp [[#ReactionPicker (FR-16, M11.7 — updated 2026-0
   - Line 1: user blu mono + verb muted + `your post` muted.
   - Line 2: snippet 12 italic muted truncate ellipsis nowrap mb 2.
   - Line 3: `#<post-id>` + `·` + time muted mono 10 + (right auto, `· ● new` color `cfg.color` if unread).
-- **TYPE_CFG (4 legacy types):** `like ❤ mag`, `comment 💬 blu`, `share ↗ pur`, `save 🔖 yel`.
+- **TYPE_CFG (4 types — đồng bộ `NotificationType` enum + NotifRowPage):**
+  - `REACTION ❤ mag` (`#FF6E96`), verb `reacted to`.
+  - `COMMENT 💬 blu` (`#7DCFFF`), verb `commented on`.
+  - `REPLY ↩ grn` (`#9ECE6A`), verb `replied to your comment on`.
+  - `SHARE ↗ pur` (`#BB9AF7`), verb `shared`.
 - **Behavior:** entire row click → navigate `/post/<post-id>` + mark read.
-- **Reference:** `design-file/myblog-shared-ui.jsx` L194-241.
+- **Reference:** `design-file/myblog-shared-ui.jsx` L194-241 (sizing reference; type set đã sync sang 4 enum thật, không dùng `like/save` legacy).
 
 #### NotifRowPage (Notifications page variant)
 

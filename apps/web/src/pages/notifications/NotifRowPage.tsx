@@ -1,19 +1,7 @@
 import type { NotificationItem } from '@/types/api';
 import { formatRelative } from '@/lib/format-date';
+import { NOTIF_TYPE_CFG } from '@/lib/notification-format';
 import { Link } from 'react-router';
-
-type NotifCfg = {
-  icon: string;
-  color: string;
-  verb: string;
-};
-
-const TYPE_CFG: Record<string, NotifCfg> = {
-  REACTION: { icon: '❤', color: '#FF6E96', verb: 'reacted to' },
-  COMMENT: { icon: '💬', color: '#7DCFFF', verb: 'commented on' },
-  REPLY: { icon: '↩', color: '#9ECE6A', verb: 'replied to your comment on' },
-  SHARE: { icon: '↗', color: '#BB9AF7', verb: 'shared' },
-};
 
 interface Props {
   notif: NotificationItem;
@@ -24,7 +12,7 @@ interface Props {
 }
 
 export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDelete }: Props) {
-  const cfg = TYPE_CFG[notif.type] ?? TYPE_CFG.REACTION;
+  const cfg = NOTIF_TYPE_CFG[notif.type] ?? NOTIF_TYPE_CFG.REACTION;
   const replyTo = notif.metadata?.replyTo?.username;
 
   const borderColor = selected ? 'var(--cyan)' : notif.read ? 'transparent' : cfg.color;

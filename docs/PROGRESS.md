@@ -34,6 +34,10 @@
 
 ## Weekly Log
 
+### 2026-05-27 (M11.8 NotifRow polish)
+
+- **Done (T-353 FE NotifRow split):** Extract inline `NotificationRow` của `NotificationBell.tsx` thành NEW `NotifRowBell.tsx` match design spec (34×34 avatar / 18×18 badge / 2px border-left / cfg.color tint / 3-line content). Shared TYPE_CFG + verb/emoji/path helpers extracted ra `apps/web/src/lib/notification-format.ts` (đồng bộ giữa Bell + Page). NotifRowPage audited line-by-line vs DESIGN_SYSTEM spec — đạt full; refactor để reuse `NOTIF_TYPE_CFG` từ lib (xóa duplicate). Doc sync: FR-14.13 + DESIGN_SYSTEM NotifRowBell section updated từ 4 legacy types (`like/comment/share/save`) → 4 real types (`REACTION/COMMENT/REPLY/SHARE`) — đồng bộ với `NotificationType` enum + actual BE data. Tests: 2 new test files (`NotifRowBell.test.tsx` + `NotifRowPage.test.tsx`) 12 case total; existing `NotificationBell.test.tsx` tab-switch assertion updated (test-stale-assumption — row text split spans, emoji moved to badge). 18/18 notif tests pass; full FE regression: 423/426 pass (3 pre-existing failures in ManagePostsPage.test.tsx — unrelated, confirmed by stash-and-rerun on main).
+
 ### 2026-05-26 (UI Design Fidelity Review)
 
 - **Done (T-352 FE NotificationsPage rewrite):** NEW `NotificationsPage.tsx` + `NotifRowPage.tsx` route `/notifications`. SubBar + 6 type tabs + search 150ms debounce + bulk action bar + 2 empty states + group-time labels + toast. `useInfiniteNotifications` + `useBulkDeleteNotifications` hooks. 11/11 tests pass. `useMemo` allItems fix. T-314 scope covered by this rewrite.

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { usePost } from '@/hooks/queries/use-posts';
 import { useTrackView } from '@/hooks/use-track-view';
@@ -6,6 +7,7 @@ import { PostContent } from '@/components/post/PostContent';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { MetaPanel } from '@/components/post/MetaPanel';
 import { ImageCarousel } from '@/components/post/ImageCarousel';
+import { ImageLightbox } from '@/components/feed/ImageLightbox';
 import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from '@/components/feed/ReactionButton';
 import { SaveButton } from '@/components/feed/SaveButton';
@@ -17,6 +19,7 @@ export default function PostDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: post, isLoading, error } = usePost(id);
   useTrackView(post?.id);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   if (isLoading) {
     return (
@@ -55,7 +58,7 @@ export default function PostDetailPage() {
         <article className="min-w-0 flex-1">
           <PostHeader post={post} avatarSize="lg" />
           <PostContent content={post.content} variant="detail" />
-          <ImageCarousel images={post.images} />
+          <ImageCarousel images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
           <FileAttachments files={post.files} />
 
           {post.tags.length > 0 && (
@@ -116,6 +119,15 @@ export default function PostDetailPage() {
 
         <MetaPanel post={post} />
       </div>
+
+      {lightboxIdx !== null && post.images.length > 0 && (
+        <ImageLightbox
+          images={post.images}
+          startIdx={lightboxIdx}
+          postPath={`~/post/${post.id.slice(-6)}`}
+          onClose={() => setLightboxIdx(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageCarousel } from '@/components/post/ImageCarousel';
@@ -91,5 +91,25 @@ describe('ImageCarousel (T-377)', () => {
     fireEvent.error(img!);
     expect(container.querySelector('img')).toBeNull();
     expect(screen.getByRole('img', { name: /photo.01/i })).toBeInTheDocument();
+  });
+
+  it('T-331: onImageClick callback fires với current idx khi click image', async () => {
+    const user = userEvent.setup();
+    const onImageClick = vi.fn();
+    render(<ImageCarousel images={makeImages(3)} onImageClick={onImageClick} />);
+    // idx 0 → click
+    const opener = screen.getByTestId('image-carousel-open-lightbox');
+    await user.click(opener);
+    expect(onImageClick).toHaveBeenCalledTimes(1);
+    expect(onImageClick).toHaveBeenLastCalledWith(0);
+    // advance to idx 1 → click again
+    await user.click(screen.getByRole('button', { name: /next image/i }));
+    await user.click(screen.getByTestId('image-carousel-open-lightbox'));
+    expect(onImageClick).toHaveBeenLastCalledWith(1);
+  });
+
+  it('T-331: KHÔNG render image button khi onImageClick không cung cấp', () => {
+    render(<ImageCarousel images={makeImages(2)} />);
+    expect(screen.queryByTestId('image-carousel-open-lightbox')).toBeNull();
   });
 });

@@ -303,7 +303,7 @@
 
 **Polish (port foundation vào 8 màn cũ):**
 
-- [T-331] [P2] [F1] [FE] ImageGrid `onImageClick` callback + ImageLightbox component (full-screen modal carousel + keyboard nav ←/→/Esc) port từ design-file/MyBlog Feed.html v2. Wire vào PostCard + PostDetail. Tests: 4 case (open/close/keyboard nav/multi-image). (Foundation) - TODO
+- [T-331] [P2] [F1] [FE] ImageGrid `onImageClick` callback + ImageLightbox component (full-screen modal carousel + keyboard nav ←/→/Esc) port từ design-file/MyBlog Feed.html v2. Wire vào PostCard + PostDetail. Tests: 4 case (open/close/keyboard nav/multi-image). (Foundation) - DONE 2026-05-27 (PostCard + ImageGrid + Lightbox component cover bởi T-355 2026-05-25; gap PostDetail wire ImageCarousel→Lightbox closed bởi commit 2026-05-27 — onImageClick prop + 2 regression test)
 - [T-332] [P2] [F1] [FE] PostContent typography sync (14→15px Feed, 15→16px PostDetail) + ImageCarousel nav buttons refined per design v2. (Foundation) - TODO
 - [T-333] [P2] [F1] [FE] CreatePostPage — editor MonoSpace → Inter cho content prose (toggle var qua CSS class), image preview grid revamp giống Feed (1/2/3+ +N overlay), preview file attachment. (Foundation) - TODO
 - [T-334] [P3] [F5] [FE] Responsive sweep 8 màn cũ — port v2 5-tier breakpoint CSS từ design-file (Feed/PostDetail/Profile/Admin/Search/Tags/Login/CreatePost). Pure CSS refactor, không đổi behavior. (Foundation, NFR-02) - TODO

@@ -4,12 +4,13 @@ import type { ImageItem } from './ImageGrid';
 
 type Props = {
   images: ImageItem[];
+  onImageClick?: (idx: number) => void;
 };
 
 const NAV_BTN =
   'absolute top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-b2 font-mono text-tp transition-colors hover:border-cyan hover:text-cyan';
 
-export function ImageCarousel({ images }: Props) {
+export function ImageCarousel({ images, onImageClick }: Props) {
   const [idx, setIdx] = useState(0);
   const [broken, setBroken] = useState<Record<number, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,6 +53,21 @@ export function ImageCarousel({ images }: Props) {
     >
       {isBroken ? (
         <ImgSlot idx={idx} />
+      ) : onImageClick ? (
+        <button
+          type="button"
+          data-testid="image-carousel-open-lightbox"
+          aria-label={`Open image ${idx + 1} in lightbox`}
+          onClick={() => onImageClick(idx)}
+          className="block h-full w-full cursor-zoom-in"
+        >
+          <img
+            src={current.url}
+            alt=""
+            className="h-full w-full object-contain"
+            onError={() => setBroken((s) => ({ ...s, [idx]: true }))}
+          />
+        </button>
       ) : (
         <img
           src={current.url}

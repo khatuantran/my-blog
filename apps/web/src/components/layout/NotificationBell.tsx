@@ -40,7 +40,7 @@ export function NotificationBell() {
 
   const { data: unreadData } = useUnreadCount();
   const unreadCount = unreadData?.count ?? 0;
-  const badgeLabel = unreadCount > 99 ? '99+' : String(unreadCount);
+  const badgeLabel = unreadCount > 9 ? '9+' : String(unreadCount);
 
   const { data: notifData, isLoading } = useNotifications({ filter: tab, limit: 10 });
   const items = notifData?.items ?? [];
@@ -93,7 +93,7 @@ export function NotificationBell() {
 
   return (
     <div ref={containerRef} data-testid="notification-bell-container" className="relative">
-      {/* Bell button */}
+      {/* Bell button — design-file 2026-05-24: bordered container + SVG bell */}
       <button
         type="button"
         data-testid="notification-bell"
@@ -101,17 +101,37 @@ export function NotificationBell() {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
-        className={`relative w-8 h-8 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
-          open ? 'text-cyan' : 'text-tm hover:text-cyan'
+        className={`relative w-8 h-8 flex items-center justify-center rounded-md border border-b2 bg-elev transition-colors cursor-pointer ${
+          open
+            ? 'text-cyan bg-cyan/[0.08] shadow-[0_0_12px_rgba(125,207,255,0.2)]'
+            : 'text-ts hover:text-cyan hover:bg-cyan/[0.08]'
         }`}
       >
-        <span className="text-[18px] leading-none select-none">🔔</span>
+        <svg
+          data-testid="notification-bell-icon"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+          <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+        </svg>
         {unreadCount > 0 && (
           <span
             data-testid="notification-badge"
             aria-hidden="true"
-            className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-[3px] rounded-full bg-mag flex items-center justify-center font-mono font-bold text-white animate-pulse-status"
-            style={{ fontSize: 9 }}
+            className="absolute -top-[3px] -right-[3px] min-w-4 h-4 px-1 rounded-lg bg-mag flex items-center justify-center font-mono font-bold animate-pulse-status"
+            style={{
+              fontSize: 10,
+              color: 'var(--bg)',
+              boxShadow: '0 0 0 1.5px var(--surf), 0 0 6px rgba(255,110,150,0.8)',
+            }}
           >
             {badgeLabel}
           </span>

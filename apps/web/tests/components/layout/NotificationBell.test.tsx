@@ -70,16 +70,63 @@ describe('NotificationBell (T-313)', () => {
     });
   });
 
-  it('3. badge hiển thị 99+ khi unreadCount > 99', async () => {
-    mswServer.use(unreadCountOk(150));
+  it('3. T-359 badge hiển thị 9+ khi unreadCount > 9 (KHÔNG 99+)', async () => {
+    mswServer.use(unreadCountOk(15));
     render(
       <TestProviders>
         <NotificationBell />
       </TestProviders>,
     );
     await waitFor(() => {
-      expect(screen.getByTestId('notification-badge')).toHaveTextContent('99+');
+      expect(screen.getByTestId('notification-badge')).toHaveTextContent('9+');
     });
+  });
+
+  it('T-359: bell icon là inline SVG 15×15 viewBox 24 với 2 paths (body + clapper)', async () => {
+    render(
+      <TestProviders>
+        <NotificationBell />
+      </TestProviders>,
+    );
+    const icon = await screen.findByTestId('notification-bell-icon');
+    expect(icon.tagName.toLowerCase()).toBe('svg');
+    expect(icon.getAttribute('width')).toBe('15');
+    expect(icon.getAttribute('height')).toBe('15');
+    expect(icon.getAttribute('viewBox')).toBe('0 0 24 24');
+    expect(icon.getAttribute('stroke-width')).toBe('2');
+    const paths = icon.querySelectorAll('path');
+    expect(paths.length).toBe(2);
+    // không còn emoji 🔔
+    const bell = screen.getByTestId('notification-bell');
+    expect(bell.textContent ?? '').not.toContain('🔔');
+  });
+
+  it('T-359: button 32×32 có border 1px --b2 + bg --elev', async () => {
+    render(
+      <TestProviders>
+        <NotificationBell />
+      </TestProviders>,
+    );
+    const bell = await screen.findByTestId('notification-bell');
+    expect(bell.className).toMatch(/w-8/);
+    expect(bell.className).toMatch(/h-8/);
+    expect(bell.className).toMatch(/border-b2/);
+    expect(bell.className).toMatch(/bg-elev/);
+    expect(bell.className).toMatch(/border\b/);
+  });
+
+  it('T-359: badge có ring 1.5px --surf + color --bg (không white)', async () => {
+    mswServer.use(unreadCountOk(3));
+    render(
+      <TestProviders>
+        <NotificationBell />
+      </TestProviders>,
+    );
+    const badge = await screen.findByTestId('notification-badge');
+    // Ring rendered via boxShadow (Tailwind ring utilities cannot interpolate var(--surf))
+    expect(badge.style.boxShadow).toMatch(/1\.5px var\(--surf\)/);
+    expect(badge.style.color).toBe('var(--bg)');
+    expect(badge.className).not.toMatch(/text-white/);
   });
 
   it('4. dropdown toggle: click mở, click ngoài đóng', async () => {

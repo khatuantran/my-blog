@@ -676,7 +676,7 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Interactions:** click bell → toggle open; click outside (mousedown listener) / Esc → close; click row → navigate target + mark read; sync với `useUnreadCount()` polling 30s.
 - **Accessibility:** `aria-label="Notifications, N unread"`, role `button` aria-expanded; arrow keys nav list rows; Enter activate.
 - **Reference:** `design-file/myblog-shared-ui.jsx` L101-257 + `design-file/MyBlog Feed.html` L1057-1196.
-- **Code drift (flag F1/F5 task):** FE `apps/web/src/components/layout/NotificationBell.tsx` hiện dùng `🔔` emoji 18px + no-border button + threshold `>99 → "99+"` + badge no-ring border + bg-white color. Cần refactor theo spec mới.
+- **Code drift:** RESOLVED 2026-05-27 (T-359) — FE đã refactor sang SVG bell + bordered button + ring badge + threshold `>9 → "9+"` + color `--bg`.
 
 ### ReactionPicker (FR-16, M11.7 — updated 2026-05-24 design-file sync)
 

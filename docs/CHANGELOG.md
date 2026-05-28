@@ -6,6 +6,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Notes
 
+- **Design Fidelity Audit + fix — M11.10 (code-level, 11 screens)** (2026-05-28→29, Docs+FE): Deep code-level diff `design-file` vs FE (`docs/audits/DESIGN_FIDELITY_2026-05-28.md`) — 4 bucket (typography/components/animations/colors), capture được animation/hover mà screenshot bỏ sót. 5 systemic theme + per-screen drift. Fix qua 6 wave T-390→T-395 + T-397 (EmojiPicker wire). T-396 re-verify: **0 Critical còn lại** — UI đạt chuẩn design-file v2 (trừ defer/backlog có task riêng: AI suggest T-346/347, related posts M11, born-year meta). User decisions: Profile hero → full name; mono font → token-based normalize (Option A, giữ token scale). Khuyến nghị next: Playwright `toHaveScreenshot()` baseline.
 - **UI Design Fidelity Review — 8 implemented screens** (2026-05-26, Docs): Compare `design-file/MyBlog *.html` prototypes vs FE actual `http://localhost:5173` via Playwright Chromium @ 1440×900. 16 screenshots saved `/tmp/ui-review-all/<slug>/{design,fe}.png`. Result: ✅ Search match · ⚠️ 6 minor drift (Login/Feed/Post Detail/Profile/Tags/Create Post — covered by existing M11.9 tasks T-370/371/373/374/368/347) · ❌ Admin broken (NEW BUG-006 Critical P0 → T-380 fix task TODO). Read-only audit — no code changes.
 
 ### Added

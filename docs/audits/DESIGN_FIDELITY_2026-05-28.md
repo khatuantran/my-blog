@@ -4,6 +4,34 @@
 >
 > Scope: 10 screen + 1 shared cluster. Severity: **Critical** = missing/extra component, sai animation/màu/glow, cỡ ≥4px hoặc ≥200 weight. **Minor** = 1-3px, 100 weight, opacity ≤0.1, blur ±2px.
 
+## ✅ Verification (T-396, 2026-05-29) — RESOLVED
+
+Sau 6 fix wave (T-390→T-395) + T-397, re-verify code-level toàn 11 screen. **Tất cả Critical thật đã fix**; phần còn lại là intentional / backlog / accepted-noise (KHÔNG tính Critical thực sự).
+
+| Theme / area                                                                                                                                                    | Status                                                                                 | Commit          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | --------------- |
+| THEME-1 cyan-vs-blue (5 site)                                                                                                                                   | ✅ Fixed — `grep 125,207,255 = 0`                                                      | T-390 `37241b2` |
+| THEME-3 glow shadows + modal recipe                                                                                                                             | ✅ Fixed — 3 token + StatCard/PostCardMng hover + focus glow + modal/panel shadow      | T-391 `3935067` |
+| THEME-2 mono font                                                                                                                                               | ✅ Resolved (Option A token-based — username 12px, Login 15px; còn lại accepted-noise) | T-392 `fe18937` |
+| THEME-4 fadeUp + stagger                                                                                                                                        | ✅ Fixed — Search stagger added, TagCard/Feed fade-up-md                               | T-393 `ccb6fc5` |
+| W5 per-screen (Notif avatar / Tags accent / heatmap legend / PostMiniCard ::before / Profile name / Login timing / mark-all cyan / upload pulse / publish glow) | ✅ Fixed (6/7)                                                                         | T-394 `eb0ce3e` |
+| W6 minor cleanup (6 delta)                                                                                                                                      | ✅ Fixed                                                                               | T-395 `7b49e4c` |
+| Create Post EmojiPicker wire                                                                                                                                    | ✅ Fixed                                                                               | T-397 `7d3d7a5` |
+
+**Verified present (grep):** 0 blue rgba · 3 glow tokens · StatCard+PostCardMng hover glow · TagModal/QuickEditModal/NotifBell modal shadow · username `text-mono` · Login `text-[15px]` · PostCard/TagCard `fade-up-md` · ResultCard stagger · Notif avatar gradient · heatmap-legend · mini-card-accent · Profile `name||username` · mark-all cyan · cursor 530ms · upload dashed-pulse · EmojiPicker wired. **440 FE tests (437 pass, 3 pre-existing ManagePostsPage unrelated).**
+
+**Accepted-noise / deferred / backlog (KHÔNG fix — có lý do):**
+
+- Post Detail related-posts stub → M11 defer · SaveButton extra → intentional FR-04
+- Create Post AI suggest → T-346/T-347 backlog · text-color `▾` cue → minor skip
+- Manage Posts checkbox column → intentional FR-15 bulk
+- Profile hero born-year meta → chỉ làm `name` (user decision) · timestamp 10px / [ADMIN] badge 10px → no exact token / T-378 intentional
+- Comment body 13px mono vs 15px Inter → terminal-aesthetic choice
+- Notifications/ManagePosts row entry animation → defer (risk jank infinite-scroll)
+- Login ~100% từ đầu (reference chuẩn)
+
+→ **Kết luận: 0 Critical còn lại. UI fidelity đạt chuẩn design-file v2** (trừ các mục defer/backlog có task riêng). Khuyến nghị tiếp: setup Playwright `toHaveScreenshot()` baseline (T-40X) để chống drift tương lai.
+
 ## Summary
 
 | Screen        | Critical | Minor  | Note                                                                            |

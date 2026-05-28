@@ -34,7 +34,7 @@ export function NotifRowBell({ notif, onClickItem }: Props) {
             className="flex h-[34px] w-[34px] items-center justify-center rounded-full font-mono text-sm font-bold"
             style={{
               border: '1.5px solid var(--b2)',
-              background: 'linear-gradient(135deg, rgba(125,207,255,0.2), rgba(187,154,247,0.2))',
+              background: 'linear-gradient(135deg, rgba(0,255,229,0.2), rgba(187,154,247,0.2))',
               color: 'var(--tc)',
             }}
           >

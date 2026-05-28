@@ -246,9 +246,9 @@ export default function NotificationsPage() {
                 }}
                 className="flex items-center gap-1 rounded px-3 py-1 font-mono text-mono-sm transition-colors"
                 style={{
-                  background: active ? 'rgba(125,207,255,0.1)' : 'transparent',
+                  background: active ? 'rgba(0,255,229,0.08)' : 'transparent',
                   color: active ? 'var(--cyan)' : 'var(--td)',
-                  border: active ? '1px solid rgba(125,207,255,0.3)' : '1px solid transparent',
+                  border: active ? '1px solid rgba(0,255,229,0.5)' : '1px solid transparent',
                 }}
               >
                 <span>{t.icon}</span>
@@ -257,7 +257,7 @@ export default function NotificationsPage() {
                   <span
                     className="ml-1 rounded px-1 text-[10px]"
                     style={{
-                      background: active ? 'rgba(125,207,255,0.2)' : 'var(--b1)',
+                      background: active ? 'rgba(0,255,229,0.2)' : 'var(--b1)',
                       color: active ? 'var(--cyan)' : 'var(--td)',
                     }}
                   >

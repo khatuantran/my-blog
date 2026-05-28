@@ -38,7 +38,7 @@ export function ResultCard({ post, query }: Props) {
         data-testid="result-card-accent"
         className="pointer-events-none absolute left-0 right-0 top-0 h-px opacity-0 transition-opacity duration-200 group-hover:opacity-100"
         style={{
-          background: 'linear-gradient(90deg, transparent, rgba(125,207,255,0.3), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(0,255,229,0.3), transparent)',
         }}
       />
       {/* Post-id corner deco */}

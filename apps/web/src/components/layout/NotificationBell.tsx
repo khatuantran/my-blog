@@ -103,7 +103,7 @@ export function NotificationBell() {
         onClick={() => setOpen((v) => !v)}
         className={`relative w-8 h-8 flex items-center justify-center rounded-md border border-b2 bg-elev transition-colors cursor-pointer ${
           open
-            ? 'text-cyan bg-cyan/[0.08] shadow-[0_0_12px_rgba(125,207,255,0.2)]'
+            ? 'text-cyan bg-cyan/[0.08] shadow-[0_0_12px_rgba(0,255,229,0.2)]'
             : 'text-ts hover:text-cyan hover:bg-cyan/[0.08]'
         }`}
       >

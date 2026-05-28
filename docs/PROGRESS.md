@@ -34,6 +34,11 @@
 
 ## Weekly Log
 
+### 2026-05-28 (M11.10 Design fidelity sweep)
+
+- **Done (audit — DESIGN_FIDELITY_2026-05-28.md):** Code-level diff design-file vs FE toàn 11 screen (4 bucket: typography/components/animations/colors). ~20 Critical thật + 75 Minor. 5 systemic theme: THEME-1 cyan-vs-blue, THEME-2 mono font 1-2px nhỏ, THEME-3 thiếu cyan glow shadow, THEME-4 fadeUp timing/stagger, THEME-5 dynamic per-color glow. Login ~100% match (reference). Notifications nặng nhất (7 Critical). Mở 7 task M11.10: T-390→T-395 (6 wave) + T-396 re-audit verification. User decisions: Profile hero → full name; Minor typography → fix triệt để.
+- **Done (T-390 Wave 1 — THEME-1 cyan-vs-blue):** Fix 5 site dùng blue `rgba(125,207,255)` sai ở active/selected/accent → cyan `rgba(0,255,229)`: ResultCard accent gradient, NotificationsPage active tab (bg+border+badge), NotifRowBell avatar gradient, NotifRowPage selected bgTint, NotificationBell open glow. text-blu links giữ intentional. grep confirm 0 remaining. 40/40 affected tests pass.
+
 ### 2026-05-27 (M11.8 NotifRow polish)
 
 - **Done (T-351 FE SearchPage rewrite):** Full rewrite per design-file v2 (FR-12.8-.12). BigSearchInput: Inter 18 + ❯ search label + ⌘K badge. Filter row: 3 type chips All/Saved/Files (replace 4-chip set) + 7 mood emoji buttons (replace 5) + × reset link. 3 empty-state sections khi q='' no filter (recent.searches / browse.tags / all.posts preview qua /posts limit 10). No-results state với ◎ + grep bash hint + clear button + top 3 try-recent quick buttons. ResultCard: top accent line gradient hover + post-id corner deco + highlight mark `bg-cyan/20` (was /30). Consume new type=saved từ T-381 BE. 8 new test case (hero/Saved chip/HAPPY mood/3 empty/highlight/no-results/reset/recent localStorage). 8/8 pass; 430/433 full FE (3 pre-existing).

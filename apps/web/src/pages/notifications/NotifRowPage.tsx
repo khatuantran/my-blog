@@ -16,11 +16,7 @@ export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDe
   const replyTo = notif.metadata?.replyTo?.username;
 
   const borderColor = selected ? 'var(--cyan)' : notif.read ? 'transparent' : cfg.color;
-  const bgTint = selected
-    ? 'rgba(125,207,255,0.05)'
-    : notif.read
-      ? 'transparent'
-      : `${cfg.color}0f`;
+  const bgTint = selected ? 'rgba(0,255,229,0.05)' : notif.read ? 'transparent' : `${cfg.color}0f`;
 
   const timeAgo = formatRelative(notif.createdAt);
   const postLink = notif.postId ? `/post/${notif.postId}` : '#';

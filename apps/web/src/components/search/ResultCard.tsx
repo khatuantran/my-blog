@@ -5,6 +5,7 @@ import { MoodBadge } from '@/components/shared/MoodBadge';
 type Props = {
   post: Post;
   query?: string;
+  index?: number;
 };
 
 function highlight(text: string, q: string): React.ReactNode[] {
@@ -23,14 +24,15 @@ function highlight(text: string, q: string): React.ReactNode[] {
   );
 }
 
-export function ResultCard({ post, query }: Props) {
+export function ResultCard({ post, query, index = 0 }: Props) {
   const preview = post.content.slice(0, 240);
   const idShort = post.id.slice(0, 6);
   return (
     <Link
       to={`/post/${post.id}`}
       data-testid={`result-card-${post.id}`}
-      className="group relative block overflow-hidden rounded-md border border-b2 bg-surf p-4 no-underline transition-colors hover:border-cyan/40"
+      className="group relative block animate-fade-up overflow-hidden rounded-md border border-b2 bg-surf p-4 no-underline transition-colors hover:border-cyan/40"
+      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
     >
       {/* Top accent line — hover reveal */}
       <span

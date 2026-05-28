@@ -73,8 +73,8 @@ export function TagCard({
   return (
     <div
       data-testid={`tag-card-${tag.name}`}
-      className="group relative overflow-hidden rounded-md border border-b2 bg-surf p-4 transition-all animate-fade-up hover:border-cyan/40 hover:shadow-glow-cyan-sm"
-      style={{ animationDelay: `${(index ?? 0) * 60}ms`, animationFillMode: 'both' }}
+      className="group relative overflow-hidden rounded-md border border-b2 bg-surf p-4 transition-all animate-fade-up-md hover:border-cyan/40 hover:shadow-glow-cyan-sm"
+      style={{ animationDelay: `${(index ?? 0) * 20}ms`, animationFillMode: 'both' }}
     >
       {/* Top accent line — visible on hover */}
       <div

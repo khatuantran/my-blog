@@ -239,8 +239,8 @@ export default function SearchPage() {
             </div>
             {browsePostsData && browsePostsData.items.length > 0 ? (
               <div className="space-y-2">
-                {browsePostsData.items.map((p) => (
-                  <ResultCard key={p.id} post={p} />
+                {browsePostsData.items.map((p, i) => (
+                  <ResultCard key={p.id} post={p} index={i} />
                 ))}
               </div>
             ) : (
@@ -309,8 +309,8 @@ export default function SearchPage() {
                   // results · {data.posts.total} match{data.posts.total === 1 ? '' : 'es'}
                 </div>
                 <div className="space-y-2">
-                  {data.posts.items.map((p) => (
-                    <ResultCard key={p.id} post={p} query={urlQ} />
+                  {data.posts.items.map((p, i) => (
+                    <ResultCard key={p.id} post={p} query={urlQ} index={i} />
                   ))}
                 </div>
               </section>

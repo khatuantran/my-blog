@@ -157,7 +157,7 @@ export function NotificationBell() {
                 data-testid="notification-mark-all-read"
                 onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
-                className="font-mono text-mono-sm text-grn hover:text-tp transition-colors disabled:opacity-50"
+                className="font-mono text-mono-sm text-cyan hover:text-tp transition-colors disabled:opacity-50"
               >
                 ✓ mark all read
               </button>

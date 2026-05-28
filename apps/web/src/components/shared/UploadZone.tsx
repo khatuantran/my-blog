@@ -101,7 +101,7 @@ export function UploadZone({
         className={`rounded-lg border-2 border-dashed px-5 py-7 text-center font-mono text-mono-sm transition-colors ${
           full
             ? 'cursor-not-allowed border-b2 text-td opacity-60'
-            : `cursor-pointer ${dragOver ? 'border-cyan bg-cyan/5 text-cyan' : 'border-b2 text-tm hover:border-b3 hover:text-tp'}`
+            : `cursor-pointer ${dragOver ? 'border-cyan bg-cyan/5 text-cyan' : 'animate-dashed-pulse border-b2 text-tm hover:border-b3 hover:text-tp'}`
         }`}
       >
         {full ? (

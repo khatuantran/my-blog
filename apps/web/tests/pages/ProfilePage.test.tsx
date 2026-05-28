@@ -83,7 +83,10 @@ describe('ProfilePage (T-221, T-374, FR-11)', () => {
   it('renders hero — username + title + bio + stats', async () => {
     wrap('/profile/alice');
     await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
-    expect(screen.getByText(/\/alice/)).toBeInTheDocument();
+    // T-394: hero shows full name (user.name) hoặc fallback username khi name null.
+    // Mock không có `name` → hiển thị username "alice".
+    expect(screen.getByTestId('profile-username')).toHaveTextContent('alice');
+    expect(screen.getByText('@alice')).toBeInTheDocument();
     expect(screen.getByText('Full-stack Dev')).toBeInTheDocument();
     expect(screen.getByText('curious')).toBeInTheDocument();
     // stats appear in hero meta row; tab badge also shows postsCount → use getAllByText

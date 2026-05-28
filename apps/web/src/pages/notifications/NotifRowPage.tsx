@@ -49,7 +49,14 @@ export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDe
       <div className="relative shrink-0">
         <div
           className="flex h-10 w-10 items-center justify-center rounded-full border border-b2 font-mono text-sm font-bold"
-          style={{ background: 'var(--elev)', color: 'var(--tc)' }}
+          style={
+            notif.actor
+              ? {
+                  background: 'linear-gradient(135deg, rgba(0,255,229,0.2), rgba(187,154,247,0.2))',
+                  color: 'var(--cyan)',
+                }
+              : { background: 'var(--elev)', color: 'var(--td)' }
+          }
         >
           {notif.actor ? notif.actor.username[0]?.toUpperCase() : '?'}
         </div>

@@ -155,6 +155,7 @@ const config: Config = {
         'fade-up': 'fade-up 200ms ease', // DeleteConfirm (was 300ms generic)
         'fade-up-md': 'fade-up 250ms ease', // drawer
         'fade-up-lg': 'fade-up 350ms ease', // Login card
+        'dashed-pulse': 'dashedPulse 2s ease-in-out infinite', // UploadZone idle border (T-394)
       },
       keyframes: {
         glitch: {
@@ -189,6 +190,10 @@ const config: Config = {
         'fade-up': {
           from: { opacity: '0', transform: 'translateY(8px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        dashedPulse: {
+          '0%, 100%': { borderColor: '#2A3548' },
+          '50%': { borderColor: '#3D4A63' },
         },
         borderRotate: {
           from: { transform: 'rotate(0deg)' },

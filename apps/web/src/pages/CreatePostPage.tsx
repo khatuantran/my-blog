@@ -118,7 +118,7 @@ export default function CreatePostPage() {
             type="button"
             onClick={publish}
             disabled={!canPublish}
-            className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1 font-mono text-mono-sm text-cyan transition-all hover:bg-cyan/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1 font-mono text-mono-sm text-cyan shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/20 hover:shadow-[0_0_22px_rgba(0,255,229,0.4)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             title="⌘↵"
           >
             ⌘↵ Publish

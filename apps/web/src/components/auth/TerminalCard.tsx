@@ -51,7 +51,7 @@ export function TerminalCard({ path, cursorBlink = true, shaking, children, foot
         style={{
           border: '1px solid #2A3548',
           boxShadow: '0 0 50px rgba(0,255,229,.07), 0 20px 60px rgba(0,0,0,.55)',
-          animation: shaking ? 'terminalShake .45s ease' : undefined,
+          animation: shaking ? 'terminalShake .4s ease' : undefined,
         }}
       >
         {/* Scan stripe */}
@@ -101,7 +101,7 @@ export function TerminalCard({ path, cursorBlink = true, shaking, children, foot
             {cursorBlink && (
               <span
                 className="text-cyan"
-                style={{ animation: 'terminalCursorBlink 1.06s steps(2) infinite' }}
+                style={{ animation: 'terminalCursorBlink 530ms steps(2) infinite' }}
               >
                 _
               </span>

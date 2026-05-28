@@ -73,14 +73,22 @@ export function TagCard({
   return (
     <div
       data-testid={`tag-card-${tag.name}`}
-      className="group relative overflow-hidden rounded-md border border-b2 bg-surf p-4 transition-all animate-fade-up-md hover:border-cyan/40 hover:shadow-glow-cyan-sm"
+      className="group relative overflow-hidden rounded-md border border-b2 bg-surf p-4 transition-all animate-fade-up-md"
       style={{ animationDelay: `${(index ?? 0) * 20}ms`, animationFillMode: 'both' }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = `${color}60`;
+        e.currentTarget.style.boxShadow = `0 0 18px ${color}10`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = '';
+        e.currentTarget.style.boxShadow = '';
+      }}
     >
-      {/* Top accent line — visible on hover */}
+      {/* Top accent line — gradient, visible on hover */}
       <div
         aria-hidden
         className="absolute left-0 top-0 h-[2px] w-full opacity-0 transition-opacity group-hover:opacity-100"
-        style={{ background: color }}
+        style={{ background: `linear-gradient(90deg, transparent, ${color}60, transparent)` }}
       />
       <Link to={href} className="block no-underline">
         <div className="mb-2 flex items-center justify-between gap-2">
@@ -108,7 +116,10 @@ export function TagCard({
           aria-label={`${Math.round(pct)}% of max usage`}
           role="progressbar"
         >
-          <div className="h-full transition-all" style={{ width: `${pct}%`, background: color }} />
+          <div
+            className="h-full transition-all"
+            style={{ width: `${pct}%`, background: color, boxShadow: `0 0 4px ${color}80` }}
+          />
         </div>
       </Link>
       {isAdmin && (

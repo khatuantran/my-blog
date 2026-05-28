@@ -116,7 +116,7 @@ export default function ProfilePage() {
                 className="font-brand text-[26px] font-bold text-tp animate-glitch"
                 data-testid="profile-username"
               >
-                ~/{user.username}
+                {user.name || user.username}
               </span>
               <span
                 className={`inline-flex items-center rounded-sm border font-mono text-mono-sm leading-none ${

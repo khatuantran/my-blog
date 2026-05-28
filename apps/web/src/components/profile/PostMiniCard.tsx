@@ -26,7 +26,16 @@ export function PostMiniCard({ post }: Props) {
   const extraImages = post.images.length - MAX_THUMBS;
 
   return (
-    <div className="relative rounded-lg border border-b2 bg-surf px-4 py-3.5 transition-colors hover:border-cyan/30">
+    <div className="group relative overflow-hidden rounded-lg border border-b2 bg-surf px-4 py-3.5 transition-all hover:border-cyan/30 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]">
+      {/* Top accent line — hover reveal */}
+      <span
+        aria-hidden="true"
+        data-testid="mini-card-accent"
+        className="pointer-events-none absolute left-0 right-0 top-0 h-px opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(0,255,229,0.3), transparent)',
+        }}
+      />
       {/* Corner id */}
       <span className="absolute right-3 top-2.5 font-mono text-[10px] text-b2 select-none">
         #{post.id.slice(0, 6)}

@@ -82,7 +82,7 @@ export default function LoginPage() {
               autoComplete="username"
               autoFocus
               aria-label="Username"
-              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-mono-lg text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-3 font-mono text-[15px] text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
               style={{ border: '1px solid #2A3548' }}
             />
           </div>
@@ -105,7 +105,7 @@ export default function LoginPage() {
               placeholder="enter password..."
               autoComplete="current-password"
               aria-label="Password"
-              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-10 font-mono text-mono-lg text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md bg-[#070A14] py-2.5 pl-8 pr-10 font-mono text-[15px] text-tp outline-none transition-all duration-150 placeholder:text-tm focus:border-cyan focus:shadow-glow-cyan-sm"
               style={{ border: '1px solid #2A3548' }}
             />
             <button

@@ -20,7 +20,7 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
       <Avatar username={author.username} avatarUrl={author.avatarUrl} size={avatarSize} />
       <div className="min-w-0 flex-1">
         <div className="mb-px flex flex-wrap items-center gap-1.5">
-          <span className="font-mono text-mono-sm font-semibold text-blu">~/{author.username}</span>
+          <span className="font-mono text-mono font-semibold text-blu">~/{author.username}</span>
           {isAdmin && (
             <span
               className="inline-flex items-center rounded-xs border border-ora/50 bg-ora/[0.06] font-mono text-mono-sm leading-none text-ora"

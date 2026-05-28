@@ -95,7 +95,7 @@ export function QuickEditModal({ post, onClose, onSaved }: Props) {
       }}
     >
       <div
-        className="w-[560px] max-w-full overflow-hidden rounded-md border border-b2 bg-elev shadow-xl"
+        className="w-[560px] max-w-full overflow-hidden rounded-md border border-cyan/25 bg-elev shadow-glow-cyan-modal"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

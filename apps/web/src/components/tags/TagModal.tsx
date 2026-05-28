@@ -79,7 +79,7 @@ export function TagModal({
     >
       <form
         onSubmit={handleSubmit}
-        className="w-[440px] max-w-full animate-fade-up-sm rounded-lg border border-b2 bg-elev p-5 shadow-xl"
+        className="w-[440px] max-w-full animate-fade-up-sm rounded-lg border border-cyan/25 bg-elev p-5 shadow-glow-cyan-modal"
       >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">

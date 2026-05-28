@@ -164,18 +164,21 @@
 
 Repeating shadow patterns extracted từ design-file để DRY-up component specs.
 
-| Token                      | Value                                   | Use                                                                |
-| -------------------------- | --------------------------------------- | ------------------------------------------------------------------ |
-| `--shadow-glow-cyan-xs`    | `0 0 6-8px rgba(0,255,229,.40-.60)`     | Badge ring, small button glow (bell badge)                         |
-| `--shadow-glow-cyan-sm`    | `0 0 10-14px rgba(0,255,229,.12-.25)`   | Input focus, small modal border, StatCard hover                    |
-| `--shadow-glow-cyan-md`    | `0 0 20-24px rgba(0,255,229,.08-.15)`   | Card hover, picker container, PostActionMenu                       |
-| `--shadow-glow-cyan-lg`    | `0 0 40-50px rgba(0,255,229,.10-.15)`   | Modal cyan border (CommentsModal, CommandPalette)                  |
-| `--shadow-glow-<color>-md` | `0 0 12px <color>/40-60`                | Per-color glow (ReactionPicker hover, mood badge, tag color hover) |
-| `--shadow-drop-sm`         | `0 4px 20px rgba(0,0,0,.4)`             | Toast shadow                                                       |
-| `--shadow-drop-md`         | `0 12px 40px rgba(0,0,0,.5-.6)`         | Dropdown shadow (AvatarMenu, NotificationBell)                     |
-| `--shadow-drop-lg`         | `0 16-24px 50-64px rgba(0,0,0,.6-.8)`   | Modal shadow (CommentsModal, EditProfileDrawer)                    |
-| `--shadow-drop-xl`         | `-20px 0 60px rgba(0,0,0,.8)`           | Right-side drawer offset shadow                                    |
-| `--shadow-stack`           | `<glow-cyan-lg> + <drop-lg>` (compound) | Compound modal shadow recipe — CommentsModal/CommandPalette        |
+| Token                      | Value                                                      | Use                                                                |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
+| `--shadow-glow-cyan-xs`    | `0 0 6-8px rgba(0,255,229,.40-.60)`                        | Badge ring, small button glow (bell badge)                         |
+| `--shadow-glow-cyan-sm`    | `0 0 10-14px rgba(0,255,229,.12-.25)`                      | Input focus, small modal border, StatCard hover                    |
+| `--shadow-glow-cyan-md`    | `0 0 20-24px rgba(0,255,229,.08-.15)`                      | Card hover, picker container, PostActionMenu                       |
+| `--shadow-glow-cyan-lg`    | `0 0 40-50px rgba(0,255,229,.10-.15)`                      | Modal cyan border (CommentsModal, CommandPalette)                  |
+| `--shadow-glow-<color>-md` | `0 0 12px <color>/40-60`                                   | Per-color glow (ReactionPicker hover, mood badge, tag color hover) |
+| `--shadow-drop-sm`         | `0 4px 20px rgba(0,0,0,.4)`                                | Toast shadow                                                       |
+| `--shadow-drop-md`         | `0 12px 40px rgba(0,0,0,.5-.6)`                            | Dropdown shadow (AvatarMenu, NotificationBell)                     |
+| `--shadow-drop-lg`         | `0 16-24px 50-64px rgba(0,0,0,.6-.8)`                      | Modal shadow (CommentsModal, EditProfileDrawer)                    |
+| `--shadow-drop-xl`         | `-20px 0 60px rgba(0,0,0,.8)`                              | Right-side drawer offset shadow                                    |
+| `--shadow-stack`           | `<glow-cyan-lg> + <drop-lg>` (compound)                    | Compound modal shadow recipe — CommentsModal/CommandPalette        |
+| `shadow-glow-cyan-modal`   | `0 0 50px rgba(0,255,229,.1), 0 24px 60px rgba(0,0,0,.7)`  | Big modal (TagModal, QuickEditModal) — T-391                       |
+| `shadow-glow-cyan-panel`   | `0 0 30px rgba(0,255,229,.08), 0 16px 50px rgba(0,0,0,.6)` | Dropdown panel (NotificationBell) — T-391                          |
+| `shadow-glow-cyan-input`   | `0 0 14px rgba(0,255,229,.22)`                             | Input focus glow (search/filter inputs) — T-391                    |
 
 ### Background pattern
 

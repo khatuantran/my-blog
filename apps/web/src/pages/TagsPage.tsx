@@ -127,7 +127,7 @@ export default function TagsPage() {
           placeholder="❯ search tags..."
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="w-full max-w-xs rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm md:flex-1"
+          className="w-full max-w-xs rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-input md:flex-1"
         />
         <SortDropdown sort={sort} onChange={setSort} />
         <SegmentedToggle<ViewMode>

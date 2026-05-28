@@ -15,7 +15,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
 
   return (
     <div
-      className="flex flex-col gap-2 rounded-md border border-b2 bg-surf p-3 transition-colors hover:border-b3"
+      className="flex flex-col gap-2 rounded-md border border-b2 bg-surf p-3 transition-all hover:border-cyan/40 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]"
       data-testid="post-card-mng"
     >
       {/* Header */}

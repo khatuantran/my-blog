@@ -278,7 +278,7 @@ export default function NotificationsPage() {
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="search by user, content, post id..."
-              className="w-full rounded border border-b2 bg-surf py-1.5 pl-8 pr-8 font-mono text-mono-sm text-tc placeholder-td focus:border-cyan/50 focus:outline-none"
+              className="w-full rounded border border-b2 bg-surf py-1.5 pl-8 pr-8 font-mono text-mono-sm text-tc placeholder-td focus:border-cyan focus:shadow-glow-cyan-input focus:outline-none"
             />
             {search && (
               <button

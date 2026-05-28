@@ -17,7 +17,7 @@ function formatDelta(n: number): string {
 export function StatCard({ label, value, delta, color, sparkline }: Props) {
   return (
     <div
-      className="rounded-lg bg-surf p-4"
+      className="rounded-lg border border-b2 bg-surf p-4 transition-all hover:border-cyan/30 hover:shadow-[0_0_20px_rgba(0,255,229,0.06)]"
       style={{ borderLeft: `3px solid ${color}` }}
       data-testid={`stat-card-${label.toLowerCase()}`}
     >

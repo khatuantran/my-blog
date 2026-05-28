@@ -133,6 +133,10 @@ const config: Config = {
         // Compound modal recipe (glow-cyan-lg + drop-lg)
         stack:
           '0 0 45px rgba(0, 255, 229, 0.12), 0 4px 24px rgba(0, 0, 0, 0.3), 0 20px 56px rgba(0, 0, 0, 0.7)',
+        // T-391 design-fidelity recipes (audit THEME-3)
+        'glow-cyan-modal': '0 0 50px rgba(0, 255, 229, 0.1), 0 24px 60px rgba(0, 0, 0, 0.7)',
+        'glow-cyan-panel': '0 0 30px rgba(0, 255, 229, 0.08), 0 16px 50px rgba(0, 0, 0, 0.6)',
+        'glow-cyan-input': '0 0 14px rgba(0, 255, 229, 0.22)',
       },
       animation: {
         glitch: 'glitch 8s infinite',

@@ -38,6 +38,7 @@
 
 - **Done (audit — DESIGN_FIDELITY_2026-05-28.md):** Code-level diff design-file vs FE toàn 11 screen (4 bucket: typography/components/animations/colors). ~20 Critical thật + 75 Minor. 5 systemic theme: THEME-1 cyan-vs-blue, THEME-2 mono font 1-2px nhỏ, THEME-3 thiếu cyan glow shadow, THEME-4 fadeUp timing/stagger, THEME-5 dynamic per-color glow. Login ~100% match (reference). Notifications nặng nhất (7 Critical). Mở 7 task M11.10: T-390→T-395 (6 wave) + T-396 re-audit verification. User decisions: Profile hero → full name; Minor typography → fix triệt để.
 - **Done (T-390 Wave 1 — THEME-1 cyan-vs-blue):** Fix 5 site dùng blue `rgba(125,207,255)` sai ở active/selected/accent → cyan `rgba(0,255,229)`: ResultCard accent gradient, NotificationsPage active tab (bg+border+badge), NotifRowBell avatar gradient, NotifRowPage selected bgTint, NotificationBell open glow. text-blu links giữ intentional. grep confirm 0 remaining. 40/40 affected tests pass.
+- **Done (T-391 Wave 2 — THEME-3 cyan glow shadows + modal recipe):** 3 token mới (`glow-cyan-modal/panel/input`). StatCard + PostCardMng thêm hover cyan glow + border-cyan. Focus glow cho Notifications + Tags search (`glow-cyan-input`). Modal shadow TagModal + QuickEditModal → `glow-cyan-modal` + border-cyan/25, NotificationBell → `glow-cyan-panel`. CommandPalette đã có inline cyan glow (skip). TagCard dynamic per-color glow defer T-394. DESIGN_SYSTEM shadow table updated. 57/57 affected tests pass; full FE 432/435 (3 pre-existing ManagePostsPage).
 
 ### 2026-05-27 (M11.8 NotifRow polish)
 

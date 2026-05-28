@@ -1,32 +1,33 @@
 # Progress Tracker
 
-## Trạng thái tổng: 🟢 Implementation Phase (74% — 14/19)
+## Trạng thái tổng: 🟢 Implementation Phase (75% — 15/20)
 
 ## Milestone
 
-| #     | Milestone                                                                                                                            | Trạng thái            | Ngày target |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ----------- |
-| M1    | Setup SDD docs v2 (cyberpunk + monorepo stack)                                                                                       | ✅ Done               | 2026-05-17  |
-| M2    | Monorepo scaffold (Turborepo + Docker + apps skeleton)                                                                               | ✅ Done               | 2026-05-17  |
-| M3    | Backend NestJS — Auth (JWT) + Users + Prisma schema                                                                                  | ✅ Done               | 2026-05-17  |
-| M4    | Backend — Posts + Files (Cloudinary signed upload) + Tags                                                                            | ✅ Done               | 2026-05-18  |
-| M5    | Backend — Comments + Likes + CommentLikes + Saved                                                                                    | ✅ Done               | 2026-05-18  |
-| M6    | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway                                                             | ✅ Done (partial 2/4) | 2026-05-18  |
-| M7    | Frontend — Layout (TopBar, StatusBar, CommandPalette)                                                                                | ✅ Done               | 2026-05-18  |
-| M8    | Frontend — Feed + Post Detail (ImageCarousel + file download)                                                                        | ✅ Done               | 2026-05-18  |
-| M9    | Frontend — Create Post + Admin Dashboard                                                                                             | ✅ Done               | 2026-05-18  |
-| M10   | Frontend — Login + auth flow + protected routes                                                                                      | ✅ Done               | 2026-05-18  |
-| M11   | Real-time integration (Socket.io client + activity log + live visitors)                                                              | ⬜ Todo               |             |
-| M11.5 | Tags / Profile / Search / Create Post enhance                                                                                        | ✅ Done               | 2026-05-19  |
-| M11.6 | Activity Log (user-scope timeline) — F2 spec + F1 BE/FE                                                                              | ✅ Done               | 2026-05-19  |
-| M12   | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright)                                                    | ✅ Done               | 2026-05-18  |
-| M13   | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                                                                      | ⬜ Todo               |             |
-| M14   | Monitoring + observability (Sentry + Fly metrics + alert rules)                                                                      | ⬜ Todo               |             |
-| M11.7 | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)                                                       | 🟡 Doing              | 2026-06-05  |
-| M11.8 | design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes (FR-17 AI / FR-03.6 reply / FR-04.7 modal / FR-12 search / FR-14 notifs) | 🟡 Doing              | 2026-06-12  |
-| M11.9 | Design-file phase 2 polish — components + token system + page rewrites (18 tasks T-360→T-377; SUPERSEDES M11.7 T-321/322/323)        | ✅ Done               | 2026-05-26  |
+| #      | Milestone                                                                                                                            | Trạng thái            | Ngày target |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------- | ----------- |
+| M1     | Setup SDD docs v2 (cyberpunk + monorepo stack)                                                                                       | ✅ Done               | 2026-05-17  |
+| M2     | Monorepo scaffold (Turborepo + Docker + apps skeleton)                                                                               | ✅ Done               | 2026-05-17  |
+| M3     | Backend NestJS — Auth (JWT) + Users + Prisma schema                                                                                  | ✅ Done               | 2026-05-17  |
+| M4     | Backend — Posts + Files (Cloudinary signed upload) + Tags                                                                            | ✅ Done               | 2026-05-18  |
+| M5     | Backend — Comments + Likes + CommentLikes + Saved                                                                                    | ✅ Done               | 2026-05-18  |
+| M6     | Backend — Admin endpoints (stats, users, moderation) + WebSocket gateway                                                             | ✅ Done (partial 2/4) | 2026-05-18  |
+| M7     | Frontend — Layout (TopBar, StatusBar, CommandPalette)                                                                                | ✅ Done               | 2026-05-18  |
+| M8     | Frontend — Feed + Post Detail (ImageCarousel + file download)                                                                        | ✅ Done               | 2026-05-18  |
+| M9     | Frontend — Create Post + Admin Dashboard                                                                                             | ✅ Done               | 2026-05-18  |
+| M10    | Frontend — Login + auth flow + protected routes                                                                                      | ✅ Done               | 2026-05-18  |
+| M11    | Real-time integration (Socket.io client + activity log + live visitors)                                                              | ⬜ Todo               |             |
+| M11.5  | Tags / Profile / Search / Create Post enhance                                                                                        | ✅ Done               | 2026-05-19  |
+| M11.6  | Activity Log (user-scope timeline) — F2 spec + F1 BE/FE                                                                              | ✅ Done               | 2026-05-19  |
+| M12    | Testing — unit (FE Vitest + BE Jest) + integration (Supertest) + E2E (Playwright)                                                    | ✅ Done               | 2026-05-18  |
+| M13    | Deploy — Vercel FE + Fly.io BE + Neon DB + CI/CD GitHub Actions                                                                      | ⬜ Todo               |             |
+| M14    | Monitoring + observability (Sentry + Fly metrics + alert rules)                                                                      | ⬜ Todo               |             |
+| M11.7  | Design v2 — Notifications + Admin Manage Posts + Multi-Reactions (FR-14/15/16)                                                       | 🟡 Doing              | 2026-06-05  |
+| M11.8  | design-file 2026-05-24 sync + 5 FR amendments + 3 bug fixes (FR-17 AI / FR-03.6 reply / FR-04.7 modal / FR-12 search / FR-14 notifs) | 🟡 Doing              | 2026-06-12  |
+| M11.9  | Design-file phase 2 polish — components + token system + page rewrites (18 tasks T-360→T-377; SUPERSEDES M11.7 T-321/322/323)        | ✅ Done               | 2026-05-26  |
+| M11.10 | Design fidelity 100% sweep — code-level audit + 6 fix wave + EmojiPicker (T-390→T-397)                                               | ✅ Done               | 2026-05-29  |
 
-## Tỉ lệ hoàn thành: 74% (14/19 milestone)
+## Tỉ lệ hoàn thành: 75% (15/20 milestone)
 
 > ⬜ Todo | 🟡 Doing | ✅ Done | 🔴 Blocked
 

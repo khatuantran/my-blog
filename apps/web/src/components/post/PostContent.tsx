@@ -40,7 +40,7 @@ export function PostContent({ content, variant = 'card' }: Props) {
           <pre
             key={i}
             className="my-3 overflow-x-auto whitespace-pre rounded-md border border-b2 bg-[#070A14] px-3.5 py-3 font-mono text-mono leading-[1.6] text-grn"
-            style={{ borderLeft: '2px solid rgba(158,206,106,.5)' }}
+            style={{ borderLeft: '2px solid rgba(158,206,106,.4)' }}
           >
             {s.value.trim()}
           </pre>

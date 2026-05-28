@@ -149,8 +149,8 @@ export default function SearchPage() {
                   active
                     ? {
                         borderColor: cfg.color,
-                        background: `${cfg.color}1A`,
-                        boxShadow: `0 0 8px ${cfg.color}66`,
+                        background: `${cfg.color}12`,
+                        boxShadow: `0 0 8px ${cfg.color}30`,
                       }
                     : { borderColor: 'var(--b2)', background: 'var(--surf)' }
                 }

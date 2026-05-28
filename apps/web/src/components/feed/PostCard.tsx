@@ -24,7 +24,7 @@ export function PostCard({ post, delay = 0 }: Props) {
 
   return (
     <article
-      className="post-card-hover group relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up-md hover:border-cyan/45 hover:shadow-glow-cyan-lg"
+      className="post-card-hover group relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up-md hover:border-cyan/45 hover:shadow-[0_0_24px_rgba(0,255,229,0.1),0_4px_24px_rgba(0,0,0,0.3)]"
       style={{ animationDelay: `${delay}ms` }}
       data-testid={`post-card-${post.id}`}
     >

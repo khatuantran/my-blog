@@ -78,7 +78,7 @@ export function CommandPalette({ open, onClose }: Props) {
       }}
     >
       <div
-        className="w-[560px] max-w-[90vw] bg-elev rounded-[10px] overflow-hidden"
+        className="w-[540px] max-w-[90vw] bg-elev rounded-[10px] overflow-hidden"
         style={{
           border: '1px solid rgba(0,255,229,.35)',
           boxShadow: '0 0 40px rgba(0,255,229,.15),0 24px 64px rgba(0,0,0,.6)',

@@ -16,7 +16,7 @@ export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDe
   const replyTo = notif.metadata?.replyTo?.username;
 
   const borderColor = selected ? 'var(--cyan)' : notif.read ? 'transparent' : cfg.color;
-  const bgTint = selected ? 'rgba(0,255,229,0.05)' : notif.read ? 'transparent' : `${cfg.color}0f`;
+  const bgTint = selected ? 'rgba(0,255,229,0.05)' : notif.read ? 'transparent' : `${cfg.color}06`;
 
   const timeAgo = formatRelative(notif.createdAt);
   const postLink = notif.postId ? `/post/${notif.postId}` : '#';
@@ -31,7 +31,7 @@ export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDe
       <button
         data-testid="notif-row-checkbox"
         onClick={() => onToggleSelect(notif.id)}
-        className="mt-[10px] h-4 w-4 shrink-0 rounded-sm border border-[#3D4A63] transition-colors"
+        className="mt-[10px] h-4 w-4 shrink-0 rounded-[3px] border-[1.5px] border-[#3D4A63] transition-colors"
         style={selected ? { background: 'var(--cyan)', borderColor: 'var(--cyan)' } : {}}
         aria-label="Select notification"
       >

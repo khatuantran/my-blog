@@ -144,7 +144,7 @@ export function NotificationBell() {
           data-testid="notification-dropdown"
           role="dialog"
           aria-label="Notifications"
-          className="absolute top-[42px] right-0 w-[360px] max-h-[480px] flex flex-col bg-surf border border-cyan/25 rounded-lg shadow-glow-cyan-panel z-[200] animate-fade-up overflow-hidden"
+          className="absolute top-[42px] right-0 w-[380px] max-h-[480px] flex flex-col bg-surf border border-cyan/25 rounded-lg shadow-glow-cyan-panel z-[200] animate-fade-up overflow-hidden"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-b2 shrink-0">

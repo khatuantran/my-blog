@@ -128,4 +128,50 @@ describe('RichTextEditor (T-368)', () => {
     expect(stub.calls.some(([cmd, , val]) => cmd === 'foreColor' && val === '#00FFE5')).toBe(true);
     stub.restore();
   });
+
+  describe('T-397 emoji picker integration', () => {
+    it('🙂 button present in toolbar', () => {
+      render(<Wrapper />);
+      expect(screen.getByTestId('rte-btn-emoji')).toBeInTheDocument();
+    });
+
+    it('click 🙂 → opens EmojiPicker (closed by default)', async () => {
+      const user = userEvent.setup();
+      render(<Wrapper />);
+      expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
+      await user.click(screen.getByTestId('rte-btn-emoji'));
+      expect(screen.getByTestId('emoji-picker')).toBeInTheDocument();
+      expect(screen.getByTestId('rte-btn-emoji')).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('close button → hides picker', async () => {
+      const user = userEvent.setup();
+      render(<Wrapper />);
+      await user.click(screen.getByTestId('rte-btn-emoji'));
+      await user.click(screen.getByTestId('emoji-picker-close'));
+      expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
+    });
+
+    it('select emoji → insertHTML(emoji) + closes picker', async () => {
+      const user = userEvent.setup();
+      const stub = stubExecCommand();
+      render(<Wrapper />);
+      await user.click(screen.getByTestId('rte-btn-emoji'));
+      // First emoji in 'faces' group is 😊 (button aria-label="Insert 😊")
+      await user.click(screen.getByLabelText('Insert 😊'));
+      expect(stub.calls.some(([cmd, , val]) => cmd === 'insertHTML' && val === '😊')).toBe(true);
+      expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
+      stub.restore();
+    });
+
+    it('opening emoji closes text-color popover (mutual exclusion)', async () => {
+      const user = userEvent.setup();
+      render(<Wrapper />);
+      await user.click(screen.getByTestId('rte-btn-textcolor'));
+      expect(screen.getByTestId('rte-popover-textcolor')).toBeInTheDocument();
+      await user.click(screen.getByTestId('rte-btn-emoji'));
+      expect(screen.queryByTestId('rte-popover-textcolor')).not.toBeInTheDocument();
+      expect(screen.getByTestId('emoji-picker')).toBeInTheDocument();
+    });
+  });
 });

@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { EmojiPicker } from './EmojiPicker';
 
 export interface RichTextEditorHandle {
   applyLink: (url: string, label: string) => void;
@@ -50,6 +51,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
   const savedSelectionRef = useRef<Range | null>(null);
   const [showColor, setShowColor] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
+  const [showEmoji, setShowEmoji] = useState(false);
 
   // Sync DOM from external value: on first mount AND on subsequent external clears
   // (e.g., form reset). User-typed changes flow via onInput → onChange → parent state,
@@ -126,6 +128,12 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
     restoreSelection();
     exec('hiliteColor', color);
     setShowHighlight(false);
+  }
+
+  function insertEmoji(emoji: string) {
+    restoreSelection();
+    insertHTML(emoji);
+    setShowEmoji(false);
   }
 
   // Stable-ref pattern: keep latest handlers in a ref so the keydown listener installs
@@ -245,6 +253,19 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
           data-testid="rte-btn-link"
         />
         <ToolbarBtn label="✕" title="Clear formatting" onClick={() => exec('removeFormat')} mono />
+        <ToolbarBtn
+          label="🙂"
+          title="Insert emoji"
+          onClick={() => {
+            saveSelection();
+            setShowEmoji((v) => !v);
+            setShowColor(false);
+            setShowHighlight(false);
+          }}
+          fontSize="14px"
+          aria-expanded={showEmoji}
+          data-testid="rte-btn-emoji"
+        />
       </div>
 
       {showColor && (
@@ -284,6 +305,8 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
           ))}
         </div>
       )}
+
+      <EmojiPicker open={showEmoji} onSelect={insertEmoji} onClose={() => setShowEmoji(false)} />
 
       <div
         ref={editorRef}

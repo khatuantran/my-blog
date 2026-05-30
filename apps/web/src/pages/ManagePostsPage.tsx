@@ -181,7 +181,7 @@ export default function ManagePostsPage() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="search by content, id, tag..."
               aria-label="Search posts"
-              className={`w-full rounded-md border border-b2 bg-bg py-2.5 pl-9 font-mono text-[14px] text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-[0_0_10px_rgba(0,255,229,0.15)] ${q ? 'pr-8' : 'pr-3'}`}
+              className={`h-9 w-full rounded-md border border-b2 bg-bg pl-9 font-mono text-[14px] text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-[0_0_10px_rgba(0,255,229,0.15)] ${q ? 'pr-8' : 'pr-3'}`}
             />
             {q && (
               <button
@@ -196,7 +196,7 @@ export default function ManagePostsPage() {
           </div>
 
           {/* Status filter chips with count */}
-          <div className="flex gap-1" role="group" aria-label="Filter by status">
+          <div className="flex items-center gap-1" role="group" aria-label="Filter by status">
             {STATUS_FILTERS.map((f) => {
               const active = statusParam === f.value;
               return (
@@ -206,7 +206,7 @@ export default function ManagePostsPage() {
                   aria-pressed={active}
                   data-testid={`status-filter-${f.value || 'all'}`}
                   onClick={() => setFilter('status', f.value)}
-                  className={`rounded-md border px-3.5 py-1.5 font-mono text-[12px] transition-colors ${
+                  className={`inline-flex h-9 items-center rounded-md border px-3.5 font-mono text-[12px] transition-colors ${
                     active
                       ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
                       : 'border-b2 bg-elev text-ts hover:border-b3 hover:text-tp'
@@ -225,7 +225,7 @@ export default function ManagePostsPage() {
               type="button"
               aria-pressed={moodParam === ''}
               onClick={() => setFilter('mood', '')}
-              className={`rounded-md border px-2.5 py-1.5 font-mono text-[12px] ${
+              className={`inline-flex h-9 items-center rounded-md border px-2.5 font-mono text-[12px] ${
                 moodParam === ''
                   ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
                   : 'border-b2 bg-elev text-ts hover:text-tp'
@@ -240,7 +240,7 @@ export default function ManagePostsPage() {
                 aria-label={`Filter by ${MOOD_CFG[m].label}`}
                 aria-pressed={moodParam === m}
                 onClick={() => setFilter('mood', m)}
-                className={`rounded-md border px-2 py-1 text-[14px] transition-colors ${
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-[15px] transition-colors ${
                   moodParam === m ? 'border-cyan/50 bg-cyan/[0.08]' : 'border-b2 bg-elev'
                 }`}
               >
@@ -261,7 +261,7 @@ export default function ManagePostsPage() {
                   aria-pressed={active}
                   data-testid={`sort-${s.value}`}
                   onClick={() => setFilter('sort', s.value)}
-                  className={`rounded-md border px-3 py-1 font-mono text-[11px] transition-colors ${
+                  className={`inline-flex h-9 items-center rounded-md border px-3.5 font-mono text-[12px] transition-colors ${
                     active
                       ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
                       : 'border-b2 bg-elev text-ts hover:text-tp'
@@ -273,8 +273,8 @@ export default function ManagePostsPage() {
             })}
           </div>
 
-          {/* View toggle 32×32 */}
-          <div className="ml-auto flex gap-[3px]">
+          {/* View toggle 36×36 */}
+          <div className="ml-auto flex items-center gap-[3px]">
             {[
               { value: 'list' as const, icon: '☰', label: 'List view' },
               { value: 'card' as const, icon: '⊞', label: 'Card view' },

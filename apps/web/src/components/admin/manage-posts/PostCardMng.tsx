@@ -82,12 +82,15 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         {filesCount > 0 && <span>📎 {filesCount}</span>}
       </div>
 
-      {/* Actions footer — grid 3-col equal width (was flex gap auto-width = uneven) */}
-      <div className="grid grid-cols-3 gap-1.5 border-t border-b1 pt-2.5">
+      {/* Actions footer — grid 3 equal columns (explicit 1fr × 3 + w-full mỗi button) */}
+      <div
+        className="grid gap-1.5 border-t border-b1 pt-2.5"
+        style={{ gridTemplateColumns: '1fr 1fr 1fr' }}
+      >
         <Link
           to={`/post/${post.id}`}
           aria-label={`View post ${post.id}`}
-          className="flex items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
+          className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
           style={{ borderColor: 'rgba(125,207,255,0.25)' }}
         >
           👁 View
@@ -96,7 +99,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Edit post ${post.id}`}
           onClick={() => onEdit(post)}
-          className="flex items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
+          className="flex w-full items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
         >
           ✎ Edit
         </button>
@@ -104,7 +107,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Delete post ${post.id}`}
           onClick={() => onDelete(post)}
-          className="flex items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
+          className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
           style={{ borderColor: 'rgba(247,118,142,0.25)' }}
         >
           ✕ Delete

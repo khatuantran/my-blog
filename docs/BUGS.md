@@ -16,7 +16,7 @@ _(Trống)_
 - **Status:** FIXED
 - **Reporter:** khatran — **Date:** 2026-05-30
 - **Environment:** local FE :5173 / Chrome / Layer: FE
-- **Related task:** Inline fix commit (no T-XXX — single-error-mapping improvement)
+- **Related task:** T-423 (DONE 2026-05-30) — backfilled via docs audit (F6); fix gốc ở commit `2c6651b`
 - **Related FR/component:** FR-10 tags / `apps/web/src/pages/TagsPage.tsx` (handleSubmitModal) + `apps/web/src/services/api/client.ts` (parseResponse)
 - **Mô tả:** User báo "không tạo được tag" + screenshot TagModal hiển thị error block "Invalid input · check fields" generic. Repro với curl + dev BE: cùng payload `{name:"de2", color:"#00FFE5", description:"d"}` → 201 success. Phỏng đoán: user actually đụng case BE thực sự trả 400 (ví dụ: color empty string khi state mutate bất ngờ, hoặc field shape khác) nhưng FE generic message ẩn hoàn toàn nguyên nhân.
 - **Steps to reproduce:**

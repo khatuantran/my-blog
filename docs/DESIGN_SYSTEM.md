@@ -754,6 +754,20 @@ Composite wrapper kết hợp [[#ReactionPicker (FR-16, M11.7 — updated 2026-0
 - **A11y:** trigger có `aria-label` đầy đủ ("React to post — default Like" hoặc "Remove `<Label>` reaction"); count button có `aria-label="View N reactions"`.
 - **Reference impl:** `apps/web/src/components/feed/ReactionButton.tsx`.
 
+### CyberIcons (shared line-art icon set — T-419)
+
+Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + Tags (TagCard), thay emoji để đồng bộ visual với [[#ReactionIcon (FR-16, design-file 2026-05-24)]]. File: `apps/web/src/components/shared/cyber-icons.tsx` (T-420 move từ `admin/manage-posts/StatIcons.tsx`).
+
+- **Style chung:** `viewBox="0 0 24 24"`, `fill="none"`, `stroke` per prop `color` (default `currentColor`), `strokeWidth` 1.6-1.8, `strokeLinejoin`/`strokeLinecap` round. Props `{ size?: number = 14, color?: string }`. Inline `vertical-align: -2px` + `flex-shrink: 0` (inline với text).
+- **Icons:**
+  - `HeartIcon` — heart outline (LIKE / reactions count). stroke 1.8.
+  - `CommentIcon` — speech bubble + 3 dot ellipsis (comment count). stroke 1.6.
+  - `EyeIcon` — eye outline + pupil (view count). stroke 1.6.
+  - `PencilIcon` — pencil/edit action. stroke 1.6.
+  - `TrashIcon` — trash bin + lid + 2 vertical bars (delete action). stroke 1.6/1.4.
+- **Usage:** stat counts (Heart/Comment/Eye) màu `--tm` muted; action buttons (Pencil/Trash) màu theo button intent (cyan edit / red delete).
+- **Reference impl:** `apps/web/src/components/shared/cyber-icons.tsx`.
+
 ---
 
 ## Components added in design-file 2026-05-24 sync

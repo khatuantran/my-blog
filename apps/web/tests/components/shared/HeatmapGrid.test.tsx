@@ -26,4 +26,21 @@ describe('HeatmapGrid', () => {
     const three = screen.getByLabelText(/2026-05-04 · 3 posts/i);
     expect(zero.style.background).not.toBe(three.style.background);
   });
+
+  it('T-414: compact variant renders day labels M/T/W/T/F/S/S + KHÔNG less/more legend (design L702-711)', () => {
+    render(<HeatmapGrid cells={days} />);
+    // 7 day labels render
+    const compact = screen.getByTestId('heatmap-compact');
+    expect(compact).toBeInTheDocument();
+    // Less/more legend KHÔNG render trong compact variant
+    expect(screen.queryByText('less')).toBeNull();
+    expect(screen.queryByText('more')).toBeNull();
+  });
+
+  it('T-413: large variant renders day labels + less/more legend', () => {
+    render(<HeatmapGrid cells={days} variant="large" />);
+    expect(screen.getByTestId('heatmap-large')).toBeInTheDocument();
+    expect(screen.getByText('less')).toBeInTheDocument();
+    expect(screen.getByText('more')).toBeInTheDocument();
+  });
 });

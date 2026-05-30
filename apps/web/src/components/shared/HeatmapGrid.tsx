@@ -8,7 +8,8 @@ type Props = {
 };
 
 const COLORS = ['#1A1F2E', '#2A3548', '#00FFE535', '#00FFE590'];
-const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+// design L243 — single-char M-Sun (Monday-Sunday) for both compact + large variants
+const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 function intensity(count: number, max: number): number {
   if (count === 0) return 0;
@@ -25,10 +26,10 @@ export function HeatmapGrid({ cells, variant = 'compact' }: Props) {
   if (variant === 'large') {
     return (
       <div className="flex flex-col gap-2.5" data-testid="heatmap-large">
-        {/* Day labels Su/Mo/Tu/We/Th/Fr/Sa top row — design L584-586 */}
+        {/* Day labels M/T/W/T/F/S/S top row — design L584-586. Keys = index vì labels lặp (T, S). */}
         <div className="grid gap-1 text-center" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
-          {DAY_LABELS.map((d) => (
-            <div key={d} className="font-mono text-[10px] text-td">
+          {DAY_LABELS.map((d, i) => (
+            <div key={i} className="font-mono text-[10px] text-td">
               {d}
             </div>
           ))}
@@ -74,14 +75,22 @@ export function HeatmapGrid({ cells, variant = 'compact' }: Props) {
     );
   }
 
-  // Compact (sidebar)
+  // Compact (sidebar) — design L702-711: 7-col full-width cells + day labels M/T/W/T/F/S/S 8px,
+  // gap 3px, NO less/more legend (legend chỉ ở large variant).
   return (
-    <div className="inline-flex flex-col gap-1.5">
+    <div className="flex w-full flex-col gap-0.5" data-testid="heatmap-compact">
+      <div className="grid gap-[3px] text-center" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
+        {DAY_LABELS.map((d, i) => (
+          <div key={i} className="font-mono text-[8px] text-td">
+            {d}
+          </div>
+        ))}
+      </div>
       <div
         role="grid"
         aria-label="28-day activity heatmap"
-        className="inline-grid gap-0.5"
-        style={{ gridTemplateColumns: 'repeat(7, 12px)' }}
+        className="grid gap-[3px]"
+        style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}
       >
         {cells.map((c) => (
           <div
@@ -90,21 +99,10 @@ export function HeatmapGrid({ cells, variant = 'compact' }: Props) {
             aria-label={`${c.date} · ${c.count} post${c.count === 1 ? '' : 's'}`}
             title={`${c.date} · ${c.count} post${c.count === 1 ? '' : 's'}`}
             data-count={c.count}
-            className="h-3 w-3 rounded-sm"
+            className="h-3 rounded-sm"
             style={{ background: COLORS[intensity(c.count, max)] }}
           />
         ))}
-      </div>
-      {/* Legend — less / intensity scale / more */}
-      <div
-        data-testid="heatmap-legend"
-        className="flex items-center gap-1 font-mono text-[10px] text-td"
-      >
-        <span>less</span>
-        {COLORS.map((c) => (
-          <span key={c} aria-hidden className="h-2.5 w-2.5 rounded-sm" style={{ background: c }} />
-        ))}
-        <span>more</span>
       </div>
     </div>
   );

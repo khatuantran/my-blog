@@ -61,7 +61,7 @@ export function FilterBar({
         <button
           type="button"
           onClick={() => onMoodFilter(null)}
-          className={`rounded-sm border bg-elev px-3 py-1 font-mono text-mono-sm text-ts transition-all hover:border-b3 hover:text-tp ${
+          className={`rounded-sm border bg-elev px-3 py-1 font-mono text-mono text-ts transition-all hover:border-b3 hover:text-tp ${
             !activeMood
               ? 'border-cyan/50 !bg-cyan/[0.08] !text-cyan shadow-glow-cyan-sm'
               : 'border-b2'
@@ -77,7 +77,7 @@ export function FilterBar({
               key={m}
               type="button"
               onClick={() => onMoodFilter(isActive ? null : m)}
-              className="rounded-sm border bg-elev px-3 py-1 font-mono text-mono-sm transition-all hover:border-b3"
+              className="rounded-sm border bg-elev px-3 py-1 font-mono text-mono transition-all hover:border-b3"
               style={
                 isActive
                   ? {
@@ -101,7 +101,7 @@ export function FilterBar({
             aria-haspopup="listbox"
             aria-expanded={open}
             disabled={!onSortChange}
-            className="rounded-sm border border-b2 bg-elev px-3 py-1 font-mono text-mono-sm text-ts transition-colors hover:border-b3 hover:text-tp disabled:opacity-60"
+            className="rounded-sm border border-b2 bg-elev px-3 py-1 font-mono text-mono text-ts transition-colors hover:border-b3 hover:text-tp disabled:opacity-60"
           >
             {sortLabel} ▾
           </button>
@@ -121,7 +121,7 @@ export function FilterBar({
                       onSortChange?.(opt.value);
                       setOpen(false);
                     }}
-                    className={`block w-full px-3 py-1.5 text-left font-mono text-mono-sm transition-colors hover:bg-cyan/10 ${
+                    className={`block w-full px-3 py-1.5 text-left font-mono text-mono transition-colors hover:bg-cyan/10 ${
                       sort === opt.value ? 'text-cyan' : 'text-ts'
                     }`}
                   >

@@ -86,15 +86,17 @@ describe('ProfilePage (T-221, T-374, FR-11)', () => {
     // T-394: hero shows full name (user.name) hoặc fallback username khi name null.
     // Mock không có `name` → hiển thị username "alice".
     expect(screen.getByTestId('profile-username')).toHaveTextContent('alice');
-    expect(screen.getByText('@alice')).toBeInTheDocument();
+    // Design update 2026-05-29: handle row dùng `~/user · title · born year` (was `@user`).
+    expect(screen.getByText('~/alice')).toBeInTheDocument();
     expect(screen.getByText('Full-stack Dev')).toBeInTheDocument();
     expect(screen.getByText('curious')).toBeInTheDocument();
-    // stats appear in hero meta row; tab badge also shows postsCount → use getAllByText
+    // Design update 2026-05-29: stats moved from inline hero meta → 4 stat cards
+    // (POSTS/LIKES/VIEWS/STREAK). Tab badge cũng show postsCount.
     await waitFor(() => expect(screen.getAllByText('42').length).toBeGreaterThan(0));
     expect(screen.getByText('287')).toBeInTheDocument();
     expect(screen.getByText('1.2k')).toBeInTheDocument();
-    expect(screen.getByText(/day streak/i)).toBeInTheDocument();
-    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByText('12d')).toBeInTheDocument();
+    expect(screen.getByText('STREAK')).toBeInTheDocument();
   });
 
   it('T-374: hero has gradient background style', async () => {

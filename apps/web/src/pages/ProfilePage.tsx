@@ -14,6 +14,7 @@ import { ProfileActivityList } from '@/components/profile/ProfileActivityList';
 import { PostMiniCard } from '@/components/profile/PostMiniCard';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { TagPill } from '@/components/shared/TagPill';
+import { StatCard } from '@/components/admin/StatCard';
 import { MOOD_KEYS } from '@/lib/mood-config';
 import type { Post } from '@/types/api';
 
@@ -132,27 +133,57 @@ export default function ProfilePage() {
               </span>
             </div>
 
-            {/* Handle */}
-            <div className="mb-1 font-mono text-[14px] text-cyan">@{user.username}</div>
+            {/* Handle row: ~/user · title · born year (single line per design) */}
+            <div className="mb-2 flex flex-wrap items-center gap-x-2 font-mono text-[14px]">
+              <span className="text-cyan">~/{user.username}</span>
+              {user.title && (
+                <>
+                  <span className="text-td">·</span>
+                  <span className="text-tm">{user.title}</span>
+                </>
+              )}
+              {user.bornYear && (
+                <>
+                  <span className="text-td">·</span>
+                  <span className="text-tm">born {user.bornYear}</span>
+                </>
+              )}
+            </div>
 
-            {user.title && <div className="mb-1 text-sm text-ts">{user.title}</div>}
-            {user.bio && <div className="mb-2 line-clamp-3 text-sm text-tm">{user.bio}</div>}
+            {user.bio && <div className="mb-2 whitespace-pre-wrap text-sm text-tm">{user.bio}</div>}
 
-            {/* Meta stats row */}
-            <div className="flex flex-wrap gap-3 font-mono text-mono-sm text-tm">
-              <span>
-                <span className="text-cyan">{formatStat(stats?.postsCount ?? 0)}</span> posts
-              </span>
-              <span>
-                <span className="text-mag">{formatStat(stats?.likesReceived ?? 0)}</span> likes
-              </span>
-              <span>
-                <span className="text-grn">{formatStat(stats?.viewsTotal ?? 0)}</span> views
-              </span>
-              {(stats?.streak ?? 0) > 0 && (
+            {/* Meta icons row (location · joined · github · website) */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-mono-md text-tm">
+              {user.location && (
                 <span>
-                  🔥 <span className="text-ora">{stats?.streak}</span>-day streak
+                  <span aria-hidden>📍</span> {user.location}
                 </span>
+              )}
+              <span>
+                <span aria-hidden>📅</span> joined{' '}
+                {new Date(user.createdAt).toISOString().slice(0, 7)}
+              </span>
+              {user.github && (
+                <a
+                  href={`https://github.com/${user.github.replace(/^github\.com\//, '')}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-tm no-underline hover:text-cyan"
+                >
+                  <span aria-hidden># </span>
+                  {user.github.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+              {user.website && (
+                <a
+                  href={user.website.startsWith('http') ? user.website : `https://${user.website}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-tm no-underline hover:text-cyan"
+                >
+                  <span aria-hidden>🌐</span>{' '}
+                  {user.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
               )}
             </div>
           </div>
@@ -195,6 +226,34 @@ export default function ProfilePage() {
           />
 
           <div className="mt-4">
+            {tab === 'posts' && stats && (
+              <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                <StatCard
+                  label="POSTS"
+                  value={formatStat(stats.postsCount)}
+                  color="#00FFE5"
+                  sparkline={stats.heatmap28d.map((c) => c.count)}
+                />
+                <StatCard
+                  label="LIKES"
+                  value={formatStat(stats.likesReceived)}
+                  color="#FF6E96"
+                  sparkline={stats.heatmap28d.map((c) => c.count)}
+                />
+                <StatCard
+                  label="VIEWS"
+                  value={formatStat(stats.viewsTotal)}
+                  color="#E0AF68"
+                  sparkline={stats.heatmap28d.map((c) => c.count)}
+                />
+                <StatCard
+                  label="STREAK"
+                  value={`${stats.streak}d`}
+                  color="#BB9AF7"
+                  sparkline={stats.heatmap28d.map((c) => c.count)}
+                />
+              </div>
+            )}
             {tab === 'posts' && <PostsTab userId={user.id} />}
             {tab === 'saved' && canViewSaved && <SavedTab />}
             {tab === 'activity' && canViewSaved && (
@@ -263,7 +322,7 @@ export default function ProfilePage() {
                       background: `${s.color}10`,
                     }}
                   >
-                    {s.name}
+                    <span className="opacity-70">›</span> {s.name}
                   </span>
                 ))}
               </div>
@@ -282,7 +341,13 @@ export default function ProfilePage() {
             )}
           </Block>
 
-          <Block title="// activity.28d">
+          <Block
+            title={
+              stats
+                ? `// activity.28d  ${stats.heatmap28d.reduce((a, c) => a + c.count, 0)}`
+                : '// activity.28d'
+            }
+          >
             {stats ? (
               <HeatmapGrid cells={stats.heatmap28d} />
             ) : (
@@ -294,11 +359,16 @@ export default function ProfilePage() {
             {(stats?.tagsUsed.length ?? 0) === 0 ? (
               <div className="font-mono text-mono-sm text-td">// none</div>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
+              <ul className="space-y-1.5">
                 {stats!.tagsUsed.slice(0, 8).map((t) => (
-                  <TagPill key={t.name} name={t.name} color={t.color} />
+                  <li key={t.name} className="flex items-center justify-between gap-2">
+                    <TagPill name={t.name} color={t.color} />
+                    <span className="shrink-0 font-mono text-mono-sm text-td">
+                      {t.count} post{t.count === 1 ? '' : 's'}
+                    </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
           </Block>
         </aside>

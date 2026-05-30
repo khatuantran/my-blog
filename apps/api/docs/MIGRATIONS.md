@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260530155000_add_user_avatar_public_id
+
+- **Created:** 2026-05-30
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `User` (+1 column `avatarPublicId String?` nullable)
+- **Breaking:** no — existing rows giữ `avatarPublicId=NULL`. Field này chỉ populate khi user upload avatar lần đầu (FR-11.7).
+- **Notes:** FR-11.7 avatar upload. Cloudinary publicId track cho cleanup khi user replace/remove avatar (folder `avatars/`). `avatarUrl` đã có sẵn (v0.2.0) chỉ store URL display; cần thêm publicId vì Cloudinary `destroy()` API yêu cầu publicId, không phải URL. Migration tạo manual (không qua `prisma migrate dev` non-interactive) — chỉ 1 ADD COLUMN clean, không drift Reaction legacy như migration trước.
+- **Task:** T-410
+- **Rollback:** `prisma migrate resolve --rolled-back 20260530155000_add_user_avatar_public_id` + `ALTER TABLE "User" DROP COLUMN "avatarPublicId";`
+
 ### 20260526000000_add_post_status_enum
 
 - **Created:** 2026-05-26

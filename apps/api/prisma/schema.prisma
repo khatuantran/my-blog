@@ -86,28 +86,29 @@ enum PostStatus {
 // ──────────────────────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  username     String   @unique
-  email        String?  @unique
-  passwordHash String
-  role         Role     @default(USER)
-  avatarUrl    String?
-  title        String?
-  bio          String?
-  skills       Json     @default("[]")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  username       String   @unique
+  email          String?  @unique
+  passwordHash   String
+  role           Role     @default(USER)
+  avatarUrl      String?
+  avatarPublicId String?
+  title          String?
+  bio            String?
+  skills         Json     @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  posts                    Post[]
-  comments                 Comment[]
-  reactions                Reaction[]
-  commentLikes             CommentLike[]
-  savedPosts               SavedPost[]
-  refreshTokens            RefreshToken[]
-  actorActivities          ActivityLog[]    @relation("ActorActivities")
-  targetActivities         ActivityLog[]    @relation("TargetOwnerActivities")
-  receivedNotifications    Notification[]   @relation("ReceivedNotifications")
-  sentNotifications        Notification[]   @relation("SentNotifications")
+  posts                 Post[]
+  comments              Comment[]
+  reactions             Reaction[]
+  commentLikes          CommentLike[]
+  savedPosts            SavedPost[]
+  refreshTokens         RefreshToken[]
+  actorActivities       ActivityLog[]  @relation("ActorActivities")
+  targetActivities      ActivityLog[]  @relation("TargetOwnerActivities")
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+  sentNotifications     Notification[] @relation("SentNotifications")
 }
 
 model Post {

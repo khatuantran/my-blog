@@ -37,7 +37,6 @@ export function updateUser(id: string, body: UpdateUserPayload): Promise<Profile
   return apiFetch<ProfileUser>(`/users/${encodeURIComponent(id)}`, {
     method: 'PATCH',
     body: JSON.stringify(body),
-    headers: { 'content-type': 'application/json' },
   });
 }
 
@@ -48,6 +47,5 @@ export function changePassword(body: {
   return apiFetch<{ ok: true }>('/auth/change-password', {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: { 'content-type': 'application/json' },
   });
 }

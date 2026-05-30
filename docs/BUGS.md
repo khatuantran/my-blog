@@ -11,6 +11,26 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-014] [High] [FE] Tag create luôn 400 "name missing" + tag/user update no-op (doubled Content-Type header)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 → BE :3001 / Chrome / Layer: FE
+- **Related task:** T-424 (DONE 2026-05-30)
+- **Related FR/component:** FR-10 tags + FR-11 users / `apps/web/src/services/api/client.ts` (doFetch) + `tags.ts` (createTag/updateTag) + `users.ts` (updateUser/changePassword)
+- **Mô tả:** Tạo tag qua UI luôn fail với 400 `["name must be a string","name must be longer than or equal to 1","name must be shorter than or equal to 50"]` DÙ form gửi name hợp lệ. Update tag (description) trả 200 nhưng là **no-op** — description không lưu, name trả về un-normalized (`#dev`). Cùng root cause cũng âm thầm phá PATCH `/users/me` + change-password (no-op).
+- **Steps to reproduce:**
+  1. Login admin → `/tags`.
+  2. `+ New Tag` → name `reprotag1`, description `desc-from-ui` → Create.
+  3. → modal KHÔNG đóng + error `Invalid input · name must be a string...`.
+  4. (Update) Edit 1 tag → đổi description → Save → 200 nhưng description không đổi.
+- **Expected:** Create 201 + lưu name+color+description; Update 200 + description persist.
+- **Actual:** Create 400 name-missing; Update no-op (BE bỏ qua body).
+- **Root cause:** `client.ts > doFetch` set header bằng object spread `{ 'Content-Type': 'application/json', ...(init.headers ?? {}) }`. Caller `tags.ts`/`users.ts` truyền `headers: { 'content-type': 'application/json' }` (lowercase) → object có 2 key khác case (`Content-Type` + `content-type`) → `fetch` build `Headers` bằng **append** → gửi header doubled `Content-Type: application/json, application/json`. NestJS body-parser (`type-is`) KHÔNG match media type doubled → KHÔNG parse JSON body → `req.body` rỗng → `CreateTagDto` thấy name `undefined` (400); `UpdateTagDto` (PartialType) thấy mọi field `undefined` → service no-op. **Smoke curl ban đầu không bắt được** vì curl gửi single clean header → 201; bug chỉ hiện qua browser fetch (doubled header). Confirmed: Playwright capture FE gửi đúng `{name,...}` nhưng BE 400 + curl đối chứng (single CT → 201, `Content-Type: application/json, application/json` → 400).
+- **Fix:** `doFetch` build headers bằng `new Headers(init.headers ?? {})` (case-insensitive) + chỉ `set('Content-Type', 'application/json')` khi `!headers.has('Content-Type')` → loại bỏ hoàn toàn khả năng duplicate. Cleanup: bỏ `headers: {'content-type'...}` redundant ở `tags.ts` (2) + `users.ts` (2). E2E re-verify qua Playwright: create 201 (name normalize đúng) + edit description persist (`desc-create` → `desc-EDITED`).
+- **Regression test:** `apps/web/tests/services/api/client.test.ts` — `it('regression BUG-014: caller pass lowercase content-type → handler nhận single Content-Type (không doubled)')` assert handler nhận `content-type: application/json` (single) + body parse được khi caller pass lowercase header (verified FAIL trên code cũ, PASS sau fix) + 1 case default Content-Type khi caller không truyền headers.
+- **Lesson learned:** Merge HTTP headers bằng plain-object spread KHÔNG dedupe case-insensitive — luôn dùng `Headers`. Smoke test qua curl (single clean header) che giấu bug chỉ xảy ra qua browser `fetch` (doubled header). Reproduce PHẢI đi đúng path user (UI form), không chỉ curl — đây là lý do bug "qua được" smoke test ban đầu.
+
 ### [BUG-013] [Medium] [FE] "Invalid input · check fields" generic message hide actual BE validation cause
 
 - **Status:** FIXED

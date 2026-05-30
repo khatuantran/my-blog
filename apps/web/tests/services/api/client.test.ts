@@ -63,6 +63,43 @@ describe('apiFetch refresh interceptor', () => {
     expect(refreshCalls).toBe(0);
   });
 
+  it('regression BUG-014: caller pass lowercase content-type → handler nhận single Content-Type (không doubled)', async () => {
+    // Repro: tags.ts/users.ts trước đây pass `headers: {'content-type': ...}` (lowercase)
+    // + doFetch default 'Content-Type' → object spread tạo 2 key khác case → fetch gửi
+    // 'application/json, application/json' → NestJS body-parser bỏ qua body. Fix dùng Headers.
+    let received: string | null = 'UNSET';
+    let receivedBody: unknown = null;
+    mswServer.use(
+      http.post(`${API_URL}/tags`, async ({ request }) => {
+        received = request.headers.get('content-type');
+        receivedBody = await request.json();
+        return HttpResponse.json({ data: { id: 't1', name: 'x' } });
+      }),
+    );
+
+    await apiFetch('/tags', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'x' }),
+      headers: { 'content-type': 'application/json' }, // lowercase — đúng pattern callers cũ
+    });
+
+    // Old buggy code → 'application/json, application/json'; fixed → single value + body parse được.
+    expect(received).toBe('application/json');
+    expect(receivedBody).toEqual({ name: 'x' });
+  });
+
+  it('regression BUG-014: default Content-Type vẫn set khi caller không truyền headers', async () => {
+    let received: string | null = 'UNSET';
+    mswServer.use(
+      http.post(`${API_URL}/tags`, ({ request }) => {
+        received = request.headers.get('content-type');
+        return HttpResponse.json({ data: { id: 't2' } });
+      }),
+    );
+    await apiFetch('/tags', { method: 'POST', body: JSON.stringify({ name: 'y' }) });
+    expect(received).toBe('application/json');
+  });
+
   it('concurrent 401s → chỉ 1 refresh in-flight (mutex)', async () => {
     let postCalls = 0;
     let refreshCalls = 0;

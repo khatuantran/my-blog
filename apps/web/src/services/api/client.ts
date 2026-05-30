@@ -65,13 +65,17 @@ function emitLogoutEvent() {
 }
 
 async function doFetch(url: string, init: RequestInit): Promise<Response> {
+  // Build headers qua `Headers` (case-insensitive) thay vì object spread.
+  // Object spread KHÔNG dedupe theo case: caller truyền `content-type` (lowercase)
+  // + default `Content-Type` → fetch gửi header doubled `application/json, application/json`,
+  // làm NestJS body-parser bỏ qua JSON body → req.body rỗng (BUG-014: tag create 400
+  // "name missing" + update no-op). Headers.set dedupe case-insensitive nên an toàn.
+  const headers = new Headers(init.headers ?? {});
+  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   return fetch(url, {
     credentials: 'include',
     ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(init.headers ?? {}),
-    },
+    headers,
   });
 }
 

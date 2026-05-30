@@ -54,7 +54,7 @@ export function TagCard({ tag, maxCount, isAdmin, index, onEdit, onDelete }: Pro
           >
             {tag.name}
           </div>
-          <div className="mt-0.5 font-mono text-[10px] text-td">
+          <div className="mt-0.5 font-mono text-[10px] text-tm">
             since {formatMonth(tag.createdAt)}
           </div>
         </Link>
@@ -83,7 +83,7 @@ export function TagCard({ tag, maxCount, isAdmin, index, onEdit, onDelete }: Pro
       </div>
 
       {/* Description — min-h-[36px] giữ card chiều cao consistent */}
-      <p className="mb-3 min-h-[36px] text-[13px] leading-snug text-tm">
+      <p className="mb-3 min-h-[36px] text-[13px] leading-snug text-ts">
         {tag.description || <span className="italic text-td">// no description</span>}
       </p>
 

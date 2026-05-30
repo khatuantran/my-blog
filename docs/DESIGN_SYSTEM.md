@@ -569,7 +569,8 @@ Toggle via Tweaks panel (dev tool, không document).
 
 - **Surface:** `--surf` + border `--b2` + radius `radius-md` + padding `space-4` + hover border `--cyan` + glow shadow
 - **Layout (grid view):** name `#code` + color swatch (8px circle) inline + post count badge top-right
-- **Body:** description text-sm `--tm` (truncate 1 line, ellipsis), optional
+- **Name subline (since-date):** `since {month year}` mono 10px màu `--tm` (text-tm). ⚠️ **Readability override (T-425):** design-file `MyBlog Tags.html` L239 dùng `#566176` (= text-td) — đã bump lên `--tm` vì user thấy mờ quá. **KHÔNG revert về text-td** khi sync design-file 1:1.
+- **Body:** description text-[13px] màu `--ts` (text-ts), min-h-[36px]. ⚠️ **Readability override (T-425):** design-file `MyBlog Tags.html` L252 dùng `#8B96AA` (= text-tm) — đã bump lên `--ts` cho dễ đọc. **KHÔNG revert về text-tm** khi sync design-file 1:1. (placeholder `// no description` giữ text-td italic.)
 - **Footer:** Sparkline 7d mini (60×16) + progress bar 4px height (% so với max tag postCount across all)
 - **Admin overlay (hover):** top-right `✎ Edit` + `🗑 Delete` icon buttons, opacity 0 → 1 transition
 - **Click:** navigate `/?tag=name` Feed

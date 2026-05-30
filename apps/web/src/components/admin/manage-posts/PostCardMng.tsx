@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { MOOD_CFG } from '@/lib/mood-config';
 import { StatusBadge } from './StatusBadge';
 import type { AdminPost } from '@/types/api';
+
+const SNIPPET_LIMIT = 140;
 
 type Props = {
   post: AdminPost;
@@ -19,17 +22,21 @@ function formatDate(iso: string): string {
 // Tags + stats row: tags left + stats inline với 📷/📎 conditional right
 // Actions footer: View blu + Edit cyan + Delete red 3-button
 export function PostCardMng({ post, onEdit, onDelete }: Props) {
-  const snippet = post.content
+  const fullContent = post.content
     .replace(/```[\s\S]*?```/g, '[code]')
     .replace(/<[^>]+>/g, '')
-    .replace(/[#*`]/g, '');
+    .replace(/[#*`]/g, '')
+    .trim();
+  const isLong = fullContent.length > SNIPPET_LIMIT;
+  const [expanded, setExpanded] = useState(false);
+  const snippet = !isLong || expanded ? fullContent : fullContent.slice(0, SNIPPET_LIMIT) + '…';
   const mood = MOOD_CFG[post.mood];
   const imagesCount = post.images?.length ?? 0;
   const filesCount = post.files?.length ?? 0;
 
   return (
     <div
-      className="rounded-lg border border-b2 bg-elev px-4 py-3.5 transition-all hover:border-cyan/40 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]"
+      className="flex h-full flex-col rounded-lg border border-b2 bg-elev px-4 py-3.5 transition-all hover:border-cyan/40 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]"
       data-testid="post-card-mng"
     >
       {/* Top row — id + status + mood + date right (design L420-427) */}
@@ -49,10 +56,22 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         <span className="ml-auto font-mono text-[10px] text-tm">{formatDate(post.createdAt)}</span>
       </div>
 
-      {/* Content 2-line clamp (design L430 text #C9D1D9 = tp brighter) */}
-      <p className="mb-2.5 line-clamp-2 text-[13px] leading-relaxed text-tp">
-        {snippet || '// empty'}
-      </p>
+      {/* Content — truncate 140 chars + show more toggle. Card stretch h-full
+          nhưng content section đặt độc lập (không flex-1 grow vì sẽ làm thiếu
+          tự nhiên); footer push xuống đáy bằng mt-auto bên dưới. */}
+      <div className="mb-2.5">
+        <p className="text-[13px] leading-relaxed text-tp">{snippet || '// empty'}</p>
+        {isLong && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-1 font-mono text-[11px] text-cyan hover:underline"
+            aria-label={expanded ? 'Show less content' : 'Show more content'}
+          >
+            {expanded ? '↑ show less' : '↓ show more'}
+          </button>
+        )}
+      </div>
 
       {/* Tags row — min-height giữ chiều cao consistent kể cả không có tags */}
       <div className="mb-1.5 flex min-h-[22px] flex-wrap items-center gap-1.5">
@@ -87,7 +106,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           `1fr` thường = `minmax(auto, 1fr)` khiến column grow theo widest content
           (✕ Delete dài → col 3 wider hơn View/Edit). */}
       <div
-        className="grid gap-1.5 border-t border-b1 pt-2.5"
+        className="mt-auto grid gap-1.5 border-t border-b1 pt-2.5"
         style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}
       >
         <Link

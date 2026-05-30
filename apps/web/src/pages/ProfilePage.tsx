@@ -209,12 +209,13 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Action buttons (self only) */}
+          {/* Action buttons (self only) — design L512-518:
+              horizontal layout, New Post FILLED solid cyan + dark text, Settings bg-elev outline */}
           {isSelf && (
-            <div className="flex shrink-0 flex-col gap-2">
+            <div className="flex shrink-0 gap-2 self-end pb-1">
               <Link
                 to="/admin/create"
-                className="rounded-md border border-cyan bg-cyan/[0.14] px-4 py-2 font-mono text-mono-md text-cyan shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/[0.22] hover:shadow-[0_0_22px_rgba(0,255,229,0.4)]"
+                className="rounded-md border-none bg-cyan px-[18px] py-2 font-mono text-mono-md font-semibold text-[#0A0E1A] shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-shadow hover:shadow-[0_0_20px_rgba(0,255,229,0.4)]"
                 aria-label="New Post"
               >
                 ✏️ New Post
@@ -223,7 +224,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={openEditor}
                 aria-label="Edit Profile"
-                className="rounded-md border border-b2 bg-elev px-4 py-2 font-mono text-mono-md text-tm transition-colors hover:border-b3 hover:text-tp"
+                className="rounded-md border border-b2 bg-elev px-3.5 py-2 font-mono text-mono-md text-tm transition-colors hover:border-b3 hover:text-tp"
               >
                 ⚙️ Settings
               </button>

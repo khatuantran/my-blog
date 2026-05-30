@@ -23,7 +23,7 @@ export function BigSearchInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="w-full rounded-lg border border-b2 bg-bg py-3 pl-4 pr-[88px] font-brand text-[18px] text-tp outline-none transition-all placeholder:italic placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-md"
+          className="w-full rounded-lg border border-b2 bg-bg py-3 pl-4 pr-[88px] font-brand text-[18px] text-tp outline-none transition-all placeholder:italic placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-md [&::-webkit-search-cancel-button]:appearance-none"
         />
         {value ? (
           <button

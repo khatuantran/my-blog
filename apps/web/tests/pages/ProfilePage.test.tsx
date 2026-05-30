@@ -112,11 +112,15 @@ describe('ProfilePage (T-221, T-374, FR-11)', () => {
     expect(screen.getByTestId('profile-username')).toHaveClass('animate-glitch');
   });
 
-  it('T-374: hex deco corner renders uid/pid fragments', async () => {
+  it('T-374/T-405: hex deco corner renders 4 cyberpunk-flavored lines', async () => {
     wrap('/profile/alice');
     await waitFor(() => expect(screen.getByTestId('profile-hero')).toBeInTheDocument());
-    // uid fragment from user.id slice (0,8)
-    expect(screen.getByText(/uid:u-alice/i)).toBeInTheDocument();
+    // Design update 2026-05-29: deco changed từ `uid:/pid:` 3-line → 4-line
+    // pattern (`#DEAD-BEEF-XXXX-XXXX`, binary, `#ID NNNN . PID NNNN`, `MID NNNN`).
+    expect(screen.getByText(/#DEAD-BEEF-/)).toBeInTheDocument();
+    expect(screen.getByText(/01101010-10101010/)).toBeInTheDocument();
+    expect(screen.getByText(/#ID \d+ \. PID \d+/)).toBeInTheDocument();
+    expect(screen.getByText(/MID \d+ \. MID \d+/)).toBeInTheDocument();
   });
 
   it('non-self viewer → no action buttons + Saved tab hidden', async () => {

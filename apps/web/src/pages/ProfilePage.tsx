@@ -25,6 +25,20 @@ function formatStat(n: number): string {
   return String(n);
 }
 
+// Hex deco corner helpers (T-405): derive cyberpunk-flavored deco từ user.id.
+function deco4(id: string, offset: number): string {
+  return (id.replace(/[^a-z0-9]/gi, '').slice(offset, offset + 4) + '0000')
+    .slice(0, 4)
+    .toUpperCase();
+}
+function decoNum(id: string, offset: number, len = 4): string {
+  // Sum char codes của 4 chars → fold thành số 4-digit (hoặc 1-digit nếu len=1)
+  const slice = id.replace(/[^a-z0-9]/gi, '').slice(offset, offset + 4);
+  const sum = slice.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const mod = len === 1 ? 10 : 10000;
+  return String(sum % mod).padStart(len, '0');
+}
+
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
   const { user: viewer } = useAuth();
@@ -97,14 +111,21 @@ export default function ProfilePage() {
         style={{ background: 'linear-gradient(180deg, #0F1525, #0A0E1A)' }}
         data-testid="profile-hero"
       >
-        {/* Hex deco corner */}
+        {/* Hex deco corner (4 lines cyberpunk-flavored — derived từ user.id) */}
         <div
           aria-hidden
           className="absolute right-4 top-3 select-none text-right font-mono text-[11px] leading-snug text-b2"
         >
-          <div>01001101</div>
-          <div>uid:{user.id.slice(0, 8)}</div>
-          <div>pid:{user.id.slice(-4)}</div>
+          <div>
+            #DEAD-BEEF-{deco4(user.id, 0)}-{deco4(user.id, 4)}
+          </div>
+          <div>01101010-10101010</div>
+          <div>
+            #ID {decoNum(user.id, 0)} . PID {decoNum(user.id, 4)}
+          </div>
+          <div>
+            MID {decoNum(user.id, 8)} . MID {decoNum(user.id, 12, 1)}
+          </div>
         </div>
 
         <div className="flex items-start gap-5">
@@ -150,7 +171,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {user.bio && <div className="mb-2 whitespace-pre-wrap text-sm text-tm">{user.bio}</div>}
+            {user.bio && <div className="mb-2 whitespace-pre-wrap text-sm text-ts">{user.bio}</div>}
 
             {/* Meta icons row (location · joined · github · website) */}
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-mono-md text-tm">

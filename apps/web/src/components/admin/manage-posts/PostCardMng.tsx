@@ -82,10 +82,13 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         {filesCount > 0 && <span>📎 {filesCount}</span>}
       </div>
 
-      {/* Actions footer — grid 3 equal columns (explicit 1fr × 3 + w-full mỗi button) */}
+      {/* Actions footer — grid 3 equal columns. minmax(0, 1fr) cho phép column
+          shrink dưới min-content của item (content sẽ truncate/wrap nếu thiếu chỗ);
+          `1fr` thường = `minmax(auto, 1fr)` khiến column grow theo widest content
+          (✕ Delete dài → col 3 wider hơn View/Edit). */}
       <div
         className="grid gap-1.5 border-t border-b1 pt-2.5"
-        style={{ gridTemplateColumns: '1fr 1fr 1fr' }}
+        style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}
       >
         <Link
           to={`/post/${post.id}`}

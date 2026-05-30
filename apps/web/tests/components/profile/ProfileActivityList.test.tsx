@@ -78,9 +78,10 @@ describe('ProfileActivityList (T-301, FR-13)', () => {
     });
     wrap(<ProfileActivityList userId={USER_ID} />);
     await waitFor(() => expect(screen.getByText('hello')).toBeInTheDocument());
-    expect(screen.getByText('📝')).toBeInTheDocument();
+    // T-413 BUG-010 — Icon set realigned với Feed page: POST 📝→✏️, LIKE 👍→♡
+    expect(screen.getByText('✏️')).toBeInTheDocument();
     expect(screen.getByText('💬')).toBeInTheDocument();
-    expect(screen.getByText('👍')).toBeInTheDocument();
+    expect(screen.getByText('♡')).toBeInTheDocument();
     expect(screen.getByText('🔖')).toBeInTheDocument();
     // OUTGOING text contains "You"
     expect(screen.getAllByText('You').length).toBe(4);

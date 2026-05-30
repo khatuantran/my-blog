@@ -278,26 +278,39 @@ export default function ProfilePage() {
             {tab === 'posts' && <PostsTab userId={user.id} />}
             {tab === 'saved' && canViewSaved && <SavedTab />}
             {tab === 'activity' && canViewSaved && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {stats && (
-                  <div className="rounded-md border border-b2 bg-surf p-4">
-                    <div className="mb-2 font-mono text-mono-sm text-tm">// activity.28d</div>
-                    <HeatmapGrid cells={stats.heatmap28d} />
+                  <div className="rounded-lg border border-b2 bg-surf p-5">
+                    <div className="mb-3 font-mono text-[11px] text-tm">
+                      // contribution.activity
+                      <span className="ml-1 text-td">
+                        last 28 days · {stats.heatmap28d.reduce((a, c) => a + c.count, 0)} commits
+                      </span>
+                    </div>
+                    <HeatmapGrid cells={stats.heatmap28d} variant="large" />
                   </div>
                 )}
-                <div className="rounded-md border border-b2 bg-surf p-4">
+                <div>
+                  <div className="mb-2 font-mono text-[11px] text-tm">// recent.actions</div>
                   <ProfileActivityList userId={user.id} />
                 </div>
               </div>
             )}
             {tab === 'about' && (
               <div className="space-y-4">
-                <Block title="// about.me">
-                  <div className="whitespace-pre-wrap text-sm text-tp">
+                {/* design L621 sb-lbl outside card */}
+                <div className="font-mono text-[11px] text-tm">// about.me</div>
+                <div className="rounded-lg border border-b2 bg-surf p-5">
+                  <div className="mb-2.5 font-mono text-[11px] text-tm">// bio</div>
+                  <p
+                    className="whitespace-pre-wrap text-[15px] text-tp"
+                    style={{ lineHeight: 1.75 }}
+                  >
                     {user.bio || '// no bio yet'}
-                  </div>
-                </Block>
-                <Block title="// skills.stack">
+                  </p>
+                </div>
+                <div className="rounded-lg border border-b2 bg-surf p-5">
+                  <div className="mb-3 font-mono text-[11px] text-tm">// skills.stack</div>
                   {(user.skills?.length ?? 0) === 0 ? (
                     <div className="font-mono text-mono-sm text-td">// no skills added</div>
                   ) : (
@@ -305,20 +318,22 @@ export default function ProfilePage() {
                       {user.skills!.map((s) => (
                         <span
                           key={s.name}
-                          className="rounded-sm border px-2 py-0.5 font-mono text-mono-sm"
+                          className="inline-flex items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-[12px]"
                           style={{
                             color: s.color,
-                            borderColor: `${s.color}50`,
-                            background: `${s.color}10`,
+                            borderColor: `${s.color}40`,
+                            background: `${s.color}0F`,
+                            boxShadow: `0 0 8px ${s.color}15`,
                           }}
                         >
+                          <span style={{ fontSize: 8 }}>❯</span>
                           {s.name}
                         </span>
                       ))}
                     </div>
                   )}
-                </Block>
-                {stats && <InfoGrid stats={stats} joinedAt={user.createdAt} />}
+                </div>
+                <ProfileInfoGrid user={user} />
               </div>
             )}
           </div>
@@ -409,45 +424,6 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 
-function InfoGrid({
-  stats,
-  joinedAt,
-}: {
-  stats: NonNullable<ReturnType<typeof useUserStats>['data']>;
-  joinedAt: string;
-}) {
-  const joined = new Date(joinedAt).toLocaleDateString('en-US', {
-    month: 'short',
-    year: 'numeric',
-  });
-  const topMood = Object.entries(stats.moodBreakdown).sort(([, a], [, b]) => b - a)[0];
-  const topTag = stats.tagsUsed[0];
-
-  const rows: [string, string][] = [
-    ['joined', joined],
-    ['posts', String(stats.postsCount)],
-    ['likes received', String(stats.likesReceived)],
-    ['comments', String(stats.commentsReceived)],
-    ['views', String(stats.viewsTotal)],
-    ['streak', `${stats.streak}d`],
-    ['top mood', topMood ? topMood[0].toLowerCase() : '—'],
-    ['top tag', topTag ? topTag.name : '—'],
-  ];
-
-  return (
-    <Block title="// info">
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-        {rows.map(([k, v]) => (
-          <div key={k} className="flex items-baseline gap-1">
-            <dt className="font-mono text-[11px] text-td">{k}:</dt>
-            <dd className="font-mono text-[12px] text-ts">{v}</dd>
-          </div>
-        ))}
-      </dl>
-    </Block>
-  );
-}
-
 function PostsTab({ userId }: { userId: string }) {
   const { data, isLoading } = usePostsInfinite({});
   if (isLoading) {
@@ -476,13 +452,70 @@ function SavedTab() {
     return <div className="py-8 text-center font-mono text-mono-sm text-tm">⠋ loading...</div>;
   if (!data || data.items.length === 0)
     return (
-      <div className="py-12 text-center font-mono text-mono-sm text-tm">// no saved posts</div>
+      <div className="space-y-3">
+        <div className="font-mono text-[11px] text-tm">
+          // saved.posts <span className="ml-1 text-td">0 items</span>
+        </div>
+        <div className="py-12 text-center font-mono text-mono-sm text-tm">// no saved posts</div>
+      </div>
     );
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
+      {/* design L571 — // saved.posts <N items> sb-lbl header */}
+      <div className="font-mono text-[11px] text-tm">
+        // saved.posts <span className="ml-1 text-td">{data.items.length} items</span>
+      </div>
       {data.items.map((p) => (
         <PostMiniCard key={p.id} post={p} />
       ))}
+    </div>
+  );
+}
+
+// T-413 BUG-010 — Profile info grid theo design L645-660 (replace InfoGrid which showed STATS).
+// 8 cell tile (Full name / Handle / Role / Born / Location / Joined / GitHub / Website), mỗi
+// cell bg-elev + border + UPPERCASE 10px label + 13px value. Mục đích: hiển thị profile metadata
+// (basic info user nhập trong EditProfileDrawer), khác mục đích Stats card (Posts/Likes hero).
+function ProfileInfoGrid({
+  user,
+}: {
+  user: NonNullable<ReturnType<typeof useUserByUsername>['data']>;
+}) {
+  const joined = new Date(user.createdAt).toLocaleDateString('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
+  const role = user.role === 'ADMIN' ? '[ ADMIN ]' : user.role.toLowerCase();
+  const rows: [string, string][] = [
+    ['Full name', user.name || user.username],
+    ['Handle', `@${user.username}`],
+    ['Role', role],
+    ['Born', user.bornYear ? String(user.bornYear) : '—'],
+    ['Location', user.location || '—'],
+    ['Joined', joined],
+    ['GitHub', user.github || '—'],
+    ['Website', user.website || '—'],
+  ];
+  return (
+    <div className="rounded-lg border border-b2 bg-surf p-5">
+      <div className="mb-3 font-mono text-[11px] text-tm">// profile.info</div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {rows.map(([k, v]) => (
+          <div
+            key={k}
+            className="rounded-md border border-b2 bg-elev px-3 py-2.5"
+            data-testid={`profile-info-${k.toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            <div
+              className="mb-1 font-mono text-[10px] uppercase text-td"
+              style={{ letterSpacing: '0.06em' }}
+            >
+              {k}
+            </div>
+            <div className="font-mono text-[13px] text-tp">{v}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

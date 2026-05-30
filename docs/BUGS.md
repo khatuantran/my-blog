@@ -11,6 +11,38 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-010] [Low] [FE] ProfilePage 3 tab (Saved/Activity/About) drift design-file (12+ items)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome / Layer: FE
+- **Related task:** T-413 (DONE 2026-05-30)
+- **Related FR/component:** FR-11 profile / `apps/web/src/pages/ProfilePage.tsx` + `apps/web/src/components/profile/ProfileActivityList.tsx` + `apps/web/src/components/shared/HeatmapGrid.tsx` vs `design-file/MyBlog Profile.html` L569-664
+- **Mô tả:** User feedback "ở trang profile, các tab saved, activity, about đang khác với design hãy fix". Audit 3 tab body trong main area phát hiện 12+ drift visual + structural so spec gốc.
+- **Steps to reproduce:**
+  1. Navigate `/u/<username>`, click tab Saved / Activity / About.
+  2. So sánh với `design-file/MyBlog Profile.html` L569-664.
+- **Expected:** Match 1:1 spec (trừ Activity list giữ icon-based với icons feed-aligned per user decision).
+- **Actual:** 12+ drift đồng thời chia 3 nhóm:
+  - **Saved tab (2):** missing `// saved.posts` + N items header; row gap 12 vs 10.
+  - **Activity tab (5):** header label `// activity.28d` (sai, design `// contribution.activity` + `last 28 days · N commits` meta); HeatmapGrid cells 12×12 + gap 2 (design 18px + gap 4 + day labels Su/Mo/Tu top row); thiếu p-20 card padding; thiếu `// recent.actions` sub-header; activity list icon 👍 (LIKE) chưa khớp Feed icon set.
+  - **About tab (5):** missing inner `// bio` sub-label trong card; bio 14 vs 15px + lineHeight 1.75; skills thiếu `❯` prefix + per-color glow; **Info grid content sai mục đích** (current STATS — design PROFILE INFO 8 cells Full name/Handle/Role/Born/Location/Joined/GitHub/Website); Info grid styling flat dl vs design 2-col grid cells với bg-elev + UPPERCASE label.
+- **Root cause:** T-374 (ProfilePage hero rewrite 2026-05-26) + T-404 (sidebar update 2026-05-29) build tabs theo mô tả high-level trong DESIGN_SYSTEM, không cross-ref `design-file/MyBlog Profile.html` source markup pixel-by-pixel cho 3 tab body. Pattern recurring lần 4 (T-406 → BUG-008 → BUG-009 → BUG-010): DESIGN_SYSTEM high-level mô tả không thay được design-file source for tab body sections.
+- **Fix:** 4 file edit:
+  - `HeatmapGrid.tsx` rewrite — add `showDayLabels` prop default true (render Su/Mo/Tu/We/Th/Fr/Sa row top), cells `h-[18px]` (was 12), gap 4px (was 0.5px = 2), legend less/more text-[10px] right-aligned.
+  - `ProfilePage.tsx` Saved tab: thêm `// saved.posts <N items>` sb-lbl header.
+  - `ProfilePage.tsx` Activity tab: rename label `// contribution.activity` + meta `last 28 days · {total} commits`; HeatmapGrid wrap card `p-5 + rounded-lg + border + bg-surf`; add `// recent.actions` sub-header trước ProfileActivityList.
+  - `ProfilePage.tsx` About tab + new component: bio card thêm inner `// bio` sub-label; skills span thêm `❯` 8px prefix + boxShadow `0 0 8px ${color}15` per-color glow; **NEW `<ProfileInfoGrid>`** component replace `<InfoGrid>` (different content) — 2-col grid 8 cell tile (Full name/Handle/Role/Born/Location/Joined/GitHub/Website) mỗi cell bg-elev + border-b2 + UPPERCASE 10px label + 13px value.
+  - `ProfileActivityList.tsx`: ICON_MAP align Feed — POST_CREATED `📝→✏️`, LIKE_CREATED `👍→♡` (match Feed PostCard React default), COMMENT/SAVE giữ (đã match Feed).
+- **Decisions per user:**
+  - About Info grid: **1:1 design** Profile info (redundant với hero nhưng đúng spec).
+  - Activity list: **giữ icon-based** nhưng icons feed-aligned (không strip icon hoàn toàn như design plain `❯`).
+- **Regression test:** `apps/web/tests/pages/ProfilePage.test.tsx` thêm 3 case BUG-010:
+  - Saved tab header `// saved.posts` + N items render.
+  - Activity tab `// contribution.activity` header + `// recent.actions` sub-header present.
+  - About tab Profile info grid renders 8 cells với Full name/Handle/Role/Born/Location/Joined/GitHub/Website (NOT stats).
+- **Lesson learned:** Pattern recurring **lần 4** (T-406 → BUG-008 → BUG-009 → BUG-010). Cần promote rule "BẮT BUỘC grep `design-file/*.html` source markup cho mọi tab/section body trước khi rewrite UI" lên CLAUDE.md Pre-flight Checklist (defer task riêng).
+
 ### [BUG-009] [Low] [FE] EditProfileDrawer (Settings panel) 7 visual drift vs design-file Profile.html
 
 - **Status:** FIXED

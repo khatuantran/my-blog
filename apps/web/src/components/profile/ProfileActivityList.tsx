@@ -4,10 +4,12 @@ import { useUserActivity } from '@/hooks/queries/use-activity';
 import { formatRelative } from '@/lib/format-date';
 import type { ActivityItem, ActivityType } from '@/types/api';
 
+// T-413 — Icon set aligned với Feed page (Feed PostCard React default ♡ / Create Post ✏️ /
+// Comment 💬 / PostActionMenu Save 🔖). Was: POST 📝, LIKE 👍.
 const ICON_MAP: Record<ActivityType, string> = {
-  POST_CREATED: '📝',
+  POST_CREATED: '✏️',
   COMMENT_CREATED: '💬',
-  LIKE_CREATED: '👍',
+  LIKE_CREATED: '♡',
   SAVE_CREATED: '🔖',
 };
 

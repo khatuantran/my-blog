@@ -231,14 +231,71 @@ describe('ProfilePage (T-221, T-374, FR-11)', () => {
     expect(hero).toBeInTheDocument();
   });
 
-  it('about tab → renders bio/skills/info grid sections', async () => {
+  it('about tab → renders bio/skills/profile-info grid sections (T-413 BUG-010)', async () => {
     wrap('/profile/alice?tab=about');
     await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
     expect(screen.getByText('// about.me')).toBeInTheDocument();
+    // bio card inner sub-label (was missing pre-T-413)
+    expect(screen.getByText('// bio')).toBeInTheDocument();
     expect(screen.getByText('// skills.stack')).toBeInTheDocument();
     await waitFor(() => expect(screen.getAllByText(/code/i).length).toBeGreaterThan(0));
-    // Info grid
-    await waitFor(() => expect(screen.getByText('// info')).toBeInTheDocument());
-    expect(screen.getByText('joined:')).toBeInTheDocument();
+    // T-413 BUG-010: was `// info` (stats grid) → now `// profile.info` (profile metadata 8 cells)
+    await waitFor(() => expect(screen.getByText('// profile.info')).toBeInTheDocument());
+    expect(screen.getByTestId('profile-info-full-name')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-info-handle')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-info-role')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-info-joined')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-info-github')).toBeInTheDocument();
+    expect(screen.getByTestId('profile-info-website')).toBeInTheDocument();
+  });
+
+  it('regression BUG-010: Saved tab shows // saved.posts <N items> header', async () => {
+    // Self viewer (isSelf=true → canViewSaved=true)
+    useAuthStore.setState({
+      user: {
+        id: 'u-alice',
+        username: 'alice',
+        email: null,
+        role: 'USER',
+        avatarUrl: null,
+        createdAt: new Date().toISOString(),
+      },
+      status: 'authed',
+    });
+    mswServer.use(
+      http.get(`${API}/me/saved`, () =>
+        HttpResponse.json({ items: [], total: 0, page: 1, limit: 20 }),
+      ),
+    );
+    wrap('/profile/alice?tab=saved');
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('// saved.posts')).toBeInTheDocument());
+    expect(screen.getByText('0 items')).toBeInTheDocument();
+  });
+
+  it('regression BUG-010: Activity tab shows // contribution.activity + // recent.actions sub-headers', async () => {
+    // Self viewer (isSelf=true → canViewSaved=true)
+    useAuthStore.setState({
+      user: {
+        id: 'u-alice',
+        username: 'alice',
+        email: null,
+        role: 'USER',
+        avatarUrl: null,
+        createdAt: new Date().toISOString(),
+      },
+      status: 'authed',
+    });
+    mswServer.use(
+      http.get(`${API}/users/u-alice/activity`, () => HttpResponse.json({ items: [], total: 0 })),
+    );
+    wrap('/profile/alice?tab=activity');
+    await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/contribution\.activity/)).toBeInTheDocument(), {
+      timeout: 3000,
+    });
+    expect(screen.getByText(/recent\.actions/)).toBeInTheDocument();
+    // Heatmap large variant
+    expect(screen.getByTestId('heatmap-large')).toBeInTheDocument();
   });
 });

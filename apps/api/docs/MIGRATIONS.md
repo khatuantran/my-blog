@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260530180000_add_user_contact_fields
+
+- **Created:** 2026-05-30
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `User` (+5 nullable columns: `name TEXT`, `location TEXT`, `bornYear INTEGER`, `github TEXT`, `website TEXT`)
+- **Breaking:** no — existing rows giữ NULL all 5 fields.
+- **Notes:** FR-11.8 amend — EditProfileDrawer FE đã render contact section sẵn (T-376) nhưng BE chưa accept → PATCH fail 400 forbidNonWhitelisted. Migration align FE-BE end-to-end. Non-breaking, no backfill. Applied cả main DB :5434 + test DB :5433.
+- **Task:** T-421
+- **Rollback:** `prisma migrate resolve --rolled-back 20260530180000_add_user_contact_fields` + `ALTER TABLE "User" DROP COLUMN "name", DROP COLUMN "location", DROP COLUMN "bornYear", DROP COLUMN "github", DROP COLUMN "website";`
+
 ### 20260530155000_add_user_avatar_public_id
 
 - **Created:** 2026-05-30

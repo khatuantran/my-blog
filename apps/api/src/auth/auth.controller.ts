@@ -61,6 +61,20 @@ function clearAuthCookies(res: Response, isProd: boolean) {
   res.clearCookie(REFRESH_COOKIE, opts);
 }
 
+type SkillLike = { name: unknown; color: unknown };
+function parseSkills(value: unknown): { name: string; color: string }[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (v): v is { name: string; color: string } =>
+      typeof v === 'object' &&
+      v !== null &&
+      typeof (v as SkillLike).name === 'string' &&
+      typeof (v as SkillLike).color === 'string',
+  );
+}
+
+// FR-11.8 — Full profile shape (was 6 fields, giờ 15) cho FE consume profile data
+// 1 query (useAuth) thay vì phải fetch /users/by-username riêng cho viewer-self case.
 function toAuthUser(user: User): AuthUserDto {
   return {
     id: user.id,
@@ -68,6 +82,15 @@ function toAuthUser(user: User): AuthUserDto {
     email: user.email,
     role: user.role,
     avatarUrl: user.avatarUrl,
+    avatarPublicId: user.avatarPublicId,
+    title: user.title,
+    bio: user.bio,
+    skills: parseSkills(user.skills),
+    name: user.name,
+    location: user.location,
+    bornYear: user.bornYear,
+    github: user.github,
+    website: user.website,
     createdAt: user.createdAt,
   };
 }

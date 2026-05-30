@@ -91,6 +91,32 @@ describe('Auth (e2e)', () => {
     it('401 không có cookie', async () => {
       await request(app.getHttpServer()).get('/auth/me').expect(401);
     });
+
+    // FR-11.8 — AuthUserDto expand 4 fields đã có DB (avatarPublicId/title/bio/skills)
+    // + 5 contact fields (name/location/bornYear/github/website).
+    it('FR-11.8: AuthUserDto bao gồm 9 expanded fields cho profile data', async () => {
+      const cookies = await loginAs(app, {
+        username: 'test-admin',
+        password: 'test-admin-password',
+      });
+      const res = await request(app.getHttpServer())
+        .get('/auth/me')
+        .set('Cookie', cookies)
+        .expect(200);
+      const u = res.body.data;
+      // All 15 fields present (some may be null for fresh admin)
+      expect(u).toHaveProperty('avatarPublicId');
+      expect(u).toHaveProperty('title');
+      expect(u).toHaveProperty('bio');
+      expect(u).toHaveProperty('skills');
+      expect(Array.isArray(u.skills)).toBe(true);
+      // FR-11.8 5 contact fields
+      expect(u).toHaveProperty('name');
+      expect(u).toHaveProperty('location');
+      expect(u).toHaveProperty('bornYear');
+      expect(u).toHaveProperty('github');
+      expect(u).toHaveProperty('website');
+    });
   });
 
   describe('POST /auth/refresh + logout', () => {

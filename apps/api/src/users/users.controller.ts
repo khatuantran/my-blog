@@ -52,6 +52,12 @@ function toUserResponse(user: User): UserResponseDto {
     title: user.title ?? null,
     bio: user.bio ?? null,
     skills: parseSkills(user.skills),
+    // FR-11.8 contact + identity fields
+    name: user.name,
+    location: user.location,
+    bornYear: user.bornYear,
+    github: user.github,
+    website: user.website,
     createdAt: user.createdAt,
   };
 }

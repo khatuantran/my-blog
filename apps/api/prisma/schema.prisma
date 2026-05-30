@@ -96,6 +96,11 @@ model User {
   title          String?
   bio            String?
   skills         Json     @default("[]")
+  name           String?
+  location       String?
+  bornYear       Int?
+  github         String?
+  website        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 

@@ -159,6 +159,50 @@ describe('Users (e2e)', () => {
         .send({ bio: 'x'.repeat(501) })
         .expect(400);
     });
+
+    // FR-11.8 — Contact + identity fields propagate
+    it('FR-11.8: 200 self update 5 contact fields (name/location/bornYear/github/website)', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({
+          name: 'Kha Tran',
+          location: 'Ho Chi Minh City',
+          bornYear: 1995,
+          github: 'khatran',
+          website: 'https://kha.dev',
+        })
+        .expect(200);
+      expect(res.body.data.name).toBe('Kha Tran');
+      expect(res.body.data.location).toBe('Ho Chi Minh City');
+      expect(res.body.data.bornYear).toBe(1995);
+      expect(res.body.data.github).toBe('khatran');
+      expect(res.body.data.website).toBe('https://kha.dev');
+    });
+
+    it('FR-11.8: 400 bornYear non-int', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ bornYear: 'abc' })
+        .expect(400);
+    });
+
+    it('FR-11.8: 400 bornYear < 1900', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ bornYear: 1899 })
+        .expect(400);
+    });
+
+    it('FR-11.8: 400 github > 120 chars', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ github: 'x'.repeat(121) })
+        .expect(400);
+    });
   });
 
   describe('GET /users/by-username/:username', () => {

@@ -1247,6 +1247,46 @@ components:
           type: object
           example: https://...cloudinary.../avatar.jpg
           nullable: true
+        avatarPublicId:
+          type: object
+          example: avatars/u-alice-1234
+          nullable: true
+        title:
+          type: object
+          example: Full-stack Developer
+          nullable: true
+        bio:
+          type: object
+          example: Bio markdown...
+          nullable: true
+        skills:
+          description: Skills `[{ name, color }]`
+          example:
+            - name: TypeScript
+              color: '#7DCFFF'
+          type: array
+          items:
+            type: string
+        name:
+          type: object
+          example: Kha Tran
+          nullable: true
+        location:
+          type: object
+          example: Ho Chi Minh City
+          nullable: true
+        bornYear:
+          type: object
+          example: 1995
+          nullable: true
+        github:
+          type: object
+          example: khatran
+          nullable: true
+        website:
+          type: object
+          example: https://kha.dev
+          nullable: true
         createdAt:
           format: date-time
           type: string
@@ -1438,6 +1478,26 @@ components:
           type: array
           items:
             type: string
+        name:
+          type: object
+          example: Kha Tran
+          nullable: true
+        location:
+          type: object
+          example: Ho Chi Minh City
+          nullable: true
+        bornYear:
+          type: object
+          example: 1995
+          nullable: true
+        github:
+          type: object
+          example: khatran
+          nullable: true
+        website:
+          type: object
+          example: https://kha.dev
+          nullable: true
         createdAt:
           format: date-time
           type: string
@@ -1532,6 +1592,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SkillItemDto'
+        name:
+          type: string
+          example: Kha Tran
+          maxLength: 80
+        location:
+          type: string
+          example: Ho Chi Minh City
+          maxLength: 80
+        bornYear:
+          type: number
+          example: 1995
+          minimum: 1900
+        github:
+          type: string
+          example: khatran
+          maxLength: 120
+        website:
+          type: string
+          example: https://kha.dev
+          maxLength: 200
     SignUploadDto:
       type: object
       properties:

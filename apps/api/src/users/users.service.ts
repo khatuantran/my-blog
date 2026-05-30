@@ -210,6 +210,12 @@ export class UsersService {
     if (dto.skills !== undefined) {
       data.skills = dto.skills as unknown as Prisma.InputJsonValue;
     }
+    // FR-11.8 contact + identity fields — propagate khi present
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.location !== undefined) data.location = dto.location;
+    if (dto.bornYear !== undefined) data.bornYear = dto.bornYear;
+    if (dto.github !== undefined) data.github = dto.github;
+    if (dto.website !== undefined) data.website = dto.website;
 
     return this.prisma.user.update({ where: { id: targetId }, data });
   }

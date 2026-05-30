@@ -38,6 +38,22 @@ export class UserResponseDto {
   })
   skills?: Skill[];
 
+  // FR-11.8 contact + identity fields (5 optional nullable)
+  @ApiPropertyOptional({ example: 'Kha Tran', nullable: true })
+  name?: string | null;
+
+  @ApiPropertyOptional({ example: 'Ho Chi Minh City', nullable: true })
+  location?: string | null;
+
+  @ApiPropertyOptional({ example: 1995, nullable: true })
+  bornYear?: number | null;
+
+  @ApiPropertyOptional({ example: 'khatran', nullable: true })
+  github?: string | null;
+
+  @ApiPropertyOptional({ example: 'https://kha.dev', nullable: true })
+  website?: string | null;
+
   @ApiProperty({ example: '2026-05-17T16:59:32.000Z' })
   createdAt!: Date;
 }

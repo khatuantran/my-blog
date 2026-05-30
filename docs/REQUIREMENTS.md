@@ -548,6 +548,30 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked UCs:** UC-14, UC-23
 - **Linked Tests:** E2E (defer add), unit (AvatarUploadModal validate + crop + service POST + DELETE)
 
+### FR-11.8: Contact + identity fields (amended 2026-05-30)
+
+> User feedback: API `/auth/me` thiếu fields fill profile + EditProfileDrawer contact section (Location/Born/GitHub/Website) hiển thị FE nhưng PATCH fail vì BE chưa có schema. F2 amend FR-11 để align FE-BE end-to-end.
+
+- **DB schema (Prisma User add 5 nullable fields)**:
+  - `name String?` — display name (max 80), vs `username` handle. Hiển thị ở hero `~/username · title · born year`.
+  - `location String?` — vd "Ho Chi Minh City" (max 80). Hiển thị ở hero meta row 📍 + profile.info grid.
+  - `bornYear Int?` — vd 1995, range 1900-currentYear. Optional, hiển thị "born YYYY" ở hero + grid.
+  - `github String?` — handle (vd "myname") hoặc full URL (max 120). Hiển thị link `⌗ {github}` ở hero meta.
+  - `website String?` — full URL (max 200). Hiển thị link `🌐 {website}` ở hero meta.
+- **BE endpoints update**:
+  - `UpdateUserDto` (PATCH `/users/:id`) accept 5 fields với class-validator: name/location/github/website `IsString MaxLength`; bornYear `IsInt @Min(1900) @Max(currentYear) IsOptional`. github/website KHÔNG strict `IsUrl()` (cho phép handle dạng `myname` hoặc full URL).
+  - `UserResponseDto` (GET `/users/by-username/:username` + `/users/:id`) trả thêm 5 fields.
+  - `AuthUserDto` (GET `/auth/me` + login/register/refresh) expand 4 fields đã có trong DB (`avatarPublicId, title, bio, skills`) + 5 contact fields mới — để FE `useAuth()` consumer (vd ProfileAvatar hero, AvatarMenu) có đủ data 1 query thay phải fetch `/users/by-username` riêng cho viewer-self case.
+- **Migration**: `add_user_contact_fields` — 5 ADD COLUMN nullable, backfill N/A (existing rows = NULL). Non-breaking.
+- **Acceptance**:
+  - Given login admin → GET `/auth/me` trả full 14 field profile (id, username, email, role, avatarUrl, avatarPublicId, title, bio, skills, name, location, bornYear, github, website, createdAt)
+  - Given EditProfileDrawer submit PATCH `/users/:selfId` với contact section (location: "HCM", bornYear: 1995, github: "khatran", website: `https://kha.dev`) → 200 OK + DB updated
+  - Given bornYear input "abc" → 400 IsInt validation fail
+  - Given bornYear 1899 → 400 Min validation fail
+  - Given github handle 200 chars → 400 MaxLength validation fail
+- **Linked UCs**: UC-14 (extends)
+- **Linked Tests**: BE unit (UsersService.update 5 fields propagation) + e2e (PATCH 5 fields success + 400 invalid bornYear + AuthUserDto includes 5 fields)
+
 ### FR-12: Full-text Search
 
 - **FR-12.1:** `GET /search?q=&type=all|posts|files|tags&mood=&page=&limit=` — Postgres ILIKE multi-table (`Post.content` + `Tag.name` substring + `File.name`). Empty q → trả `stats` toàn cục, không chạy ILIKE.

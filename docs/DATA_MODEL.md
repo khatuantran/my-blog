@@ -37,6 +37,11 @@ AnonymousSession (standalone — track guest)
 | title          | String?       | max 80           | FR-11.6 profile title (vd "Full-stack Developer")                               |
 | bio            | Text?         | max 500          | FR-11.6 markdown allowed (@db.Text)                                             |
 | skills         | Json          | default `[]`     | FR-11.6 array `{ name: string, color: string }[]` max 20                        |
+| name           | String?       | max 80           | FR-11.8 display name vs username handle                                         |
+| location       | String?       | max 80           | FR-11.8 vd "Ho Chi Minh City"                                                   |
+| bornYear       | Int?          | 1900-currentYear | FR-11.8 vd 1995                                                                 |
+| github         | String?       | max 120          | FR-11.8 handle hoặc URL (no IsUrl strict)                                       |
+| website        | String?       | max 200          | FR-11.8 full URL                                                                |
 | createdAt      | DateTime      | default(now())   |                                                                                 |
 | updatedAt      | DateTime      | @updatedAt       |                                                                                 |
 
@@ -404,6 +409,11 @@ model User {
   title         String?       // FR-11.6 max 80 chars
   bio           String?       @db.Text  // FR-11.6 max 500 chars markdown
   skills        Json          @default("[]")  // FR-11.6 array { name, color } max 20
+  name          String?       // FR-11.8 display name (max 80)
+  location      String?       // FR-11.8 location (max 80)
+  bornYear      Int?          // FR-11.8 birth year (1900..currentYear)
+  github        String?       // FR-11.8 github handle/URL (max 120)
+  website       String?       // FR-11.8 personal website URL (max 200)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -682,6 +692,14 @@ model Notification {
 - **Backfill:** N/A — empty table, log only from migration time forward (historical activity sẽ KHÔNG visible cho v1).
 - **Breaking:** None — purely additive.
 - **Linked:** FR-13 (Activity Log user-scope), UC-16.
+
+### v0.6.0-alpha (planned) — Contact + identity fields (FR-11.8)
+
+- **Planned migration:** `add_user_contact_fields` (T-421)
+- **Added:** `User` thêm 5 nullable fields: `name String?` (80), `location String?` (80), `bornYear Int?` (1900-currentYear), `github String?` (120), `website String?` (200). FE EditProfileDrawer contact section đã render sẵn (T-376) nhưng BE chưa accept → PATCH bị reject 400 (forbidNonWhitelisted). Migration align FE-BE end-to-end.
+- **Backfill:** N/A — purely additive nullable fields; existing rows mặc định NULL.
+- **Breaking:** None.
+- **Linked:** FR-11.8 (Contact + identity), UC-14 extends.
 
 ### v0.5.0-alpha (planned) — Avatar upload (FR-11.7)
 

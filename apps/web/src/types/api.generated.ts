@@ -891,6 +891,32 @@ export interface components {
       role: 'ADMIN' | 'USER' | 'BANNED';
       /** @example https://...cloudinary.../avatar.jpg */
       avatarUrl: Record<string, never> | null;
+      /** @example avatars/u-alice-1234 */
+      avatarPublicId?: Record<string, never> | null;
+      /** @example Full-stack Developer */
+      title?: Record<string, never> | null;
+      /** @example Bio markdown... */
+      bio?: Record<string, never> | null;
+      /**
+       * @description Skills `[{ name, color }]`
+       * @example [
+       *       {
+       *         "name": "TypeScript",
+       *         "color": "#7DCFFF"
+       *       }
+       *     ]
+       */
+      skills?: string[];
+      /** @example Kha Tran */
+      name?: Record<string, never> | null;
+      /** @example Ho Chi Minh City */
+      location?: Record<string, never> | null;
+      /** @example 1995 */
+      bornYear?: Record<string, never> | null;
+      /** @example khatran */
+      github?: Record<string, never> | null;
+      /** @example https://kha.dev */
+      website?: Record<string, never> | null;
       /**
        * Format: date-time
        * @example 2026-05-17T16:59:32.000Z
@@ -981,6 +1007,16 @@ export interface components {
        *     ]
        */
       skills?: string[];
+      /** @example Kha Tran */
+      name?: Record<string, never> | null;
+      /** @example Ho Chi Minh City */
+      location?: Record<string, never> | null;
+      /** @example 1995 */
+      bornYear?: Record<string, never> | null;
+      /** @example khatran */
+      github?: Record<string, never> | null;
+      /** @example https://kha.dev */
+      website?: Record<string, never> | null;
       /**
        * Format: date-time
        * @example 2026-05-17T16:59:32.000Z
@@ -1031,6 +1067,16 @@ export interface components {
       bio?: string;
       /** @description Skills array — max 20 items */
       skills?: components['schemas']['SkillItemDto'][];
+      /** @example Kha Tran */
+      name?: string;
+      /** @example Ho Chi Minh City */
+      location?: string;
+      /** @example 1995 */
+      bornYear?: number;
+      /** @example khatran */
+      github?: string;
+      /** @example https://kha.dev */
+      website?: string;
     };
     SignUploadDto: {
       /**

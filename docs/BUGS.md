@@ -11,6 +11,41 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-008] [Low] [FE] PostMiniCard 8 visual drift vs design-file Profile.html (tags plain text vs pill chip, read → no border, mood not right-aligned, action gap too wide)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome / Layer: FE
+- **Related task:** T-408 (DONE 2026-05-30)
+- **Related FR/component:** FR-11 profile / `apps/web/src/components/profile/PostMiniCard.tsx` vs `design-file/MyBlog Profile.html` L52-55 (.post-mini CSS) + L292-344 (function PostMiniCard render)
+- **Mô tả:** Card hiển thị bài viết trong tab Posts/Saved của trang `/u/:username` (`PostMiniCard.tsx`, tạo từ T-375 2026-05-26) lệch khá nhiều so với spec gốc trong design-file. User screenshot design 1 card mẫu (timestamp `[2026-05-17 12:30]` + mood `😊 happy` right-aligned + body 15px + thumb strip + tags pill `#code #dev #debugging` filled + `♡ 24 / 💬 5 / read →` bordered) — code hiện tại render khác.
+- **Steps to reproduce:**
+  1. Login bất kỳ user, navigate `/u/<username>` (tab Posts mặc định).
+  2. Observe 1 PostMiniCard render.
+  3. So sánh với `design-file/MyBlog Profile.html` L292-344 (function PostMiniCard) hoặc screenshot user gửi.
+- **Expected:** Match 1:1 spec design-file — tags pill filled, read → bordered pill, mood ml-auto, action gap 2px + buttons padded, content 15px, thumb radius 4px, header mb 10px.
+- **Actual:** 8 drift đồng thời:
+  1. Tags render plain colored text (`text-[11px] color: t.color`) — design L327 quy định pill `bg ${color}15 + border 1px ${color}40 + rounded 3px + padding 1px 6px`.
+  2. `read →` link plain `text-cyan hover:underline` — design L338 quy định bordered pill `border 1px rgba(0,255,229,.25) + rounded 4px + padding 4px 8px`.
+  3. Mood badge sau timestamp với `gap-2` — design L303 quy định `marginLeft:auto` (right-aligned).
+  4. Action row `gap-3` (12px) — design L330 quy định `gap:2px`.
+  5. Like/💬 buttons inline flex no padding — design L331-337 quy định `padding:4px 8px + rounded 4px`.
+  6. Content font `text-sm` (14px) — design L310 quy định `15px` + `lineHeight 1.6`.
+  7. Thumb radius `rounded-sm` (2px) — design L320 quy định `borderRadius:4px`.
+  8. Header `mb-2` (8px) — design L301 quy định `marginBottom:10px`.
+- **Root cause:** T-375 (PostMiniCard greenfield 2026-05-26) implement card theo mô tả high-level trong DESIGN_SYSTEM, không cross-ref `design-file/MyBlog Profile.html` source CSS/markup pixel-by-pixel. Tương tự T-406 mistake — bịa style thay vì grep design-file. Issue dạng visual fidelity, không break feature (like/comment/read link vẫn click được).
+- **Fix:** Rewrite `PostMiniCard.tsx` 8 thay đổi:
+  - Tags: span thêm `bg ${color}15 + border 1px ${color}40 + rounded-[3px] + px-1.5 + py-px`.
+  - `read →`: thêm `border border-cyan/25 + rounded + px-2 + py-1`.
+  - Mood badge: wrap `ml-auto`.
+  - Action row: `gap-3` → `gap-0.5` (~2px).
+  - Like + 💬 buttons: thêm `px-2 py-1 + rounded`.
+  - Content: `text-sm` → `text-[15px]`.
+  - Thumb: `rounded-sm` → `rounded`.
+  - Header mb: `mb-2` → `mb-2.5` (10px).
+- **Regression test:** `apps/web/tests/components/profile/PostMiniCard.test.tsx` — new case `it('regression BUG-008: tags render as pill chip (bg + border) and read link has bordered pill style', ...)` assert tag span có bg+border style + read link có border-cyan class.
+- **Lesson learned:** Re-confirm rule từ T-406: BẮT BUỘC grep `design-file/*.html` source CSS + markup trước khi code styling component. DESIGN_SYSTEM mô tả high-level, **không thay thế** design-file source for pixel-level. Pattern recurrent đủ điều kiện: add Pre-flight Gate "Đã grep design-file source CSS chưa?" cho mọi task touch UI component visual.
+
 ### [BUG-007] [Low] [FE] SearchPage BigSearchInput hiển thị 2 dấu × clear
 
 - **Status:** FIXED

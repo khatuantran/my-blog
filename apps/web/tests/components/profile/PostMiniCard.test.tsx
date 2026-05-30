@@ -80,4 +80,33 @@ describe('PostMiniCard', () => {
     fireEvent.click(likeBtn);
     await waitFor(() => expect(mutationCalled).toBe(true));
   });
+
+  it('regression BUG-008: tags render as pill chip (bg + border color) and read link is bordered cyan pill', () => {
+    wrap(
+      <PostMiniCard
+        post={makePost({
+          tags: [{ id: 't1', name: '#code', color: '#9ECE6A' }],
+        })}
+      />,
+    );
+
+    // Tag pill: must have inline bg + border color derived from tag color (design L327)
+    const tagPill = screen.getByTestId('mini-tag-#code');
+    expect(tagPill).toHaveStyle({
+      backgroundColor: '#9ECE6A15',
+      borderColor: '#9ECE6A40',
+      color: '#9ECE6A',
+    });
+    // pill structural classes
+    expect(tagPill.className).toMatch(/rounded-\[3px\]/);
+    expect(tagPill.className).toMatch(/border/);
+    expect(tagPill.className).toMatch(/px-1\.5/);
+
+    // read → link: bordered cyan pill (design L338)
+    const readLink = screen.getByTestId('mini-read-link');
+    expect(readLink.className).toMatch(/border-cyan/);
+    expect(readLink.className).toMatch(/rounded/);
+    expect(readLink.className).toMatch(/px-2/);
+    expect(readLink.className).toMatch(/text-cyan/);
+  });
 });

@@ -1,7 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
+import { CloudinaryService } from '@/files/cloudinary.service';
 import { UsersService } from '@/users/users.service';
 
 type MockPrisma = {
@@ -15,6 +16,11 @@ type MockPrisma = {
   refreshToken: { updateMany: jest.Mock };
 };
 
+type MockCloudinary = {
+  signUpload: jest.Mock;
+  destroyMany: jest.Mock;
+};
+
 const baseUser = {
   id: 'u1',
   username: 'kha',
@@ -22,6 +28,7 @@ const baseUser = {
   passwordHash: 'hash',
   role: Role.USER,
   avatarUrl: null,
+  avatarPublicId: null as string | null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -29,6 +36,7 @@ const baseUser = {
 describe('UsersService', () => {
   let service: UsersService;
   let prisma: MockPrisma;
+  let cloudinary: MockCloudinary;
 
   beforeEach(async () => {
     prisma = {
@@ -41,9 +49,17 @@ describe('UsersService', () => {
       },
       refreshToken: { updateMany: jest.fn() },
     };
+    cloudinary = {
+      signUpload: jest.fn(),
+      destroyMany: jest.fn().mockResolvedValue(undefined),
+    };
 
     const moduleRef = await Test.createTestingModule({
-      providers: [UsersService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        UsersService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: CloudinaryService, useValue: cloudinary },
+      ],
     }).compile();
     service = moduleRef.get(UsersService);
   });
@@ -146,6 +162,95 @@ describe('UsersService', () => {
         data: { revokedAt: expect.any(Date) },
       });
       expect(res.role).toBe(Role.BANNED);
+    });
+  });
+
+  describe('avatar (FR-11.7)', () => {
+    describe('getAvatarSignParams', () => {
+      it('delegates CloudinaryService.signUpload với folder=avatars + publicId=<userId>-<ts>', () => {
+        const signed = {
+          signature: 'sig123',
+          timestamp: 1234567890,
+          apiKey: 'k',
+          cloudName: 'c',
+          folder: 'avatars',
+          resourceType: 'image' as const,
+          publicId: 'u1-1234567890',
+        };
+        cloudinary.signUpload.mockReturnValue(signed);
+        const res = service.getAvatarSignParams('u1');
+        expect(cloudinary.signUpload).toHaveBeenCalledWith({
+          folder: 'avatars',
+          publicId: expect.stringMatching(/^u1-\d+$/),
+          resourceType: 'image',
+        });
+        expect(res).toBe(signed);
+      });
+    });
+
+    describe('setAvatar', () => {
+      it('throws INVALID_AVATAR_PUBLIC_ID nếu publicId không bắt đầu bằng avatars/<userId>-', async () => {
+        await expect(
+          service.setAvatar('u1', 'https://res.cloudinary.com/x.jpg', 'avatars/u2-123'),
+        ).rejects.toThrow(BadRequestException);
+        await expect(
+          service.setAvatar('u1', 'https://res.cloudinary.com/x.jpg', 'posts/u1-123'),
+        ).rejects.toThrow(BadRequestException);
+      });
+
+      it('cleanup avatarPublicId cũ via Cloudinary destroy trước khi update', async () => {
+        prisma.user.findUnique.mockResolvedValue({ ...baseUser, avatarPublicId: 'avatars/u1-old' });
+        prisma.user.update.mockResolvedValue({
+          ...baseUser,
+          avatarUrl: 'https://res.cloudinary.com/new.jpg',
+          avatarPublicId: 'avatars/u1-new',
+        });
+        await service.setAvatar('u1', 'https://res.cloudinary.com/new.jpg', 'avatars/u1-new');
+        expect(cloudinary.destroyMany).toHaveBeenCalledWith([
+          { publicId: 'avatars/u1-old', resourceType: 'image' },
+        ]);
+        expect(prisma.user.update).toHaveBeenCalledWith({
+          where: { id: 'u1' },
+          data: {
+            avatarUrl: 'https://res.cloudinary.com/new.jpg',
+            avatarPublicId: 'avatars/u1-new',
+          },
+        });
+      });
+
+      it('skip Cloudinary destroy nếu user chưa có avatarPublicId (first upload)', async () => {
+        prisma.user.findUnique.mockResolvedValue({ ...baseUser, avatarPublicId: null });
+        prisma.user.update.mockResolvedValue(baseUser);
+        await service.setAvatar('u1', 'https://res.cloudinary.com/new.jpg', 'avatars/u1-new');
+        expect(cloudinary.destroyMany).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('removeAvatar', () => {
+      it('cleanup Cloudinary publicId + set 2 field null', async () => {
+        prisma.user.findUnique.mockResolvedValue({ ...baseUser, avatarPublicId: 'avatars/u1-x' });
+        prisma.user.update.mockResolvedValue({
+          ...baseUser,
+          avatarUrl: null,
+          avatarPublicId: null,
+        });
+        await service.removeAvatar('u1');
+        expect(cloudinary.destroyMany).toHaveBeenCalledWith([
+          { publicId: 'avatars/u1-x', resourceType: 'image' },
+        ]);
+        expect(prisma.user.update).toHaveBeenCalledWith({
+          where: { id: 'u1' },
+          data: { avatarUrl: null, avatarPublicId: null },
+        });
+      });
+
+      it('idempotent — nếu user chưa có avatar, vẫn return user (no Cloudinary call)', async () => {
+        prisma.user.findUnique.mockResolvedValue(baseUser);
+        prisma.user.update.mockResolvedValue(baseUser);
+        await service.removeAvatar('u1');
+        expect(cloudinary.destroyMany).not.toHaveBeenCalled();
+        expect(prisma.user.update).toHaveBeenCalled();
+      });
     });
   });
 

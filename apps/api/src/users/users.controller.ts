@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -11,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Role, type User } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -18,9 +20,12 @@ import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { RolesGuard } from '../common/guards/roles.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
+import type { SignedUploadParams } from '../files/cloudinary.service';
 import { UsersService } from './users.service';
 import { ListUsersDto } from './dto/list-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { SetAvatarDto } from './dto/set-avatar.dto';
+import { AvatarResponseDto } from './dto/avatar-response.dto';
 import { PaginatedUsersDto, UserResponseDto } from './dto/user-response.dto';
 
 type Skill = { name: string; color: string };
@@ -43,6 +48,7 @@ function toUserResponse(user: User): UserResponseDto {
     email: user.email,
     role: user.role,
     avatarUrl: user.avatarUrl,
+    avatarPublicId: user.avatarPublicId,
     title: user.title ?? null,
     bio: user.bio ?? null,
     skills: parseSkills(user.skills),
@@ -51,7 +57,8 @@ function toUserResponse(user: User): UserResponseDto {
 }
 
 function toPublicUserResponse(user: User): UserResponseDto {
-  return { ...toUserResponse(user), email: null };
+  // Hide email + avatarPublicId (admin-internal, không cần public expose)
+  return { ...toUserResponse(user), email: null, avatarPublicId: null };
 }
 
 @ApiTags('users')
@@ -67,6 +74,37 @@ export class UsersController {
   async list(@Query() query: ListUsersDto): Promise<PaginatedUsersDto> {
     const { items, total, page, limit } = await this.users.list(query);
     return { items: items.map(toUserResponse), total, page, limit };
+  }
+
+  // ── FR-11.7 Avatar upload (declare TRƯỚC `:id` routes để Nest match đúng `me`) ──
+
+  @Post('me/avatar/sign')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Issue Cloudinary signed params cho self avatar upload (FR-11.7)' })
+  signAvatar(@CurrentUser() requester: AuthenticatedUser): SignedUploadParams {
+    return this.users.getAvatarSignParams(requester.sub);
+  }
+
+  @Patch('me/avatar')
+  @ApiOperation({
+    summary: 'Save avatar sau khi FE upload Cloudinary success (FR-11.7) — cleanup avatar cũ',
+  })
+  @ApiResponse({ status: 200, type: AvatarResponseDto })
+  async setAvatar(
+    @CurrentUser() requester: AuthenticatedUser,
+    @Body() dto: SetAvatarDto,
+  ): Promise<AvatarResponseDto> {
+    const user = await this.users.setAvatar(requester.sub, dto.url, dto.publicId);
+    return { avatarUrl: user.avatarUrl, avatarPublicId: user.avatarPublicId };
+  }
+
+  @Delete('me/avatar')
+  @ApiOperation({ summary: 'Remove avatar (FR-11.7) — Cloudinary destroy + null fields' })
+  @ApiResponse({ status: 200, type: AvatarResponseDto })
+  async removeAvatar(@CurrentUser() requester: AuthenticatedUser): Promise<AvatarResponseDto> {
+    const user = await this.users.removeAvatar(requester.sub);
+    return { avatarUrl: user.avatarUrl, avatarPublicId: user.avatarPublicId };
   }
 
   @Public()

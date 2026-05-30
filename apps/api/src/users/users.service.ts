@@ -1,6 +1,13 @@
-import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Mood, Prisma, Role, type User } from '@prisma/client';
+import { CloudinaryService, type SignedUploadParams } from '../files/cloudinary.service';
 import type { ListUsersDto } from './dto/list-users.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 
@@ -32,7 +39,10 @@ export type ProfileStats = {
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinary: CloudinaryService,
+  ) {}
 
   async list(
     query: ListUsersDto,
@@ -223,6 +233,59 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id: targetId },
       data: { role: Role.BANNED },
+    });
+  }
+
+  // ── FR-11.7 Avatar upload (3 endpoint) ──────────────────────
+
+  // POST /users/me/avatar/sign — issue Cloudinary signed params cho self.
+  // Folder cố định `avatars/`, publicId = `<userId>-<timestamp>` để tránh collision +
+  // làm prefix check khi save (chống cross-user PII injection qua publicId).
+  getAvatarSignParams(userId: string): SignedUploadParams {
+    const timestamp = Math.floor(Date.now() / 1000);
+    return this.cloudinary.signUpload({
+      folder: 'avatars',
+      publicId: `${userId}-${timestamp}`,
+      resourceType: 'image',
+    });
+  }
+
+  // PATCH /users/me/avatar — save URL + publicId sau khi FE upload Cloudinary success.
+  // Validate publicId prefix `avatars/<userId>-` để chống user X save avatar publicId của user Y.
+  // Cleanup avatarPublicId cũ qua Cloudinary destroy (best-effort, không throw nếu fail).
+  async setAvatar(userId: string, url: string, publicId: string): Promise<User> {
+    const expectedPrefix = `avatars/${userId}-`;
+    if (!publicId.startsWith(expectedPrefix)) {
+      throw new BadRequestException({
+        code: 'INVALID_AVATAR_PUBLIC_ID',
+        message: `publicId phải bắt đầu bằng ${expectedPrefix}`,
+      });
+    }
+
+    const user = await this.findById(userId);
+
+    // Best-effort cleanup avatar cũ trên Cloudinary
+    if (user.avatarPublicId) {
+      await this.cloudinary.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: url, avatarPublicId: publicId },
+    });
+  }
+
+  // DELETE /users/me/avatar — destroy Cloudinary + null 2 field. Idempotent.
+  async removeAvatar(userId: string): Promise<User> {
+    const user = await this.findById(userId);
+
+    if (user.avatarPublicId) {
+      await this.cloudinary.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: null, avatarPublicId: null },
     });
   }
 

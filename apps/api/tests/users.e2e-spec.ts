@@ -10,17 +10,20 @@ import { makeUser } from './_helpers/factory';
 describe('Users (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let cloudinaryMock: { signUpload: jest.Mock; destroyMany: jest.Mock };
   let adminCookies: string;
   let userCookies: string;
   let userId: string;
   let adminId: string;
 
   beforeAll(async () => {
-    ({ app, prisma } = await createTestApp());
+    ({ app, prisma, cloudinaryMock } = await createTestApp());
   });
 
   beforeEach(async () => {
     await resetDb(prisma);
+    cloudinaryMock.signUpload.mockClear();
+    cloudinaryMock.destroyMany.mockClear();
     const alice = await makeUser(prisma, { username: 'alice', role: Role.USER });
     userId = alice.id;
     userCookies = await loginAs(app, { username: alice.username, password: alice.rawPassword });
@@ -268,6 +271,121 @@ describe('Users (e2e)', () => {
         .set('Cookie', userCookies)
         .expect(403);
       expect(res.body.error.code).toBe('FORBIDDEN_ROLE');
+    });
+  });
+
+  describe('FR-11.7 Avatar (POST /users/me/avatar/sign + PATCH/DELETE /users/me/avatar)', () => {
+    it('POST sign 401 anon (no cookie)', async () => {
+      await request(app.getHttpServer()).post('/users/me/avatar/sign').expect(401);
+    });
+
+    it('POST sign 200 user → CloudinaryService.signUpload called với folder=avatars + publicId=<userId>-<ts>', async () => {
+      cloudinaryMock.signUpload.mockReturnValue({
+        signature: 'sig123',
+        timestamp: 1700000000,
+        apiKey: 'apikey',
+        cloudName: 'demo',
+        folder: 'avatars',
+        resourceType: 'image',
+        publicId: `${userId}-1700000000`,
+      });
+      const res = await request(app.getHttpServer())
+        .post('/users/me/avatar/sign')
+        .set('Cookie', userCookies)
+        .expect(200);
+      expect(res.body.data.folder).toBe('avatars');
+      expect(res.body.data.publicId).toMatch(new RegExp(`^${userId}-\\d+$`));
+      expect(cloudinaryMock.signUpload).toHaveBeenCalledWith({
+        folder: 'avatars',
+        publicId: expect.stringMatching(new RegExp(`^${userId}-\\d+$`)),
+        resourceType: 'image',
+      });
+    });
+
+    it('PATCH 400 INVALID_AVATAR_PUBLIC_ID nếu publicId không prefix avatars/<userId>-', async () => {
+      const res = await request(app.getHttpServer())
+        .patch('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .send({
+          url: 'https://res.cloudinary.com/demo/image/upload/v1/avatars/other-1.jpg',
+          publicId: 'avatars/other-user-1', // wrong userId
+        })
+        .expect(400);
+      expect(res.body.error.code).toBe('INVALID_AVATAR_PUBLIC_ID');
+    });
+
+    it('PATCH 400 nếu url không phải Cloudinary domain', async () => {
+      await request(app.getHttpServer())
+        .patch('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .send({
+          url: 'https://evil.com/fake.jpg',
+          publicId: `avatars/${userId}-1`,
+        })
+        .expect(400);
+    });
+
+    it('PATCH 200 save avatar + cleanup avatar cũ qua Cloudinary destroy', async () => {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          avatarUrl: 'https://res.cloudinary.com/demo/v1/old.jpg',
+          avatarPublicId: `avatars/${userId}-old`,
+        },
+      });
+      const newPublicId = `avatars/${userId}-new`;
+      const newUrl = `https://res.cloudinary.com/demo/image/upload/v2/${newPublicId}.jpg`;
+      const res = await request(app.getHttpServer())
+        .patch('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .send({ url: newUrl, publicId: newPublicId })
+        .expect(200);
+      expect(res.body.data.avatarUrl).toBe(newUrl);
+      expect(res.body.data.avatarPublicId).toBe(newPublicId);
+      expect(cloudinaryMock.destroyMany).toHaveBeenCalledWith([
+        { publicId: `avatars/${userId}-old`, resourceType: 'image' },
+      ]);
+      const updated = await prisma.user.findUnique({ where: { id: userId } });
+      expect(updated?.avatarPublicId).toBe(newPublicId);
+    });
+
+    it('PATCH 200 first upload — không destroy cũ (avatarPublicId NULL)', async () => {
+      const newPublicId = `avatars/${userId}-first`;
+      const newUrl = `https://res.cloudinary.com/demo/image/upload/v1/${newPublicId}.jpg`;
+      await request(app.getHttpServer())
+        .patch('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .send({ url: newUrl, publicId: newPublicId })
+        .expect(200);
+      expect(cloudinaryMock.destroyMany).not.toHaveBeenCalled();
+    });
+
+    it('DELETE 200 — destroy Cloudinary + null 2 field', async () => {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          avatarUrl: 'https://res.cloudinary.com/demo/v1/x.jpg',
+          avatarPublicId: `avatars/${userId}-x`,
+        },
+      });
+      const res = await request(app.getHttpServer())
+        .delete('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .expect(200);
+      expect(res.body.data.avatarUrl).toBeNull();
+      expect(res.body.data.avatarPublicId).toBeNull();
+      expect(cloudinaryMock.destroyMany).toHaveBeenCalledWith([
+        { publicId: `avatars/${userId}-x`, resourceType: 'image' },
+      ]);
+    });
+
+    it('DELETE 200 idempotent — call khi đã null không error + no Cloudinary call', async () => {
+      const res = await request(app.getHttpServer())
+        .delete('/users/me/avatar')
+        .set('Cookie', userCookies)
+        .expect(200);
+      expect(res.body.data.avatarUrl).toBeNull();
+      expect(cloudinaryMock.destroyMany).not.toHaveBeenCalled();
     });
   });
 });

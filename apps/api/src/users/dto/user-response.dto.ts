@@ -19,6 +19,13 @@ export class UserResponseDto {
   @ApiProperty({ example: 'https://...cloudinary.../avatar.jpg', nullable: true })
   avatarUrl!: string | null;
 
+  @ApiPropertyOptional({
+    example: 'avatars/u-alice-1234567890',
+    nullable: true,
+    description: 'FR-11.7 — Cloudinary publicId (chỉ admin/self thấy)',
+  })
+  avatarPublicId?: string | null;
+
   @ApiPropertyOptional({ example: 'Full-stack Developer', nullable: true })
   title?: string | null;
 

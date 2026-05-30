@@ -310,6 +310,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/users/me/avatar/sign': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Issue Cloudinary signed params cho self avatar upload (FR-11.7) */
+    post: operations['UsersController_signAvatar'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/me/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove avatar (FR-11.7) — Cloudinary destroy + null fields */
+    delete: operations['UsersController_removeAvatar'];
+    options?: never;
+    head?: never;
+    /** Save avatar sau khi FE upload Cloudinary success (FR-11.7) — cleanup avatar cũ */
+    patch: operations['UsersController_setAvatar'];
+    trace?: never;
+  };
   '/users/by-username/{username}': {
     parameters: {
       query?: never;
@@ -927,6 +962,11 @@ export interface components {
       role: 'ADMIN' | 'USER' | 'BANNED';
       /** @example https://...cloudinary.../avatar.jpg */
       avatarUrl: Record<string, never> | null;
+      /**
+       * @description FR-11.7 — Cloudinary publicId (chỉ admin/self thấy)
+       * @example avatars/u-alice-1234567890
+       */
+      avatarPublicId?: Record<string, never> | null;
       /** @example Full-stack Developer */
       title?: Record<string, never> | null;
       /** @example Bio markdown... */
@@ -955,6 +995,24 @@ export interface components {
       page: number;
       /** @example 20 */
       limit: number;
+    };
+    SetAvatarDto: {
+      /**
+       * @description Cloudinary secure_url returned từ direct upload
+       * @example https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/u-alice-1234.jpg
+       */
+      url: string;
+      /**
+       * @description Cloudinary publicId (folder avatars/ + userId prefix). Server validate prefix.
+       * @example avatars/u-alice-1234567890
+       */
+      publicId: string;
+    };
+    AvatarResponseDto: {
+      /** @example https://res.cloudinary.com/.../avatar.jpg */
+      avatarUrl: Record<string, never> | null;
+      /** @example avatars/u-alice-1234567890 */
+      avatarPublicId: Record<string, never> | null;
     };
     SkillItemDto: {
       /** @example TypeScript */
@@ -1835,6 +1893,65 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['PaginatedUsersDto'];
+        };
+      };
+    };
+  };
+  UsersController_signAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_removeAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AvatarResponseDto'];
+        };
+      };
+    };
+  };
+  UsersController_setAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetAvatarDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AvatarResponseDto'];
         };
       };
     };

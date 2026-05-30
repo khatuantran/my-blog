@@ -303,6 +303,49 @@ paths:
                 $ref: '#/components/schemas/PaginatedUsersDto'
       tags:
         - users
+  /users/me/avatar/sign:
+    post:
+      operationId: UsersController_signAvatar
+      summary: Issue Cloudinary signed params cho self avatar upload (FR-11.7)
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - users
+  /users/me/avatar:
+    patch:
+      operationId: UsersController_setAvatar
+      summary: Save avatar sau khi FE upload Cloudinary success (FR-11.7) — cleanup avatar cũ
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetAvatarDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarResponseDto'
+      tags:
+        - users
+    delete:
+      operationId: UsersController_removeAvatar
+      summary: Remove avatar (FR-11.7) — Cloudinary destroy + null fields
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarResponseDto'
+      tags:
+        - users
   /users/by-username/{username}:
     get:
       operationId: UsersController_getByUsername
@@ -1374,6 +1417,11 @@ components:
           type: object
           example: https://...cloudinary.../avatar.jpg
           nullable: true
+        avatarPublicId:
+          type: object
+          example: avatars/u-alice-1234567890
+          nullable: true
+          description: FR-11.7 — Cloudinary publicId (chỉ admin/self thấy)
         title:
           type: object
           example: Full-stack Developer
@@ -1422,6 +1470,34 @@ components:
         - total
         - page
         - limit
+    SetAvatarDto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/u-alice-1234.jpg
+          description: Cloudinary secure_url returned từ direct upload
+        publicId:
+          type: string
+          example: avatars/u-alice-1234567890
+          description: Cloudinary publicId (folder avatars/ + userId prefix). Server validate prefix.
+      required:
+        - url
+        - publicId
+    AvatarResponseDto:
+      type: object
+      properties:
+        avatarUrl:
+          type: object
+          nullable: true
+          example: https://res.cloudinary.com/.../avatar.jpg
+        avatarPublicId:
+          type: object
+          nullable: true
+          example: avatars/u-alice-1234567890
+      required:
+        - avatarUrl
+        - avatarPublicId
     SkillItemDto:
       type: object
       properties:

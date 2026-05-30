@@ -25,19 +25,20 @@ AnonymousSession (standalone — track guest)
 
 **Mục đích:** Account đăng ký (admin + auth user). Anonymous KHÔNG có record ở đây — track qua `AnonymousSession`.
 
-| Field        | Type          | Constraints      | Notes                                                    |
-| ------------ | ------------- | ---------------- | -------------------------------------------------------- |
-| id           | String (cuid) | PK               |                                                          |
-| username     | String        | unique           |                                                          |
-| email        | String?       | unique, optional |                                                          |
-| passwordHash | String        |                  | bcrypt cost ≥ 10                                         |
-| role         | Enum(Role)    | default `USER`   | ADMIN / USER / BANNED                                    |
-| avatarUrl    | String?       |                  | Cloudinary URL                                           |
-| title        | String?       | max 80           | FR-11.6 profile title (vd "Full-stack Developer")        |
-| bio          | Text?         | max 500          | FR-11.6 markdown allowed (@db.Text)                      |
-| skills       | Json          | default `[]`     | FR-11.6 array `{ name: string, color: string }[]` max 20 |
-| createdAt    | DateTime      | default(now())   |                                                          |
-| updatedAt    | DateTime      | @updatedAt       |                                                          |
+| Field          | Type          | Constraints      | Notes                                                                           |
+| -------------- | ------------- | ---------------- | ------------------------------------------------------------------------------- |
+| id             | String (cuid) | PK               |                                                                                 |
+| username       | String        | unique           |                                                                                 |
+| email          | String?       | unique, optional |                                                                                 |
+| passwordHash   | String        |                  | bcrypt cost ≥ 10                                                                |
+| role           | Enum(Role)    | default `USER`   | ADMIN / USER / BANNED                                                           |
+| avatarUrl      | String?       |                  | Cloudinary secure URL (FR-11.7)                                                 |
+| avatarPublicId | String?       |                  | FR-11.7 — Cloudinary publicId để cleanup khi replace/remove (folder `avatars/`) |
+| title          | String?       | max 80           | FR-11.6 profile title (vd "Full-stack Developer")                               |
+| bio            | Text?         | max 500          | FR-11.6 markdown allowed (@db.Text)                                             |
+| skills         | Json          | default `[]`     | FR-11.6 array `{ name: string, color: string }[]` max 20                        |
+| createdAt      | DateTime      | default(now())   |                                                                                 |
+| updatedAt      | DateTime      | @updatedAt       |                                                                                 |
 
 **Relations:** `hasMany` Post, Comment, Like, CommentLike, SavedPost, RefreshToken
 **Indexes:** username (auto unique), email (auto unique)
@@ -398,7 +399,8 @@ model User {
   email         String?       @unique
   passwordHash  String
   role          Role          @default(USER)
-  avatarUrl     String?
+  avatarUrl     String?       // FR-11.7 Cloudinary secure URL
+  avatarPublicId String?      // FR-11.7 Cloudinary publicId (folder avatars/)
   title         String?       // FR-11.6 max 80 chars
   bio           String?       @db.Text  // FR-11.6 max 500 chars markdown
   skills        Json          @default("[]")  // FR-11.6 array { name, color } max 20
@@ -680,6 +682,14 @@ model Notification {
 - **Backfill:** N/A — empty table, log only from migration time forward (historical activity sẽ KHÔNG visible cho v1).
 - **Breaking:** None — purely additive.
 - **Linked:** FR-13 (Activity Log user-scope), UC-16.
+
+### v0.5.0-alpha (planned) — Avatar upload (FR-11.7)
+
+- **Planned migration:** `add_user_avatar_public_id` (T-410)
+- **Added:** `User.avatarPublicId String?` để track Cloudinary publicId cho cleanup khi replace/remove avatar. `User.avatarUrl` (đã có sẵn từ v0.2.0) giữ nguyên semantic — store secure URL hiển thị.
+- **Backfill:** N/A — purely additive nullable field; existing rows mặc định null.
+- **Breaking:** None — purely additive. Cloudinary folder `avatars/` mới (không conflict folder `posts/` của FilesModule existing).
+- **Linked:** FR-11.7 (Avatar upload), UC-23.
 
 ### v0.4.0-alpha (planned) — Design v2 (Notifications + Manage Posts + Reactions) (M11.7)
 

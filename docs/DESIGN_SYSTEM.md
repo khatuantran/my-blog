@@ -521,16 +521,41 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Data:** mỗi tab 16 emoji exact list từ design-file/MyBlog Create Post.html L186-189
 - **Behavior:** click emoji → call `insertAtCursor(textareaRef, emoji)` (reuse `lib/insert-at-cursor.ts`). Close on outside-click hoặc Esc.
 
-### EditProfileDrawer (Profile — M11.5 FR-11.3)
+### EditProfileDrawer (Profile — M11.5 FR-11.3, design-file Profile.html L347-439)
 
-- **Trigger:** self click `[ ✎ Edit Profile ]` button trên ProfilePage hero
-- **Surface:** slide-in từ phải 420px width, full height, bg `--surf`, border-left `--b2`. Backdrop `rgba(0,0,0,.6)` blur 4px overlay
+- **Trigger:** self click `[ ⚙️ Settings ]` button trên ProfilePage hero
+- **Surface:** slide-in từ phải **480px** width (T-409, was 420), full height, bg `--surf`, border-left `1px solid rgba(0,255,229,.2)` cyan tint, shadow `-20px 0 60px rgba(0,0,0,.8)`. Backdrop `rgba(0,0,0,.6)` blur 4px overlay
+- **Header (2-line, T-409):** title `// edit.profile` (12px cyan) + subline `~/settings/profile` (11px text-td) + `×` close plain inline 24px right
 - **Animation:** slide-in 280ms ease-out + backdrop fade 200ms
-- **Sections (2 stacked):**
-  1. `// profile` — title input (max 80) + bio textarea (max 500 markdown) + SkillChipInput (max 20)
-  2. `// security` — current password + new password + confirm password
-- **Submit:** mỗi section có button riêng → mutation riêng (PATCH /users/:id vs POST /auth/change-password)
-- **Close:** Esc, backdrop click, hoặc `[ × ]` close button top-right
+- **Sections (4-5 stacked, scrollable body):**
+  1. `// avatar` (FR-11.7, NEW T-412) — ProfileAvatar 56 preview + `↑ Upload` button cyan + `× Remove` button đỏ (chỉ khi avatarUrl ≠ null) — opens AvatarUploadModal
+  2. `// basic.info` — Full name + Handle readonly + Title (max 80) + Bio textarea (max 500)
+  3. `// contact.links` — Location + Born year + GitHub + Website (2-col grid)
+  4. `// skills.stack` — SkillChipInput (max 20)
+  5. `// security` — current password + new password + confirm password + `Change password` button (separate mutation)
+- **Footer (sticky):** Cancel + `✓ Save Changes` filled solid cyan button (T-409). Save Changes submits profile-form (sections 2-4); avatar có own mutation flow; security có own button.
+- **Field labels (T-409):** UPPERCASE 11px + `letter-spacing:.05em` qua CSS (vd `Full name` → render `FULL NAME` via `.uppercase tracking-[0.05em]`)
+- **Input style (T-409 per .edit-inp design):** 14px JetBrains Mono, bg `--bg`, padding 8×12, radius `--radius-md`, focus border cyan + shadow-glow-cyan-sm
+- **Close:** Esc, backdrop click, hoặc `×` close button top-right
+
+### AvatarUploadModal (Profile Settings — FR-11.7, NEW T-411)
+
+- **Trigger:** click `↑ Upload` trong `// avatar` section của EditProfileDrawer → user chọn file qua native file picker (`accept="image/jpeg,image/png,image/webp"`) → file validate inline (mime + size ≤ 5MB) → modal mở với FileReader URL
+- **Surface:** centered modal portal 480px width (max-w 95vw), bg `--elev`, border `--b2`, radius `--radius-lg`, shadow `--shadow-glow-cyan-modal`, z-modal (300). Backdrop blur 4px.
+- **Header:** `// upload.avatar` (12px cyan) + `~/settings/avatar/crop` subline (11px text-td) + `×` close
+- **Body:**
+  - **Crop area:** 320×320 square container, `react-easy-crop@^5` `<Cropper>` với `aspect={1}`, `showGrid={false}`, `objectFit="contain"`, cyan border 1px khi active
+  - **Zoom slider:** below crop area, full-width, `<input type=range min=1 max=3 step=0.1>` cyan styled, label `zoom: 1.5×`
+  - **Preview:** optional 120×120 circle right of crop (large screens) showing cropped preview real-time
+- **Footer (sticky):** Cancel (left) + `↑ Upload` filled solid cyan (right). Upload button disabled khi processing với `⠋ uploading...` braille spinner.
+- **Flow:**
+  1. canvas.toBlob từ cropped area → POST `/users/me/avatar/sign` → BE return signed params
+  2. FormData append blob + signed params → fetch Cloudinary direct upload → return `secure_url + public_id`
+  3. PATCH `/users/me/avatar { url, publicId }` → BE cleanup old + save → return 200
+  4. Modal close + drawer preview update + TanStack Query invalidate `['user-by-username']` + `['users-me']`
+- **Errors:** Cloudinary upload fail → toast `upload failed — try again` + modal giữ open. PATCH 401 → trigger 401 interceptor (existing).
+- **Animation:** fade-up-sm 200ms + backdrop fade 150ms
+- **Close:** Esc, backdrop click, `×` close (KHÔNG submit). Once upload kick off, button changes to Cancel (abort fetch nếu API hỗ trợ).
 
 ### SkillChipInput (Edit Profile drawer — M11.5)
 

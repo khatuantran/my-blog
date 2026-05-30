@@ -328,6 +328,34 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** Editor content trong Create Post update với AI-generated HTML (nếu user click Replace) hoặc unchanged (nếu Cancel)
 - **Linked FR:** FR-17
 
+### UC-23: User upload/replace/remove avatar (NEW 2026-05-30)
+
+- **Actor:** USER (any authed user, self-scope only)
+- **Precondition:** User đang ở `/profile/:ownUsername`, đã click `⚙️ Settings` mở EditProfileDrawer
+- **Main flow (upload):**
+  1. User click `↑ Upload` button trong `// avatar` section đầu drawer → mở native file picker
+  2. Chọn file (JPEG/PNG/WebP, ≤ 5MB) → FE validate constraint inline (mime + size), reject nếu sai
+  3. AvatarUploadModal mở overlay portal — render `react-easy-crop` canvas với image + aspect 1:1 + zoom slider 1-3× + preview circle 120px
+  4. Drag để pan, slider để zoom — preview real-time
+  5. Click `↑ Upload` → loading state (braille spinner)
+     - FE call `POST /users/me/avatar/sign` → BE return Cloudinary signed params `{ signature, timestamp, apiKey, cloudName, folder }`
+     - FE upload cropped blob (canvas.toBlob) trực tiếp lên Cloudinary với signed params → Cloudinary return `{ secure_url, public_id }`
+     - FE call `PATCH /users/me/avatar { url, publicId }` → BE save 2 field + cleanup avatarPublicId cũ qua `cloudinary.destroy()` best-effort
+  6. Modal đóng + drawer header preview update + ProfilePage hero refetch via TanStack Query invalidate → avatar mới render khắp UI (TopBar / PostHeader / NotifRow)
+- **Main flow (remove):**
+  1. User click `× Remove` button (chỉ visible khi avatarUrl ≠ null) → ConfirmDialog `Remove avatar?` + `Cancel`/`Confirm`
+  2. Click Confirm → `DELETE /users/me/avatar` → BE `cloudinary.destroy(avatarPublicId)` + set `avatarUrl=null, avatarPublicId=null`
+  3. UI fallback về default ProfileAvatar SVG (initial letter cyberpunk style)
+- **Alternative:**
+  - File select GIF → FE reject inline `format not supported (JPEG/PNG/WebP only)`
+  - File select 6MB → FE reject inline `file too large (max 5MB)`
+  - Crop modal Esc / Cancel click → close không upload
+  - Upload Cloudinary fail (network) → toast error `upload failed, try again` + modal giữ open
+  - PATCH endpoint 401 (token expire trong lúc crop) → redirect login
+  - Cloudinary destroy fail trong cleanup → log warn, không block user flow (best-effort)
+- **Postcondition:** User.avatarUrl + avatarPublicId trong DB cập nhật; Cloudinary `avatars/` folder chỉ chứa avatar hiện tại (không orphan); avatar mới hiển thị khắp UI ngay
+- **Linked FR:** FR-11.7
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -493,14 +521,32 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-11.4:** Stats endpoint `GET /users/:id/stats` trả: postsCount, likesReceived, commentsReceived, viewsTotal, streak (distinct post-created days liên tiếp), heatmap28d, moodBreakdown (zero-fill 7), tagsUsed (top 8).
 - **FR-11.5:** Saved tab visible CHỈ self/admin (privacy). Tab state qua `?tab=posts|saved|activity|about`.
 - **FR-11.6:** Backend migration: User thêm `title String?` (80) + `bio String? @db.Text` (500 markdown) + `skills Json @default("[]")` shape `{name,color}[]`. Endpoint mới `GET /users/by-username/:username` + `GET /users/:id/stats` + `POST /auth/change-password`.
+- **FR-11.7:** Avatar upload (amended 2026-05-30, design-file `MyBlog Profile.html` L378-385) — self user có thể upload/replace/remove avatar trong EditProfileDrawer.
+  - **Storage:** Cloudinary signed upload (reuse FilesModule pattern T-022) trong folder `avatars/`. Cloudinary transform `c_fill,g_face,w_400,h_400` server-side force square 400×400 face-centered.
+  - **File constraints:** size ≤ 5MB; mime ∈ {`image/jpeg`, `image/png`, `image/webp`}; reject GIF (animated avatar = UI noise). Validate cả FE (pre-upload) lẫn BE (sau khi nhận URL từ Cloudinary qua signature roundtrip).
+  - **DB:** User thêm `avatarPublicId String?` để track Cloudinary publicId cho cleanup khi replace/remove. `avatarUrl` field existing giữ nguyên semantic (URL display).
+  - **Endpoints:** 3 mới — `POST /users/me/avatar/sign` (return Cloudinary signed params, authed user only, folder=`avatars/`); `PATCH /users/me/avatar { url, publicId }` (save URL + publicId; trigger cleanup avatarPublicId cũ nếu có); `DELETE /users/me/avatar` (Cloudinary destroy `avatarPublicId` + set 2 fields null).
+  - **Cleanup:** Auto-delete avatar cũ trên Cloudinary khi replace (best-effort try-catch — không fail user action nếu Cloudinary lỗi).
+  - **UI EditProfileDrawer:** Add `// avatar` section đầu form — ProfileAvatar 56×56 preview (real avatarUrl nếu có / default ProfileAvatar SVG nếu null) + `↑ Upload` button (mở AvatarUploadModal) + `× Remove` button (chỉ visible khi avatarUrl ≠ null, ConfirmDialog trước khi destroy).
+  - **AvatarUploadModal:** Modal 480px (z-modal) — react-easy-crop với aspect 1:1 fixed, zoom slider 1-3×, preview circle 120px, button Cancel + `↑ Upload` (disabled khi processing). Flow: user select file → validate constraint FE → display crop UI → crop → blob → POST sign endpoint → upload blob to Cloudinary URL với signed params → PATCH /users/me/avatar → close modal + onSuccess refetch profile.
+  - **Dependency mới:** `react-easy-crop@^5` (~30KB) trong `apps/web` deps.
+  - **Display targets:** Avatar render ở 5 vị trí — ProfilePage hero (88px) + EditProfileDrawer preview (56px) + TopBar AvatarMenu (28px) + PostHeader (36px) + NotifRowBell/Page (34/40px). Tất cả render qua `<ProfileAvatar url={avatarUrl} username={username} size={N}>` — fallback default initials/SVG khi url null.
 - **Acceptance:**
   - Given user X có 42 posts → When vào `/profile/X` → Then hero stats hiển thị `42 posts`
   - Given self click Edit Profile → drawer mở, sửa title → submit → Then PATCH /users/:selfId thành công + drawer đóng + hero re-render
   - Given self click change password với current pw sai → Then 401 INVALID_CREDENTIALS, drawer giữ open
   - Given self submit change password với newPassword 4 chars → Then 400 VALIDATION_ERROR (min 5)
   - Given guest xem `/profile/admin` → Then Saved tab KHÔNG hiện (chỉ Posts/Activity/About)
-- **Linked UCs:** UC-14
-- **Linked Tests:** E2E (defer add)
+  - **FR-11.7 avatar:**
+    - Given self mở EditProfileDrawer + click ↑ Upload + select JPEG 200KB → Then AvatarUploadModal mở với crop UI 1:1 + zoom slider
+    - Given self crop xong + click ↑ Upload → Then POST /users/me/avatar/sign → upload to Cloudinary → PATCH /users/me/avatar → modal đóng + ProfileAvatar refetch với URL mới + hero re-render với avatar mới
+    - Given self upload GIF → Then FE reject inline error trước khi gửi (mime not allowed)
+    - Given self upload 6MB JPEG → Then FE reject inline error (size > 5MB)
+    - Given self có avatar + click × Remove → ConfirmDialog → confirm → DELETE /users/me/avatar → Cloudinary destroy publicId cũ + avatarUrl + avatarPublicId set null → UI fallback default ProfileAvatar
+    - Given self upload avatar lần 2 (replace) → Then BE Cloudinary destroy avatarPublicId cũ trước khi save publicId mới
+    - Given anon (chưa login) gọi POST /users/me/avatar/sign → Then 401 UNAUTHORIZED
+- **Linked UCs:** UC-14, UC-23
+- **Linked Tests:** E2E (defer add), unit (AvatarUploadModal validate + crop + service POST + DELETE)
 
 ### FR-12: Full-text Search
 

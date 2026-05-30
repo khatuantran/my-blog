@@ -1,7 +1,13 @@
 import { Link } from 'react-router';
 import { MOOD_CFG } from '@/lib/mood-config';
 import { StatusBadge } from './StatusBadge';
-import { CommentIcon, EyeIcon, HeartIcon, PencilIcon, TrashIcon } from './StatIcons';
+import {
+  CommentIcon,
+  EyeIcon,
+  HeartIcon,
+  PencilIcon,
+  TrashIcon,
+} from '@/components/shared/cyber-icons';
 import type { AdminPost } from '@/types/api';
 
 type Props = {

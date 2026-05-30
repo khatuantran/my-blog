@@ -50,9 +50,21 @@ describe('TagCard', () => {
     expect(onDelete).toHaveBeenCalledWith(TAG);
   });
 
-  it('list variant — flex-row layout với sparkline + count', () => {
-    wrap(<TagCard tag={TAG} maxCount={20} variant="list" />);
+  it('T-420 stale-assumption: list variant removed — list view now inline trong TagsPage 5-col table', () => {
+    // TagCard chỉ còn grid variant. List view layout đã move sang TagsPage inline render
+    // theo design L549-569 (5-col table) — không còn variant prop trên TagCard.
+    wrap(<TagCard tag={TAG} maxCount={20} />);
     expect(screen.getByText('code')).toBeInTheDocument();
-    expect(screen.getByText('12 posts')).toBeInTheDocument();
+  });
+
+  it('regression BUG-012: grid card has "since <date>" subline + Space Grotesk count', () => {
+    wrap(<TagCard tag={TAG} maxCount={20} />);
+    // "since May 2026" subline (formatMonth format)
+    expect(screen.getByText(/since/i)).toBeInTheDocument();
+    expect(screen.getByText(/May 2026/i)).toBeInTheDocument();
+    // count via data-testid
+    expect(screen.getByTestId('tag-count')).toHaveTextContent('12');
+    // "posts" label inline with count
+    expect(screen.getByText('posts')).toBeInTheDocument();
   });
 });

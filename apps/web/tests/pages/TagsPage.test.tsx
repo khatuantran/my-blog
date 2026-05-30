@@ -61,10 +61,12 @@ describe('TagsPage (T-212, FR-10)', () => {
       ),
     );
     wrap(<TagsPage />);
+    // T-420 stale-assumption: TAGGED POSTS → TOTAL POSTS, RECENTLY ADDED → LEAST USED
+    // (per design-file L479-482)
     expect(screen.getByText('TOTAL TAGS')).toBeInTheDocument();
-    expect(screen.getByText('TAGGED POSTS')).toBeInTheDocument();
+    expect(screen.getByText('TOTAL POSTS')).toBeInTheDocument();
     expect(screen.getByText('MOST USED')).toBeInTheDocument();
-    expect(screen.getByText('RECENTLY ADDED')).toBeInTheDocument();
+    expect(screen.getByText('LEAST USED')).toBeInTheDocument();
     await waitFor(() => expect(screen.queryByTestId('tag-card-dev')).toBeInTheDocument());
     expect(screen.queryByTestId('tag-card-life')).toBeInTheDocument();
   });
@@ -91,7 +93,10 @@ describe('TagsPage (T-212, FR-10)', () => {
     mswServer.use(http.get(`${API}/tags`, () => HttpResponse.json({ items: [mockTag()] })));
     wrap(<TagsPage />);
     await waitFor(() => expect(screen.queryByTestId('tag-card-dev')).toBeInTheDocument());
-    expect(screen.getByRole('button', { name: /new tag/i })).toBeInTheDocument();
+    // T-420 stale-assumption: 2 "+ New Tag" buttons xuất hiện cùng lúc admin (SubBar + create
+    // placeholder card cuối grid) — dùng getAllByRole length check thay vì getByRole.
+    const newTagBtns = screen.getAllByRole('button', { name: /new tag|create new tag/i });
+    expect(newTagBtns.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByRole('button', { name: /edit tag dev/i })).toBeInTheDocument();
   });
 
@@ -129,13 +134,30 @@ describe('TagsPage (T-212, FR-10)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 
-  it('view toggle list → render flex-row variant', async () => {
+  it('T-420 stale-assumption: view toggle list → render 5-col table (was flex-row variant)', async () => {
     const user = userEvent.setup();
     mswServer.use(http.get(`${API}/tags`, () => HttpResponse.json({ items: [mockTag()] })));
     wrap(<TagsPage />);
     await waitFor(() => expect(screen.queryByTestId('tag-card-dev')).toBeInTheDocument());
-    await user.click(screen.getByRole('radio', { name: /list/i }));
-    // List variant shows `N posts` text alongside name
-    expect(screen.getByText('5 posts')).toBeInTheDocument();
+    // T-420: SegmentedToggle replaced với 30×30 simple buttons → aria-label "List view"
+    await user.click(screen.getByRole('button', { name: /list view/i }));
+    // Design L549-569: list view is 5-col table với data-testid `tag-row-<name>`
+    expect(screen.getByTestId('list-view')).toBeInTheDocument();
+    expect(screen.getByTestId('tag-row-dev')).toBeInTheDocument();
+  });
+
+  it('regression BUG-012: fixed SubBar + Sort 3 chips + Results count', async () => {
+    mswServer.use(http.get(`${API}/tags`, () => HttpResponse.json({ items: [mockTag()] })));
+    wrap(<TagsPage />);
+    // SubBar fixed
+    expect(screen.getByTestId('subbar')).toBeInTheDocument();
+    // Sort 3 chips
+    expect(screen.getByTestId('sort-posts')).toHaveTextContent('Most used');
+    expect(screen.getByTestId('sort-name')).toHaveTextContent('A→Z');
+    expect(screen.getByTestId('sort-recent')).toHaveTextContent('Newest');
+    // Results count
+    await waitFor(() =>
+      expect(screen.getByTestId('results-count')).toHaveTextContent(/showing 1 of 1 tags/),
+    );
   });
 });

@@ -11,6 +11,30 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-012] [Low] [FE] TagsPage 17 drift vs design-file Tags.html
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-420 (DONE 2026-05-30)
+- **Related FR/component:** FR-10 tags / `apps/web/src/pages/TagsPage.tsx` + `apps/web/src/components/tags/TagCard.tsx` vs `design-file/MyBlog Tags.html` L402-660 + L224-269
+- **Mô tả:** User feedback "giờ đến sync design với màn hình quản lý tags". Audit `/tags` page phát hiện 17 drift đáng kể (cùng pattern recurring với BUG-011 ManagePostsPage).
+- **Drifts chia 5 nhóm:**
+  - **Layout shell (2)**: Fixed SubBar top:52px 44h `~/tags ── N tags · M total posts` + cyan filled New Post MISSING (current inline `// tags.all`); container `max-w-[1200px]` → `max-w-[1400px]`.
+  - **Stats row (2)**: Card RECENTLY ADDED → design LEAST USED; label/value fonts adjust (10px tracking + Space Grotesk 22px).
+  - **Toolbar (4)**: Sort `<SortDropdown>` → 3 chips Most used/A→Z/Newest; Search ⌕ absolute icon + × clear; View toggle 30×30 simple; + New Tag outline → FILLED solid cyan + glow.
+  - **Grid/Results (3)**: Results count line `// showing N of M tags` MISSING; grid columns `auto-fill minmax(240px, 1fr)`; dashed-border "+ create new tag" placeholder card cuối grid (admin) MISSING.
+  - **TagCard (6)**: name textShadow glow + `since <date>` subline + desc min-h-[36px] + stats redesign (Space Grotesk 22 count + "posts" + sparkline right) + actions always visible + SVG cyberpunk icons (✎/🗑 → PencilIcon/TrashIcon T-419 pattern).
+- **Per user decisions**:
+  - Full 17 drift sweep + SVG cyberpunk icons + rewrite list view per design 5-col table.
+  - StatIcons shared → move sang `apps/web/src/components/shared/cyber-icons.tsx` cho reuse.
+- **Fix**: 4 file refactor + 1 file mới:
+  - Move `StatIcons.tsx` → `shared/cyber-icons.tsx`, update 2 import path (PostRow + PostCardMng).
+  - `TagsPage.tsx` rewrite: fixed SubBar + Stats 4-card + Sort 3 chips + Search ⌕/× + View toggle 30×30 ⊞/☰ + + New Tag filled + Results count + grid auto-fill + dashed create card + list view 5-col table inline rendering.
+  - `TagCard.tsx` rewrite grid variant: name textShadow + since date + desc min-h-[36px] + Space Grotesk 22 count + posts label + sparkline right + always-visible actions + SVG PencilIcon/TrashIcon.
+  - List variant: removed (logic moved inline TagsPage 5-col table per design L549+).
+- **Lesson**: Pattern recurring **lần 9** (T-406 → BUG-008 → BUG-009 → BUG-010 → T-414 → T-415 → T-416 → BUG-011 → T-418 → BUG-012). Promote CLAUDE.md rule "grep design-file source markup trước rewrite page/section" là task ưu tiên ngày càng cao.
+
 ### [BUG-011] [Low] [FE] ManagePostsPage 14 drift vs design-file Manage Posts.html
 
 - **Status:** FIXED

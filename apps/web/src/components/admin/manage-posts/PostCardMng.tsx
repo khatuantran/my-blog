@@ -54,8 +54,8 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         {snippet || '// empty'}
       </p>
 
-      {/* Tags + stats row */}
-      <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
+      {/* Tags row — min-height giữ chiều cao consistent kể cả không có tags */}
+      <div className="mb-1.5 flex min-h-[22px] flex-wrap items-center gap-1.5">
         {post.tags.slice(0, 4).map((t) => {
           const color = t.color ?? '#00FFE5';
           return (
@@ -72,20 +72,22 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
             </span>
           );
         })}
-        <span className="ml-auto flex gap-2.5 font-mono text-[10px] text-tm">
-          <span>♡ {post.counts.reactions}</span>
-          <span>💬 {post.counts.comments}</span>
-          {imagesCount > 0 && <span>📷 {imagesCount}</span>}
-          {filesCount > 0 && <span>📎 {filesCount}</span>}
-        </span>
       </div>
 
-      {/* Actions footer — 3 button per design L447-451 */}
-      <div className="flex gap-1.5 border-t border-b1 pt-2.5">
+      {/* Stats row — right-aligned consistent (was ml-auto inline với tags, jumps khi tags ngắn) */}
+      <div className="mb-3 flex justify-end gap-2.5 font-mono text-[10px] text-tm">
+        <span>♡ {post.counts.reactions}</span>
+        <span>💬 {post.counts.comments}</span>
+        {imagesCount > 0 && <span>📷 {imagesCount}</span>}
+        {filesCount > 0 && <span>📎 {filesCount}</span>}
+      </div>
+
+      {/* Actions footer — grid 3-col equal width (was flex gap auto-width = uneven) */}
+      <div className="grid grid-cols-3 gap-1.5 border-t border-b1 pt-2.5">
         <Link
           to={`/post/${post.id}`}
           aria-label={`View post ${post.id}`}
-          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
+          className="flex items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
           style={{ borderColor: 'rgba(125,207,255,0.25)' }}
         >
           👁 View
@@ -94,7 +96,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Edit post ${post.id}`}
           onClick={() => onEdit(post)}
-          className="rounded border border-cyan/40 px-2.5 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
+          className="flex items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
         >
           ✎ Edit
         </button>
@@ -102,7 +104,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Delete post ${post.id}`}
           onClick={() => onDelete(post)}
-          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
+          className="flex items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
           style={{ borderColor: 'rgba(247,118,142,0.25)' }}
         >
           ✕ Delete

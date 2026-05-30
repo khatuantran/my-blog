@@ -121,7 +121,7 @@ export default function SearchPage() {
         {/* Filter row */}
         <div
           data-testid="search-filter-row"
-          className="mx-auto mt-4 flex max-w-[720px] flex-wrap items-center gap-2"
+          className="mx-auto mt-4 flex max-w-[820px] flex-wrap items-center gap-2"
         >
           {TYPE_CHIPS.map((opt) => (
             <FilterChip
@@ -267,8 +267,8 @@ export default function SearchPage() {
 
       {/* Results / loading / error state */}
       {!isEmpty && (
-        <div className="flex gap-5">
-          <main className="min-w-0 flex-1">
+        <div className="mx-auto max-w-[820px]">
+          <main className="min-w-0">
             {isLoading && (
               <div className="py-12 text-center font-mono text-mono-sm text-tm">⠋ searching...</div>
             )}
@@ -370,30 +370,8 @@ export default function SearchPage() {
               </section>
             )}
           </main>
-
-          <aside
-            className="hidden w-[280px] shrink-0 space-y-3 lg:block"
-            aria-label="Search sidebar"
-          >
-            <StatBox label="Total posts" value={data?.stats.totalPosts ?? 0} color="cyan" />
-            <StatBox label="With images" value={data?.stats.withImages ?? 0} color="pur" />
-            <StatBox label="With files" value={data?.stats.withFiles ?? 0} color="red" />
-            <StatBox label="Saved" value={data?.stats.savedCount ?? 0} color="yel" />
-          </aside>
         </div>
       )}
-    </div>
-  );
-}
-
-function StatBox({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div
-      className="rounded-md border border-b2 bg-surf p-2.5"
-      style={{ borderLeft: `3px solid var(--${color})` }}
-    >
-      <div className="font-mono text-mono-sm uppercase tracking-wider text-tm">{label}</div>
-      <div className={`mt-0.5 font-brand text-display text-${color}`}>{value}</div>
     </div>
   );
 }

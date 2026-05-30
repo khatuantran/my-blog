@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Changed
+
+- **T-401 FE Search page follow-up adjustments (F5)** (2026-05-30, FE): User feedback sau T-400: (1) `BigSearchInput` `max-w-[720px]` → `max-w-[820px]` để input ngang width result card; (2) bỏ sidebar 4 StatBox (Total/Images/Files/Saved) — design Search results không có sidebar — wrap results trong `max-w-[820px] mx-auto`; (3) `FilterChip` (shared, dùng riêng SearchPage) `text-mono-sm` (11px) → `text-mono` (12px) khớp design `.filter-chip` 12px, cùng pattern T-399. Filter row container max-w 720→820. 16/16 search tests pass (không assert sidebar / font class). (Refs T-401, design-file Search.html)
+
 ### Added
 
 - **T-400 FE Search page design-file 1:1 sweep (F1)** (2026-05-30, FE): Enrich ResultCard với 6/8 element còn thiếu vs `design-file/MyBlog Search.html`, redesign Recent searches + Browse tags, tweak filter row. **No BE change** — `GET /search` đã trả đủ PostView (author/tags/files/counts/createdAt). `ResultCard.tsx` rewrite 67→139 lines: avatar 26×26 cyan border + gradient inline, author `~/username` 13px blu, `[ ADMIN ]` badge 10px conditional, separator + timestamp `[YYYY-MM-DD HH:MM]` 11px, MoodBadge inline 11px right-aligned (ml-auto), content 15px line-clamp-2, tags inline per-color 11px (NOT shared TagPill), `📎 N files` red badge conditional, engagement `♡ reactions 💬 comments` 11px ml-auto, post-id corner deco giữ. `SearchPage.tsx`: mood emoji 15→14px + rounded-sm→rounded-[5px], reset button "× reset" → "reset ×" + ml-auto, Recent searches plain text → chip-pill 13px với `↺` icon prefix, Browse tags shared TagPill → custom chip 13px per-color bg + postCount number, empty-state wrap max-w-[820px]. 8 test mới: ResultCard 6 case + SearchPage 2 case (recent chip ↺, browse tag count). 445/448 FE pass. (Refs T-400, design-file Search.html)

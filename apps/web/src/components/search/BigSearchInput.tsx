@@ -12,7 +12,7 @@ export function BigSearchInput({
   autoFocus,
 }: Props) {
   return (
-    <div className="mx-auto w-full max-w-[720px]">
+    <div className="mx-auto w-full max-w-[820px]">
       <div className="mb-1.5 font-mono text-[11px] text-cyan">❯ search</div>
       <div className="relative">
         <input

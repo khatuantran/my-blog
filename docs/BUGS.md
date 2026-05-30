@@ -11,6 +11,34 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-011] [Low] [FE] ManagePostsPage 14 drift vs design-file Manage Posts.html
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome / Layer: FE
+- **Related task:** T-417 (DONE 2026-05-30)
+- **Related FR/component:** FR-15 manage posts / `apps/web/src/pages/ManagePostsPage.tsx` + `apps/web/src/components/admin/manage-posts/{PostRow,PostCardMng}.tsx` vs `design-file/MyBlog Manage Posts.html` L457-660 (ManagePosts) + L362-454 (PostRow + PostCardMng)
+- **Mô tả:** User feedback "hãy kiểm tra màn hình quản lý bài post và update lại cho giống design". Audit `/admin/posts` page phát hiện 14 drift đáng kể chia 4 nhóm.
+- **Steps to reproduce:**
+  1. Login admin, navigate `/admin/posts`.
+  2. So sánh layout với `design-file/MyBlog Manage Posts.html` L457-660.
+- **Expected:** Match 1:1 spec (per user decision: strip bulk-select checkbox column theo design strict).
+- **Actual:** 14 drift đồng thời:
+  - **Layout shell (2)**: SubBar inline normal card → design fixed top:52px 44h bg-elev với breadcrumb `~/admin/posts ── N total · {pub} published · {draft} drafts` + bulk-delete + cyan filled New Post buttons right; Stats row 4-card (TOTAL/PUBLISHED/DRAFTS/ARCHIVED) borderLeft 3px colored MISSING.
+  - **Toolbar (4)**: Sort `<select>` → design 3 chips `sort: [Newest][Oldest][Top]`; Status filter chips thiếu count `(N)`; View toggle nhỏ → design 32×32 lớn; Search ⌕ icon position + × clear right.
+  - **Results/List/Card (5)**: Results count line `// showing {N} of {M} posts · filtered` MISSING; List header bg-bg darker + grid fr units (current fixed px) + có checkbox column (design không có); PostRow stats 1-line → design 2-line (counts/date) + actions `👁 View / ✎ Edit / ✕`; PostCardMng header layout (status+mood+date right) + stats inline với 📷/📎 conditional; Card grid `auto-fill minmax(320px, 1fr)` vs current fixed grid.
+  - **Minor (3)**: Empty state thiếu `◎` 28px big icon; View toggle icon `▦` vs `⊞`; Status filter labels `Published/Draft/Archived` → design abbreviation `Pub/Draft/Arch`.
+- **Root cause:** T-372 (ManagePostsPage greenfield 2026-05-26) build per high-level spec trong DESIGN_SYSTEM, không cross-ref `design-file/MyBlog Manage Posts.html` source markup pixel-by-pixel. Pattern recurring **lần 7** (T-406 → BUG-008 → BUG-009 → BUG-010 → T-414 → T-415 → T-416 → BUG-011).
+- **Decisions per user:**
+  - Bulk-select checkbox column: **strip** (1:1 design strict, design L362-409 PostRow không có checkbox).
+  - Full 14 drift sweep (không subset).
+- **Fix:** Full refactor 3 file:
+  - `ManagePostsPage.tsx`: fixed SubBar layout (top:52px); add 4-card Stats row với colored borderLeft; Sort `<select>` → 3 chips; Search ⌕ absolute icon + × clear; Status chip labels Pub/Draft/Arch + counts qua 3 mini-query `useAdminPosts(status, limit:1)`; View toggle 32×32 + icon ⊞; Results count line; empty state ◎ icon; STRIP checkbox column + bulk-bar.
+  - `PostRow.tsx`: rewrite 6-col fr grid `3fr 1fr 1.2fr 1.4fr 1fr 1.5fr`; bỏ checkbox + onSelect prop; stats 2-line (counts row + date row); actions 3-button (View link blu + Edit cyan + ✕ red icon-only).
+  - `PostCardMng.tsx`: rewrite top row (status+mood pills inline + date right); stats row inline với 📷 images count + 📎 files count conditional; actions footer 3-button (View link blu + Edit cyan + Delete red).
+- **Regression test:** Update `apps/web/tests/pages/ManagePostsPage.test.tsx` (test-stale-assumption sau strip checkbox + layout refactor) — note: 3 pre-existing fail (env undici/AbortSignal) sẽ stay. Add 3 case BUG-011: Stats row 4-card render + Sort 3 chips + Results count line.
+- **Lesson learned:** Pattern recurring **lần 7** đủ rõ — promote rule "BẮT BUỘC grep `design-file/*.html` source markup cho mọi page/section refactor trước khi rewrite" lên CLAUDE.md Pre-flight Checklist (defer task riêng, đáng ưu tiên).
+
 ### [BUG-010] [Low] [FE] ProfilePage 3 tab (Saved/Activity/About) drift design-file (12+ items)
 
 - **Status:** FIXED

@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { RouterProvider, createMemoryRouter, type RouteObject } from 'react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -78,13 +77,15 @@ describe('ManagePostsPage (T-372, FR-15)', () => {
     expect(screen.getByText(/loading/i)).toBeInTheDocument();
   });
 
-  it('T-372: empty results → shows // no posts match filter', async () => {
+  it('T-372: empty results → shows // no posts matching filters with ◎ icon (T-417 stale-assumption)', async () => {
     mswServer.use(
       http.get(`${API}/admin/posts`, () => HttpResponse.json(makePaginatedAdminPosts([]))),
     );
     renderAt('/admin/posts');
     await waitFor(() => expect(screen.getByTestId('empty')).toBeInTheDocument());
-    expect(screen.getByTestId('empty')).toHaveTextContent('no posts match filter');
+    // T-417 design L626-627: text wording changed + adds ◎ big icon
+    expect(screen.getByTestId('empty')).toHaveTextContent('no posts matching filters');
+    expect(screen.getByTestId('empty')).toHaveTextContent('◎');
   });
 
   it('T-372: list view (default) → renders PostRow per item', async () => {
@@ -222,13 +223,39 @@ describe('ManagePostsPage (T-372, FR-15)', () => {
     await waitFor(() => expect(deletedId).toBe('p-001'));
   });
 
-  it('T-372: bulk select checkbox toggles selection + bulk bar appears', async () => {
-    const user = userEvent.setup();
+  it('regression BUG-011: T-417 strip bulk-select checkbox (design strict — không có checkbox)', async () => {
     renderAt('/admin/posts');
     await waitFor(() => expect(screen.getAllByTestId('post-row')).toHaveLength(2));
-    const checkboxes = screen.getAllByRole('checkbox', { name: /select post/i });
-    await user.click(checkboxes[0]);
-    await waitFor(() => expect(screen.getByTestId('bulk-bar')).toBeInTheDocument());
-    expect(screen.getByText('1 selected')).toBeInTheDocument();
+    // Per design L362-409 PostRow KHÔNG có checkbox + design KHÔNG có bulk-bar trigger
+    expect(screen.queryByRole('checkbox', { name: /select post/i })).toBeNull();
+    expect(screen.queryByTestId('bulk-bar')).toBeNull();
+  });
+
+  it('regression BUG-011: T-417 Stats row 4-card (TOTAL/PUBLISHED/DRAFTS/ARCHIVED)', async () => {
+    renderAt('/admin/posts');
+    await waitFor(() => expect(screen.getByTestId('stats-row')).toBeInTheDocument());
+    const row = screen.getByTestId('stats-row');
+    expect(within(row).getByText('TOTAL POSTS')).toBeInTheDocument();
+    expect(within(row).getByText('PUBLISHED')).toBeInTheDocument();
+    expect(within(row).getByText('DRAFTS')).toBeInTheDocument();
+    expect(within(row).getByText('ARCHIVED')).toBeInTheDocument();
+  });
+
+  it('regression BUG-011: T-417 Sort 3 chips (Newest/Oldest/Top) thay select dropdown', async () => {
+    renderAt('/admin/posts');
+    await waitFor(() => expect(screen.getByTestId('sort-latest')).toBeInTheDocument());
+    expect(screen.getByTestId('sort-latest')).toHaveTextContent('Newest');
+    expect(screen.getByTestId('sort-oldest')).toHaveTextContent('Oldest');
+    expect(screen.getByTestId('sort-likes')).toHaveTextContent('Top');
+    // No select dropdown exists
+    expect(screen.queryByRole('combobox', { name: /sort posts/i })).toBeNull();
+  });
+
+  it('regression BUG-011: T-417 Results count line `// showing N of M posts`', async () => {
+    renderAt('/admin/posts');
+    // waitFor on text content (need data to populate after mount)
+    await waitFor(() =>
+      expect(screen.getByTestId('results-count')).toHaveTextContent(/showing 2 of 2 posts/),
+    );
   });
 });

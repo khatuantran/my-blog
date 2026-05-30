@@ -56,10 +56,8 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         <span className="ml-auto font-mono text-[10px] text-tm">{formatDate(post.createdAt)}</span>
       </div>
 
-      {/* Content — truncate 140 chars + show more toggle. Card stretch h-full
-          nhưng content section đặt độc lập (không flex-1 grow vì sẽ làm thiếu
-          tự nhiên); footer push xuống đáy bằng mt-auto bên dưới. */}
-      <div className="mb-2.5">
+      {/* Content section — flex-1 grow để push bottom block xuống đáy card stretched */}
+      <div className="mb-2.5 flex-1">
         <p className="text-[13px] leading-relaxed text-tp">{snippet || '// empty'}</p>
         {isLong && (
           <button
@@ -73,67 +71,69 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         )}
       </div>
 
-      {/* Tags row — min-height giữ chiều cao consistent kể cả không có tags */}
-      <div className="mb-1.5 flex min-h-[22px] flex-wrap items-center gap-1.5">
-        {post.tags.slice(0, 4).map((t) => {
-          const color = t.color ?? '#00FFE5';
-          return (
-            <span
-              key={t.id}
-              className="rounded-[3px] border px-1.5 py-px font-mono text-[10px]"
-              style={{
-                color,
-                background: `${color}26`,
-                borderColor: `${color}66`,
-              }}
-            >
-              {t.name}
-            </span>
-          );
-        })}
-      </div>
+      {/* Bottom block — tags + stats + actions GẮN ĐÁY card stretched
+          (toàn bộ 3 row anchor cố định ở bottom, content section flex-1 phía trên
+          đẩy nguyên block xuống). Đảm bảo stats + actions cùng vị trí Y across cards. */}
+      <div className="flex flex-col gap-1.5">
+        {/* Tags row — min-height giữ chiều cao consistent kể cả không có tags */}
+        <div className="flex min-h-[22px] flex-wrap items-center gap-1.5">
+          {post.tags.slice(0, 4).map((t) => {
+            const color = t.color ?? '#00FFE5';
+            return (
+              <span
+                key={t.id}
+                className="rounded-[3px] border px-1.5 py-px font-mono text-[10px]"
+                style={{
+                  color,
+                  background: `${color}26`,
+                  borderColor: `${color}66`,
+                }}
+              >
+                {t.name}
+              </span>
+            );
+          })}
+        </div>
 
-      {/* Stats row — right-aligned consistent (was ml-auto inline với tags, jumps khi tags ngắn) */}
-      <div className="mb-3 flex justify-end gap-2.5 font-mono text-[10px] text-tm">
-        <span>♡ {post.counts.reactions}</span>
-        <span>💬 {post.counts.comments}</span>
-        {imagesCount > 0 && <span>📷 {imagesCount}</span>}
-        {filesCount > 0 && <span>📎 {filesCount}</span>}
-      </div>
+        {/* Stats row — right-aligned */}
+        <div className="mb-1.5 flex justify-end gap-2.5 font-mono text-[10px] text-tm">
+          <span>♡ {post.counts.reactions}</span>
+          <span>💬 {post.counts.comments}</span>
+          {imagesCount > 0 && <span>📷 {imagesCount}</span>}
+          {filesCount > 0 && <span>📎 {filesCount}</span>}
+        </div>
 
-      {/* Actions footer — grid 3 equal columns. minmax(0, 1fr) cho phép column
-          shrink dưới min-content của item (content sẽ truncate/wrap nếu thiếu chỗ);
-          `1fr` thường = `minmax(auto, 1fr)` khiến column grow theo widest content
-          (✕ Delete dài → col 3 wider hơn View/Edit). */}
-      <div
-        className="mt-auto grid gap-1.5 border-t border-b1 pt-2.5"
-        style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}
-      >
-        <Link
-          to={`/post/${post.id}`}
-          aria-label={`View post ${post.id}`}
-          className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
-          style={{ borderColor: 'rgba(125,207,255,0.25)' }}
+        {/* Actions footer — grid 3 equal columns với minmax(0, 1fr) */}
+        <div
+          className="grid gap-1.5 border-t border-b1 pt-2.5"
+          style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}
         >
-          👁 View
-        </Link>
-        <button
-          type="button"
-          aria-label={`Edit post ${post.id}`}
-          onClick={() => onEdit(post)}
-          className="flex w-full items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
-        >
-          ✎ Edit
-        </button>
-        <button
-          type="button"
-          aria-label={`Delete post ${post.id}`}
-          onClick={() => onDelete(post)}
-          className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
-          style={{ borderColor: 'rgba(247,118,142,0.25)' }}
-        >
-          ✕ Delete
-        </button>
+          <Link
+            to={`/post/${post.id}`}
+            aria-label={`View post ${post.id}`}
+            className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
+            style={{ borderColor: 'rgba(125,207,255,0.25)' }}
+          >
+            👁 View
+          </Link>
+          <button
+            type="button"
+            aria-label={`Edit post ${post.id}`}
+            onClick={() => onEdit(post)}
+            className="flex w-full items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
+          >
+            ✎ Edit
+          </button>
+          <button
+            type="button"
+            aria-label={`Delete post ${post.id}`}
+            onClick={() => onDelete(post)}
+            className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
+            style={{ borderColor: 'rgba(247,118,142,0.25)' }}
+          >
+            ✕ Delete
+          </button>
+        </div>
       </div>
     </div>
   );

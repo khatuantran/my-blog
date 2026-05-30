@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { MOOD_CFG } from '@/lib/mood-config';
 import { StatusBadge } from './StatusBadge';
+import { CommentIcon, EyeIcon, HeartIcon, PencilIcon, TrashIcon } from './StatIcons';
 import type { AdminPost } from '@/types/api';
 
 type Props = {
@@ -77,40 +78,45 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
         )}
       </div>
 
-      {/* Stats 2-line — counts row + date row per design L397-400 */}
+      {/* Stats 2-line — counts row + date row. SVG cyberpunk icons (T-419) thay
+          emoji ♡/💬 cho đồng bộ visual với Feed ReactionIcon line-art style. */}
       <div className="flex flex-col gap-0.5 font-mono text-[11px] text-ts">
-        <span>
-          ♡ {post.counts.reactions} · 💬 {post.counts.comments}
+        <span className="inline-flex items-center gap-1.5">
+          <HeartIcon size={13} />
+          <span>{post.counts.reactions}</span>
+          <span className="text-tm">·</span>
+          <CommentIcon size={13} />
+          <span>{post.counts.comments}</span>
         </span>
         <span className="text-tm">{formatDate(post.createdAt)}</span>
       </div>
 
-      {/* Actions 3-button — View blu / Edit cyan / ✕ red per design L402-406 */}
+      {/* Actions 3-button — View blu / Edit cyan / Delete red. SVG icons (T-419). */}
       <div className="flex justify-end gap-1.5">
         <Link
           to={`/post/${post.id}`}
           aria-label={`View post ${post.id}`}
-          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
+          className="inline-flex items-center gap-1 rounded border px-2.5 py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
           style={{ borderColor: 'rgba(125,207,255,0.25)' }}
         >
-          👁 View
+          <EyeIcon /> View
         </Link>
         <button
           type="button"
           aria-label={`Edit post ${post.id}`}
           onClick={() => onEdit(post)}
-          className="rounded border border-cyan/40 px-2.5 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
+          className="inline-flex items-center gap-1 rounded border border-cyan/40 px-2.5 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
         >
-          ✎ Edit
+          <PencilIcon /> Edit
         </button>
         <button
           type="button"
           aria-label={`Delete post ${post.id}`}
           onClick={() => onDelete(post)}
-          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
+          className="inline-flex items-center justify-center rounded border px-2.5 py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
           style={{ borderColor: 'rgba(247,118,142,0.25)' }}
         >
-          ✕
+          <TrashIcon />
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { MOOD_CFG } from '@/lib/mood-config';
 import { StatusBadge } from './StatusBadge';
+import { CommentIcon, EyeIcon, HeartIcon, PencilIcon, TrashIcon } from './StatIcons';
 import type { AdminPost } from '@/types/api';
 
 const SNIPPET_LIMIT = 140;
@@ -95,10 +96,18 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           })}
         </div>
 
-        {/* Stats row — right-aligned */}
-        <div className="mb-1.5 flex justify-end gap-2.5 font-mono text-[10px] text-tm">
-          <span>♡ {post.counts.reactions}</span>
-          <span>💬 {post.counts.comments}</span>
+        {/* Stats row — right-aligned (T-419 SVG icons thay emoji ♡/💬 cho match
+            Feed ReactionIcon line-art style). 📷/📎 giữ emoji vì design feed cũng
+            dùng emoji cho file/image, không có SVG variant. */}
+        <div className="mb-1.5 flex justify-end gap-3 font-mono text-[11px] text-tm">
+          <span className="inline-flex items-center gap-1">
+            <HeartIcon size={12} />
+            <span>{post.counts.reactions}</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <CommentIcon size={12} />
+            <span>{post.counts.comments}</span>
+          </span>
           {imagesCount > 0 && <span>📷 {imagesCount}</span>}
           {filesCount > 0 && <span>📎 {filesCount}</span>}
         </div>
@@ -111,27 +120,27 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           <Link
             to={`/post/${post.id}`}
             aria-label={`View post ${post.id}`}
-            className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
+            className="flex w-full items-center justify-center gap-1.5 rounded border py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
             style={{ borderColor: 'rgba(125,207,255,0.25)' }}
           >
-            👁 View
+            <EyeIcon /> View
           </Link>
           <button
             type="button"
             aria-label={`Edit post ${post.id}`}
             onClick={() => onEdit(post)}
-            className="flex w-full items-center justify-center rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
+            className="flex w-full items-center justify-center gap-1.5 rounded border border-cyan/40 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
           >
-            ✎ Edit
+            <PencilIcon /> Edit
           </button>
           <button
             type="button"
             aria-label={`Delete post ${post.id}`}
             onClick={() => onDelete(post)}
-            className="flex w-full items-center justify-center rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
+            className="flex w-full items-center justify-center gap-1.5 rounded border py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
             style={{ borderColor: 'rgba(247,118,142,0.25)' }}
           >
-            ✕ Delete
+            <TrashIcon /> Delete
           </button>
         </div>
       </div>

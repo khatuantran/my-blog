@@ -2,10 +2,47 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastProvider } from '@/components/shared/Toast';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { mswServer } from '../../_helpers/msw-server';
 import { NEON_COLORS } from '@/lib/tag-colors';
 import type { ProfileUser } from '@/types/api';
+
+// react-easy-crop hangs trong jsdom (uses requestAnimationFrame + image-orientation).
+// Mock entire AvatarUploadModal — simple stub renders test marker khi open=true.
+vi.mock('@/components/profile/AvatarUploadModal', () => ({
+  AvatarUploadModal: ({
+    open,
+    imageSrc,
+    onClose,
+    onSuccess,
+  }: {
+    open: boolean;
+    imageSrc: string | null;
+    onClose: () => void;
+    onSuccess: (r: { avatarUrl: string | null; avatarPublicId: string | null }) => void;
+  }) => {
+    if (!open || !imageSrc) return null;
+    return (
+      <div data-testid="avatar-upload-modal-mock">
+        <button onClick={onClose} data-testid="mock-modal-close">
+          close
+        </button>
+        <button
+          onClick={() =>
+            onSuccess({
+              avatarUrl: 'https://res.cloudinary.com/demo/v1/avatars/u1-new.jpg',
+              avatarPublicId: 'avatars/u1-new',
+            })
+          }
+          data-testid="mock-modal-success"
+        >
+          fake-upload
+        </button>
+      </div>
+    );
+  },
+}));
 
 const API = 'http://localhost:3001';
 
@@ -25,13 +62,17 @@ function wrap(ui: React.ReactElement) {
   const qc = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={qc}>
+      <ToastProvider>{ui}</ToastProvider>
+    </QueryClientProvider>,
+  );
 }
 
 describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
-  it('open=false → null', () => {
-    const { container } = wrap(<EditProfileDrawer open={false} user={USER} onClose={vi.fn()} />);
-    expect(container).toBeEmptyDOMElement();
+  it('open=false → no dialog rendered', () => {
+    wrap(<EditProfileDrawer open={false} user={USER} onClose={vi.fn()} />);
+    expect(screen.queryByRole('dialog', { name: /edit profile/i })).toBeNull();
   });
 
   it('T-376: renders all 4 section headers', () => {
@@ -145,5 +186,53 @@ describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
     const handleLabelDiv = screen.getByText(/^handle$/i);
     expect(handleLabelDiv.className).toMatch(/uppercase/);
     expect(handleLabelDiv.className).toMatch(/tracking-\[0\.05em\]/);
+  });
+
+  describe('T-412 // avatar section (FR-11.7)', () => {
+    it('renders // avatar section header + Upload button + Profile photo label', () => {
+      wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
+      expect(screen.getByText('// avatar')).toBeInTheDocument();
+      expect(screen.getByText(/profile photo/i)).toBeInTheDocument();
+      expect(screen.getByTestId('avatar-upload-btn')).toBeInTheDocument();
+    });
+
+    it('× Remove button hidden khi avatarUrl null', () => {
+      wrap(<EditProfileDrawer open user={{ ...USER, avatarUrl: null }} onClose={vi.fn()} />);
+      expect(screen.queryByTestId('avatar-remove-btn')).toBeNull();
+    });
+
+    it('× Remove button visible khi avatarUrl present', () => {
+      wrap(
+        <EditProfileDrawer
+          open
+          user={{ ...USER, avatarUrl: 'https://res.cloudinary.com/demo/v1/x.jpg' }}
+          onClose={vi.fn()}
+        />,
+      );
+      expect(screen.getByTestId('avatar-remove-btn')).toBeInTheDocument();
+    });
+
+    it('× Remove click → ConfirmDialog mở → confirm → DELETE /users/me/avatar', async () => {
+      let deleteCalled = false;
+      mswServer.use(
+        http.delete('http://localhost:3001/users/me/avatar', () => {
+          deleteCalled = true;
+          return HttpResponse.json({ avatarUrl: null, avatarPublicId: null });
+        }),
+      );
+      wrap(
+        <EditProfileDrawer
+          open
+          user={{ ...USER, avatarUrl: 'https://res.cloudinary.com/demo/v1/x.jpg' }}
+          onClose={vi.fn()}
+        />,
+      );
+      fireEvent.click(screen.getByTestId('avatar-remove-btn'));
+      // ConfirmDialog appear
+      expect(screen.getByText(/remove avatar\?/i)).toBeInTheDocument();
+      const confirmBtn = screen.getByRole('button', { name: /confirm remove/i });
+      fireEvent.click(confirmBtn);
+      await waitFor(() => expect(deleteCalled).toBe(true));
+    });
   });
 });

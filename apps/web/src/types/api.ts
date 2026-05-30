@@ -14,6 +14,7 @@ export type AdminUser = {
   email: string | null;
   role: Role;
   avatarUrl: string | null;
+  avatarPublicId?: string | null;
   title?: string | null;
   bio?: string | null;
   skills?: Skill[];

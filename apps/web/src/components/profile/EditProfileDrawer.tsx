@@ -1,8 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ApiError } from '@/services/api/client';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { ProfileAvatar } from '@/components/shared/ProfileAvatar';
 import { SkillChipInput } from '@/components/shared/SkillChipInput';
+import { useToast } from '@/hooks/use-toast';
 import { useChangePassword, useUpdateProfile } from '@/hooks/mutations/use-update-profile';
+import { useRemoveAvatar } from '@/hooks/mutations/use-avatar';
+import { logger } from '@/lib/logger';
 import type { ProfileUser, Skill } from '@/types/api';
+import { AvatarUploadModal } from './AvatarUploadModal';
+
+const AVATAR_MAX_BYTES = 5 * 1024 * 1024; // 5MB per FR-11.7
+const AVATAR_ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
 
 type Props = {
   open: boolean;
@@ -36,6 +45,15 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
 
   const updateMut = useUpdateProfile();
   const pwMut = useChangePassword();
+  const removeAvatarMut = useRemoveAvatar(user.username);
+  const toast = useToast();
+
+  // avatar local state — preview cập nhật ngay khi upload thành công (trước khi parent refetch)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user.avatarUrl ?? null);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -47,6 +65,7 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
     setGithub(user.github ?? '');
     setWebsite(user.website ?? '');
     setSkills(user.skills ?? []);
+    setAvatarUrl(user.avatarUrl ?? null);
     setProfileError(null);
     setCurrentPw('');
     setNewPw('');
@@ -92,6 +111,49 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
         },
       },
     );
+  }
+
+  function handleAvatarFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // reset để chọn lại cùng file vẫn fire onChange
+    if (!file) return;
+
+    if (!AVATAR_ALLOWED_MIME.includes(file.type)) {
+      toast.showToast('format not supported (JPEG/PNG/WebP only)', 'error');
+      return;
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      toast.showToast(
+        `file too large (max 5MB, got ${Math.round(file.size / 1024 / 1024)}MB)`,
+        'error',
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(typeof reader.result === 'string' ? reader.result : null);
+      setShowCropModal(true);
+    };
+    reader.onerror = () => {
+      logger.error('FileReader failed');
+      toast.showToast('could not read file', 'error');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemoveAvatar() {
+    removeAvatarMut.mutate(undefined, {
+      onSuccess: (res) => {
+        setAvatarUrl(res.avatarUrl);
+        setShowRemoveConfirm(false);
+        toast.showToast('avatar removed', 'success');
+      },
+      onError: (err) => {
+        logger.error('Remove avatar failed', err);
+        toast.showToast(err.message || 'remove failed', 'error');
+      },
+    });
   }
 
   function handlePwSubmit(e: React.FormEvent) {
@@ -164,6 +226,45 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           <form id="profile-form" onSubmit={handleProfileSubmit} className="space-y-5">
+            {/* Section 0: avatar (FR-11.7) */}
+            <Section title="// avatar">
+              <div className="flex items-center gap-4 rounded-md border border-b2 bg-elev p-3">
+                <ProfileAvatar username={user.username} avatarUrl={avatarUrl} size={56} />
+                <div className="flex-1">
+                  <div className="mb-2 font-mono text-[12px] text-tp">profile photo</div>
+                  <div className="flex gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarFileSelect}
+                      data-testid="avatar-file-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      data-testid="avatar-upload-btn"
+                      className="rounded-md border border-cyan/30 bg-cyan/10 px-3 py-1.5 font-mono text-[11px] text-cyan hover:bg-cyan/20"
+                    >
+                      ↑ Upload
+                    </button>
+                    {avatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setShowRemoveConfirm(true)}
+                        disabled={removeAvatarMut.isPending}
+                        data-testid="avatar-remove-btn"
+                        className="rounded-md border border-red/30 bg-red/10 px-3 py-1.5 font-mono text-[11px] text-red hover:bg-red/20 disabled:opacity-50"
+                      >
+                        × Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Section>
+
             {/* Section 1: basic.info */}
             <Section title="// basic.info">
               <div className="grid grid-cols-2 gap-3">
@@ -351,6 +452,28 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           </button>
         </div>
       </aside>
+
+      {/* FR-11.7 — Avatar crop modal + remove confirm */}
+      <AvatarUploadModal
+        open={showCropModal}
+        imageSrc={cropImageSrc}
+        username={user.username}
+        onClose={() => setShowCropModal(false)}
+        onSuccess={(res) => {
+          setAvatarUrl(res.avatarUrl);
+          toast.showToast('avatar updated', 'success');
+        }}
+      />
+      <ConfirmDialog
+        open={showRemoveConfirm}
+        title="// remove.avatar"
+        message="Remove avatar? UI sẽ fallback về default profile icon."
+        confirmLabel="Confirm remove"
+        destructive
+        pending={removeAvatarMut.isPending}
+        onConfirm={handleRemoveAvatar}
+        onCancel={() => setShowRemoveConfirm(false)}
+      />
     </div>
   );
 }

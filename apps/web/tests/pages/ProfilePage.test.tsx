@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { MemoryRouter, Routes, Route } from 'react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from '@/pages/ProfilePage';
+import { ToastProvider } from '@/components/shared/Toast';
 import { mswServer } from '../_helpers/msw-server';
 import { useAuthStore } from '@/stores/auth-store';
 import { MOOD_KEYS } from '@/lib/mood-config';
@@ -16,11 +17,13 @@ function wrap(path: string) {
   });
   return render(
     <QueryClientProvider client={qc}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path="/profile/:username" element={<ProfilePage />} />
-        </Routes>
-      </MemoryRouter>
+      <ToastProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path="/profile/:username" element={<ProfilePage />} />
+          </Routes>
+        </MemoryRouter>
+      </ToastProvider>
     </QueryClientProvider>,
   );
 }

@@ -671,45 +671,60 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 **Linked UCs:** UC-15 (anonymous/user search)
 **User roles:** Public
 
-### Layout
+### Layout (T-400 redesign per design-file/MyBlog Search.html)
 
 ```
-┌────── TopBar (hideSearch=true, ⌘K vẫn còn) ──────┐
-├── Hero (max-w 720px center, py-10) ──────────────┤
-│  ┌────────────────────────────────────────────┐  │
-│  │ ❯  search posts, #tags, files...        × │  │  ← BigSearchInput
-│  └────────────────────────────────────────────┘  │
-│  [ All ] [ Saved ] [ Files ] · [😊][⚡][💭][😌][😢] │  ← FilterChips
-├──────────────────────────────────────┬───────────┤
-│  MAIN (flex-1)                       │ SIDEBAR 280px│
-│                                      │              │
-│  // results  N matches for "{q}"     │ 4 stat cards │
-│  [ ResultCard với <mark> highlight ] │ (Total/Imgs/ │
-│  [ ResultCard ]                      │  Files/Saved)│
-│  ...                                 │              │
-│  ── infinite scroll sentinel ──      │ // filter.by.mood │
-│                                      │ [ 😊 ][ ⚡ ] ... │
-│  Empty: // no results for "{q}" —    │              │
-│         try different keywords       │ // recent.searches │
-│                                      │ • react      │
-│  (Empty q + default browse view:     │ • cyberpunk  │
-│   render top posts hoặc null)        │ • #code      │
-│                                      │              │
-│                                      │ // browse.tags │
-│                                      │ [#code][#life]│
-└──────────────────────────────────────┴──────────────┘
+┌────── TopBar (hideSearch=true, ⌘K vẫn còn) ──────────────┐
+├── Hero (max-w 720px center) ─────────────────────────────┤
+│  ❯ search                                                │
+│  ┌────────────────────────────────────────────┐          │
+│  │ search posts, #tags, files...        ⌘K   │          │  ← BigSearchInput
+│  └────────────────────────────────────────────┘          │
+│  [All][Saved][Files] │ [😊][⚡][💭][😌][😢][🙏][😠] [reset×] │  ← chip+divider+mood+reset
+├──────────────────────────────────────────────────────────┤
+│ EMPTY STATE (q='' + no filter, max-w 820px center) ─────│
+│  // recent.searches                            [clear]   │
+│  [↺ react hooks][↺ #code][↺ deploy][↺ cursor ai]…       │  ← chip-pill 13px
+│                                                          │
+│  // browse.tags                                          │
+│  [#code 24][#life 18][#travel 9][#books 6][#ai 5]       │  ← custom chip per-color + count
+│                                                          │
+│  // all.posts {N} total                                  │
+│  [ ResultCard preview × N ]                              │
+├──────────────────────────────────────┬───────────────────┤
+│ RESULTS (when q OR filter) MAIN     │ SIDEBAR 280px (lg+)│
+│  // results · N match(es)            │ 4 StatBox          │
+│  [ ResultCard với highlight × N ]    │ (Total/Imgs/       │
+│  // tags                             │  Files/Saved)      │
+│  [ TagPill × N ]                     │                    │
+│  // files                            │                    │
+│  [ pdf · filename.pdf × N ]          │                    │
+│  Empty: ◎ no results for "{q}"       │                    │
+└──────────────────────────────────────┴────────────────────┘
+```
+
+ResultCard layout (design-file 1:1):
+
+```
+┌── ResultCard ──────────────────────────────────  #idShort ┐
+│ [A] ~/username [ ADMIN ] · [YYYY-MM-DD HH:MM]   😊 happy  │  ← top row (avatar 26 + 13/10/11 + mood ml-auto)
+│ Content preview 15px line-clamp-2…                        │
+│ [#tag1][#tag2][📎 N files]               ♡ N · 💬 N      │  ← bottom row (tags + files + stats ml-auto)
+└───────────────────────────────────────────────────────────┘
 ```
 
 ### Components
 
-| Component                    | Source                         |
-| ---------------------------- | ------------------------------ |
-| BigSearchInput (hero)        | DESIGN_SYSTEM > BigSearchInput |
-| FilterChip (3 + 5 mood)      | DESIGN_SYSTEM > FilterChip     |
-| ResultCard (highlight match) | DESIGN_SYSTEM > ResultCard     |
-| Stat card mini (sidebar 4)   | reuse design pattern           |
-| TagPill (browse.tags)        | existing                       |
-| RecentSearches list          | `useRecentSearches` hook       |
+| Component                   | Source                                                           |
+| --------------------------- | ---------------------------------------------------------------- |
+| BigSearchInput (hero)       | DESIGN_SYSTEM > BigSearchInput                                   |
+| FilterChip (3 type)         | DESIGN_SYSTEM > FilterChip                                       |
+| Mood emoji button (7)       | inline 14px rounded-[5px] 30×28                                  |
+| ResultCard (enriched T-400) | inline — avatar + admin + ts + mood right + tags + files + stats |
+| Recent search chip          | inline pill 13px + ↺ prefix                                      |
+| Browse tag chip with count  | inline 13px per-color + postCount                                |
+| StatBox (sidebar 4)         | inline                                                           |
+| TagPill (tags results)      | shared `components/shared/TagPill`                               |
 
 ### State machine
 

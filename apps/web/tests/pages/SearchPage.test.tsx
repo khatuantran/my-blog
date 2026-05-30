@@ -150,4 +150,48 @@ describe('SearchPage (T-351 rewrite, FR-12.8-.12)', () => {
       expect(screen.queryByText('previous-query')).not.toBeInTheDocument();
     });
   });
+
+  it('T-400.7 recent chip styling: ↺ icon prefix per design-file', async () => {
+    window.localStorage.setItem('myblog.recentSearches', JSON.stringify(['react hooks']));
+    wrap('/search');
+    const chip = await screen.findByTestId('recent-chip-react hooks');
+    expect(chip).toHaveTextContent('↺');
+    expect(chip).toHaveTextContent('react hooks');
+  });
+
+  it('T-400.8 browse.tags chip: per-color background + count number per design-file', async () => {
+    mswServer.use(
+      http.get(`${API}/tags`, () =>
+        HttpResponse.json({
+          data: {
+            items: [
+              {
+                id: 't1',
+                name: '#code',
+                color: '#9ECE6A',
+                postCount: 24,
+                sparkline7d: [],
+                createdAt: '2026-05-01T00:00:00Z',
+              },
+              {
+                id: 't2',
+                name: '#life',
+                color: '#BB9AF7',
+                postCount: 18,
+                sparkline7d: [],
+                createdAt: '2026-05-01T00:00:00Z',
+              },
+            ],
+          },
+        }),
+      ),
+    );
+    wrap('/search');
+    const code = await screen.findByTestId('browse-tag-chip-#code');
+    expect(code).toHaveTextContent('#code');
+    expect(code).toHaveTextContent('24');
+    const life = await screen.findByTestId('browse-tag-chip-#life');
+    expect(life).toHaveTextContent('#life');
+    expect(life).toHaveTextContent('18');
+  });
 });

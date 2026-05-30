@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Added
+
+- **T-400 FE Search page design-file 1:1 sweep (F1)** (2026-05-30, FE): Enrich ResultCard với 6/8 element còn thiếu vs `design-file/MyBlog Search.html`, redesign Recent searches + Browse tags, tweak filter row. **No BE change** — `GET /search` đã trả đủ PostView (author/tags/files/counts/createdAt). `ResultCard.tsx` rewrite 67→139 lines: avatar 26×26 cyan border + gradient inline, author `~/username` 13px blu, `[ ADMIN ]` badge 10px conditional, separator + timestamp `[YYYY-MM-DD HH:MM]` 11px, MoodBadge inline 11px right-aligned (ml-auto), content 15px line-clamp-2, tags inline per-color 11px (NOT shared TagPill), `📎 N files` red badge conditional, engagement `♡ reactions 💬 comments` 11px ml-auto, post-id corner deco giữ. `SearchPage.tsx`: mood emoji 15→14px + rounded-sm→rounded-[5px], reset button "× reset" → "reset ×" + ml-auto, Recent searches plain text → chip-pill 13px với `↺` icon prefix, Browse tags shared TagPill → custom chip 13px per-color bg + postCount number, empty-state wrap max-w-[820px]. 8 test mới: ResultCard 6 case + SearchPage 2 case (recent chip ↺, browse tag count). 445/448 FE pass. (Refs T-400, design-file Search.html)
+
 ### Notes
 
 - **Design Fidelity Audit + fix — M11.10 (code-level, 11 screens)** (2026-05-28→29, Docs+FE): Deep code-level diff `design-file` vs FE (`docs/audits/DESIGN_FIDELITY_2026-05-28.md`) — 4 bucket (typography/components/animations/colors), capture được animation/hover mà screenshot bỏ sót. 5 systemic theme + per-screen drift. Fix qua 6 wave T-390→T-395 + T-397 (EmojiPicker wire). T-396 re-verify: **0 Critical còn lại** — UI đạt chuẩn design-file v2 (trừ defer/backlog có task riêng: AI suggest T-346/347, related posts M11, born-year meta). User decisions: Profile hero → full name; mono font → token-based normalize (Option A, giữ token scale). Khuyến nghị next: Playwright `toHaveScreenshot()` baseline.

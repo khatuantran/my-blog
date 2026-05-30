@@ -144,7 +144,7 @@ export default function SearchPage() {
                 onClick={() => setMood(active ? null : m)}
                 aria-label={`Mood ${cfg.label}`}
                 aria-pressed={active}
-                className="flex h-7 w-[30px] items-center justify-center rounded-sm border transition-all"
+                className="flex h-7 w-[30px] items-center justify-center rounded-[5px] border transition-all"
                 style={
                   active
                     ? {
@@ -155,7 +155,7 @@ export default function SearchPage() {
                     : { borderColor: 'var(--b2)', background: 'var(--surf)' }
                 }
               >
-                <span className="text-[15px] leading-none">{cfg.emoji}</span>
+                <span className="text-[14px] leading-none">{cfg.emoji}</span>
               </button>
             );
           })}
@@ -164,10 +164,10 @@ export default function SearchPage() {
               type="button"
               data-testid="search-reset-filters"
               onClick={resetFilters}
-              className="ml-1 font-mono text-mono-sm text-red hover:text-red/70"
+              className="ml-auto font-mono text-mono-sm text-red hover:text-red/70"
               aria-label="Reset filters"
             >
-              × reset
+              reset ×
             </button>
           )}
         </div>
@@ -175,7 +175,7 @@ export default function SearchPage() {
 
       {/* Empty state (q='' + no filter) — 3 sections */}
       {isEmpty && (
-        <div data-testid="search-empty-state" className="space-y-6">
+        <div data-testid="search-empty-state" className="mx-auto max-w-[820px] space-y-7">
           {/* recent.searches */}
           <section data-testid="empty-recent-searches">
             <div className="mb-2 flex items-center justify-between font-mono text-mono-sm text-tm">
@@ -195,15 +195,19 @@ export default function SearchPage() {
             {recent.length === 0 ? (
               <div className="font-mono text-mono-sm italic text-td">// no recent searches</div>
             ) : (
-              <ul className="space-y-1">
+              <ul className="flex flex-wrap gap-2">
                 {recent.slice(0, 5).map((q) => (
                   <li key={q}>
                     <button
                       type="button"
+                      data-testid={`recent-chip-${q}`}
                       onClick={() => setQueryFromRecent(q)}
-                      className="block w-full truncate text-left font-mono text-mono-sm text-ts hover:text-cyan"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-b2 bg-elev font-mono text-mono-md text-ts transition-colors hover:border-cyan/40 hover:text-tp"
+                      style={{ padding: '7px 14px' }}
                     >
-                      <span className="text-td">• </span>
+                      <span aria-hidden="true" className="text-mono-sm text-b3">
+                        ↺
+                      </span>
                       {q}
                     </button>
                   </li>
@@ -216,16 +220,27 @@ export default function SearchPage() {
           <section data-testid="empty-browse-tags">
             <div className="mb-2 font-mono text-mono-sm text-tm">// browse.tags</div>
             {tagsData && tagsData.items.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5">
-                {tagsData.items.map((t) => (
-                  <Link
-                    key={t.id}
-                    to={`/?tag=${encodeURIComponent(t.name.replace(/^#/, ''))}`}
-                    className="no-underline"
-                  >
-                    <TagPill name={t.name} color={t.color} />
-                  </Link>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                {tagsData.items.map((t) => {
+                  const color = t.color ?? '#00FFE5';
+                  return (
+                    <Link
+                      key={t.id}
+                      to={`/?tag=${encodeURIComponent(t.name.replace(/^#/, ''))}`}
+                      data-testid={`browse-tag-chip-${t.name}`}
+                      className="inline-flex items-center gap-2 rounded-md font-mono text-mono-md no-underline transition-all hover:opacity-80"
+                      style={{
+                        color,
+                        background: `${color}10`,
+                        border: `1px solid ${color}40`,
+                        padding: '7px 14px',
+                      }}
+                    >
+                      {t.name}
+                      <span className="font-mono text-mono-sm text-b3">{t.postCount}</span>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <div className="font-mono text-mono-sm italic text-td">// no tags yet</div>

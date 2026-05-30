@@ -4,14 +4,9 @@ import { useUserActivity } from '@/hooks/queries/use-activity';
 import { formatRelative } from '@/lib/format-date';
 import type { ActivityItem, ActivityType } from '@/types/api';
 
-// T-413 — Icon set aligned với Feed page (Feed PostCard React default ♡ / Create Post ✏️ /
-// Comment 💬 / PostActionMenu Save 🔖). Was: POST 📝, LIKE 👍.
-const ICON_MAP: Record<ActivityType, string> = {
-  POST_CREATED: '✏️',
-  COMMENT_CREATED: '💬',
-  LIKE_CREATED: '♡',
-  SAVE_CREATED: '🔖',
-};
+// T-416 — Refactored 1:1 design-file Profile.html L600-614:
+// `❯ cyan` prefix (NOT icon) + 2-line layout (user_blu + verb + target_muted / time below).
+// Icon-based version (T-413) was rejected per user feedback "đúng như design".
 
 const VERB_OUTGOING: Record<ActivityType, string> = {
   POST_CREATED: 'created post',
@@ -99,49 +94,43 @@ export function ProfileActivityList({ userId }: Props) {
 }
 
 function ProfileActivityItem({ item }: { item: ActivityItem }) {
-  const icon = ICON_MAP[item.type];
   const verb = item.direction === 'OUTGOING' ? VERB_OUTGOING[item.type] : VERB_INCOMING[item.type];
   const snippet = item.target.snippet ?? '[deleted post]';
   const targetIsLink = item.target.snippet !== null;
+  const actorLabel = item.direction === 'OUTGOING' ? 'You' : item.actor.username;
 
   return (
-    <div className="flex items-center gap-2.5 border-b border-b1 px-2 py-2 last:border-b-0">
-      <span className="text-sm">{icon}</span>
-      <span className="flex-1 truncate font-mono text-mono-sm text-tp">
-        {item.direction === 'OUTGOING' ? (
-          <>
-            <span className="text-cyan">You</span> {verb}{' '}
-            {targetIsLink ? (
-              <Link to={`/post/${item.target.id}`} className="text-tp hover:text-cyan">
-                {snippet}
-              </Link>
-            ) : (
-              <span className="text-tm">{snippet}</span>
-            )}
-          </>
-        ) : (
-          <>
+    <div className="flex items-start gap-2.5 border-b border-b1 py-2.5 last:border-b-0">
+      <span
+        aria-hidden
+        className="mt-[2px] shrink-0 font-mono text-[11px] text-cyan"
+        data-testid="activity-caret"
+      >
+        ❯
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[14px] leading-tight text-tp">
+          {item.direction === 'OUTGOING' ? (
+            <span className="font-mono text-blu">{actorLabel}</span>
+          ) : (
             <Link
               to={`/profile/${item.actor.username}`}
-              className="text-cyan hover:text-cyan-bright"
+              className="font-mono text-blu hover:text-cyan"
             >
-              {item.actor.username}
-            </Link>{' '}
-            {verb}
-            {' · '}
-            {targetIsLink ? (
-              <Link to={`/post/${item.target.id}`} className="text-tp hover:text-cyan">
-                {snippet}
-              </Link>
-            ) : (
-              <span className="text-tm">{snippet}</span>
-            )}
-          </>
-        )}
-      </span>
-      <span className="shrink-0 font-mono text-mono-sm text-tm">
-        {formatRelative(item.createdAt)}
-      </span>
+              {actorLabel}
+            </Link>
+          )}{' '}
+          {verb}{' '}
+          {targetIsLink ? (
+            <Link to={`/post/${item.target.id}`} className="text-tm hover:text-cyan">
+              {snippet}
+            </Link>
+          ) : (
+            <span className="text-tm">{snippet}</span>
+          )}
+        </div>
+        <div className="mt-0.5 font-mono text-[11px] text-td">{formatRelative(item.createdAt)}</div>
+      </div>
     </div>
   );
 }

@@ -78,11 +78,11 @@ describe('ProfileActivityList (T-301, FR-13)', () => {
     });
     wrap(<ProfileActivityList userId={USER_ID} />);
     await waitFor(() => expect(screen.getByText('hello')).toBeInTheDocument());
-    // T-413 BUG-010 — Icon set realigned với Feed page: POST 📝→✏️, LIKE 👍→♡
-    expect(screen.getByText('✏️')).toBeInTheDocument();
-    expect(screen.getByText('💬')).toBeInTheDocument();
-    expect(screen.getByText('♡')).toBeInTheDocument();
-    expect(screen.getByText('🔖')).toBeInTheDocument();
+    // T-416 stale-assumption: icon-based 4 emoji (✏️/💬/♡/🔖) → design plain `❯ user verb target`.
+    // Per design L600-614 strip icons hoàn toàn; caret `❯` cyan prefix thay icon.
+    expect(screen.getAllByTestId('activity-caret').length).toBe(4);
+    expect(screen.queryByText('✏️')).toBeNull();
+    expect(screen.queryByText('♡')).toBeNull();
     // OUTGOING text contains "You"
     expect(screen.getAllByText('You').length).toBe(4);
   });

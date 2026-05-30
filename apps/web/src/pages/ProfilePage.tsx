@@ -214,7 +214,7 @@ export default function ProfilePage() {
             <div className="flex shrink-0 flex-col gap-2">
               <Link
                 to="/admin/create"
-                className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20"
+                className="rounded-md border border-cyan bg-cyan/[0.14] px-4 py-2 font-mono text-mono-md text-cyan shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/[0.22] hover:shadow-[0_0_22px_rgba(0,255,229,0.4)]"
                 aria-label="New Post"
               >
                 ✏️ New Post
@@ -223,7 +223,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={openEditor}
                 aria-label="Edit Profile"
-                className="rounded-sm border border-b2 bg-surf px-3 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
+                className="rounded-md border border-b2 bg-elev px-4 py-2 font-mono text-mono-md text-tm transition-colors hover:border-b3 hover:text-tp"
               >
                 ⚙️ Settings
               </button>
@@ -239,8 +239,8 @@ export default function ProfilePage() {
             value={tab}
             tabs={[
               { value: 'posts', label: 'Posts', count: stats?.postsCount },
-              { value: 'saved', label: 'Saved', hidden: !canViewSaved },
-              { value: 'activity', label: 'Activity', hidden: !canViewSaved },
+              { value: 'saved', label: 'Saved' },
+              { value: 'activity', label: 'Activity' },
               { value: 'about', label: 'About' },
             ]}
             onChange={changeTab}

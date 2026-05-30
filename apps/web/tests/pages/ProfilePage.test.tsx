@@ -123,13 +123,17 @@ describe('ProfilePage (T-221, T-374, FR-11)', () => {
     expect(screen.getByText(/MID \d+ \. MID \d+/)).toBeInTheDocument();
   });
 
-  it('non-self viewer → no action buttons + Saved tab hidden', async () => {
+  it('non-self viewer → no action buttons (Saved tab vẫn visible per design)', async () => {
     wrap('/profile/alice');
     await waitFor(() => expect(screen.getByTestId('profile-username')).toBeInTheDocument());
     // test-stale-assumption: "Edit Profile" link replaced by ✏️ New Post + ⚙️ Settings buttons (self only)
     expect(screen.queryByRole('link', { name: /new post/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit profile/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('tab', { name: 'Saved' })).not.toBeInTheDocument();
+    // Design update 2026-05-29: tất cả 4 tab luôn visible (Posts/Saved/Activity/About).
+    // Content `canViewSaved` vẫn gate render data — non-self viewer chuyển sang Saved
+    // sẽ thấy empty state, không phải tab bị ẩn.
+    expect(screen.getByRole('tab', { name: 'Saved' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Activity' })).toBeInTheDocument();
   });
 
   it('T-374: self viewer → ✏️ New Post link + ⚙️ Settings button + Saved tab', async () => {

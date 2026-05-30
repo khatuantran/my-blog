@@ -153,20 +153,18 @@ describe('TopBar — authed USER (non-admin)', () => {
     expect(screen.queryByPlaceholderText(/search posts, tags, users/i)).not.toBeInTheDocument();
   });
 
-  it('search submit → navigate /search?q=encoded (T-232)', () => {
+  it('T-402 search click → navigate /search (readOnly per design-file)', () => {
     renderTopBar();
     const input = screen.getByPlaceholderText(/search posts, tags, users/i);
-    fireEvent.change(input, { target: { value: 'cyberpunk' } });
-    const form = screen.getByRole('search');
-    fireEvent.submit(form);
-    expect(navigateSpy).toHaveBeenCalledWith('/search?q=cyberpunk');
+    expect(input).toHaveAttribute('readonly');
+    fireEvent.click(input);
+    expect(navigateSpy).toHaveBeenCalledWith('/search');
   });
 
-  it('search submit với trimmed empty → no navigate', () => {
+  it('T-402 search focus → navigate /search (keyboard tab parity)', () => {
     renderTopBar();
     const input = screen.getByPlaceholderText(/search posts, tags, users/i);
-    fireEvent.change(input, { target: { value: '   ' } });
-    fireEvent.submit(screen.getByRole('search'));
-    expect(navigateSpy).not.toHaveBeenCalled();
+    fireEvent.focus(input);
+    expect(navigateSpy).toHaveBeenCalledWith('/search');
   });
 });

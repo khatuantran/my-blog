@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **T-402 FE TopBar search → click navigate /search (F5)** (2026-05-30, FE): User report: ở Feed, click ô search trên TopBar phải qua thẳng `/search` (design-file Feed.html L1233 dùng `<input readOnly onClick={navigate '/search'}>`); hiện cần nhập + Enter. `TopBar.tsx`: bỏ `useState(searchInput)` + `handleSearchSubmit`, `<form onSubmit>` → `<div role="search">`, input thêm `readOnly` + `onClick`/`onFocus` cùng gọi `navigate('/search')` + `cursor-pointer` + `hover:border-b3`. Mọi typing diễn ra ở `BigSearchInput` của `/search` (đã `autoFocus`). UI_DESIGN.md TopBar Search row spec cập nhật. Tests T-232 (form submit) → stale-assumption (contract đổi hợp lệ), thay bằng 2 case mới T-402 (click navigate + focus navigate parity). 11/11 TopBar tests pass. (Refs T-402, design-file Feed.html L1233)
+
 - **T-401 FE Search page follow-up adjustments (F5)** (2026-05-30, FE): User feedback sau T-400: (1) `BigSearchInput` `max-w-[720px]` → `max-w-[820px]` để input ngang width result card; (2) bỏ sidebar 4 StatBox (Total/Images/Files/Saved) — design Search results không có sidebar — wrap results trong `max-w-[820px] mx-auto`; (3) `FilterChip` (shared, dùng riêng SearchPage) `text-mono-sm` (11px) → `text-mono` (12px) khớp design `.filter-chip` 12px, cùng pattern T-399. Filter row container max-w 720→820. 16/16 search tests pass (không assert sidebar / font class). (Refs T-401, design-file Search.html)
 
 ### Added

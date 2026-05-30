@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Logo } from './Logo';
 import { NotificationBell } from './NotificationBell';
@@ -13,14 +12,9 @@ type Props = {
 export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
-  const [searchInput, setSearchInput] = useState('');
 
-  function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const q = searchInput.trim();
-    if (!q) return;
-    navigate(`/search?q=${encodeURIComponent(q)}`);
-    setSearchInput('');
+  function handleSearchClick() {
+    navigate('/search');
   }
 
   return (
@@ -30,10 +24,9 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
     >
       <Logo />
 
-      {/* Search — centered absolute */}
+      {/* Search — readOnly input → click navigates to /search per design-file */}
       {!hideSearch && (
-        <form
-          onSubmit={handleSearchSubmit}
+        <div
           role="search"
           className="absolute left-1/2 -translate-x-1/2 w-[440px] max-w-[calc(100vw-260px)] z-[1] hidden md:block"
         >
@@ -45,11 +38,12 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
           </span>
           <input
             type="search"
+            readOnly
             aria-label="Search posts, tags, users"
             placeholder="~$ search posts, tags, users..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full bg-bg border border-b2 text-ts font-mono text-mono-md pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 placeholder:text-tm placeholder:italic focus:border-cyan focus:text-tp focus:shadow-glow-cyan-md"
+            onClick={handleSearchClick}
+            onFocus={handleSearchClick}
+            className="w-full bg-bg border border-b2 text-ts font-mono text-mono-md pl-9 pr-[70px] py-2 rounded-md outline-none transition-all duration-150 cursor-pointer placeholder:text-tm placeholder:italic hover:border-b3 focus:border-cyan focus:shadow-glow-cyan-md"
           />
           <button
             type="button"
@@ -59,7 +53,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
           >
             ⌘K
           </button>
-        </form>
+        </div>
       )}
 
       {/* Right cluster */}

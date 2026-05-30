@@ -11,6 +11,30 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-013] [Medium] [FE] "Invalid input · check fields" generic message hide actual BE validation cause
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome / Layer: FE
+- **Related task:** Inline fix commit (no T-XXX — single-error-mapping improvement)
+- **Related FR/component:** FR-10 tags / `apps/web/src/pages/TagsPage.tsx` (handleSubmitModal) + `apps/web/src/services/api/client.ts` (parseResponse)
+- **Mô tả:** User báo "không tạo được tag" + screenshot TagModal hiển thị error block "Invalid input · check fields" generic. Repro với curl + dev BE: cùng payload `{name:"de2", color:"#00FFE5", description:"d"}` → 201 success. Phỏng đoán: user actually đụng case BE thực sự trả 400 (ví dụ: color empty string khi state mutate bất ngờ, hoặc field shape khác) nhưng FE generic message ẩn hoàn toàn nguyên nhân.
+- **Steps to reproduce:**
+  1. Login admin, navigate `/tags`.
+  2. Click `+ New Tag`, type name/color/description.
+  3. Submit → BE return 400 with specific cause (e.g. `["color must be a hexadecimal color"]`).
+  4. FE displays generic "Invalid input · check fields" — user không biết field nào sai.
+- **Expected:** Error block hiển thị actual BE validation message để user biết field nào fix.
+- **Actual:** Hardcoded generic "Invalid input · check fields", BE message bị nuốt + cũng do `ApiError.message` không coerce `string[]` từ class-validator BadRequest.
+- **Root cause:** Hai layer:
+  1. `parseResponse` trong `client.ts` truyền `err?.message` (kiểu `unknown`, BE class-validator BadRequest gửi `message: string[]`) thẳng vào `ApiError(message: string)` constructor → `Error.message` thành string-coerced array `"color must be a hexadecimal color"` hoặc `[object Object]` tùy stringify path. Không reliable cho UI consumption.
+  2. `TagsPage.handleSubmitModal` hardcode `msg = 'Invalid input · check fields'` cho 400 — phớt lờ actual BE message.
+- **Fix:** 2 file:
+  - `client.ts > parseResponse`: detect `Array.isArray(rawMsg)` → `rawMsg.join(', ')`, else `String(rawMsg)`. ApiError.message luôn human-readable string.
+  - `TagsPage.handleSubmitModal`: 400 mapping → `Invalid input · ${detail}` với detail = err.message coerced. Plus add 403 mapping "Forbidden — only admin can create/edit tags" cho clarity.
+- **Regression test:** Không thêm test mới — fix là client-level coercion + UI string composition, không thay đổi behavior contract. 21/21 Tags tests pass.
+- **Lesson learned:** API error responses từ NestJS class-validator dùng `message: string[]` (mảng từng rule fail). FE phải coerce ở client.ts source (1 chỗ) thay vì mỗi consumer handle riêng. Pattern này áp dụng cho TẤT CẢ POST/PATCH endpoint khác (Posts, Users, Comments...) — cùng class-validator pattern. Đang lúc này chỉ fix client.ts (shared) — không cần update từng caller.
+
 ### [BUG-012] [Low] [FE] TagsPage 17 drift vs design-file Tags.html
 
 - **Status:** FIXED

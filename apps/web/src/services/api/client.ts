@@ -79,13 +79,13 @@ async function parseResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
   const body = text ? (JSON.parse(text) as unknown) : null;
   if (!res.ok) {
-    const err = (body as { error?: { code?: string; message?: string; details?: unknown } })?.error;
-    throw new ApiError(
-      res.status,
-      err?.code ?? 'UNKNOWN',
-      err?.message ?? res.statusText,
-      err?.details,
-    );
+    const err = (body as { error?: { code?: string; message?: unknown; details?: unknown } })
+      ?.error;
+    // BE class-validator BadRequest trả `message: string[]` (e.g. `["color must be a hexadecimal color"]`).
+    // Coerce → joined string ở source để ApiError.message luôn hiển thị được trong UI/log.
+    const rawMsg = err?.message ?? res.statusText;
+    const message = Array.isArray(rawMsg) ? rawMsg.join(', ') : String(rawMsg);
+    throw new ApiError(res.status, err?.code ?? 'UNKNOWN', message, err?.details);
   }
   return (body as { data?: T })?.data ?? (body as T);
 }

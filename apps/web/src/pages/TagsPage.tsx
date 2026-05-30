@@ -77,7 +77,17 @@ export default function TagsPage() {
         if (err.code === 'DUPLICATE_TAG' || err.status === 409) {
           msg = `Tag '${body.name}' đã tồn tại`;
         } else if (err.status === 400) {
-          msg = 'Invalid input · check fields';
+          // BE class-validator returns message as string[] (e.g. `["color must be a hexadecimal color"]`).
+          // ApiError stores it raw — coerce to readable string + show actual cause để user fix chính xác.
+          const raw = err.message;
+          const detail = Array.isArray(raw)
+            ? raw.join(', ')
+            : typeof raw === 'string'
+              ? raw
+              : 'check fields';
+          msg = `Invalid input · ${detail}`;
+        } else if (err.status === 403) {
+          msg = 'Forbidden — only admin can create/edit tags';
         }
       }
       setModalError(msg);

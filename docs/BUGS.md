@@ -11,6 +11,25 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-007] [Low] [FE] SearchPage BigSearchInput hiển thị 2 dấu × clear
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome/Safari (webkit) / Layer: FE
+- **Related task:** Inline fix commit `b7f463d` (no T-XXX — single-line CSS fix)
+- **Related FR/component:** FR-12 search / `apps/web/src/components/search/BigSearchInput.tsx`
+- **Mô tả:** Khi gõ vào ô search ở `/search`, hiện ra **2 dấu ×** clear button cùng lúc — 1 ở phía bên phải input (native browser), 1 ở góc xa hơn bên phải (custom button).
+- **Steps to reproduce:**
+  1. Mở `/search` ở Chrome hoặc Safari.
+  2. Gõ bất kỳ ký tự nào vào input.
+  3. Observe: thấy 2 dấu × hiển thị.
+- **Expected:** 1 dấu × clear duy nhất (custom, theo cyberpunk theme + data-testid).
+- **Actual:** 2 dấu × — native webkit `::-webkit-search-cancel-button` + custom button cùng render.
+- **Root cause:** `<input type="search">` ở Chrome/Safari render native `::-webkit-search-cancel-button` mặc định. BigSearchInput đã có custom × button (`data-testid="big-search-clear"`) cho cyberpunk theme + để test query được. Hai cái chồng nhau.
+- **Fix:** Thêm `[&::-webkit-search-cancel-button]:appearance-none` vào className input để ẩn native, chỉ giữ custom × (consistent theme + đảm bảo testid).
+- **Regression test:** Không thêm test mới — fix CSS-only đơn giản, 10/10 SearchPage tests cũ (T-351 + T-400/T-401) đều pass + assert `data-testid="big-search-clear"` vẫn render đúng = covered.
+- **Lesson learned:** Mọi `input type="search"` mới cần check pattern này. TopBar search readonly (không có custom × → safe), TagsPage search dùng native only (cũng safe). Pattern: nếu add custom × → cần `appearance-none` cancel button.
+
 ### [BUG-006] [Critical] [FE] AdminPage `/admin` crash — TypeError `Cannot read properties of undefined (reading 'total')`
 
 - **Status:** FIXED

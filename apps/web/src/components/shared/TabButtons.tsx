@@ -25,10 +25,10 @@ export function TabButtons<T extends string>({ value, tabs, onChange }: Props<T>
               type="button"
               aria-selected={active}
               onClick={() => onChange(t.value)}
-              className={`-mb-[2px] border-b-[3px] px-5 py-3 font-mono text-mono-lg transition-all ${
+              className={`-mb-[2px] border-b-[3px] px-4 py-3 font-mono text-mono-lg transition-all ${
                 active ? 'border-cyan text-cyan' : 'border-transparent text-tm hover:text-ts'
               }`}
-              style={active ? { boxShadow: '0 6px 16px -6px rgba(0,255,229,0.7)' } : undefined}
+              style={active ? { boxShadow: '0 3px 10px rgba(0,255,229,0.4)' } : undefined}
             >
               {t.label}
               {t.count !== undefined && (

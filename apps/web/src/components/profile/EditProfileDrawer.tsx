@@ -142,17 +142,20 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden />
 
       <aside
-        className="animate-slide-in absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col border-l border-b2 bg-surf"
+        className="animate-slide-in absolute right-0 top-0 flex h-full w-full max-w-[480px] flex-col border-l border-cyan/20 bg-surf shadow-[-20px_0_60px_rgba(0,0,0,0.8)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Sticky header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-b2 px-5 py-3">
-          <div className="font-mono text-mono-sm text-tm">// edit.profile</div>
+        {/* Sticky header — 2-line title per design L370-374 */}
+        <div className="flex shrink-0 items-center justify-between border-b border-b2 px-5 py-4">
+          <div>
+            <div className="font-mono text-[12px] text-cyan">// edit.profile</div>
+            <div className="mt-0.5 font-mono text-[11px] text-td">~/settings/profile</div>
+          </div>
           <button
             type="button"
             aria-label="Close drawer"
             onClick={onClose}
-            className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-sm text-tm hover:text-tp"
+            className="border-none bg-transparent text-[24px] leading-none text-tm hover:text-tp"
           >
             ×
           </button>
@@ -328,12 +331,12 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
           </form>
         </div>
 
-        {/* Sticky footer */}
-        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-b2 px-5 py-3">
+        {/* Sticky footer — design L425-433 */}
+        <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-b2 px-5 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-sm border border-b2 px-4 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
+            className="rounded-md border border-b2 bg-elev px-5 py-2 font-mono text-[13px] text-tm hover:text-tp"
           >
             Cancel
           </button>
@@ -341,7 +344,8 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
             type="submit"
             form="profile-form"
             disabled={updateMut.isPending}
-            className="rounded-sm border border-cyan/50 bg-cyan/10 px-4 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:opacity-50"
+            data-testid="save-changes-btn"
+            className="rounded-md border-none bg-cyan px-5 py-2 font-mono text-[13px] font-semibold text-[#0A0E1A] shadow-[0_0_14px_rgba(0,255,229,0.3)] hover:shadow-[0_0_20px_rgba(0,255,229,0.4)] disabled:opacity-50"
           >
             {updateMut.isPending ? '⠋ saving...' : '✓ Save Changes'}
           </button>
@@ -351,8 +355,9 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
   );
 }
 
+// design L57 .edit-inp: 14px JetBrains Mono, bg #070A14 (=bg), padding 8px 12px, radius 6px
 const inputCls =
-  'w-full rounded-sm border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm';
+  'w-full rounded-md border border-b2 bg-bg px-3 py-2 font-mono text-[14px] text-tp outline-none placeholder:text-td focus:border-cyan focus:shadow-glow-cyan-sm';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -366,10 +371,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+// design L60 .edit-lbl: 11px JetBrains Mono UPPERCASE letter-spacing .05em color tm
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="mb-1 font-mono text-mono-sm text-tm">{label}</div>
+      <div className="mb-1.5 font-mono text-[11px] uppercase tracking-[0.05em] text-tm">
+        {label}
+      </div>
       {children}
     </label>
   );

@@ -123,4 +123,27 @@ describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
     fireEvent.click(screen.getByRole('button', { name: /change password/i }));
     await waitFor(() => expect(screen.getByText(/password changed/i)).toBeInTheDocument());
   });
+
+  it('regression BUG-009: header shows 2-line title (// edit.profile + ~/settings/profile subline) + Save Changes is filled solid cyan', () => {
+    wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
+
+    // 2-line header per design-file Profile.html L370-374
+    expect(screen.getByText('// edit.profile')).toBeInTheDocument();
+    expect(screen.getByText('~/settings/profile')).toBeInTheDocument();
+
+    // Save Changes = filled solid cyan (NOT outline) per design L426-428
+    const saveBtn = screen.getByTestId('save-changes-btn');
+    expect(saveBtn.className).toMatch(/bg-cyan(?!\/)/); // bg-cyan (not bg-cyan/10)
+    expect(saveBtn.className).toMatch(/text-\[#0A0E1A\]/); // dark text on cyan bg
+    expect(saveBtn.className).toMatch(/font-semibold/);
+    expect(saveBtn.className).toMatch(/shadow-\[/); // has shadow glow
+  });
+
+  it('regression BUG-009: Field labels are UPPERCASE via CSS (design L60 .edit-lbl)', () => {
+    wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
+    // Label text in JSX is natural case but CSS applies uppercase
+    const handleLabelDiv = screen.getByText(/^handle$/i);
+    expect(handleLabelDiv.className).toMatch(/uppercase/);
+    expect(handleLabelDiv.className).toMatch(/tracking-\[0\.05em\]/);
+  });
 });

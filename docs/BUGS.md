@@ -11,6 +11,42 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-009] [Low] [FE] EditProfileDrawer (Settings panel) 7 visual drift vs design-file Profile.html
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 / Chrome / Layer: FE
+- **Related task:** T-409 (DONE 2026-05-30)
+- **Related FR/component:** FR-11 profile edit / `apps/web/src/components/profile/EditProfileDrawer.tsx` vs `design-file/MyBlog Profile.html` L347-439 (function EditProfileDrawer) + L57-60 (.edit-inp + .edit-lbl CSS)
+- **Mô tả:** Settings drawer (mở qua nút `⚙️ Settings` ở Profile hero) lệch khá nhiều so với design — user feedback "phần setting này cũng đang khác khá nhiều so với design file" + screenshot kèm.
+- **Steps to reproduce:**
+  1. Login bất kỳ user, navigate `/u/<own-username>`.
+  2. Click `⚙️ Settings` button.
+  3. Observe drawer slide in từ phải.
+  4. So sánh với `design-file/MyBlog Profile.html` L347-439.
+- **Expected:** Match 1:1 spec design-file (trừ exception bảo mật: giữ Current password field thay vì design 2 fields).
+- **Actual:** 7 visual drift đồng thời:
+  1. Drawer width `max-w-[420px]` — design L368 quy định `width:480px`.
+  2. Header 1 dòng `// edit.profile` — design L370-374 quy định 2 dòng: `// edit.profile` (12px cyan) + `~/settings/profile` (11px muted).
+  3. Header `×` close bordered box `rounded-sm border bg-elev px-2 py-0.5` — design L375 quy định plain inline `background:none border:none + fontSize:24px`.
+  4. Labels natural case (`Full name`, `Title`, `Bio`) — design L387 `.edit-lbl` + L389+ JSX quy định UPPERCASE + 11px + `letter-spacing:.05em`.
+  5. Input `text-mono-sm` (11px) + `px-3 py-1.5` + `rounded-sm` — design L57 `.edit-inp` quy định `font-size:14px + padding:8px 12px + border-radius:6px + bg #070A14 (=bg)`.
+  6. Save Changes button outline `border-cyan/50 bg-cyan/10 text-cyan` — design L426-428 quy định **filled solid** `bg:#00FFE5 + color:#0A0E1A + boxShadow:0 0 14px rgba(0,255,229,.3)`.
+  7. Cancel button bordered only — design L430-432 quy định `bg:#1A1F2E (=elev) + border:#2A3548 (=b2)`.
+- **Root cause:** T-376 (EditProfileDrawer greenfield 2026-05-26) implement form theo mô tả "4-section redesign" trong DESIGN_SYSTEM nhưng KHÔNG cross-ref `design-file/MyBlog Profile.html` source CSS/markup pixel-by-pixel. Pattern lặp lại BUG-008 (PostMiniCard) + T-406 (TabButtons) — DESIGN_SYSTEM mô tả high-level đủ scaffold nhưng thiếu chi tiết px-level → drift khi implement.
+- **Fix:** 7 thay đổi trong `EditProfileDrawer.tsx`:
+  - Drawer `max-w-[420px]` → `max-w-[480px]`.
+  - Header `<div>` thêm subline `~/settings/profile` (mono 11 + `text-td`).
+  - `×` close: bỏ bordered box, dùng plain `bg-transparent + text-[24px] + leading-none + text-tm hover:text-tp`.
+  - Labels: thêm `uppercase tracking-[0.05em]` vào Field label.
+  - Input `inputCls`: `text-mono-sm` → `text-[14px]`, `py-1.5` → `py-2`, `rounded-sm` → `rounded-md`.
+  - Save Changes: `border-cyan/50 bg-cyan/10 text-cyan` → `bg-cyan text-[#0A0E1A] font-semibold + shadow-[0_0_14px_rgba(0,255,229,0.3)] hover:shadow-[0_0_20px_rgba(0,255,229,0.4)]`.
+  - Cancel: thêm `bg-elev`.
+- **Exception (security override per user decision):** Giữ Current password field (3 password inputs) thay vì design 2 fields — vì BE `useChangePassword` require currentPassword + security best practice. Design 2-field là weakening security, không follow.
+- **Deferred (separate F2 work):** Avatar upload section (design L378-385: ProfileAvatar 56 + `profile photo` label + `↑ Upload` button) — cần BE endpoint `PATCH /users/:id/avatar` + Cloudinary signed upload + FR-11 amendment. Spawn task F2 riêng (T-410+).
+- **Regression test:** `apps/web/tests/components/profile/EditProfileDrawer.test.tsx` — new case `it('regression BUG-009: drawer header shows subline ~/settings/profile + Save Changes is filled solid cyan', ...)` assert subline visible + Save button có `bg-cyan` class (filled).
+- **Lesson learned:** Lặp lại lesson T-406 + BUG-008. Add rule mới vào CLAUDE.md Pre-flight Checklist: "Đã grep `design-file/*.html` source CSS + markup cho component đang touch chưa?" cho mọi task touch UI component visual. Pattern recurrent đủ điều kiện bump up vào systematic check.
+
 ### [BUG-008] [Low] [FE] PostMiniCard 8 visual drift vs design-file Profile.html (tags plain text vs pill chip, read → no border, mood not right-aligned, action gap too wide)
 
 - **Status:** FIXED

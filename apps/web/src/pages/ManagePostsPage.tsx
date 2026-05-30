@@ -115,20 +115,20 @@ export default function ManagePostsPage() {
       {/* T-417 design L528-548 — Fixed SubBar top 52px height 44px bg-elev */}
       <div
         data-testid="subbar"
-        className="fixed left-0 right-0 top-[52px] z-[90] flex h-11 items-center gap-3 border-b border-b2 bg-elev px-6 font-mono text-[12px]"
+        className="fixed left-0 right-0 top-[52px] z-[90] flex h-11 items-center gap-3 border-b border-b2 bg-elev px-6 font-mono text-[13px]"
       >
-        <span className="text-tm">~/admin/posts</span>
-        <span className="text-td">──</span>
-        <span className="text-tp">{totalUnfiltered} total</span>
-        <span className="text-td">·</span>
+        <span className="text-ts">~/admin/posts</span>
+        <span className="text-tm">──</span>
+        <span className="font-semibold text-tp">{totalUnfiltered} total</span>
+        <span className="text-tm">·</span>
         <span style={{ color: '#9ECE6A' }}>{counts.PUBLISHED} published</span>
-        <span className="text-td">·</span>
+        <span className="text-tm">·</span>
         <span style={{ color: '#E0AF68' }}>{counts.DRAFT} drafts</span>
         <div className="ml-auto flex gap-2">
           <Link
             to="/admin/create"
             aria-label="New Post"
-            className="rounded-[5px] border-none bg-cyan px-3.5 py-1 font-mono text-[12px] font-semibold text-[#0A0E1A] shadow-[0_0_10px_rgba(0,255,229,0.3)] hover:shadow-[0_0_16px_rgba(0,255,229,0.4)]"
+            className="rounded-[5px] border-none bg-cyan px-4 py-1.5 font-mono text-[13px] font-semibold text-[#0A0E1A] shadow-[0_0_10px_rgba(0,255,229,0.3)] hover:shadow-[0_0_16px_rgba(0,255,229,0.4)]"
           >
             + New Post
           </Link>
@@ -150,7 +150,7 @@ export default function ManagePostsPage() {
               style={{ borderLeft: `3px solid ${s.color}` }}
             >
               <div
-                className="mb-1.5 font-mono text-[10px] text-tm"
+                className="mb-1.5 font-mono text-[11px] text-ts"
                 style={{ letterSpacing: '0.08em' }}
               >
                 {s.label}
@@ -181,7 +181,7 @@ export default function ManagePostsPage() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="search by content, id, tag..."
               aria-label="Search posts"
-              className={`w-full rounded-md border border-b2 bg-bg py-2 pl-8 font-mono text-[14px] text-tp outline-none placeholder:text-td focus:border-cyan ${q ? 'pr-8' : 'pr-3'}`}
+              className={`w-full rounded-md border border-b2 bg-bg py-2.5 pl-9 font-mono text-[14px] text-tp outline-none placeholder:text-tm focus:border-cyan focus:shadow-[0_0_10px_rgba(0,255,229,0.15)] ${q ? 'pr-8' : 'pr-3'}`}
             />
             {q && (
               <button
@@ -206,7 +206,7 @@ export default function ManagePostsPage() {
                   aria-pressed={active}
                   data-testid={`status-filter-${f.value || 'all'}`}
                   onClick={() => setFilter('status', f.value)}
-                  className={`rounded-md border px-3 py-1 font-mono text-[11px] transition-colors ${
+                  className={`rounded-md border px-3.5 py-1.5 font-mono text-[12px] transition-colors ${
                     active
                       ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
                       : 'border-b2 bg-elev text-ts hover:border-b3 hover:text-tp'
@@ -225,10 +225,10 @@ export default function ManagePostsPage() {
               type="button"
               aria-pressed={moodParam === ''}
               onClick={() => setFilter('mood', '')}
-              className={`rounded-md border px-2 py-1 font-mono text-[11px] ${
+              className={`rounded-md border px-2.5 py-1.5 font-mono text-[12px] ${
                 moodParam === ''
                   ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
-                  : 'border-b2 bg-elev text-ts'
+                  : 'border-b2 bg-elev text-ts hover:text-tp'
               }`}
             >
               All
@@ -240,7 +240,7 @@ export default function ManagePostsPage() {
                 aria-label={`Filter by ${MOOD_CFG[m].label}`}
                 aria-pressed={moodParam === m}
                 onClick={() => setFilter('mood', m)}
-                className={`rounded-md border px-1.5 py-1 transition-colors ${
+                className={`rounded-md border px-2 py-1 text-[14px] transition-colors ${
                   moodParam === m ? 'border-cyan/50 bg-cyan/[0.08]' : 'border-b2 bg-elev'
                 }`}
               >
@@ -251,7 +251,7 @@ export default function ManagePostsPage() {
 
           {/* Sort chips */}
           <div className="flex items-center gap-1">
-            <span className="font-mono text-[11px] text-td">sort:</span>
+            <span className="font-mono text-[11px] text-tm">sort:</span>
             {SORT_CHIPS.map((s) => {
               const active = sortParam === s.value;
               return (
@@ -287,10 +287,10 @@ export default function ManagePostsPage() {
                   aria-label={v.label}
                   aria-pressed={active}
                   onClick={() => toggleView(v.value)}
-                  className={`flex h-8 w-8 items-center justify-center rounded border text-[15px] transition-colors ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-md border text-[16px] transition-colors ${
                     active
                       ? 'border-cyan/50 bg-cyan/[0.08] text-cyan'
-                      : 'border-b2 bg-elev text-tm hover:text-tp'
+                      : 'border-b2 bg-elev text-ts hover:text-tp'
                   }`}
                 >
                   {v.icon}
@@ -301,9 +301,9 @@ export default function ManagePostsPage() {
         </div>
 
         {/* T-417 design L609-612 — Results count line */}
-        <div className="mb-3 font-mono text-[11px] text-td" data-testid="results-count">
+        <div className="mb-3 font-mono text-[12px] text-tm" data-testid="results-count">
           // showing {posts.length} of {total} posts
-          {isFiltered && <span className="text-tm"> · filtered</span>}
+          {isFiltered && <span className="text-ts"> · filtered</span>}
         </div>
 
         {/* Content */}
@@ -335,7 +335,7 @@ export default function ManagePostsPage() {
               {['Post', 'Status', 'Mood', 'Tags', 'Stats', 'Actions'].map((h) => (
                 <span
                   key={h}
-                  className={`font-mono text-[11px] text-tm ${h === 'Actions' ? 'text-right' : ''}`}
+                  className={`font-mono text-[12px] font-medium text-ts ${h === 'Actions' ? 'text-right' : ''}`}
                   style={{ letterSpacing: '0.05em' }}
                 >
                   {h}

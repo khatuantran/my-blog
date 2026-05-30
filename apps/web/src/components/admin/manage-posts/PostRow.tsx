@@ -24,15 +24,15 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
 
   return (
     <div
-      className="grid items-center border-b border-b1 px-4 py-2.5 transition-colors last:border-b-0 hover:bg-bg/50"
+      className="grid items-center border-b border-b1 px-4 py-3 transition-colors last:border-b-0 hover:bg-bg/50"
       style={{ gridTemplateColumns: '3fr 1fr 1.2fr 1.4fr 1fr 1.5fr', gap: '12px' }}
       data-testid="post-row"
       role="listitem"
     >
-      {/* Post — id + content preview */}
+      {/* Post — id + content preview (design L373 text #C9D1D9 = tp brighter) */}
       <div className="min-w-0">
-        <div className="mb-1 font-mono text-[11px] text-td">#{post.id.slice(-6)}</div>
-        <p className="truncate text-[13px] leading-snug text-ts">{snippet || '// empty'}</p>
+        <div className="mb-1 font-mono text-[11px] text-tm">#{post.id.slice(-6)}</div>
+        <p className="truncate text-[13px] leading-snug text-tp">{snippet || '// empty'}</p>
       </div>
 
       {/* Status */}
@@ -78,11 +78,11 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
       </div>
 
       {/* Stats 2-line — counts row + date row per design L397-400 */}
-      <div className="flex flex-col gap-0.5 font-mono text-[11px] text-tm">
+      <div className="flex flex-col gap-0.5 font-mono text-[11px] text-ts">
         <span>
           ♡ {post.counts.reactions} · 💬 {post.counts.comments}
         </span>
-        <span className="text-td">{formatDate(post.createdAt)}</span>
+        <span className="text-tm">{formatDate(post.createdAt)}</span>
       </div>
 
       {/* Actions 3-button — View blu / Edit cyan / ✕ red per design L402-406 */}
@@ -90,7 +90,7 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
         <Link
           to={`/post/${post.id}`}
           aria-label={`View post ${post.id}`}
-          className="rounded border px-2 py-1 font-mono text-[11px] text-blu hover:bg-blu/10"
+          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
           style={{ borderColor: 'rgba(125,207,255,0.25)' }}
         >
           👁 View
@@ -99,7 +99,7 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Edit post ${post.id}`}
           onClick={() => onEdit(post)}
-          className="rounded border border-cyan/40 px-2 py-1 font-mono text-[11px] text-cyan hover:bg-cyan/10"
+          className="rounded border border-cyan/40 px-2.5 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
         >
           ✎ Edit
         </button>
@@ -107,7 +107,7 @@ export function PostRow({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Delete post ${post.id}`}
           onClick={() => onDelete(post)}
-          className="rounded border px-2 py-1 font-mono text-[11px] text-red hover:bg-red/10"
+          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
           style={{ borderColor: 'rgba(247,118,142,0.25)' }}
         >
           ✕

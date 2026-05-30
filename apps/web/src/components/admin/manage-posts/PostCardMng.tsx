@@ -29,12 +29,12 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
 
   return (
     <div
-      className="rounded-md border border-b2 bg-elev p-3.5 transition-all hover:border-cyan/40 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]"
+      className="rounded-lg border border-b2 bg-elev px-4 py-3.5 transition-all hover:border-cyan/40 hover:shadow-[0_0_18px_rgba(0,255,229,0.08)]"
       data-testid="post-card-mng"
     >
-      {/* Top row — id + status + mood + date right */}
+      {/* Top row — id + status + mood + date right (design L420-427) */}
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
-        <span className="font-mono text-[11px] text-td">#{post.id.slice(-6)}</span>
+        <span className="font-mono text-[11px] text-tm">#{post.id.slice(-6)}</span>
         <StatusBadge status={post.status} />
         <span
           className="inline-flex items-center gap-1 rounded border px-1.5 py-px font-mono text-[10px]"
@@ -46,11 +46,11 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         >
           {mood.emoji} {mood.label}
         </span>
-        <span className="ml-auto font-mono text-[10px] text-td">{formatDate(post.createdAt)}</span>
+        <span className="ml-auto font-mono text-[10px] text-tm">{formatDate(post.createdAt)}</span>
       </div>
 
-      {/* Content 2-line clamp */}
-      <p className="mb-2.5 line-clamp-2 text-[13px] leading-relaxed text-ts">
+      {/* Content 2-line clamp (design L430 text #C9D1D9 = tp brighter) */}
+      <p className="mb-2.5 line-clamp-2 text-[13px] leading-relaxed text-tp">
         {snippet || '// empty'}
       </p>
 
@@ -72,7 +72,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
             </span>
           );
         })}
-        <span className="ml-auto flex gap-2.5 font-mono text-[10px] text-td">
+        <span className="ml-auto flex gap-2.5 font-mono text-[10px] text-tm">
           <span>♡ {post.counts.reactions}</span>
           <span>💬 {post.counts.comments}</span>
           {imagesCount > 0 && <span>📷 {imagesCount}</span>}
@@ -85,7 +85,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
         <Link
           to={`/post/${post.id}`}
           aria-label={`View post ${post.id}`}
-          className="rounded border px-2 py-1 font-mono text-[11px] text-blu hover:bg-blu/10"
+          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-blu hover:bg-blu/10"
           style={{ borderColor: 'rgba(125,207,255,0.25)' }}
         >
           👁 View
@@ -94,7 +94,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Edit post ${post.id}`}
           onClick={() => onEdit(post)}
-          className="rounded border border-cyan/40 px-2 py-1 font-mono text-[11px] text-cyan hover:bg-cyan/10"
+          className="rounded border border-cyan/40 px-2.5 py-1.5 font-mono text-[12px] text-cyan hover:bg-cyan/10"
         >
           ✎ Edit
         </button>
@@ -102,7 +102,7 @@ export function PostCardMng({ post, onEdit, onDelete }: Props) {
           type="button"
           aria-label={`Delete post ${post.id}`}
           onClick={() => onDelete(post)}
-          className="rounded border px-2 py-1 font-mono text-[11px] text-red hover:bg-red/10"
+          className="rounded border px-2.5 py-1.5 font-mono text-[12px] text-red hover:bg-red/10"
           style={{ borderColor: 'rgba(247,118,142,0.25)' }}
         >
           ✕ Delete

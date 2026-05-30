@@ -16,6 +16,8 @@ type Props = {
   onChange: (next: UploadEntry[]) => void;
   /** Optional override for the drop-zone hint line (default: `❯ drag & drop or click — N slots left`). */
   hint?: string;
+  /** Optional second muted line under the hint (e.g. accepted file types — design-file 2-line dropzone). */
+  subHint?: string;
   /** Optional max file size in MB. Files exceeding this are silently skipped (T-363). */
   maxSizeMB?: number;
 };
@@ -32,6 +34,7 @@ export function UploadZone({
   value,
   onChange,
   hint,
+  subHint,
   maxSizeMB,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -108,10 +111,13 @@ export function UploadZone({
           <>
             // max reached ({maxCount}/{maxCount})
           </>
-        ) : hint ? (
-          <>{hint}</>
         ) : (
-          <>❯ drag &amp; drop or click — {remaining} slots left</>
+          <>
+            <div className={subHint ? 'text-[14px]' : undefined}>
+              {hint ?? <>❯ drag &amp; drop or click — {remaining} slots left</>}
+            </div>
+            {subHint ? <div className="mt-1 text-mono-sm text-td">{subHint}</div> : null}
+          </>
         )}
       </div>
       <input

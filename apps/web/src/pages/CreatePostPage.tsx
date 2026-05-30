@@ -23,6 +23,7 @@ export default function CreatePostPage() {
   const [savedAt, setSavedAt] = useState<number | null>(null);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkInitialText, setLinkInitialText] = useState('');
+  const [showAi, setShowAi] = useState(false); // FR-17 AI suggest — UI shell (generate build sau)
   const editorRef = useRef<RichTextEditorHandle>(null);
   const m = useCreatePost();
 
@@ -96,9 +97,9 @@ export default function CreatePostPage() {
         : '● draft · unsaved';
 
   return (
-    <div className="mx-auto max-w-[1400px] px-6 py-4">
-      {/* Sub-toolbar */}
-      <div className="mb-4 flex items-center gap-3 rounded-md border border-b1 bg-surf px-4 py-2 font-mono text-mono-sm">
+    <>
+      {/* Fixed SubBar — design L509: top:52px full-width h-44 (đồng bộ Tags/ManagePosts pattern) */}
+      <div className="fixed left-0 right-0 top-[52px] z-[90] flex h-11 items-center gap-3 border-b border-b2 bg-elev px-6 font-mono text-[12px]">
         <span className="text-tm">~/admin/create-post</span>
         <span className="text-td">──</span>
         <span className={m.isSuccess ? 'text-grn' : savedAt ? 'text-grn' : 'text-yel'}>
@@ -106,19 +107,21 @@ export default function CreatePostPage() {
         </span>
         {m.isError && <span className="text-red">// {m.error?.message ?? 'publish failed'}</span>}
         <div className="ml-auto flex items-center gap-2">
+          {/* btn-draft (design L42): bg-elev border-b2 padding 8/20 font 13 */}
           <button
             type="button"
             onClick={saveDraft}
-            className="rounded-sm border border-b2 bg-elev px-3 py-1 font-mono text-mono-sm text-tm hover:text-tp"
+            className="rounded-md border border-b2 bg-elev px-5 py-1.5 font-mono text-[13px] text-tm transition-colors hover:border-b3 hover:text-tp"
             title="⌘S"
           >
-            ⌘S Save
+            ⌘S Save Draft
           </button>
+          {/* btn-publish (design L40): SOLID cyan + dark text + weight 600 + glow */}
           <button
             type="button"
             onClick={publish}
             disabled={!canPublish}
-            className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1 font-mono text-mono-sm text-cyan shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/20 hover:shadow-[0_0_22px_rgba(0,255,229,0.4)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+            className="rounded-md bg-cyan px-5 py-1.5 font-mono text-[13px] font-semibold text-[#0A0E1A] shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/80 hover:shadow-[0_0_22px_rgba(0,255,229,0.5)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             title="⌘↵"
           >
             ⌘↵ Publish
@@ -126,72 +129,100 @@ export default function CreatePostPage() {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Editor column */}
-        <div className="min-w-0 flex-1 space-y-5">
-          <section>
-            <div className="sb-lbl">// mood</div>
-            <MoodPicker value={mood} onChange={setMood} />
-          </section>
+      <div className="mx-auto mt-24 max-w-[1400px] px-6 pb-10">
+        <div className="flex gap-6">
+          {/* Editor column */}
+          <div className="min-w-0 flex-1 space-y-5">
+            <section>
+              <div className="sb-lbl">// mood</div>
+              <MoodPicker value={mood} onChange={setMood} />
+            </section>
 
-          <section>
-            <div className="sb-lbl">// content</div>
-            <RichTextEditor
-              ref={editorRef}
-              value={content}
-              onChange={setContent}
-              onRequestLink={(selectedText) => {
-                setLinkInitialText(selectedText);
-                setShowLinkModal(true);
-              }}
-            />
-          </section>
+            <section>
+              <div className="mb-2 flex flex-wrap items-center gap-2.5">
+                <div className="sb-lbl mb-0 flex-1">// content</div>
+                <button
+                  type="button"
+                  onClick={() => setShowAi(true)}
+                  data-testid="ai-suggest-btn"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-[5px] border px-2.5 py-1 font-mono text-mono-sm transition-colors"
+                  style={{
+                    color: '#BB9AF7',
+                    borderColor: 'rgba(187,154,247,0.4)',
+                    background: 'rgba(187,154,247,0.08)',
+                    boxShadow: '0 0 10px rgba(187,154,247,0.15)',
+                  }}
+                >
+                  ✨ AI suggest
+                </button>
+                <div className="font-mono text-mono-sm text-td">
+                  ⌘B bold · ⌘I italic · ⌘U underline · highlight selection to format
+                </div>
+              </div>
+              <RichTextEditor
+                ref={editorRef}
+                value={content}
+                onChange={setContent}
+                onRequestLink={(selectedText) => {
+                  setLinkInitialText(selectedText);
+                  setShowLinkModal(true);
+                }}
+              />
+            </section>
 
-          <section>
-            <div className="sb-lbl">
-              // images ({images.length}/{MAX_IMAGES})
-            </div>
-            <UploadZone
-              resourceType="image"
-              accept="image/png,image/jpeg,image/webp"
-              maxCount={MAX_IMAGES}
-              folder="myblog/posts"
-              variant="image"
-              value={images}
-              onChange={setImages}
-            />
-          </section>
+            <section>
+              <div className="sb-lbl">
+                // images ({images.length}/{MAX_IMAGES})
+              </div>
+              <UploadZone
+                resourceType="image"
+                accept="image/png,image/jpeg,image/webp"
+                maxCount={MAX_IMAGES}
+                folder="myblog/posts"
+                variant="image"
+                value={images}
+                onChange={setImages}
+                hint="❯ drag & drop or click to upload"
+                subHint="PNG, JPG, WebP · max 5MB each"
+              />
+            </section>
 
-          <section>
-            <div className="sb-lbl">
-              // files ({files.length}/{MAX_FILES})
-            </div>
-            <UploadZone
-              resourceType="raw"
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
-              maxCount={MAX_FILES}
-              folder="myblog/files"
-              variant="file"
-              value={files}
-              onChange={setFiles}
-            />
-          </section>
+            <section>
+              <div className="sb-lbl">
+                // files ({files.length}/{MAX_FILES})
+              </div>
+              <UploadZone
+                resourceType="raw"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                maxCount={MAX_FILES}
+                folder="myblog/files"
+                variant="file"
+                value={files}
+                onChange={setFiles}
+                hint="❯ drag & drop docs, PDFs, spreadsheets..."
+                subHint="PDF · DOC · DOCX · XLS · XLSX · TXT · CSV · max 20MB each"
+              />
+            </section>
 
-          <section>
-            <div className="sb-lbl">// tags</div>
-            <TagPickerDropdown value={tags} onChange={setTags} />
-          </section>
+            <section>
+              <div className="sb-lbl">// tags ({tags.length} selected)</div>
+              <TagPickerDropdown value={tags} onChange={setTags} />
+              <div className="mt-1.5 font-mono text-mono-sm text-td">
+                // select from system tags only
+              </div>
+            </section>
+          </div>
+
+          {/* Preview column — hidden < 900px */}
+          <aside
+            className="hidden w-[380px] shrink-0 [@media(min-width:900px)]:block"
+            aria-label="Live preview"
+          >
+            <div className="sb-lbl">// live.preview</div>
+            <PostPreview mood={mood} content={trimmed} tags={tags} imageCount={images.length} />
+            <div className="mt-2 font-mono text-mono-sm text-td">// preview updates real-time</div>
+          </aside>
         </div>
-
-        {/* Preview column — hidden < 900px */}
-        <aside
-          className="hidden w-[380px] shrink-0 [@media(min-width:900px)]:block"
-          aria-label="Live preview"
-        >
-          <div className="sb-lbl">// live.preview</div>
-          <PostPreview mood={mood} content={trimmed} tags={tags} imageCount={images.length} />
-          <div className="mt-2 font-mono text-mono-sm text-td">// preview updates real-time</div>
-        </aside>
       </div>
       <LinkInsertModal
         open={showLinkModal}
@@ -199,6 +230,50 @@ export default function CreatePostPage() {
         onApply={(url, label) => editorRef.current?.applyLink(url, label)}
         onClose={() => setShowLinkModal(false)}
       />
-    </div>
+      {/* FR-17 AI suggest — UI shell. Generate + BE /ai/generate defer (T-347). */}
+      {showAi && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="// ai.suggest"
+          data-testid="ai-suggest-modal"
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAi(false);
+          }}
+        >
+          <div
+            className="w-[480px] max-w-full rounded-lg border bg-elev p-5"
+            style={{
+              borderColor: 'rgba(187,154,247,0.4)',
+              boxShadow: '0 0 30px rgba(187,154,247,0.15)',
+            }}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <span className="font-mono text-mono-sm" style={{ color: '#BB9AF7' }}>
+                ✨ ai.suggest
+              </span>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setShowAi(false)}
+                className="font-mono text-base leading-none text-td hover:text-tp"
+              >
+                ×
+              </button>
+            </div>
+            <div className="rounded-md border border-b2 bg-bg px-4 py-8 text-center">
+              <div className="mb-2 text-2xl opacity-40">✨</div>
+              <p className="font-mono text-mono-sm text-tm">
+                // AI content generation — sắp ra mắt
+              </p>
+              <p className="mt-1 font-mono text-mono-tiny text-td">
+                FR-17 · cần BE POST /ai/generate + AI_API_KEY (build sau)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

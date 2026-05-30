@@ -17,6 +17,12 @@ function pathLabel(pathname: string): string {
   return `~${pathname}`;
 }
 
+// Route → StatusBar info segment (design-file: Create Post statusbar shows draft status).
+function statusInfo(pathname: string): string | undefined {
+  if (pathname === '/admin/create') return '● draft · unsaved';
+  return undefined;
+}
+
 // Shell shared cho mọi page (trừ Auth).
 export function AppLayout() {
   const { pathname } = useLocation();
@@ -44,7 +50,7 @@ export function AppLayout() {
           <Outlet />
         </main>
 
-        <StatusBar path={pathLabel(pathname)} />
+        <StatusBar path={pathLabel(pathname)} info={statusInfo(pathname)} />
 
         <CommandPalette open={open} onClose={() => setOpen(false)} />
 

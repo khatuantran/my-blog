@@ -7,7 +7,9 @@ type Props = {
 const BUILD_SHA = import.meta.env.VITE_BUILD_SHA?.slice(0, 6) || 'a1b2c3';
 
 // Section style — same border-right pattern as design-file Feed.html:461-480.
-const SECTION = 'px-3.5 text-tm border-r border-b1 h-full flex items-center whitespace-nowrap';
+// KHÔNG đặt text color ở đây — path cần text-cyan; nếu để text-tm chung sẽ override
+// text-cyan (CSS source-order) làm path bị mờ thay vì cyan như design. Color set per-span.
+const SECTION = 'px-3.5 border-r border-b1 h-full flex items-center whitespace-nowrap';
 
 export function StatusBar({ path = '~/feed', info, online = 3 }: Props) {
   return (
@@ -19,11 +21,11 @@ export function StatusBar({ path = '~/feed', info, online = 3 }: Props) {
     >
       <span className={`${SECTION} text-cyan bg-cyan/[0.07]`}>{path}</span>
 
-      {info && <span className={SECTION}>{info}</span>}
+      {info && <span className={`${SECTION} text-tm`}>{info}</span>}
 
       <span className={`${SECTION} text-td`}>──────</span>
 
-      <span className={SECTION}>build: {BUILD_SHA}</span>
+      <span className={`${SECTION} text-tm`}>build: {BUILD_SHA}</span>
 
       <div className="ml-auto flex h-full">
         <span

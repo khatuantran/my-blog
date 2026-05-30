@@ -152,7 +152,7 @@ describe('RichTextEditor (T-368)', () => {
       expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
     });
 
-    it('select emoji → insertHTML(emoji) + closes picker', async () => {
+    it('select emoji → insertHTML(emoji) + GIỮ picker mở (chỉ × đóng — design behavior)', async () => {
       const user = userEvent.setup();
       const stub = stubExecCommand();
       render(<Wrapper />);
@@ -160,6 +160,9 @@ describe('RichTextEditor (T-368)', () => {
       // First emoji in 'faces' group is 😊 (button aria-label="Insert 😊")
       await user.click(screen.getByLabelText('Insert 😊'));
       expect(stub.calls.some(([cmd, , val]) => cmd === 'insertHTML' && val === '😊')).toBe(true);
+      // Picker GIỮ mở sau khi chèn (multi-insert) — chỉ × mới đóng (design-file L638).
+      expect(screen.getByTestId('emoji-picker')).toBeInTheDocument();
+      await user.click(screen.getByTestId('emoji-picker-close'));
       expect(screen.queryByTestId('emoji-picker')).not.toBeInTheDocument();
       stub.restore();
     });

@@ -53,44 +53,66 @@ export function LinkInsertModal({ open, initialText, onApply, onClose }: Props) 
         aria-modal="true"
         aria-label="Insert link"
         data-testid="link-insert-modal"
-        className="fixed left-1/2 top-1/2 z-modal w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-cyan/35 bg-surf p-5 shadow-glow-cyan-md"
+        className="fixed left-1/2 top-1/2 z-modal w-[420px] max-w-[92vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border border-cyan/30 bg-elev shadow-glow-cyan-md"
       >
-        <div className="mb-4 font-mono text-mono-sm text-td">// insert.link</div>
-        <form onSubmit={handleSubmit} className="space-y-3">
+        {/* Header bar (design L873): 🔗 insert.link cyan + ~/editor/link subline + × close */}
+        <div className="flex items-center justify-between border-b border-b1 bg-bg px-[18px] py-3.5">
           <div>
-            <label className="mb-1 block font-mono text-mono-sm text-tm">// text label</label>
+            <div className="font-mono text-[12px] text-cyan">🔗 insert.link</div>
+            <div className="mt-0.5 font-mono text-[10px] text-td">~/editor/link</div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="font-mono text-[20px] leading-none text-tm hover:text-tp"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 p-[18px]">
+          <div>
+            <label className="mb-1.5 block font-mono text-[10px] text-tm">
+              DISPLAY TEXT <span className="text-td">(if no selection)</span>
+            </label>
             <input
               // autoFocus when no selection so user can fill in display text first.
-              // When selection exists, URL input gets autoFocus below.
               autoFocus={!initialText}
               type="text"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              placeholder="display text"
+              placeholder="click here..."
               data-testid="link-modal-label"
-              className="w-full rounded-md border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
+              className="w-full rounded-md border border-b2 bg-[#070A14] px-3 py-2 font-mono text-[13px] text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
             />
           </div>
           <div>
-            <label className="mb-1 block font-mono text-mono-sm text-tm">// url</label>
-            <input
-              ref={urlRef}
-              // autoFocus when selection already fills label, so user goes straight to URL.
-              autoFocus={!!initialText}
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://"
-              data-testid="link-modal-url"
-              className="w-full rounded-md border border-b2 bg-bg px-3 py-1.5 font-mono text-mono-sm text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
-            />
+            <label className="mb-1.5 block font-mono text-[10px] text-tm">URL</label>
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-[13px] text-cyan">
+                ❯
+              </span>
+              <input
+                ref={urlRef}
+                // autoFocus when selection already fills label, so user goes straight to URL.
+                autoFocus={!!initialText}
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://"
+                data-testid="link-modal-url"
+                className="w-full rounded-md border border-b2 bg-[#070A14] py-2 pl-7 pr-3 font-mono text-[13px] text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
+              />
+            </div>
           </div>
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex items-center justify-end gap-2">
+            <span className="mr-auto font-mono text-[10px] text-td">↵ insert · Esc cancel</span>
             <button
               type="button"
               onClick={onClose}
               data-testid="link-modal-cancel"
-              className="rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono-sm text-tm hover:text-tp"
+              className="rounded-md border border-b2 bg-elev px-4 py-1.5 font-mono text-[12px] text-tm hover:text-tp"
             >
               Cancel
             </button>
@@ -98,9 +120,9 @@ export function LinkInsertModal({ open, initialText, onApply, onClose }: Props) 
               type="submit"
               disabled={!url.trim()}
               data-testid="link-modal-insert"
-              className="rounded-sm border border-cyan/50 bg-cyan/10 px-3 py-1.5 font-mono text-mono-sm text-cyan hover:bg-cyan/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-md bg-cyan px-[18px] py-1.5 font-mono text-[12px] font-semibold text-[#0A0E1A] shadow-[0_0_12px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/80 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             >
-              ↵ Insert
+              ↵ Insert Link
             </button>
           </div>
         </form>

@@ -119,48 +119,54 @@ export function EmojiPicker({ open, onSelect, onClose }: Props) {
       role="dialog"
       aria-label="Emoji picker"
       data-testid="emoji-picker"
-      className="mt-2 rounded-lg border border-b2 bg-surf p-3"
+      className="-mt-1.5 mb-1.5 rounded-b-md border border-t-0 bg-elev px-3 py-2.5"
+      style={{ borderColor: 'rgba(0,255,229,0.25)' }}
     >
       <div className="mb-2 flex items-center justify-between">
         <span className="font-mono text-mono-tiny uppercase tracking-wide-3 text-td">
-          // pick an emoji
+          // emoji.picker · click to insert
         </span>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close emoji picker"
           data-testid="emoji-picker-close"
-          className="rounded-sm border border-b2 bg-elev px-2 py-0.5 font-mono text-mono-sm text-tm hover:text-tp"
+          className="font-mono text-[15px] leading-none text-tm hover:text-tp"
         >
           ×
         </button>
       </div>
 
-      {GROUPS.map((group) => (
-        <section
-          key={group.label}
-          data-testid={`emoji-picker-group-${group.label}`}
-          className="mb-3 last:mb-0"
-        >
-          <div className="mb-1 font-mono text-mono-tiny uppercase tracking-wide-2 text-tm">
-            // {group.label}
-          </div>
-          <div role="grid" aria-label={`${group.label} emojis`} className="grid grid-cols-8 gap-1">
-            {group.emojis.map((em) => (
-              <button
-                key={em}
-                type="button"
-                role="gridcell"
-                aria-label={`Insert ${em}`}
-                onClick={() => onSelect(em)}
-                className="flex h-7 w-7 items-center justify-center rounded-sm text-base hover:bg-over"
-              >
-                {em}
-              </button>
-            ))}
-          </div>
-        </section>
-      ))}
+      {/* Groups xếp ngang (design L632): flex gap-4, mỗi group flex 1 1 200px */}
+      <div className="flex flex-wrap gap-4">
+        {GROUPS.map((group) => (
+          <section
+            key={group.label}
+            data-testid={`emoji-picker-group-${group.label}`}
+            className="min-w-[180px] grow basis-[200px]"
+          >
+            <div className="mb-1 font-mono text-[10px] text-td">{group.label}</div>
+            <div
+              role="grid"
+              aria-label={`${group.label} emojis`}
+              className="flex flex-wrap gap-0.5"
+            >
+              {group.emojis.map((em) => (
+                <button
+                  key={em}
+                  type="button"
+                  role="gridcell"
+                  aria-label={`Insert ${em}`}
+                  onClick={() => onSelect(em)}
+                  className="flex h-7 w-7 items-center justify-center rounded-[5px] text-[17px] hover:bg-over"
+                >
+                  {em}
+                </button>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

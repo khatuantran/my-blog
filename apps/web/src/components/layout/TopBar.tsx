@@ -20,7 +20,7 @@ export function TopBar({ onOpenCommandPalette, hideSearch = false }: Props) {
   return (
     <header
       data-slot="topbar"
-      className="fixed top-0 left-0 right-0 h-[52px] bg-surf/95 backdrop-blur-sm border-b border-b1 flex items-center px-5 z-50"
+      className="fixed top-0 left-0 right-0 h-[52px] bg-surf/95 backdrop-blur-sm border-b border-b1 flex items-center px-5 z-topbar"
     >
       <Logo />
 

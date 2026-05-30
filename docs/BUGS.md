@@ -11,6 +11,22 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-015] [High] [FE] Tag picker "+ add tag" rỗng — `sort=top` invalid → query 400
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-30
+- **Environment:** local FE :5173 → BE :3001 / Layer: FE
+- **Related task:** T-428 (DONE 2026-05-30)
+- **Related FR/component:** FR-10 tags / `apps/web/src/components/create-post/TagPickerDropdown.tsx` (Create Post)
+- **Mô tả:** Click "+ add tag" ở `/admin/create` → dropdown rỗng + hiện "// all tags added" dù còn system tag chưa chọn → KHÔNG add tag vào post được.
+- **Steps:** Login admin → `/admin/create` → click "+ add tag" → dropdown "// all tags added" (sai).
+- **Expected:** Dropdown liệt kê system tags chưa chọn để click add.
+- **Actual:** Dropdown rỗng / "all tags added".
+- **Root cause:** `TagPickerDropdown` gọi `useTags({ sort: 'top', limit: 30 })` nhưng BE `ListTagsDto` chỉ chấp nhận `sort ∈ {name, posts, recent}` → `'top'` invalid → `GET /tags?sort=top` trả **400** → `tagsQ.data` undefined → `available=[]`; message logic `tagsQ.data?.items.length === 0` (undefined===0 → false) → hiện "all tags added" sai. Pre-existing từ T-367 (`TagSort` type cũng không có `'top'` — type mismatch lọt qua).
+- **Fix:** `sort: 'top'` → `sort: 'posts'` (most used) + thêm `tagsQ.isError` branch ("// failed to load tags"). Confirmed curl: `GET /tags?sort=top` → 400; `sort=posts` → 200. Render verify: picker hiện `+ #dev 2`.
+- **Regression test:** `apps/web/tests/components/create-post/TagPickerDropdown.test.tsx` (5 pass — query system tags + add chip). Manual render verify add-tag flow.
+- **Lesson:** FE query-param phải khớp BE enum; `TagSort` không có `'top'` nhưng `useTags` nhận lỏng nên TS không bắt. Test cần MSW handler match đúng `sort` value để lộ mismatch.
+
 ### [BUG-014] [High] [FE] Tag create luôn 400 "name missing" + tag/user update no-op (doubled Content-Type header)
 
 - **Status:** FIXED

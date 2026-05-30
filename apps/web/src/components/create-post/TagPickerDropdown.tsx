@@ -21,7 +21,8 @@ const MAX_TAGS = 10;
 export function TagPickerDropdown({ value, onChange, maxCount = MAX_TAGS }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const tagsQ = useTags({ sort: 'top', limit: 30 });
+  // BE sort values: name | posts | recent (NOT 'top' — gây 400 → picker rỗng). 'posts' = most used.
+  const tagsQ = useTags({ sort: 'posts', limit: 30 });
 
   useEffect(() => {
     if (!open) return;
@@ -83,13 +84,38 @@ export function TagPickerDropdown({ value, onChange, maxCount = MAX_TAGS }: Prop
           role="listbox"
           aria-label="Available tags"
           data-testid="tag-picker-list"
-          className="absolute left-0 right-0 top-full z-popover mt-1 rounded-lg border border-b2 bg-elev p-2 shadow-drop-md animate-fade-up-xs"
+          className="mt-1 max-h-[40vh] overflow-y-auto rounded-lg border border-cyan/30 bg-elev p-3 shadow-drop-md animate-fade-up-xs"
         >
+          {/* Header (design L737): // system.tags · N available + × close */}
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="font-mono text-mono-sm text-tm">
+              // system.tags · <span className="text-cyan">{available.length}</span> available
+            </span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close tag picker"
+              data-testid="tag-picker-close"
+              className="font-mono text-[17px] leading-none text-tm hover:text-tp"
+            >
+              ×
+            </button>
+          </div>
+
           {tagsQ.isLoading ? (
-            <div className="px-2 py-3 font-mono text-mono-sm text-tm">// loading tags...</div>
+            <div className="px-2 py-3 text-center font-mono text-mono-sm text-tm">
+              // loading tags...
+            </div>
+          ) : tagsQ.isError ? (
+            <div className="px-2 py-3 text-center font-mono text-mono-sm text-red">
+              // failed to load tags
+            </div>
           ) : available.length === 0 ? (
-            <div className="px-2 py-3 font-mono text-mono-sm text-tm">
-              // {tagsQ.data?.items.length === 0 ? 'no system tags yet' : 'all tags added'}
+            <div className="px-2 py-4 text-center font-mono text-mono-sm text-td">
+              ◎{' '}
+              {(tagsQ.data?.items.length ?? 0) === 0
+                ? 'no system tags yet'
+                : 'all available tags selected'}
             </div>
           ) : (
             <div className="flex flex-wrap gap-1.5" data-testid="tag-picker-chips">
@@ -101,32 +127,37 @@ export function TagPickerDropdown({ value, onChange, maxCount = MAX_TAGS }: Prop
                   aria-selected="false"
                   data-testid={`tag-picker-chip-${tag.name}`}
                   onClick={() => addTag(tag.name, tag.color)}
-                  className="inline-flex items-center gap-1 rounded-sm border border-b2 bg-surf px-2 py-1 font-mono text-mono-sm transition-colors hover:border-cyan hover:bg-cyan/10"
-                  style={tag.color ? { color: tag.color } : undefined}
+                  className="inline-flex items-center gap-1.5 rounded border px-2.5 py-1 font-mono text-mono-sm transition-all hover:brightness-125"
+                  style={
+                    tag.color
+                      ? {
+                          color: tag.color,
+                          background: `${tag.color}12`,
+                          borderColor: `${tag.color}50`,
+                        }
+                      : undefined
+                  }
                 >
-                  + {tag.name}
-                  <span className="text-mono-sm text-tm">{tag.postCount}</span>
+                  + #{tag.name}
+                  <span className="text-[9px] text-td">{tag.postCount}</span>
                 </button>
               ))}
             </div>
           )}
 
-          <div className="mt-2 border-t border-b1 pt-2 text-center">
+          <div className="mt-2.5 border-t border-b2 pt-2 font-mono text-[10px] text-td">
+            // can&apos;t find your tag?{' '}
             <Link
               to="/tags"
               data-testid="tag-picker-manage-link"
               onClick={() => setOpen(false)}
-              className="font-mono text-mono-sm text-blu hover:text-cyan"
+              className="text-cyan no-underline hover:text-cyan"
             >
-              // can&apos;t find your tag? manage tags →
+              manage tags →
             </Link>
           </div>
         </div>
       )}
-
-      <div className="mt-1.5 font-mono text-mono-sm text-tm">
-        {value.length}/{maxCount} tags selected
-      </div>
     </div>
   );
 }

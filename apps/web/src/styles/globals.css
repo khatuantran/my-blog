@@ -105,4 +105,10 @@
     height: 1px;
     background: var(--b1);
   }
+  /* RichTextEditor contentEditable placeholder (design-file `.editor-area:empty::before`). */
+  [data-testid='rte-editor']:empty::before {
+    content: attr(data-placeholder);
+    @apply font-sans italic text-td;
+    pointer-events: none;
+  }
 }

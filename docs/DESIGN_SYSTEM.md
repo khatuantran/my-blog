@@ -395,9 +395,10 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Style:** border 2px dashed `--b2`, radius `radius-lg`, padding `space-7 space-5`, text center, cursor pointer
 - **Animation:** `dashedPulse` 2s ease-in-out infinite (border color `--b2` ↔ `--b3`)
 - **Hover:** border `--cyan80`, bg `rgba(0,255,229,.03)`
-- **Content:**
-  - Title: `❯ drag & drop or click to upload` (text-mono `--ts`)
-  - Hint: `PNG, JPG, WebP · max 5MB each` (text-mono-xs `--td`)
+- **Content (2-line via `hint` + `subHint` props — T-426):**
+  - **Image variant:** Title `❯ drag & drop or click to upload` (text-[14px] `--tm`) + subHint `PNG, JPG, WebP · max 5MB each` (text-mono-sm `--td`)
+  - **File variant:** Title `❯ drag & drop docs, PDFs, spreadsheets...` + subHint `PDF · DOC · DOCX · XLS · XLSX · TXT · CSV · max 20MB each`
+  - **Full state:** `// max reached (N/N)`. Không truyền `hint` → default 1-line `❯ drag & drop or click — N slots left`.
 
 ### ImageThumb (Create Post preview)
 
@@ -428,7 +429,7 @@ Toggle via Tweaks panel (dev tool, không document).
   - `act-btn` (action row) — text-mono-xs, color `--tm`, hover color `--tp` + bg `--elev`. State: liked (red), saved (yel).
   - `flt-btn` (filter pill) — text-mono-xs, padding `5px space-3`, border `--b2`, color `--ts`, bg `--elev`, radius `radius-sm`. Active: cyan border + bg cyan 10% + shadow-glow-cyan-sm.
   - `act-ghost` (admin table) — text-mono-xs, padding `3px space-2`, border 1px color (per action: red ban, green approve, blue view), color matching.
-  - `toolbar-btn` (editor toolbar) — bg transparent, border `--b2`, color `--tm`. Hover: bg `--elev`, color `--tp`.
+  - `toolbar-btn` (RTE editor toolbar — T-427) — **fixed `32×30` uniform** (`h-[30px] min-w-[32px]` inline-flex center, mono 13px) trong bordered strip (`border --b2 bg --bg radius-md px-2 py-1.5`, nowrap + overflow-x). bg transparent, border `--b2`, color `--tm`. Hover: border `--b3`, color `--tp`. **Active** (popover đang mở): cyan tint `border-cyan/40 bg-cyan/10 text-cyan`. Order: `B I U S 🖍 H1 H2 • 1. 🔗 ✕ A▾ │ 🙂` (A color cuối + ▾ pink caret + divider trước emoji). KHÔNG dùng `px-2 py-1` content-based (gây lệch chiều cao). Popover color/highlight/emoji = **connected drawer** dưới toolbar (`-mt-1.5 rounded-b-md border-t-0 bg-elev`) + label (`text.color:` / `highlight:` / `// emoji.picker · click to insert`) + × close; highlight thêm A-preview swatches (chữ A màu preview) + `✕ clear`.
 - **Sizes:** `sm` (32px), `md` (40px), `lg` (48px), `icon` (40x40)
 - **States:** default, hover, focus (ring 2px cyan offset 2px), active, disabled (opacity 50%), loading (with ASCII spinner)
 

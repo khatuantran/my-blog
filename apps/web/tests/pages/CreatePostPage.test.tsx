@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { Suspense } from 'react';
 import { http, HttpResponse } from 'msw';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RouterProvider, createMemoryRouter, type RouteObject } from 'react-router';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -39,10 +39,23 @@ describe('CreatePostPage', () => {
     expect(screen.getByText('// content')).toBeInTheDocument();
     expect(screen.getByText(/\/\/ images \(0\/10\)/)).toBeInTheDocument();
     expect(screen.getByText(/\/\/ files \(0\/20\)/)).toBeInTheDocument();
-    expect(screen.getByText('// tags')).toBeInTheDocument();
+    expect(screen.getByText(/\/\/ tags \(0 selected\)/)).toBeInTheDocument();
     expect(screen.getByText('// live.preview')).toBeInTheDocument();
     // ~/admin/create-post xuất hiện ở cả sub-toolbar và StatusBar
     expect(screen.getAllByText('~/admin/create-post').length).toBeGreaterThan(0);
+  });
+
+  it('AI suggest button (FR-17 UI shell) mở modal placeholder + đóng được', async () => {
+    const user = userEvent.setup();
+    renderAt('/admin/create');
+    const aiBtn = await screen.findByTestId('ai-suggest-btn');
+    expect(aiBtn).toHaveTextContent('AI suggest');
+    expect(screen.queryByTestId('ai-suggest-modal')).not.toBeInTheDocument();
+    await user.click(aiBtn);
+    const modal = screen.getByTestId('ai-suggest-modal');
+    expect(within(modal).getByText(/sắp ra mắt/)).toBeInTheDocument();
+    await user.click(within(modal).getByRole('button', { name: 'Close' }));
+    expect(screen.queryByTestId('ai-suggest-modal')).not.toBeInTheDocument();
   });
 
   it('Publish disabled khi content empty', async () => {

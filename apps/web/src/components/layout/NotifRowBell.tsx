@@ -66,7 +66,7 @@ export function NotifRowBell({ notif, onClickItem }: Props) {
         </div>
       </div>
 
-      {/* Content (per design — 2 lines: verb + meta; snippet line skipped vì BE chưa send snippet) */}
+      {/* Content (3 lines per design: verb + snippet + meta) */}
       <div className="min-w-0 flex-1">
         <div className="text-small leading-snug">
           <span className="font-mono text-blu">@{notif.actor?.username ?? 'anon'}</span>
@@ -79,6 +79,14 @@ export function NotifRowBell({ notif, onClickItem }: Props) {
             <span className="text-td">your post</span>
           )}
         </div>
+        {notif.metadata?.snippet && (
+          <div
+            data-testid="notif-row-bell-snippet"
+            className="mt-0.5 truncate font-mono text-[12px] italic text-td"
+          >
+            &ldquo;{notif.metadata.snippet}&rdquo;
+          </div>
+        )}
         <div className="mt-0.5 flex items-center gap-1 font-mono text-[10px] text-td">
           <span>#{postIdShort}</span>
           <span>·</span>

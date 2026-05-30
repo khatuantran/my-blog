@@ -36,6 +36,7 @@ describe('Notifications (e2e)', () => {
   let aliceCookies: string;
   let aliceId: string;
   let bobId: string;
+  let bobCookies: string;
 
   beforeAll(async () => {
     ({ app, prisma } = await createTestApp());
@@ -48,6 +49,7 @@ describe('Notifications (e2e)', () => {
     aliceCookies = await loginAs(app, { username: alice.username, password: alice.rawPassword });
     const bob = await makeUser(prisma, { username: 'bob', role: Role.USER });
     bobId = bob.id;
+    bobCookies = await loginAs(app, { username: bob.username, password: bob.rawPassword });
   });
 
   afterAll(async () => {
@@ -57,6 +59,34 @@ describe('Notifications (e2e)', () => {
   describe('GET /notifications', () => {
     it('401 anonymous', async () => {
       await request(app.getHttpServer()).get('/notifications').expect(401);
+    });
+
+    it('T-403: 200 metadata.snippet present after bob reacts (REACTION → post.content truncated)', async () => {
+      const longContent =
+        '<p>Hôm nay deploy xong feature mới cho production và mọi thứ ổn định, đếm số request không có lỗi nào.</p>';
+      const post = await makePost(prisma, { authorId: aliceId, content: longContent });
+
+      // Bob reacts to alice's post → triggers REACTION notification
+      await request(app.getHttpServer())
+        .post(`/posts/${post.id}/reactions`)
+        .set('Cookie', bobCookies)
+        .send({ type: 'LIKE' })
+        .expect(200);
+
+      const res = await request(app.getHttpServer())
+        .get('/notifications')
+        .set('Cookie', aliceCookies)
+        .expect(200);
+
+      const items = res.body.data.items;
+      expect(items).toHaveLength(1);
+      const meta = items[0].metadata;
+      expect(meta).toBeDefined();
+      expect(typeof meta.snippet).toBe('string');
+      // HTML stripped + truncated (≤ 81 chars including `…`)
+      expect(meta.snippet).not.toContain('<');
+      expect(meta.snippet.length).toBeLessThanOrEqual(81);
+      expect(meta.snippet).toMatch(/^Hôm nay deploy xong/);
     });
 
     it('200 returns items + total + unreadCount', async () => {

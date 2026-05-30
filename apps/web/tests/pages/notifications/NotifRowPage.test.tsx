@@ -142,4 +142,28 @@ describe('NotifRowPage (T-353)', () => {
     fireEvent.click(screen.getByTestId('notif-row-delete'));
     expect(onDelete).toHaveBeenCalledWith('p1');
   });
+
+  it('T-403 snippet: render quoted snippet khi metadata.snippet có; fallback targetId hash khi absent', () => {
+    const { rerender } = renderRow(
+      makeNotif({ metadata: { reactionType: 'LIKE', snippet: 'Đọc xong A Philosophy of…' } }),
+    );
+    const snippet = screen.getByTestId('notif-row-page-snippet');
+    expect(snippet).toBeInTheDocument();
+    expect(snippet.textContent).toBe('“Đọc xong A Philosophy of…”');
+
+    rerender(
+      <MemoryRouter>
+        <NotifRowPage
+          notif={makeNotif({ metadata: undefined })}
+          selected={false}
+          onToggleSelect={vi.fn()}
+          onMarkRead={vi.fn()}
+          onDelete={vi.fn()}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.queryByTestId('notif-row-page-snippet')).not.toBeInTheDocument();
+    // Fallback line: targetId hash visible (8 chars + …)
+    expect(screen.getByText(/^#post-tar/)).toBeInTheDocument();
+  });
 });

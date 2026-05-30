@@ -85,4 +85,21 @@ describe('NotifRowBell (T-353)', () => {
     const row = screen.getByTestId('notification-item-n1');
     expect(row.className).toMatch(/hover:bg-elev/);
   });
+
+  it('T-403 snippet: render italic muted quoted khi metadata.snippet có; absent → không render', () => {
+    const { rerender } = render(
+      <NotifRowBell
+        notif={makeNotif({ metadata: { reactionType: 'LIKE', snippet: 'Hôm nay deploy xong' } })}
+        onClickItem={vi.fn()}
+      />,
+    );
+    const snippet = screen.getByTestId('notif-row-bell-snippet');
+    expect(snippet).toBeInTheDocument();
+    expect(snippet.textContent).toBe('“Hôm nay deploy xong”');
+    expect(snippet.className).toMatch(/italic/);
+    expect(snippet.className).toMatch(/text-td/);
+
+    rerender(<NotifRowBell notif={makeNotif({ metadata: undefined })} onClickItem={vi.fn()} />);
+    expect(screen.queryByTestId('notif-row-bell-snippet')).not.toBeInTheDocument();
+  });
 });

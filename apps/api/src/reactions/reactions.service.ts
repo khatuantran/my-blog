@@ -106,7 +106,7 @@ export class ReactionsService {
 
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
-      select: { id: true, authorId: true },
+      select: { id: true, authorId: true, content: true },
     });
     if (!post) {
       throw new NotFoundException({ code: 'POST_NOT_FOUND', message: 'Post không tồn tại' });
@@ -147,6 +147,7 @@ export class ReactionsService {
             targetId: postId,
             postId,
             metadata: { reactionType: type },
+            snippet: post.content,
           });
         } catch (err) {
           this.logger.warn(`createNotification REACTION failed: ${err}`);

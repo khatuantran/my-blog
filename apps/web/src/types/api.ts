@@ -342,6 +342,8 @@ export type NotificationActor = {
 export type NotificationMetadata = {
   reactionType?: string;
   replyTo?: { username: string };
+  /** T-403: post.content snippet (REACTION/SHARE) hoặc comment.content (COMMENT/REPLY) — strip HTML + truncate 80 chars. */
+  snippet?: string;
 };
 
 export type NotificationItem = {

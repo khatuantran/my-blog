@@ -11,6 +11,21 @@ export interface CreateNotificationInput {
   targetId: string;
   postId?: string;
   metadata?: Record<string, unknown>;
+  /** T-403: source text (post.content for REACTION/SHARE, comment.content for COMMENT/REPLY). Service strip HTML + truncate vào metadata.snippet. */
+  snippet?: string;
+}
+
+const SNIPPET_MAX = 80;
+
+/** T-403: strip HTML tag + collapse whitespace + truncate `SNIPPET_MAX` chars + `…` nếu cắt. */
+export function deriveSnippet(text: string | null | undefined): string | undefined {
+  if (!text) return undefined;
+  const stripped = text
+    .replace(/<[^>]+>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!stripped) return undefined;
+  return stripped.length > SNIPPET_MAX ? `${stripped.slice(0, SNIPPET_MAX)}…` : stripped;
 }
 
 const ACTOR_SELECT = { id: true, username: true, avatarUrl: true } as const;
@@ -44,6 +59,13 @@ export class NotificationsService {
   async createNotification(input: CreateNotificationInput): Promise<void> {
     if (input.actorId === input.userId) return;
 
+    // T-403: merge derived snippet vào metadata (chỉ khi có source text).
+    const snippet = deriveSnippet(input.snippet);
+    const metadata =
+      input.metadata || snippet
+        ? { ...(input.metadata ?? {}), ...(snippet ? { snippet } : {}) }
+        : undefined;
+
     await this.prisma.notification.create({
       data: {
         userId: input.userId,
@@ -52,7 +74,7 @@ export class NotificationsService {
         targetType: input.targetType,
         targetId: input.targetId,
         postId: input.postId ?? null,
-        metadata: input.metadata as Prisma.InputJsonValue | undefined,
+        metadata: metadata as Prisma.InputJsonValue | undefined,
       },
     });
     this.logger.log(`Notification ${input.type} → user ${input.userId}`);

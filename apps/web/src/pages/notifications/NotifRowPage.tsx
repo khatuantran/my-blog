@@ -89,11 +89,19 @@ export function NotifRowPage({ notif, selected, onToggleSelect, onMarkRead, onDe
           )}
           {notif.type !== 'REPLY' && <span className="text-td">your post</span>}
         </div>
-        {notif.targetId && (
+        {notif.metadata?.snippet ? (
+          <div
+            data-testid="notif-row-page-snippet"
+            className="mt-0.5 max-w-[520px] truncate font-mono text-[12px] italic text-td"
+          >
+            &ldquo;{notif.metadata.snippet}&rdquo;
+          </div>
+        ) : notif.targetId ? (
+          // Fallback (notifications created trước T-403 hoặc snippet rỗng)
           <div className="mt-0.5 max-w-[520px] truncate font-mono text-[12px] italic text-td">
             #{notif.targetId.slice(0, 8)}…
           </div>
-        )}
+        ) : null}
         <div className="mt-0.5 flex items-center gap-1 font-mono text-[10px] text-td">
           <span>#{notif.postId?.slice(0, 6) ?? '——'}</span>
           <span>·</span>

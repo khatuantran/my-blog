@@ -230,6 +230,7 @@ export class CommentsService {
               targetId: parentForNotify.id,
               postId,
               metadata: { replyTo: { username: comment.user?.username ?? 'unknown' } },
+              snippet: comment.content,
             });
           }
         } else {
@@ -241,6 +242,7 @@ export class CommentsService {
             targetType: 'POST',
             targetId: postId,
             postId,
+            snippet: comment.content,
           });
         }
       } catch (err) {

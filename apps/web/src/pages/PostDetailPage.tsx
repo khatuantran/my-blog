@@ -43,82 +43,72 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1100px] px-6 py-6">
-      {/* Breadcrumb */}
-      <div className="mb-4 flex items-center gap-2 font-mono text-mono-sm">
-        <Link to="/" className="text-tm hover:text-cyan">
-          ← feed
-        </Link>
-        <span className="text-td">/</span>
-        <span className="text-cyan">~/post/{post.id.slice(-6)}</span>
-      </div>
+    <div className="flex">
+      {/* Main — flex-1 nhưng content cap 820 centered (design L353: maxWidth 820 + margin auto) */}
+      <article className="mx-auto min-w-0 max-w-[820px] flex-1 px-8 py-5">
+        {/* Breadcrumb (design L356): ← feed CYAN · / · ~/post/id muted */}
+        <div className="mb-5 flex items-center gap-2 font-mono text-mono-md text-tm">
+          <Link to="/" className="text-cyan no-underline hover:underline">
+            ← feed
+          </Link>
+          <span className="text-td">/</span>
+          <span>~/post/{post.id.slice(-6)}</span>
+        </div>
 
-      <div className="flex gap-6">
-        {/* Main column */}
-        <article className="min-w-0 flex-1">
-          <PostHeader post={post} avatarSize="lg" />
-          <PostContent content={post.content} variant="detail" />
-          <ImageCarousel images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
-          <FileAttachments files={post.files} />
+        <PostHeader post={post} avatarSize="lg" />
+        <PostContent content={post.content} variant="detail" />
+        <ImageCarousel images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
+        <FileAttachments files={post.files} />
 
-          {post.tags.length > 0 && (
-            <div className="my-4 flex flex-wrap gap-1.5">
-              {post.tags.map((t) => (
-                <TagPill key={t.id} name={t.name} color={t.color} />
-              ))}
-            </div>
-          )}
+        {post.tags.length > 0 && (
+          <div className="my-4 flex flex-wrap gap-1.5">
+            {post.tags.map((t) => (
+              <TagPill key={t.id} name={t.name} color={t.color} />
+            ))}
+          </div>
+        )}
 
-          {/* Divider */}
-          <div
-            className="my-4 overflow-hidden whitespace-nowrap font-mono text-[10px] text-b1"
-            style={{ letterSpacing: '2px' }}
-            aria-hidden="true"
+        {/* Actions — border-wrapped row (design L397: borderTop+borderBottom, padding 12/0) */}
+        <div className="mb-6 flex items-center gap-1 border-y border-b1 py-3">
+          <ReactionButton
+            postId={post.id}
+            myReaction={post.myReaction}
+            topReactions={post.topReactions}
+            count={post.counts.reactions}
+          />
+          <button
+            type="button"
+            className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
+            aria-label="Jump to comments"
           >
-            ──────────────────────────────────────────
+            <span className="text-sm">💬</span>
+            <span>{post.counts.comments}</span>
+          </button>
+          <button
+            type="button"
+            aria-label="Share post (placeholder)"
+            className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
+          >
+            <span>↗</span>
+            <span>Share</span>
+          </button>
+          <SaveButton postId={post.id} saved={!!post.saved} />
+          <span className="ml-auto font-mono text-mono-sm text-tm">👁 {post.viewCount} views</span>
+        </div>
+
+        {/* Comments header (design L419): ❯ cyan + // comments white + [N] muted */}
+        <section aria-label="Comments" className="space-y-4">
+          <div className="flex items-center gap-2 font-mono text-mono-lg">
+            <span className="text-cyan">❯</span>
+            <span className="text-tp">// comments</span>
+            <span className="text-td">[{post.counts.comments}]</span>
           </div>
+          <CommentForm postId={post.id} />
+          <CommentList postId={post.id} />
+        </section>
+      </article>
 
-          {/* Actions */}
-          <div className="mb-6 flex items-center gap-1">
-            <ReactionButton
-              postId={post.id}
-              myReaction={post.myReaction}
-              topReactions={post.topReactions}
-              count={post.counts.reactions}
-            />
-            <button
-              type="button"
-              className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
-              aria-label="Jump to comments"
-            >
-              <span className="text-sm">💬</span>
-              <span>{post.counts.comments}</span>
-            </button>
-            <SaveButton postId={post.id} saved={!!post.saved} />
-            <button
-              type="button"
-              aria-label="Share post (placeholder)"
-              className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
-            >
-              <span>↗</span>
-              <span>Share</span>
-            </button>
-            <span className="ml-auto font-mono text-mono-sm text-tm">
-              👁 {post.viewCount} views
-            </span>
-          </div>
-
-          <section aria-label="Comments" className="mt-6 space-y-4">
-            <div className="font-mono text-mono-lg text-cyan">
-              ❯ // comments [{post.counts.comments}]
-            </div>
-            <CommentForm postId={post.id} />
-            <CommentList postId={post.id} />
-          </section>
-        </article>
-
-        <MetaPanel post={post} />
-      </div>
+      <MetaPanel post={post} />
 
       {lightboxIdx !== null && post.images.length > 0 && (
         <ImageLightbox

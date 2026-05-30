@@ -6,10 +6,11 @@ type Props = {
   post: Post;
 };
 
+// design L474: per-brand color
 const SHARE_TARGETS = [
-  { icon: '📘', label: 'Facebook' },
-  { icon: '🐦', label: 'X' },
-  { icon: '✈️', label: 'Telegram' },
+  { icon: '📘', label: 'Facebook', color: '#1877F2' },
+  { icon: '🐦', label: 'X (Twitter)', color: '#E6EDF3' },
+  { icon: '✈️', label: 'Telegram', color: '#2AABEE' },
 ] as const;
 
 function buildPostUrl(postId: string): string {
@@ -33,27 +34,28 @@ export function MetaPanel({ post }: Props) {
 
   return (
     <aside
-      className="meta-panel hidden w-[280px] shrink-0 space-y-5 lg:block"
+      className="meta-panel sticky top-[52px] hidden h-[calc(100vh-80px)] w-[260px] shrink-0 space-y-5 overflow-y-auto border-l border-b1 bg-elev px-4 py-5 lg:block"
       aria-label="Post metadata"
     >
       <div>
         <div className="sb-lbl">// post.meta</div>
-        <dl className="space-y-1 font-mono text-mono-sm">
-          <div className="flex justify-between">
+        <dl className="font-mono text-mono-sm">
+          {/* design L455: mỗi row có borderBottom + padding */}
+          <div className="flex justify-between border-b border-b1 py-1.5">
             <dt className="text-tm">ID</dt>
-            <dd className="text-ts">{post.id.slice(-6)}</dd>
+            <dd className="text-tp">{post.id.slice(-6)}</dd>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between border-b border-b1 py-1.5">
             <dt className="text-tm">Views</dt>
-            <dd className="text-ts">{post.viewCount}</dd>
+            <dd className="text-tp">{post.viewCount}</dd>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between border-b border-b1 py-1.5">
             <dt className="text-tm">Reactions</dt>
-            <dd className="text-ts">{post.counts.reactions}</dd>
+            <dd className="text-tp">{post.counts.reactions}</dd>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between border-b border-b1 py-1.5">
             <dt className="text-tm">Comments</dt>
-            <dd className="text-ts">{post.counts.comments}</dd>
+            <dd className="text-tp">{post.counts.comments}</dd>
           </div>
         </dl>
       </div>
@@ -77,7 +79,8 @@ export function MetaPanel({ post }: Props) {
               key={s.label}
               type="button"
               aria-label={`Share to ${s.label}`}
-              className="flex items-center gap-1.5 rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono text-ts transition-colors hover:border-b3 hover:text-tp"
+              style={{ color: s.color }}
+              className="flex items-center gap-1.5 rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono transition-colors hover:border-b3"
             >
               <span>{s.icon}</span>
               <span>{s.label}</span>

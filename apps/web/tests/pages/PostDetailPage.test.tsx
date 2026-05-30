@@ -58,8 +58,9 @@ describe('PostDetailPage', () => {
     // MetaPanel
     expect(screen.getByText('// post.meta')).toBeInTheDocument();
     expect(screen.getByText('142')).toBeInTheDocument();
-    // Comments section placeholder
-    expect(screen.getByText(/comments \[5\]/i)).toBeInTheDocument();
+    // Comments header — split spans (design L419: ❯ cyan + // comments white + [N] muted)
+    expect(screen.getByText('// comments')).toBeInTheDocument();
+    expect(screen.getByText('[5]')).toBeInTheDocument();
   });
 
   it('404 → renders "// post not found" + back to feed link', async () => {

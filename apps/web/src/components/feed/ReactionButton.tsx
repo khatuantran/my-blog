@@ -104,7 +104,7 @@ export function ReactionButton({ postId, myReaction, topReactions, count }: Prop
         }
         disabled={gone}
         data-testid={`reaction-button-${postId}`}
-        className={`flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono cursor-pointer transition-colors hover:bg-elev ${
+        className={`flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md cursor-pointer transition-colors hover:bg-elev ${
           active ? 'text-tp' : 'text-tm hover:text-tp'
         } ${gone ? 'cursor-not-allowed opacity-50' : ''}`}
         style={

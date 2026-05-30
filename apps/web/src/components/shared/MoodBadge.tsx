@@ -11,7 +11,7 @@ export function MoodBadge({ mood }: Props) {
   if (!cfg) return null;
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 font-mono text-mono-sm whitespace-nowrap"
+      className="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 font-mono text-mono whitespace-nowrap"
       style={{
         color: cfg.color,
         background: `${cfg.color}18`,

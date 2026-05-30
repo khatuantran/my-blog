@@ -57,7 +57,7 @@ export function PostCard({ post, delay = 0 }: Props) {
 
       {/* Divider */}
       <div
-        className="mb-2.5 overflow-hidden whitespace-nowrap font-mono text-[10px] text-b1"
+        className="mb-2.5 overflow-hidden whitespace-nowrap font-mono text-mono-sm text-b1"
         style={{ letterSpacing: '2px' }}
         aria-hidden="true"
       >
@@ -75,7 +75,7 @@ export function PostCard({ post, delay = 0 }: Props) {
         <button
           type="button"
           onClick={() => setShowComments(true)}
-          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
+          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
           aria-label={`View ${post.counts.comments} comments`}
           data-testid={`post-comments-btn-${post.id}`}
         >
@@ -85,7 +85,7 @@ export function PostCard({ post, delay = 0 }: Props) {
         <button
           type="button"
           aria-label="Share post (placeholder)"
-          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
+          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
         >
           <span>↗</span>
           <span>Share</span>
@@ -97,7 +97,7 @@ export function PostCard({ post, delay = 0 }: Props) {
             aria-label="More actions"
             aria-expanded={showActionMenu}
             data-testid={`post-action-trigger-${post.id}`}
-            className="rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono text-tm cursor-pointer hover:bg-elev hover:text-tp"
+            className="rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md text-tm cursor-pointer hover:bg-elev hover:text-tp"
           >
             ⋯
           </button>

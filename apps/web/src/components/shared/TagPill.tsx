@@ -23,7 +23,7 @@ export function TagPill({ name, color, onClick }: Props) {
       onClick={onClick}
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
-      className={`inline-block font-mono text-mono-sm rounded-sm px-2 py-0.5 whitespace-nowrap transition-all duration-150 ${interactive ? 'cursor-pointer' : ''}`}
+      className={`inline-block font-mono text-mono rounded-sm px-2 py-0.5 whitespace-nowrap transition-all duration-150 ${interactive ? 'cursor-pointer' : ''}`}
       style={{
         color: hover ? '#E6EDF3' : c,
         background: `${c}${hover ? '28' : '15'}`,

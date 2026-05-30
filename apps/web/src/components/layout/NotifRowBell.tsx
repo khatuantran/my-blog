@@ -66,11 +66,11 @@ export function NotifRowBell({ notif, onClickItem }: Props) {
         </div>
       </div>
 
-      {/* Content (3 lines) */}
+      {/* Content (per design — 2 lines: verb + meta; snippet line skipped vì BE chưa send snippet) */}
       <div className="min-w-0 flex-1">
         <div className="text-small leading-snug">
-          <span className="font-mono text-blu">{notif.actor?.username ?? '[anon]'}</span>
-          <span className="text-td"> {cfg.verb} </span>
+          <span className="font-mono text-blu">@{notif.actor?.username ?? 'anon'}</span>
+          <span className="text-td"> {shortVerb(notif, cfg.verb)} </span>
           {notif.type === 'REPLY' && replyTo ? (
             <span className="text-td">
               from <span className="text-blu">@{replyTo}</span>
@@ -79,23 +79,33 @@ export function NotifRowBell({ notif, onClickItem }: Props) {
             <span className="text-td">your post</span>
           )}
         </div>
-        {notif.targetId && (
-          <div className="mt-0.5 truncate font-mono text-[12px] italic text-td">
-            #{notif.targetId.slice(0, 8)}…
-          </div>
-        )}
         <div className="mt-0.5 flex items-center gap-1 font-mono text-[10px] text-td">
           <span>#{postIdShort}</span>
           <span>·</span>
           <span>{timeAgo}</span>
-          {!notif.read && (
-            <>
-              <span>·</span>
-              <span style={{ color: cfg.color }}>● new</span>
-            </>
-          )}
         </div>
       </div>
+
+      {/* ● new — right side, vertical-center, color per type */}
+      {!notif.read && (
+        <span
+          aria-label="new"
+          className="shrink-0 self-center font-mono text-[11px]"
+          style={{ color: cfg.color }}
+        >
+          ● new
+        </span>
+      )}
     </button>
   );
+}
+
+// Per-reaction-subtype verb mapping cho REACTION type (LIKE → "liked",
+// LOVE → "loved"). Khác → fallback cfg.verb (= "reacted to").
+function shortVerb(notif: NotificationItem, fallback: string): string {
+  if (notif.type !== 'REACTION') return fallback;
+  const rt = notif.metadata?.reactionType;
+  if (rt === 'LIKE') return 'liked';
+  if (rt === 'LOVE') return 'loved';
+  return fallback;
 }

@@ -146,32 +146,37 @@ export function NotificationBell() {
           aria-label="Notifications"
           className="absolute top-[42px] right-0 w-[380px] max-h-[480px] flex flex-col bg-surf border border-cyan/25 rounded-lg shadow-glow-cyan-panel z-[200] animate-fade-up overflow-hidden"
         >
-          {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-b2 shrink-0">
-            <span className="font-mono text-mono-sm text-cyan">
-              // notifications{unreadCount > 0 ? ` · ${unreadCount} unread` : ''}
-            </span>
+          {/* Header — 2 lines per design: title + subline (N unread · M total) */}
+          <div className="flex items-start justify-between gap-2 px-4 py-3 border-b border-b2 shrink-0">
+            <div className="min-w-0">
+              <div className="font-mono text-mono-sm text-cyan">// notifications</div>
+              <div className="mt-0.5 font-mono text-[10px] text-td">
+                {unreadCount} unread · {totalAll} total
+              </div>
+            </div>
             {unreadCount > 0 && (
               <button
                 type="button"
                 data-testid="notification-mark-all-read"
                 onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
-                className="font-mono text-mono-sm text-cyan hover:text-tp transition-colors disabled:opacity-50"
+                className="shrink-0 rounded-sm border border-cyan/40 bg-cyan/[0.08] px-2 py-1 font-mono text-mono-sm text-cyan transition-colors hover:bg-cyan/[0.14] hover:text-tp disabled:opacity-50"
               >
                 ✓ mark all read
               </button>
             )}
           </div>
 
-          {/* Tab bar */}
-          <div className="flex border-b border-b2 shrink-0">
+          {/* Tab bar — pill style per design (rounded panel với cyan glow on active) */}
+          <div className="flex gap-1 border-b border-b2 px-3 py-2 shrink-0">
             <button
               type="button"
               data-testid="notification-tab-all"
               onClick={() => setTab('all')}
-              className={`flex-1 py-1.5 font-mono text-mono-sm transition-colors ${
-                tab === 'all' ? 'text-cyan border-b-2 border-cyan -mb-px' : 'text-tm hover:text-ts'
+              className={`flex-1 rounded-sm py-1 font-mono text-mono-sm transition-all ${
+                tab === 'all'
+                  ? 'border border-cyan/40 bg-cyan/[0.08] text-cyan shadow-glow-cyan-sm'
+                  : 'border border-transparent text-tm hover:text-ts'
               }`}
             >
               All ({totalAll})
@@ -180,10 +185,10 @@ export function NotificationBell() {
               type="button"
               data-testid="notification-tab-unread"
               onClick={() => setTab('unread')}
-              className={`flex-1 py-1.5 font-mono text-mono-sm transition-colors ${
+              className={`flex-1 rounded-sm py-1 font-mono text-mono-sm transition-all ${
                 tab === 'unread'
-                  ? 'text-cyan border-b-2 border-cyan -mb-px'
-                  : 'text-tm hover:text-ts'
+                  ? 'border border-cyan/40 bg-cyan/[0.08] text-cyan shadow-glow-cyan-sm'
+                  : 'border border-transparent text-tm hover:text-ts'
               }`}
             >
               Unread ({totalUnread})
@@ -216,15 +221,16 @@ export function NotificationBell() {
               ))}
           </div>
 
-          {/* Footer */}
-          <div className="border-t border-b1 shrink-0">
+          {/* Footer — 2-col per design: hint left muted + view all link right cyan */}
+          <div className="flex items-center justify-between gap-2 border-t border-b1 px-4 py-2 shrink-0">
+            <span className="font-mono text-[10px] text-td">// click to mark as read</span>
             <Link
               to="/notifications"
               onClick={() => setOpen(false)}
               data-testid="notification-view-all"
-              className="block px-3 py-2 font-mono text-mono-sm text-cyan hover:text-tp transition-colors no-underline"
+              className="font-mono text-mono-sm text-cyan hover:text-tp transition-colors no-underline"
             >
-              // view all → /notifications
+              view all →
             </Link>
           </div>
         </div>

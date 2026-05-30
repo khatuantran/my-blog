@@ -67,9 +67,11 @@ describe('NotifRowBell (T-353)', () => {
     }
   });
 
-  it('anon variant: actor=null hiển thị [anon] + ? placeholder', () => {
+  it('anon variant: actor=null hiển thị @anon + ? placeholder', () => {
+    // Design update 2026-05-29: username dùng `@<name>` prefix nhất quán →
+    // anon hiển thị `@anon` (was `[anon]`).
     render(<NotifRowBell notif={makeNotif({ actor: null })} onClickItem={vi.fn()} />);
-    expect(screen.getByText('[anon]')).toBeInTheDocument();
+    expect(screen.getByText('@anon')).toBeInTheDocument();
     expect(screen.getByText('?')).toBeInTheDocument();
   });
 

@@ -25,17 +25,16 @@ export function TabButtons<T extends string>({ value, tabs, onChange }: Props<T>
               type="button"
               aria-selected={active}
               onClick={() => onChange(t.value)}
-              className={`-mb-px border-b-2 px-4 py-2.5 font-mono text-mono-md transition-colors ${
-                active
-                  ? 'border-cyan text-cyan shadow-[0_2px_8px_-2px_rgba(0,255,229,0.5)]'
-                  : 'border-transparent text-tm hover:text-ts'
+              className={`-mb-[2px] border-b-[3px] px-5 py-3 font-mono text-mono-lg transition-all ${
+                active ? 'border-cyan text-cyan' : 'border-transparent text-tm hover:text-ts'
               }`}
+              style={active ? { boxShadow: '0 6px 16px -6px rgba(0,255,229,0.7)' } : undefined}
             >
               {t.label}
               {t.count !== undefined && (
                 <span
                   className={`ml-2 rounded-sm border px-1.5 py-0.5 font-mono text-[11px] ${
-                    active ? 'border-cyan/30 bg-cyan/[0.08] text-cyan' : 'border-b2 bg-b1 text-tm'
+                    active ? 'border-cyan/40 bg-cyan/[0.08] text-cyan' : 'border-b2 bg-b1 text-tm'
                   }`}
                 >
                   {t.count}

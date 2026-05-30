@@ -53,6 +53,7 @@
 
   body {
     font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 500; /* T-429 user: đậm hơn toàn hệ thống (base 400 → 500); explicit weights vẫn override */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }

@@ -50,15 +50,16 @@ const config: Config = {
       },
       fontSize: {
         // mono variants (JetBrains Mono)
-        'mono-tiny': ['8px', { lineHeight: '1.3' }],
-        'mono-xs': ['9px', { lineHeight: '1.3' }],
-        'mono-sm': ['11px', { lineHeight: '1.4' }],
-        mono: ['12px', { lineHeight: '1.5' }],
-        'mono-md': ['13px', { lineHeight: '1.5' }],
-        'mono-lg': ['14px', { lineHeight: '1.6' }],
+        // T-429: +1px cho text/label đọc (user readability). Chrome cố định dùng arbitrary px → không đổi.
+        'mono-tiny': ['9px', { lineHeight: '1.3' }],
+        'mono-xs': ['10px', { lineHeight: '1.3' }],
+        'mono-sm': ['12px', { lineHeight: '1.4' }],
+        mono: ['13px', { lineHeight: '1.5' }],
+        'mono-md': ['14px', { lineHeight: '1.5' }],
+        'mono-lg': ['15px', { lineHeight: '1.6' }],
         // Inter base body/caption
-        small: ['13px', { lineHeight: '1.5' }],
-        body: ['15px', { lineHeight: '1.65' }],
+        small: ['14px', { lineHeight: '1.5' }],
+        body: ['16px', { lineHeight: '1.65' }],
         // Inter input variant (T-360 v2.1)
         'input-hero': ['18px', { lineHeight: '1.4' }],
         // Heading scale (Space Grotesk for h1/h2 + display, Inter for h3)

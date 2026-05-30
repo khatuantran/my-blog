@@ -55,6 +55,8 @@
 
 ### Typography
 
+> **⚠️ T-429 readability bump (2026-05-30, user override design):** base `body font-weight 400 → 500` (đậm toàn hệ thống; explicit weights — heading 600/700, `font-bold` — vẫn override) + **token text/label +1px** (`mono-tiny`..`mono-lg`, Inter `small`/`body`). Bảng dưới ghi **giá trị design-file reference (pre-T-429)** — effective size hiện = **+1px**. Headings (h1/h2/h3/display/input-hero) + chrome dùng arbitrary px (toolbar 32×30, subbar/publish buttons) KHÔNG đổi để tránh vỡ layout. Lý do: user thấy chữ trắng/cyan mờ + nhỏ.
+
 | Token          | Family         | Size    | Weight  | Line height | Use                                                              |
 | -------------- | -------------- | ------- | ------- | ----------- | ---------------------------------------------------------------- |
 | `text-brand`   | Space Grotesk  | 16px    | 700     | 1           | Logo "kha.blog" (letter-spacing -0.04em)                         |

@@ -68,7 +68,7 @@ describe('T-360 design tokens', () => {
     expect(fontSize['h1-hero']?.[0]).toBe('26px');
     expect(fontSize['input-hero']?.[0]).toBe('18px');
     expect(fontSize['display-sm']?.[0]).toBe('24px');
-    expect(fontSize['mono-tiny']?.[0]).toBe('8px');
+    expect(fontSize['mono-tiny']?.[0]).toBe('9px'); // T-429: +1px readability bump (was 8px)
     expect(fontSize['display-glyph']?.[0]).toBe('40px');
 
     const letterSpacing = (config.theme?.extend?.letterSpacing ?? {}) as Record<string, string>;

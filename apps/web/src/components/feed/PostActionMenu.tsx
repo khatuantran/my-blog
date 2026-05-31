@@ -97,7 +97,9 @@ export function PostActionMenu({ post, onClose, triggerRef }: Props) {
           data-testid="action-open-detail"
           className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left font-mono text-mono-sm text-cyan transition-colors hover:bg-cyan/10"
         >
-          <span className="text-base">↗</span>
+          <span className="inline-flex w-5 shrink-0 items-center justify-center text-base leading-none">
+            ↗
+          </span>
           <span className="flex-1">Open detail</span>
           <span className="text-mono-xs text-td">#{post.id.slice(-6)}</span>
         </button>
@@ -111,21 +113,28 @@ export function PostActionMenu({ post, onClose, triggerRef }: Props) {
             copied ? 'text-grn' : 'text-blu'
           }`}
         >
-          <span className="text-base">{copied ? '✓' : '🔗'}</span>
+          <span className="inline-flex w-5 shrink-0 items-center justify-center text-base leading-none">
+            {copied ? '✓' : '🔗'}
+          </span>
           <span className="flex-1">{copied ? 'Copied!' : 'Copy link'}</span>
         </button>
 
-        <button
-          type="button"
-          role="menuitem"
-          onClick={handleToggleSave}
-          data-testid="action-toggle-save"
-          aria-pressed={!!post.saved}
-          className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left font-mono text-mono-sm text-yel transition-colors hover:bg-yel/10"
-        >
-          <span className="text-base">🔖</span>
-          <span className="flex-1">{post.saved ? 'Unsave post' : 'Save post'}</span>
-        </button>
+        {/* Save post — CHỈ auth user (FR-03.3). Anonymous không thấy. */}
+        {user && (
+          <button
+            type="button"
+            role="menuitem"
+            onClick={handleToggleSave}
+            data-testid="action-toggle-save"
+            aria-pressed={!!post.saved}
+            className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left font-mono text-mono-sm text-yel transition-colors hover:bg-yel/10"
+          >
+            <span className="inline-flex w-5 shrink-0 items-center justify-center text-base leading-none">
+              🔖
+            </span>
+            <span className="flex-1">{post.saved ? 'Unsave post' : 'Save post'}</span>
+          </button>
+        )}
 
         {showAdminSection && (
           <>
@@ -140,7 +149,9 @@ export function PostActionMenu({ post, onClose, triggerRef }: Props) {
               data-testid="action-edit"
               className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left font-mono text-mono-sm text-yel transition-colors hover:bg-yel/10"
             >
-              <span className="text-base">✎</span>
+              <span className="inline-flex w-5 shrink-0 items-center justify-center text-base leading-none">
+                ✎
+              </span>
               <span className="flex-1">Edit post</span>
               <span className="text-mono-xs text-td">⌘E</span>
             </button>
@@ -157,7 +168,9 @@ export function PostActionMenu({ post, onClose, triggerRef }: Props) {
               data-testid="action-delete"
               className="flex w-full items-center gap-2.5 px-3.5 py-1.5 text-left font-mono text-mono-sm text-red transition-colors hover:bg-red/10"
             >
-              <span className="text-base">✕</span>
+              <span className="inline-flex w-5 shrink-0 items-center justify-center text-base leading-none">
+                ✕
+              </span>
               <span className="flex-1">Delete post</span>
               <span className="text-mono-xs text-td">permanent</span>
             </button>

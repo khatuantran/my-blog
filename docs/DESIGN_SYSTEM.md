@@ -839,7 +839,7 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
   - **User actions:**
     - `↗ Open detail` cyan + `#<id>` desc → navigate `/post/<id>`.
     - `🔗 Copy link` blu (→ grn `Copied!` 900ms feedback rồi auto-close) → `navigator.clipboard.writeText('kha.blog/post/<id>')`.
-    - **`🔖 Save post` yel** (NEW — design-file 2026-05-24, moved here từ standalone SaveButton trong PostCard).
+    - **`🔖 Save post` yel** (NEW — design-file 2026-05-24, moved here từ standalone SaveButton trong PostCard). **CHỈ render khi auth user** (FR-03.3 — anonymous KHÔNG thấy; BUG-032).
   - Separator `// admin` mono 9 deep-muted.
   - **Admin actions (visible khi user là post owner / admin role — gating qua FR):**
     - `✎ Edit post` yel + `⌘E` desc → navigate Create Post edit.
@@ -848,7 +848,7 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
     - `🔇 Hide comments` muted.
   - Separator `// danger`.
   - **Destructive:** `✕ Delete post` red + `permanent` desc.
-- **Item structure (flex gap 10 padding 7/14):** icon 18px (color) + label flex-1 12px + desc mono 10 muted right-aligned.
+- **Item structure (flex `items-center` gap 10 padding 7/14):** icon **fixed-width `w-5` center** (`inline-flex w-5 justify-center` — đồng cột, label các dòng thẳng hàng + icon căn giữa dòng) + label flex-1 12px + desc mono 10 muted right-aligned.
 - **Item hover:** background `${color}10` per-item color.
 - **Behavior:** click outside (mousedown listener) → close.
 - **Reference:** `design-file/MyBlog Feed.html` L761-823.

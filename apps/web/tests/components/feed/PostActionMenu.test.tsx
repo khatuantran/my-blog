@@ -20,7 +20,18 @@ beforeEach(() => {
 });
 
 describe('PostActionMenu (T-356)', () => {
-  it('1. open menu — render header + 3 user actions (Open detail / Copy link / Save)', () => {
+  it('1. authed: render header + 3 user actions (Open detail / Copy link / Save)', () => {
+    useAuthStore.setState({
+      status: 'authed',
+      user: {
+        id: 'viewer-1',
+        username: 'viewer',
+        email: null,
+        role: 'USER',
+        avatarUrl: null,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
     const post = makePost({ id: 'abc1234567' });
     render(
       <TestProviders>
@@ -32,6 +43,19 @@ describe('PostActionMenu (T-356)', () => {
     expect(screen.getByTestId('action-open-detail')).toBeInTheDocument();
     expect(screen.getByTestId('action-copy-link')).toBeInTheDocument();
     expect(screen.getByTestId('action-toggle-save')).toBeInTheDocument();
+  });
+
+  it('1b. anonymous: KHÔNG render Save post (FR-03.3 — save chỉ auth user)', () => {
+    // beforeEach clear → guest
+    const post = makePost({ id: 'p1' });
+    render(
+      <TestProviders>
+        <PostActionMenu post={post} onClose={() => {}} />
+      </TestProviders>,
+    );
+    expect(screen.getByTestId('action-open-detail')).toBeInTheDocument();
+    expect(screen.getByTestId('action-copy-link')).toBeInTheDocument();
+    expect(screen.queryByTestId('action-toggle-save')).toBeNull();
   });
 
   it('2. non-admin non-owner: KHÔNG render admin + danger sections', () => {
@@ -97,6 +121,17 @@ describe('PostActionMenu (T-356)', () => {
   });
 
   it('6. click Save post → toggle save mutation called', async () => {
+    useAuthStore.setState({
+      status: 'authed',
+      user: {
+        id: 'viewer-1',
+        username: 'viewer',
+        email: null,
+        role: 'USER',
+        avatarUrl: null,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
     let closed = false;
     const user = userEvent.setup();
     const post = makePost({ id: 'p1', saved: false });

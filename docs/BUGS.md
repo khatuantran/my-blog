@@ -11,6 +11,22 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-032] [Low] [FE] PostActionMenu hiện "Save post" cho anonymous (vi phạm FR-03.3)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-459 (DONE 2026-05-31)
+- **Related FR/component:** FR-03.3 / `PostActionMenu.tsx`
+- **Mô tả:** Menu `⋯` (post.actions) hiện item `🔖 Save post` kể cả khi chưa login (anonymous). FR-03.3 quy định save **CHỈ auth user**. Đồng thời icon + chữ các action không thẳng hàng / không căn giữa dòng (icon width khác nhau: ↗ vs 🔗 vs 🔖).
+- **Steps:** Mở feed ở chế độ anonymous (chưa login) → click `⋯` trên post → thấy "Save post".
+- **Expected:** Anonymous KHÔNG thấy "Save post"; icon + chữ thẳng cột + căn giữa dòng.
+- **Actual:** Save post hiện cho anon (click → save mutation fail 401); icon/chữ lệch.
+- **Root cause:** Save button render vô điều kiện (không gate `user`); icon span dùng `text-base` không cố định width → label các dòng lệch trái phải.
+- **Fix:** Wrap Save button trong `{user && (...)}` (auth-only); icon span → `inline-flex w-5 shrink-0 items-center justify-center leading-none` (fixed-width center → label thẳng cột + icon căn giữa dòng).
+- **Regression test:** `PostActionMenu.test` (`1. authed → save hiện` + `1b. anonymous → KHÔNG có action-toggle-save`).
+- **Lesson learned:** action gated theo role/auth (FR-03.3) phải check ở render, không chỉ ở handler; icon list trong menu nên fixed-width để label thẳng hàng.
+
 ### [BUG-031] [Low] [FE] ImageLightbox click vùng đen ngoài ảnh không đóng (chỉ × đóng)
 
 - **Status:** FIXED

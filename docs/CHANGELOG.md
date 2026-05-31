@@ -34,6 +34,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-032 FE PostActionMenu hiện Save cho anonymous + icon lệch (F3)** (2026-05-31, FE): Menu `⋯` hiện `🔖 Save post` cả khi chưa login (vi phạm FR-03.3 — save chỉ auth user) → wrap `{user && ...}` ẩn với anon. Đồng thời icon các action không thẳng cột / không căn giữa dòng (width ↗/🔗/🔖 khác nhau) → icon span `inline-flex w-5 justify-center leading-none` (fixed-width center → label thẳng hàng). PostActionMenu test: thêm case authed (save hiện) + anonymous (save ẩn). (Fixes BUG-032, Refs T-459)
+
 - **BUG-031 FE ImageLightbox click vùng đen không đóng (F3)** (2026-05-31, FE): Image area div `stopPropagation` toàn bộ → click backdrop quanh ảnh không bubble lên root onClose. Sửa: `stopPropagation` + `if (target===currentTarget) onClose()` → click vùng đen đóng, click ảnh/nút không. 1 regression test. (Fixes BUG-031, Refs T-452)
 
 - **BUG-030 FE bài post ngắn vẫn hiện "show more" (F3)** (2026-05-31, FE): `CollapsibleContent` đổi `overflowing` so với `collapsedH` (line-box thiếu margin) → false-positive với bài ngắn. Sửa: so `scrollHeight > maxHeight + 1` + chỉ clamp khi overflow thật. (Fixes BUG-030, Refs T-451)

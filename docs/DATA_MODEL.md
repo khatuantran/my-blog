@@ -704,47 +704,56 @@ model Notification {
   - `AnonymousSession.id` dùng string format hex hoặc sequential — KHÔNG cuid để có ID format friendly cho UI
   - Local postgres-main đổi port `:5432` → `:5434` (tránh conflict local postgres). Update `apps/api/.env.example` + `docker-compose.yml`.
 
-### v0.3.0-alpha (planned) — profile + tags expand (M11.5)
+### v0.3.0-alpha (applied) — profile + tags expand (M11.5)
 
-- **Planned migration:** `add_user_profile_fields_and_tag_description` (T-220 + T-210)
+- **Migration:** `add_user_profile_fields_and_tag_description` (T-220 + T-210)
 - **Added:** `User.title String?` (80) + `User.bio String? @db.Text` (500 markdown) + `User.skills Json @default("[]")` (array `{name,color}` max 20) + `Tag.description String?` (280) + `Tag.createdAt DateTime @default(now())`.
 - **Backfill:** N/A — all new fields nullable hoặc have defaults; existing rows OK.
 - **Breaking:** None — purely additive.
 - **Linked:** FR-10 (Tag), FR-11 (User profile).
 
-### v0.3.1-alpha (planned) — Activity Log (M11.6)
+### v0.3.1-alpha (applied) — Activity Log (M11.6)
 
-- **Planned migration:** `add_activity_log` (T-300)
+- **Migration:** `add_activity_log` (T-300)
 - **Added:** Model `ActivityLog` (id, actorId, type, targetType, targetId, targetOwnerId?, metadata?, createdAt) + enum `ActivityType` (POST_CREATED / COMMENT_CREATED / LIKE_CREATED / SAVE_CREATED) + enum `ActivityTargetType` (POST / COMMENT). 2 index `[actorId, createdAt]` + `[targetOwnerId, createdAt]`.
 - **Backfill:** N/A — empty table, log only from migration time forward (historical activity sẽ KHÔNG visible cho v1).
 - **Breaking:** None — purely additive.
 - **Linked:** FR-13 (Activity Log user-scope), UC-16.
 
-### v0.6.0-alpha (planned) — Contact + identity fields (FR-11.8)
+### v0.6.0-alpha (applied) — Contact + identity fields (FR-11.8)
 
-- **Planned migration:** `add_user_contact_fields` (T-421)
+- **Migration:** `add_user_contact_fields` (T-421)
 - **Added:** `User` thêm 5 nullable fields: `name String?` (80), `location String?` (80), `bornYear Int?` (1900-currentYear), `github String?` (120), `website String?` (200). FE EditProfileDrawer contact section đã render sẵn (T-376) nhưng BE chưa accept → PATCH bị reject 400 (forbidNonWhitelisted). Migration align FE-BE end-to-end.
 - **Backfill:** N/A — purely additive nullable fields; existing rows mặc định NULL.
 - **Breaking:** None.
 - **Linked:** FR-11.8 (Contact + identity), UC-14 extends.
 
-### v0.5.0-alpha (planned) — Avatar upload (FR-11.7)
+### v0.5.0-alpha (applied) — Avatar upload (FR-11.7)
 
-- **Planned migration:** `add_user_avatar_public_id` (T-410)
+- **Migration:** `add_user_avatar_public_id` (T-410)
 - **Added:** `User.avatarPublicId String?` để track Cloudinary publicId cho cleanup khi replace/remove avatar. `User.avatarUrl` (đã có sẵn từ v0.2.0) giữ nguyên semantic — store secure URL hiển thị.
 - **Backfill:** N/A — purely additive nullable field; existing rows mặc định null.
 - **Breaking:** None — purely additive. Cloudinary folder `avatars/` mới (không conflict folder `posts/` của FilesModule existing).
 - **Linked:** FR-11.7 (Avatar upload), UC-23.
 
-### v0.4.0-alpha (planned) — Design v2 (Notifications + Manage Posts + Reactions) (M11.7)
+### v0.4.0-alpha (applied) — Design v2 (Notifications + Manage Posts + Reactions) (M11.7)
 
-- **Planned migrations:**
+- **Migrations:**
   - `add_post_status_enum` (T-320): enum `PostStatus` + `Post.status PostStatus @default(PUBLISHED)`. Backfill: existing rows → PUBLISHED.
   - `add_notification_table` (T-310): model `Notification` + enum `NotificationType`. 2 index `[userId, createdAt]` + `[userId, read]`.
   - `rename_like_to_reaction_with_type` (T-316 new): RENAME table `Like` → `Reaction` + thêm column `type ReactionType @default(LIKE)` + enum `ReactionType`. Backfill: ALL existing rows được set `type='LIKE'` (data preserve). Indexes giữ nguyên + thêm `[postId, type]`. Rename relation alias trong Post model (`likes` → `reactions`).
 - **Backfill:** Post.status → PUBLISHED; Like → Reaction `type=LIKE` (full data preserve, 0 row mất).
 - **Breaking:** **YES** — Like model bị rename → Reaction. BE code phải update Prisma queries (PostsService include, LikesService → ReactionsService). API endpoint `POST /posts/:id/likes` đổi thành `POST /posts/:id/reactions` (xem API_CONTRACT). FE phải update `useToggleLike` → `useUpsertReaction`. Migration order: deploy BE mới + chạy migration trong 1 release window.
 - **Linked:** FR-14 (Notification), FR-15 (Manage Posts), FR-16 (Multi-Reaction), UC-17/18/19/20/21.
+
+### v0.7.0-alpha (applied 2026-05-31) — Interaction Trace Log (FR-18)
+
+- **Migrations:**
+  - `add_interaction_log` (T-461): model `InteractionLog` (append-only audit) + enum `InteractionAction` (COMMENT/REPLY/COMMENT_LIKE/POST_REACTION) + `InteractionTargetType` (POST/COMMENT). FK `actorUserId → User` SetNull. 5 index.
+  - `add_interaction_log_geo` (T-467): `InteractionLog` +`geoCountry`/`geoCity` (geoip-lite).
+- **Backfill:** N/A — table mới, log từ thời điểm migration.
+- **Breaking:** None — purely additive.
+- **Linked:** FR-18 (Interaction Trace Log), UC-24.
 
 ---
 

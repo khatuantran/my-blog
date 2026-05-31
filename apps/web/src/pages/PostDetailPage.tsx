@@ -85,6 +85,9 @@ export default function PostDetailPage() {
             />
             <button
               type="button"
+              onClick={() =>
+                document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })
+              }
               className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
               aria-label="Jump to comments"
             >
@@ -107,7 +110,7 @@ export default function PostDetailPage() {
         {/* /Post card */}
 
         {/* Comments header (design L419): ❯ cyan + // comments white + [N] muted */}
-        <section aria-label="Comments" className="mt-6 space-y-4">
+        <section id="comments" aria-label="Comments" className="mt-6 space-y-4">
           <div className="flex items-center gap-2 font-mono text-mono-lg">
             <span className="text-cyan">❯</span>
             <span className="text-tp">// comments</span>

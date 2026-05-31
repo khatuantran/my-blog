@@ -97,6 +97,36 @@
 - **Task:** T-316
 - **Rollback:** `prisma migrate resolve --rolled-back 20260524125935_rename_like_to_reaction_with_type` + manual SQL `ALTER TABLE "Reaction" RENAME TO "Like"; DROP TYPE "ReactionType"; ALTER TABLE "Like" DROP COLUMN type, DROP COLUMN "updatedAt";`
 
+### 20260519090636_add_activity_log
+
+- **Created:** 2026-05-19
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** new model `ActivityLog` + 2 enum (`ActivityType` POST_CREATED/COMMENT_CREATED/LIKE_CREATED/SAVE_CREATED, `ActivityTargetType` POST/COMMENT). FK actor/targetOwner → User.
+- **Breaking:** no — table mới.
+- **Notes:** FR-13 Activity Log (profile activity timeline). Backfill doc (lần audit 2026-05-31 — migration đã apply từ 2026-05-19 nhưng thiếu entry).
+- **Task:** T-051 (M11.6)
+- **Rollback:** `prisma migrate resolve --rolled-back 20260519090636_add_activity_log` + `DROP TABLE "ActivityLog"; DROP TYPE "ActivityType"; DROP TYPE "ActivityTargetType";`
+
+### 20260519041856_add_user_profile_fields
+
+- **Created:** 2026-05-19
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `User` (+3: `title TEXT`, `bio TEXT`, `skills JSONB default '[]'`)
+- **Breaking:** no — nullable/default.
+- **Notes:** FR-11 profile fields (title/bio/skills) cho Profile hero. Backfill doc (audit 2026-05-31).
+- **Task:** M11.5
+- **Rollback:** `... --rolled-back ...` + `ALTER TABLE "User" DROP COLUMN "title", DROP COLUMN "bio", DROP COLUMN "skills";`
+
+### 20260519040327_add_tag_description_and_created_at
+
+- **Created:** 2026-05-19
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `Tag` (+`description TEXT`, +`createdAt TIMESTAMP default now()`)
+- **Breaking:** no.
+- **Notes:** FR Tags — description + createdAt cho TagCard. Backfill doc (audit 2026-05-31).
+- **Task:** M11.5
+- **Rollback:** `... --rolled-back ...` + `ALTER TABLE "Tag" DROP COLUMN "description", DROP COLUMN "createdAt";`
+
 ### 20260517165932_init
 
 - **Created:** 2026-05-17

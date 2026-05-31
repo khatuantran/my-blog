@@ -125,12 +125,16 @@ apps/api/
 │   │   └── dto/                (LoginDto, RegisterDto)
 │   ├── users/                  UsersModule (CRUD users, ban)
 │   ├── posts/                  PostsModule (CRUD posts + view tracking)
-│   ├── comments/               CommentsModule (CRUD + moderation)
-│   ├── likes/                  LikesModule (toggle posts/comments — 2 endpoint riêng)
+│   ├── comments/               CommentsModule (CRUD + moderation + reply FR-03.6)
+│   ├── reactions/              ReactionsModule (multi-reaction post + comment-like — T-316 đổi tên từ Likes)
 │   ├── files/                  FilesModule (StorageService driver: Cloudinary | local volume — ADR-010)
 │   ├── tags/                   TagsModule (CRUD tags + popular list)
+│   ├── notifications/          NotificationsModule (FR-14)
+│   ├── activity/               ActivityModule (FR-13 activity log)
+│   ├── saved/ search/          SavedModule + SearchModule
+│   ├── interaction-logs/       InteractionLogsModule (FR-18 trace log non-admin + admin viewer)
 │   ├── admin/                  AdminModule (stats, activity, users mgmt)
-│   ├── realtime/               RealtimeGateway (Socket.io @WebSocketGateway)
+│   ├── realtime/               RealtimeGateway (Socket.io) — ⚠️ PLANNED, chưa import vào AppModule
 │   ├── prisma/                 PrismaModule (singleton PrismaService)
 │   ├── config/                 (env.schema.ts — Zod validate)
 │   ├── common/
@@ -394,6 +398,11 @@ apps/api/
 - BE chỉ allow origin từ env `CORS_ORIGIN` (FE Vercel URL) + `http://localhost:5173` (dev)
 - `credentials: true` để cookie work cross-origin
 - WS namespace dùng cùng CORS config
+
+### Trust proxy (FR-18)
+
+- `app.set('trust proxy', Number(TRUST_PROXY ?? 1))` (`main.ts`) — để `req.ip` lấy client IP thật từ `X-Forwarded-For` sau reverse proxy Fly.io (1 hop). Dùng cho RefreshToken.ipAddress + InteractionLog trace (FR-18).
+- `TRUST_PROXY` env configurable: tăng nếu thêm CDN/proxy chain; KHÔNG đặt quá cao để tránh client spoof XFF forge IP.
 
 ### Rate limiting
 

@@ -173,7 +173,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - **Infinite scroll**: IntersectionObserver trên sentinel div (rootMargin 120px) → load thêm 2 posts với 700ms delay simulate. Loading state: `<AsciiSpinner /> loading posts...` mono 13 muted. End state: `// end of feed · N posts loaded` deeper muted.
 - **Mood filter click**: toggle (click lại để clear) → reset `shown=2` → re-fetch
 - **PostCard hover**: border cyan glow, top gradient line `linear-gradient(90deg,transparent,cyan,transparent)` fade in
-- **Image click → opens [[DESIGN_SYSTEM.md#ImageLightbox (Feed — design-file 2026-05-24)|ImageLightbox]] overlay** (keyboard ← → Esc, click backdrop to close).
+- **Image click → opens [[DESIGN_SYSTEM.md#ImageLightbox (Feed — design-file 2026-05-24)|ImageLightbox]] overlay** (keyboard ← → Esc; click vùng đen quanh ảnh để đóng — BUG-031). ImageGrid collage size `variant=feed` (single 460 / 2-col 340 / ≥3 400px — T-451).
+- **Avatar click → [[DESIGN_SYSTEM.md#AvatarPreviewModal (T-453)|AvatarPreviewModal]]** (ảnh avatar phóng to; click backdrop/Esc/× đóng). **Tên `~/username` click → `/profile/:username`** (T-453; profile tự ẩn phần self/admin-only cho non-self viewer).
 - **Hover React button → reveal ReactionPicker popover with 250ms close debounce** ([[DESIGN_SYSTEM.md#Hover-reveal popover with grace period|Hover-reveal popover pattern]] — CRITICAL bug fix). 6 SVG line-art icons LIKE/LOVE/HAHA/WOW/SAD/ANGRY (KHÔNG emoji). Click trigger = LIKE default (toggle off nếu đang có reaction). Click icon = upsert reaction type. Click top-3 stacked icons + count = mở ReactionList modal. Optimistic local mirror, rollback nếu fail. 410 Gone từ legacy `/like` → disable + inline error.
 - **Comment `💬` button click → mở [[DESIGN_SYSTEM.md#CommentsModal (Feed — design-file 2026-05-24) — DEFINITIVE pattern|CommentsModal]] popup (KHÔNG navigate `/post/:id`)**. DEFINITIVE pattern từ design-file 2026-05-24. Post Detail page vẫn tồn tại nhưng chỉ accessed qua direct URL (deep-link/SEO).
 - **`⋯` button click → mở [[DESIGN_SYSTEM.md#PostActionMenu (Feed — design-file 2026-05-24)|PostActionMenu]]** với items: Open detail / Copy link / **🔖 Save post** / (admin) Edit / Pin / Archive / Hide comments / **(danger)** Delete. Click outside → close. **Save post moved here từ standalone SaveButton** — KHÔNG còn save button riêng trong action row.
@@ -247,17 +248,17 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 
 ### Components
 
-| Component                              | Source                        |
-| -------------------------------------- | ----------------------------- |
-| Breadcrumb                             | DESIGN_SYSTEM > Breadcrumb    |
-| PostHeader (avatar + admin tag + mood) | DESIGN_SYSTEM > PostHeader    |
-| PostContent (markdown renderer)        | DESIGN_SYSTEM > PostContent   |
-| ImageCarousel                          | DESIGN_SYSTEM > ImageCarousel |
-| TagPill                                | DESIGN_SYSTEM > TagPill       |
-| CommentForm                            | DESIGN_SYSTEM > CommentForm   |
-| CommentItem                            | DESIGN_SYSTEM > CommentItem   |
-| MetaPanel right                        | DESIGN_SYSTEM > MetaPanel     |
-| ShareButton                            | DESIGN_SYSTEM > ShareButton   |
+| Component                              | Source                      |
+| -------------------------------------- | --------------------------- |
+| Breadcrumb                             | DESIGN_SYSTEM > Breadcrumb  |
+| PostHeader (avatar + admin tag + mood) | DESIGN_SYSTEM > PostHeader  |
+| PostContent (markdown renderer)        | DESIGN_SYSTEM > PostContent |
+| ImageGrid (collage, `variant=detail`)  | DESIGN_SYSTEM > ImageGrid   |
+| TagPill                                | DESIGN_SYSTEM > TagPill     |
+| CommentForm                            | DESIGN_SYSTEM > CommentForm |
+| CommentItem                            | DESIGN_SYSTEM > CommentItem |
+| MetaPanel right                        | DESIGN_SYSTEM > MetaPanel   |
+| ShareButton                            | DESIGN_SYSTEM > ShareButton |
 
 ### State machine
 
@@ -275,7 +276,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - **Action row (Post Detail variant — design-file 2026-05-24):** Chỉ 3 button (React/Comment/Share) + `(ml-auto) 👁 N views` counter. **KHÔNG có Save button, KHÔNG có ⋯ menu** (khác PostCard Feed variant). Save accessed via PostActionMenu on Feed.
 - **Hover React button → ReactionPicker với 250ms close debounce** ([[DESIGN_SYSTEM.md#Hover-reveal popover with grace period|Hover-reveal popover pattern]]) — giống Screen 1 Feed pattern.
 - **Comment `💬` button trên Post Detail:** scroll-to comment section inline (KHÔNG mở modal — đã có inline comment form ở dưới content). Note: KHÁC Feed variant (Feed dùng modal).
-- **ImageCarousel**: ← → buttons + dot indicator click; keyboard arrow nav khi focused; touch swipe mobile
+- **Images (T-450/T-451)**: `ImageGrid` collage (như Feed) `variant=detail` to hơn (single 640 / 2-col 460 / ≥3 520px); click ảnh → [[DESIGN_SYSTEM.md#ImageLightbox (Feed — design-file 2026-05-24)|ImageLightbox]] (click vùng đen đóng). Thay `ImageCarousel` (deprecated).
+- **Avatar / tên (T-453)**: click avatar → AvatarPreviewModal; click `~/username` → `/profile/:username` (giống Feed).
 - **Comment form `post as anon` toggle**: switch between auth user mode và anonymous input mode
 - **Comment submit**: optimistic insert; rollback on fail
 - **Like comment:** traditional `♡/❤` toggle (KHÔNG reaction picker — chỉ post mới có reactions multi-type). Comment vẫn dùng binary like.

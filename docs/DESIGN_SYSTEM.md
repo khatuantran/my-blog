@@ -277,9 +277,10 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Animation:** `fadeUp 0.3s ease both` on mount with stagger delay (60ms per item)
 - **Reference:** `design-file/MyBlog Feed.html` L826-925.
 
-### PostHeader (Post Detail variant)
+### PostHeader (shared Feed + Post Detail)
 
-- Larger avatar 40px, larger username + admin tag, timestamp + mood badge stacked
+- Larger avatar 40px (detail), larger username + admin tag, timestamp + mood badge stacked
+- **Interactive (T-453, feed + detail):** Avatar bọc `<button>` → click mở [[#AvatarPreviewModal (T-453)|AvatarPreviewModal]] (ảnh phóng to). Username `~/{username}` là `<Link to=/profile/:username>` (text-blu, hover underline) → trang profile. testid `post-avatar-btn` / `post-author-link`.
 - **Action row (Post Detail variant — design-file sync 2026-05-24):** Chỉ 3 button (React/Comment/Share) + `(ml-auto) 👁 N views` counter. **KHÔNG có Save button, KHÔNG có ⋯ menu** (khác PostCard Feed variant).
 - **Comment `💬` button trên Post Detail:** scroll-to comment section inline (KHÔNG mở modal — đã có inline form ở dưới content). Differs từ Feed variant.
 - **Reference:** `design-file/MyBlog Post Detail.html` L323-445.
@@ -297,26 +298,27 @@ Toggle via Tweaks panel (dev tool, không document).
 
 - **Mục đích:** Bọc `PostContent`, clamp khi content cao quá `maxHeight` + nút `▾ show more` / `▴ collapse`. Dùng chung **Feed PostCard** (`maxHeight 400`) + **Create Post live preview** (`maxHeight 320`).
 - **Clean cut:** collapsed height cắt đúng ranh giới dòng cuối còn trọn trong ngưỡng — đo từng line box qua `Range.getClientRects()` (xử lý multi-paragraph + margin + heading), không lú nửa dòng.
-- **Behavior:** collapsed mặc định; detect overflow qua `scrollHeight`; tự reset collapsed khi content ngắn lại. Toggle button `text-cyan` mono-sm. testid `collapsible-content` / `collapsible-toggle`.
+- **Behavior (BUG-030):** collapsed mặc định; `overflowing = scrollHeight > maxHeight + 1` (so với ngưỡng, KHÔNG so collapsedH line-box — tránh false-positive bài ngắn); **chỉ clamp** (`maxHeight: collapsedH`) khi `overflowing && !expanded` (tránh cắt-mà-không-có-nút). Toggle `text-cyan` mono-sm. testid `collapsible-content` / `collapsible-toggle`.
 
-### ImageGrid (Feed)
+### ImageGrid (Feed + Post Detail)
 
-- **Mục đích:** Hiển thị 1-N ảnh trong PostCard
-- **Layout:**
-  - 1 ảnh: full width 200px height
-  - 2 ảnh: 2-col grid 160px height
-  - 3+ ảnh: 2-col asymmetric (1 large left + N-1 stacked right), 180px height; 4+ ảnh: hiển thị 4 đầu, "+N" overlay trên ảnh thứ 4
-- **Placeholder:** diagonal stripe pattern (`repeating-linear-gradient 135deg`) với mood color accent
-- **Tokens:** radius `radius-sm` (inner), radius `radius-md` (outer container)
+- **Mục đích:** Hiển thị 1-N ảnh trong PostCard **và Post Detail** (T-450: thay ImageCarousel; click ảnh mở [[#ImageLightbox (Feed — design-file 2026-05-24)|ImageLightbox]]).
+- **Layout (collage):** 1 ảnh full · 2 ảnh 2-col · ≥3 ảnh 2-col asymmetric (1 large left + N-1 stacked right); 4+ hiển thị 4 đầu + "+N" overlay trên ảnh thứ 4.
+- **Size theo `variant` (T-451 — user "ảnh to hơn", override design-file gốc 200/160/180):**
+  - `feed` (default, PostCard): single **460** / 2-col **340** / ≥3 **400** px
+  - `detail` (PostDetail): single **640** / 2-col **460** / ≥3 **520** px
+- **Cell:** `<img object-cover>` fallback `<ImgSlot>` (diagonal stripe placeholder) khi no url / broken. testid `image-grid-cell-{idx}`.
+- **Tokens:** radius `radius-sm` (inner), `radius-md` (outer).
 
-### ImageCarousel (Post Detail)
+### ImageCarousel (DEPRECATED — T-450)
 
-- **Mục đích:** Single image + prev/next + dot indicator
-- **Height:** 280px
-- **Controls:**
-  - Prev/next buttons: `position: absolute, left/right 12px`, bg `rgba(10,14,26,.75)` + border `--b2` + radius `radius-md` + `backdrop-filter: blur(4px)`
-  - Dot indicator: bottom centered, active dot 16x6 rounded `--cyan` glow, inactive 6x6 `--b2`
-- **A11y:** `<button aria-label="Previous image">` / `"Next image"`
+- **Status:** Không còn dùng (Post Detail chuyển sang ImageGrid collage + lightbox theo user feedback). Component còn trong repo nhưng không mount ở screen nào. (Single image + prev/next + dot indicator, height 280px — spec cũ giữ tham khảo.)
+
+### AvatarPreviewModal (T-453)
+
+- **Mục đích:** Popup xem avatar phóng to (click avatar ở PostHeader feed/detail).
+- **Layout:** portal fixed inset-0 `bg-bg/92` z-500, center. Avatar có URL → `<img>` `max-h-80vh max-w-420` rounded-2xl border-cyan + glow; no URL → circle 280px gradient cyan→pur + initial 120px. Username `~/{username}` mono dưới ảnh.
+- **Close:** click backdrop (`target===currentTarget`) / × (top-right) / Esc. Body scroll lock khi mở. testid `avatar-preview` / `avatar-preview-close` / `avatar-preview-img` / `avatar-preview-default`.
 - **Keyboard:** ← → arrows (when focused)
 
 ### FileAttachments
@@ -814,8 +816,9 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
 ### ImageLightbox (Feed — design-file 2026-05-24)
 
 - **Mục đích:** Full-screen image viewer khi click ảnh trong ImageGrid.
-- **Trigger:** Click image trong PostCard `ImageGrid` → `setLightboxIdx(idx)` → mount via React Portal vào `document.body`.
-- **Overlay:** `position:fixed inset:0`, bg `rgba(0,0,0,.92)`, z `--z-lightbox` (500), animation `fadeUp .15s`. Click backdrop → close.
+- **Trigger:** Click image trong `ImageGrid` (PostCard feed **và Post Detail** — T-450) → `setLightboxIdx(idx)` → mount via React Portal vào `document.body`.
+- **Overlay:** `position:fixed inset:0`, bg `rgba(0,0,0,.92)`, z `--z-lightbox` (500), animation `fadeUp .15s`.
+- **Click-outside-to-close (BUG-031):** vùng đen quanh ảnh (image-area container) đóng khi `target===currentTarget`; image-area `stopPropagation` để click ảnh/nút nav KHÔNG đóng + không bubble lên root. Header/thumb/footer `stopPropagation`. (Trước đây image-area chặn cả backdrop → chỉ × đóng.)
 - **Layout (flex column):**
   - Header: avatar + path `~/admin/post/<id>` + meta + counter `N/M` + `×` close.
   - Image area (flex 1): max 960×70vh, centered. Diagonal stripe placeholder `repeating-linear-gradient(135deg, ${bg} 0px, ${bg} 12px, ${acc}15 12px, ${acc}15 24px)` + boxShadow `0 0 60px ${acc}30, 0 0 0 1px ${acc}40`. 4-color cycle (cyan/pur/grn/ora) từ `LB_CFGS`.

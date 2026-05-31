@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { PostHeader } from '@/components/post/PostHeader';
-import { PostContent } from '@/components/post/PostContent';
+import { CollapsibleContent } from '@/components/post/CollapsibleContent';
 import { ImageGrid } from '@/components/post/ImageGrid';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { TagPill } from '@/components/shared/TagPill';
@@ -21,10 +21,11 @@ export function PostCard({ post, delay = 0 }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [showActionMenu, setShowActionMenu] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const actionTriggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <article
-      className="post-card-hover group relative mb-3 overflow-hidden rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up-md hover:border-cyan/45 hover:shadow-[0_0_24px_rgba(0,255,229,0.1),0_4px_24px_rgba(0,0,0,0.3)]"
+      className="post-card-hover group relative mb-3 rounded-lg border border-b2 bg-surf p-4 transition-all duration-200 animate-fade-up-md hover:border-cyan/45 hover:shadow-[0_0_24px_rgba(0,255,229,0.1),0_4px_24px_rgba(0,0,0,0.3)]"
       style={{ animationDelay: `${delay}ms` }}
       data-testid={`post-card-${post.id}`}
     >
@@ -42,13 +43,15 @@ export function PostCard({ post, delay = 0 }: Props) {
 
       <PostHeader post={post} />
 
-      <PostContent content={post.content} variant="card" />
+      {/* T-440: collapse/expand cho bài feed dài (CollapsibleContent dùng chung preview). */}
+      <CollapsibleContent content={post.content} variant="card" maxHeight={400} className="mb-3" />
 
       <ImageGrid images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
       <FileAttachments files={post.files} />
 
+      {/* mt-1 tách tag khỏi content/attachments cho thoáng (T-441 user feedback "tag sát content"). */}
       {post.tags.length > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
+        <div className="mb-3 mt-1 flex flex-wrap gap-1.5">
           {post.tags.map((t) => (
             <TagPill key={t.id} name={t.name} color={t.color} />
           ))}
@@ -92,6 +95,7 @@ export function PostCard({ post, delay = 0 }: Props) {
         </button>
         <div className="relative ml-auto">
           <button
+            ref={actionTriggerRef}
             type="button"
             onClick={() => setShowActionMenu((v) => !v)}
             aria-label="More actions"
@@ -102,7 +106,11 @@ export function PostCard({ post, delay = 0 }: Props) {
             ⋯
           </button>
           {showActionMenu && (
-            <PostActionMenu post={post} onClose={() => setShowActionMenu(false)} />
+            <PostActionMenu
+              post={post}
+              triggerRef={actionTriggerRef}
+              onClose={() => setShowActionMenu(false)}
+            />
           )}
         </div>
       </div>

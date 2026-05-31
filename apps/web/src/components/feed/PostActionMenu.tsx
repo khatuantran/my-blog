@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/use-auth';
 import { useTogglePostSave } from '@/hooks/mutations/use-save';
@@ -7,11 +7,14 @@ import type { Post } from '@/types/api';
 type Props = {
   post: Post;
   onClose: () => void;
+  /** Nút trigger (⋯) — click vào trigger KHÔNG tính outside-close, để onClick của nó tự
+   *  toggle đóng (tránh mousedown đóng rồi click mở lại — BUG-024). */
+  triggerRef?: RefObject<HTMLElement | null>;
 };
 
 // PostActionMenu — context menu cho `⋯` button trên PostCard.
 // Spec: docs/DESIGN_SYSTEM.md > PostActionMenu (M11.9 Gap 2/8).
-export function PostActionMenu({ post, onClose }: Props) {
+export function PostActionMenu({ post, onClose, triggerRef }: Props) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,13 +24,17 @@ export function PostActionMenu({ post, onClose }: Props) {
   // Click outside → close
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      // Click trên trigger (⋯) → bỏ qua, để onClick của trigger tự toggle đóng (BUG-024:
+      // tránh mousedown đóng → click toggle mở lại).
+      if (triggerRef?.current?.contains(target)) return;
+      if (containerRef.current && !containerRef.current.contains(target)) {
         onClose();
       }
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [onClose]);
+  }, [onClose, triggerRef]);
 
   const isAdmin = user?.role === 'ADMIN';
   const isOwner = user?.id === post.author.id;

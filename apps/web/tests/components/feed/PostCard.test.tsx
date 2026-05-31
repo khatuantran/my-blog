@@ -89,6 +89,31 @@ describe('PostCard', () => {
     expect(screen.getByTestId('post-action-menu-p1')).toBeInTheDocument();
   });
 
+  it('regression BUG-024: ấn ⋯ lần 2 → ĐÓNG menu (không mở lại)', async () => {
+    const user = userEvent.setup();
+    const post = makePost({ id: 'p1' });
+    render(
+      <TestProviders>
+        <PostCard post={post} />
+      </TestProviders>,
+    );
+    const trigger = screen.getByTestId('post-action-trigger-p1');
+    await user.click(trigger); // open
+    expect(screen.getByTestId('post-action-menu-p1')).toBeInTheDocument();
+    await user.click(trigger); // click lại → phải đóng (mousedown outside-handler bỏ qua trigger)
+    expect(screen.queryByTestId('post-action-menu-p1')).not.toBeInTheDocument();
+  });
+
+  it('regression BUG-023: article KHÔNG overflow-hidden (tránh cắt popup action menu khi card ngắn)', () => {
+    const post = makePost({ id: 'p1' });
+    render(
+      <TestProviders>
+        <PostCard post={post} />
+      </TestProviders>,
+    );
+    expect(screen.getByTestId('post-card-p1')).not.toHaveClass('overflow-hidden');
+  });
+
   it('regression FR-04.7: comment button opens CommentsModal (NOT navigate to /post/:id)', async () => {
     const post = makePost({ id: 'abc123', counts: { reactions: 0, comments: 7 } });
     const user = userEvent.setup();

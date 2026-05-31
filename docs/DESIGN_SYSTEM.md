@@ -291,6 +291,13 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Paragraph:** `text-body` (14-15px), `--tp`/`--ts` mix, `margin-bottom: space-2`
 - **Inline code:** `text-mono` background `--elev` color `--grn`
 - **Headings:** map markdown `#` → `text-h1/h2/h3`
+- **HTML content (TipTap, ADR-009):** content bắt đầu bằng `<` → render `dangerouslySetInnerHTML` (`data-testid=post-content-html`); prose styling (h1/h2/ul/ol/mark/a/strong/p margin) dùng chung editor + display ở `globals.css`.
+
+### CollapsibleContent (T-440)
+
+- **Mục đích:** Bọc `PostContent`, clamp khi content cao quá `maxHeight` + nút `▾ show more` / `▴ collapse`. Dùng chung **Feed PostCard** (`maxHeight 400`) + **Create Post live preview** (`maxHeight 320`).
+- **Clean cut:** collapsed height cắt đúng ranh giới dòng cuối còn trọn trong ngưỡng — đo từng line box qua `Range.getClientRects()` (xử lý multi-paragraph + margin + heading), không lú nửa dòng.
+- **Behavior:** collapsed mặc định; detect overflow qua `scrollHeight`; tự reset collapsed khi content ngắn lại. Toggle button `text-cyan` mono-sm. testid `collapsible-content` / `collapsible-toggle`.
 
 ### ImageGrid (Feed)
 

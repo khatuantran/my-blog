@@ -1,60 +1,19 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { PostPreview } from '@/components/create-post/PostPreview';
 
+// Collapse/expand + clamp logic được test riêng ở CollapsibleContent.test.tsx (T-440 extract).
 describe('PostPreview', () => {
   it('empty content → italic placeholder text', () => {
     render(<PostPreview mood="HAPPY" content="" tags={[]} imageCount={0} />);
     expect(screen.getByText(/content preview will appear here/i)).toBeInTheDocument();
   });
 
-  it('content rendered + mood badge reflects', () => {
+  it('content rendered (qua CollapsibleContent) + mood badge reflects', () => {
     render(<PostPreview mood="EXCITED" content="hello world" tags={[]} imageCount={0} />);
     expect(screen.getByText('hello world')).toBeInTheDocument();
     expect(screen.getByText(/excited/i)).toBeInTheDocument();
-  });
-
-  it('regression BUG-019: HTML content render nguyên thẻ (không cắt giữa tag) + clamp bằng CSS', () => {
-    // Content HTML dài (TipTap output). Cách cũ slice(0,300) cắt giữa thẻ → vỡ render.
-    const html = `<p><strong>bold start</strong> ${'word '.repeat(120)}</p><h2>heading</h2>`;
-    const { container } = render(
-      <PostPreview mood="HAPPY" content={html} tags={[]} imageCount={0} />,
-    );
-    // HTML render qua PostContent (dangerouslySetInnerHTML) — thẻ semantic còn nguyên.
-    const rendered = screen.getByTestId('post-content-html');
-    expect(rendered.querySelector('strong')?.textContent).toBe('bold start');
-    expect(rendered.querySelector('h2')?.textContent).toBe('heading');
-    // Clamp bằng CSS max-height + overflow-hidden (không cắt chuỗi).
-    const clamp = screen.getByTestId('preview-content-clamp');
-    expect(clamp).toHaveClass('overflow-hidden');
-    expect(container).toBeTruthy();
-  });
-
-  it('content ngắn (không overflow) → KHÔNG hiện toggle collapse/expand', () => {
-    render(<PostPreview mood="HAPPY" content="<p>short</p>" tags={[]} imageCount={0} />);
-    // jsdom scrollHeight = 0 → not overflowing → no toggle.
-    expect(screen.queryByTestId('preview-expand-toggle')).toBeNull();
-  });
-
-  it('content dài (overflow) → hiện nút show more/collapse + toggle clamp maxHeight', async () => {
-    const user = userEvent.setup();
-    const spy = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(999);
-    try {
-      render(
-        <PostPreview mood="HAPPY" content={`<p>${'x'.repeat(50)}</p>`} tags={[]} imageCount={0} />,
-      );
-      const toggle = await screen.findByTestId('preview-expand-toggle');
-      expect(toggle).toHaveTextContent('show more');
-      const clamp = screen.getByTestId('preview-content-clamp');
-      expect(clamp).toHaveStyle({ maxHeight: '320px' });
-      // expand → bỏ maxHeight, đổi label collapse
-      await user.click(toggle);
-      expect(toggle).toHaveTextContent('collapse');
-      expect(clamp).not.toHaveStyle({ maxHeight: '320px' });
-    } finally {
-      spy.mockRestore();
-    }
+    expect(screen.getByTestId('collapsible-content')).toBeInTheDocument();
   });
 
   it('imageCount 3 → 3 ImgSlot grid cells', () => {

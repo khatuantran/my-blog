@@ -6,9 +6,13 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-440 FE Feed PostCard collapse/expand bài dài** (2026-05-31, FE): Extract `CollapsibleContent` (dùng chung Feed + Create Post preview) — clamp content cao quá ngưỡng (Feed 400px / preview 320px) cắt đúng ranh giới dòng + nút show more/collapse. CollapsibleContent.test 3 case. (Refs T-440)
+
 - **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height cắt đúng ranh giới dòng cuối qua `Range.getClientRects()` (xử lý multi-paragraph + margin). 2 test. (Refs T-439)
 
 ### Fixed
+
+- **BUG-023/024 FE Feed popup action — bị cắt khi card ngắn + ấn lần 2 không đóng (F3)** (2026-05-31, FE): BUG-023 `<article>` PostCard `overflow-hidden` clip `PostActionMenu` (absolute, mở lên trên) khi card ngắn → bỏ `overflow-hidden` (gradient line trong suốt 2 đầu nên không lú góc). BUG-024 ấn ⋯ lần 2 không đóng: mousedown outside-handler đóng menu rồi onClick toggle mở lại → thêm `triggerRef`, outside-handler bỏ qua trigger. 2 regression test. T-441 kèm: tách tag khỏi content (mt-1) cho thoáng. (Fixes BUG-023/BUG-024, Refs T-442/T-441)
 
 - **BUG-022 FE Create Post — text.color không dùng chung được với bold (F3)** (2026-05-31, FE): Tô màu chữ cho text bold → mất màu. Root cause: TipTap nest `<span style=color><strong>` (span màu = cha); prose CSS T-437 set `color: var(--tp)` trên `strong` (con) → đè màu kế thừa. Fix: bỏ `color` khỏi rule `strong, b` (chỉ giữ `font-weight:700`) → bold kế thừa màu span cha. 1 regression test (color span + bold coexist). (Fixes BUG-022, Refs T-438)
 

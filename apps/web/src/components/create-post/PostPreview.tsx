@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
 import { Avatar } from '@/components/shared/Avatar';
 import { MoodBadge } from '@/components/shared/MoodBadge';
-import { PostContent } from '@/components/post/PostContent';
+import { CollapsibleContent } from '@/components/post/CollapsibleContent';
 import { TagPill } from '@/components/shared/TagPill';
 import { ImgSlot } from '@/components/post/ImgSlot';
 import { ReactionIcon } from '@/components/feed/ReactionIcon';
@@ -16,52 +15,10 @@ type Props = {
   imageCount: number;
 };
 
-// Chiều cao tối đa vùng content trong preview — clamp bằng CSS thay vì cắt chuỗi (BUG-019:
-// content là HTML, slice theo ký tự sẽ cắt giữa thẻ → vỡ render).
-const CONTENT_PREVIEW_MAX_H = 320;
-
 // Mini PostCard preview cho CreatePostPage right pane.
 // Match design-file/MyBlog Create Post.html:75-132.
 export function PostPreview({ mood, content, tags, imageCount }: Props) {
   const visibleImages = Math.min(imageCount, 3);
-
-  // Collapse/expand: content dài quá CONTENT_PREVIEW_MAX_H → clamp + nút show more/collapse.
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = useState(false);
-  const [overflowing, setOverflowing] = useState(false);
-  // Chiều cao collapsed cắt ĐÚNG ranh giới dòng cuối còn nằm trọn trong ngưỡng — đo vị trí
-  // từng line box thực qua Range.getClientRects() (xử lý đúng cả multi-paragraph + margin +
-  // heading line-height khác nhau), tránh lú nửa dòng. Fallback ngưỡng nếu không đo được.
-  const [collapsedH, setCollapsedH] = useState(CONTENT_PREVIEW_MAX_H);
-
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el) {
-      setOverflowing(false);
-      return;
-    }
-    // scrollHeight = full content height (bỏ qua maxHeight clamp) → so với ngưỡng.
-    setOverflowing(el.scrollHeight > CONTENT_PREVIEW_MAX_H + 4);
-
-    const top = el.getBoundingClientRect().top;
-    const limit = top + CONTENT_PREVIEW_MAX_H;
-    const range = document.createRange();
-    range.selectNodeContents(el);
-    // getClientRects trả 1 rect / line box (kể cả phần bị overflow clip) → tìm rect cuối có
-    // bottom ≤ limit, cắt ngay tại đó. Bỏ rect rỗng (height 0).
-    let cut = 0;
-    for (const r of Array.from(range.getClientRects())) {
-      if (r.height <= 0) continue;
-      if (r.bottom <= limit) cut = r.bottom - top;
-      else break;
-    }
-    setCollapsedH(cut > 0 ? cut : CONTENT_PREVIEW_MAX_H);
-  }, [content]);
-
-  // Content mới ngắn lại → reset về collapsed.
-  useEffect(() => {
-    if (!overflowing) setExpanded(false);
-  }, [overflowing]);
 
   return (
     <div
@@ -90,31 +47,10 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
         <MoodBadge mood={mood} />
       </div>
 
-      {/* Content — render full HTML (BUG-019: không cắt chuỗi HTML giữa thẻ). Khi dài quá
-          ngưỡng → clamp + nút collapse/expand ẩn/hiện full content. */}
+      {/* Content — render full HTML (BUG-019: không cắt chuỗi HTML giữa thẻ) + collapse/expand
+          khi dài (T-440 CollapsibleContent dùng chung Feed). */}
       {content ? (
-        <>
-          <div
-            ref={contentRef}
-            className="overflow-hidden"
-            style={expanded ? undefined : { maxHeight: collapsedH }}
-            data-testid="preview-content-clamp"
-          >
-            <PostContent content={content} variant="card" />
-          </div>
-          {overflowing && (
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              data-testid="preview-expand-toggle"
-              aria-expanded={expanded}
-              className="mt-1 font-mono text-mono-sm text-cyan transition-colors hover:text-tp"
-            >
-              {expanded ? '▴ collapse' : '▾ show more'}
-            </button>
-          )}
-          <div className="mb-3" />
-        </>
+        <CollapsibleContent content={content} variant="card" maxHeight={320} className="mb-3" />
       ) : (
         <div className="mb-3 font-mono text-mono italic text-td">
           // content preview will appear here...

@@ -11,6 +11,36 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-024] [Medium] [FE] Feed — ấn nút ⋯ lần 2 không đóng menu mà mở lại
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-442 (DONE 2026-05-31)
+- **Related FR/component:** FR-04 Feed / `PostActionMenu.tsx` + `PostCard.tsx`
+- **Mô tả:** Click ⋯ mở popup action; click ⋯ lần nữa lẽ ra đóng nhưng menu không tắt mà hiện lại.
+- **Expected:** Click ⋯ lần 2 → đóng menu.
+- **Actual:** Menu vẫn mở (toggle hỏng).
+- **Root cause:** `PostActionMenu` có listener `mousedown` click-outside gọi `onClose`. Nút ⋯ nằm NGOÀI `containerRef` (menu) → mousedown trên ⋯ kích hoạt outside-handler → `setShowActionMenu(false)`; ngay sau đó `onClick` của ⋯ chạy `setShowActionMenu(v => !v)` với v đã = false → `true` → mở lại. (mousedown đóng → click mở lại.)
+- **Fix:** Thêm prop `triggerRef` cho `PostActionMenu`; outside-handler `return` sớm khi target nằm trong `triggerRef` → không tự đóng, để `onClick` của ⋯ tự toggle đóng. `PostCard` truyền `actionTriggerRef` (ref nút ⋯).
+- **Regression test:** `PostCard.test.tsx` (`regression BUG-024: ấn ⋯ lần 2 → ĐÓNG menu`).
+- **Lesson learned:** dropdown toggle + outside-click listener phải loại trừ chính nút trigger (mousedown-outside đóng rồi click toggle mở lại = vòng lặp).
+
+### [BUG-023] [Medium] [FE] Feed — popup action bị cắt khi card ngắn (overflow-hidden)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-442 (DONE 2026-05-31)
+- **Related FR/component:** FR-04 Feed / `PostCard.tsx` article + `PostActionMenu.tsx`
+- **Mô tả:** Card ngắn → popup action (Copy link/Save/Edit/Delete) mở lên trên (`bottom-full`) bị cắt mất phần tràn khỏi mép card.
+- **Expected:** Popup hiển thị đầy đủ kể cả tràn ngoài card.
+- **Actual:** Phần popup vượt mép card bị ẩn.
+- **Root cause:** `<article>` PostCard có `overflow-hidden` (clip top-gradient line) → cắt mọi child absolute tràn ngoài, gồm `PostActionMenu` (absolute, mở lên trên). (User nghĩ z-index nhưng thực chất là overflow clip.)
+- **Fix:** Bỏ `overflow-hidden` khỏi `<article>` PostCard. Top-gradient line dùng `linear-gradient` trong suốt 2 đầu nên không lú góc bo; ImageGrid inset trong `p-4` nên không chạm góc → không cần clip.
+- **Regression test:** `PostCard.test.tsx` (`regression BUG-023: article KHÔNG overflow-hidden`).
+- **Lesson learned:** container có popup/dropdown absolute tràn ngoài KHÔNG được `overflow-hidden`; clip trang trí (gradient line) phải làm cục bộ, không clip cả card.
+
 ### [BUG-022] [Medium] [FE] Create Post — text.color không dùng chung được với bold
 
 - **Status:** FIXED

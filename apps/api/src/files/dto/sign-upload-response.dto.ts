@@ -1,6 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SignedUploadParamsDto {
+  @ApiProperty({ enum: ['cloudinary', 'local'], example: 'cloudinary' })
+  provider!: 'cloudinary' | 'local';
+
   @ApiProperty({ example: 'abc123signaturehash' })
   signature!: string;
 
@@ -21,4 +24,10 @@ export class SignedUploadParamsDto {
 
   @ApiProperty({ example: 'post-abc-image-1', nullable: true })
   publicId!: string | null;
+
+  @ApiPropertyOptional({
+    example: '/files/upload',
+    description: 'Local driver: endpoint upload multipart',
+  })
+  uploadUrl?: string;
 }

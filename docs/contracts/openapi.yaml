@@ -460,7 +460,7 @@ paths:
   /files/sign:
     post:
       operationId: FilesController_signUpload
-      summary: Issue Cloudinary signed upload params (admin only)
+      summary: Issue signed upload params (admin only) — cloudinary | local
       parameters: []
       requestBody:
         required: true
@@ -477,10 +477,26 @@ paths:
                 $ref: '#/components/schemas/SignedUploadParamsDto'
       tags:
         - files
+  /files/upload:
+    post:
+      operationId: FilesController_upload
+      summary: Upload file vào local volume (admin only, STORAGE_DRIVER=local)
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFileDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - files
   /files/{id}:
     delete:
       operationId: FilesController_remove
-      summary: Delete file (admin only) — DB record + revoke Cloudinary asset
+      summary: Delete file (admin only) — DB record + revoke storage asset
       parameters:
         - name: id
           required: true
@@ -1635,6 +1651,12 @@ components:
     SignedUploadParamsDto:
       type: object
       properties:
+        provider:
+          type: string
+          enum:
+            - cloudinary
+            - local
+          example: cloudinary
         signature:
           type: string
           example: abc123signaturehash
@@ -1660,7 +1682,12 @@ components:
           type: object
           example: post-abc-image-1
           nullable: true
+        uploadUrl:
+          type: string
+          example: /files/upload
+          description: 'Local driver: endpoint upload multipart'
       required:
+        - provider
         - signature
         - timestamp
         - apiKey
@@ -1668,6 +1695,24 @@ components:
         - folder
         - resourceType
         - publicId
+    UploadFileDto:
+      type: object
+      properties:
+        folder:
+          type: string
+          example: myblog/posts
+        resourceType:
+          type: string
+          enum:
+            - image
+            - raw
+          example: image
+        publicId:
+          type: string
+          example: u-abc-1717000000
+      required:
+        - folder
+        - resourceType
     PopularTagDto:
       type: object
       properties:

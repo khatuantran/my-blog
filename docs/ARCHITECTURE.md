@@ -354,6 +354,24 @@ apps/api/
   - Con: thêm dependency FE (~100kb gồm ProseMirror core + extensions); toolbar binding viết lại theo TipTap command; test RichTextEditor rewrite (bỏ stub execCommand → assert mark/node render).
   - Backward-compatible: content cũ (markdown legacy / HTML execCommand đã publish) vẫn render qua nhánh `isHtmlContent`/markdown của `PostContent` — không cần migrate.
 
+### ADR-010: Storage driver abstraction (Cloudinary prod / local volume dev)
+
+- **Date:** 2026-05-31
+- **Status:** Accepted
+- **Context:** Upload trước đây hardcode Cloudinary (signed direct upload). Local dev cần upload được mà không phụ thuộc Cloudinary creds; user muốn local lưu file vào volume trên máy. Đồng thời backend local chuyển chạy trong Docker (api + postgres), prod giữ Vercel/Fly/Neon.
+- **Decision:** Trừu tượng hoá tầng lưu trữ qua `StorageDriver` (`signUpload`, `destroyMany`, `saveUpload`), chọn bằng env **`STORAGE_DRIVER` (`cloudinary` | `local`, default `cloudinary`)**:
+  - **`cloudinary`** (prod): giữ nguyên flow — `POST /files/sign` trả signed params (`provider:'cloudinary'`), FE upload thẳng `api.cloudinary.com`.
+  - **`local`** (dev): `POST /files/sign` trả `{ provider:'local', uploadUrl:'/files/upload' }`; FE POST file multipart lên `POST /files/upload`; BE ghi vào `STORAGE_LOCAL_PATH` (bind-mount `./storage/uploads`) + serve tĩnh tại `/uploads`; URL tuyệt đối `${STORAGE_PUBLIC_URL}/uploads/<publicId>`.
+  - FE chọn nhánh theo field `provider` trong response sign (BE là nguồn chân lý, không cần VITE flag).
+  - `StorageService` facade chọn driver; inject vào `files.service` / `posts.service` / `users.service` thay `CloudinaryService` trực tiếp (giữ method signature).
+- **Alternatives considered:**
+  - VITE_UPLOAD_MODE riêng ở FE — dễ lệch với BE; bỏ (driver chọn ở BE, FE đọc provider).
+  - Containerize cả web — user chọn chỉ api+postgres (web giữ host vite).
+  - `@nestjs/serve-static` — dùng `app.useStaticAssets` (platform-express có sẵn) để khỏi thêm dep.
+- **Consequences:**
+  - Pro: local dev không cần Cloudinary; file thấy trực tiếp trên host; prod bất biến; DB `publicId` provider-agnostic nên KHÔNG đổi schema.
+  - Con: thêm endpoint `POST /files/upload` (multipart, cần multer) chỉ dùng ở local; 2 flow upload khác nhau (sign→direct vs sign→BE-upload); orphan-file cleanup local là best-effort `unlink`.
+
 ## Security Policy
 
 ### Auth model

@@ -440,8 +440,25 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Issue Cloudinary signed upload params (admin only) */
+    /** Issue signed upload params (admin only) — cloudinary | local */
     post: operations['FilesController_signUpload'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/upload': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload file vào local volume (admin only, STORAGE_DRIVER=local) */
+    post: operations['FilesController_upload'];
     delete?: never;
     options?: never;
     head?: never;
@@ -458,7 +475,7 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete file (admin only) — DB record + revoke Cloudinary asset */
+    /** Delete file (admin only) — DB record + revoke storage asset */
     delete: operations['FilesController_remove'];
     options?: never;
     head?: never;
@@ -1097,6 +1114,11 @@ export interface components {
       resourceType: 'image' | 'raw';
     };
     SignedUploadParamsDto: {
+      /**
+       * @example cloudinary
+       * @enum {string}
+       */
+      provider: 'cloudinary' | 'local';
       /** @example abc123signaturehash */
       signature: string;
       /** @example 1715952000 */
@@ -1114,6 +1136,22 @@ export interface components {
       resourceType: 'image' | 'raw';
       /** @example post-abc-image-1 */
       publicId: Record<string, never> | null;
+      /**
+       * @description Local driver: endpoint upload multipart
+       * @example /files/upload
+       */
+      uploadUrl?: string;
+    };
+    UploadFileDto: {
+      /** @example myblog/posts */
+      folder: string;
+      /**
+       * @example image
+       * @enum {string}
+       */
+      resourceType: 'image' | 'raw';
+      /** @example u-abc-1717000000 */
+      publicId?: string;
     };
     PopularTagDto: {
       /** @example cmpa1tag00010ldmv5j5att */
@@ -2148,6 +2186,27 @@ export interface operations {
         content: {
           'application/json': components['schemas']['SignedUploadParamsDto'];
         };
+      };
+    };
+  };
+  FilesController_upload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['UploadFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

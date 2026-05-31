@@ -35,5 +35,38 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Backend NestJS (local dev, ADR-010). Web vẫn chạy host (pnpm --filter web dev).
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.dev
+    container_name: myblog-api
+    working_dir: /app
+    env_file:
+      - apps/api/.env # secrets (JWT, ADMIN) — phải tồn tại (copy từ .env.example)
+    environment:
+      # Override để trỏ postgres service nội bộ + bật storage local.
+      DATABASE_URL: postgresql://myblog:myblog@postgres-main:5432/myblog?schema=public
+      DIRECT_URL: postgresql://myblog:myblog@postgres-main:5432/myblog?schema=public
+      PORT: '3001'
+      NODE_ENV: development
+      CORS_ORIGIN: http://localhost:5173
+      STORAGE_DRIVER: local
+      STORAGE_LOCAL_PATH: /app/storage/uploads
+      STORAGE_PUBLIC_URL: http://localhost:3001
+    ports:
+      - '3001:3001'
+    volumes:
+      - .:/app
+      - myblog-node-modules:/app/node_modules # shadow host node_modules (darwin) bằng linux store
+      - myblog-api-node-modules:/app/apps/api/node_modules
+      - ./storage/uploads:/app/storage/uploads # file upload local (git-ignored)
+    depends_on:
+      postgres-main:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   postgres-main-data:
+  myblog-node-modules:
+  myblog-api-node-modules:

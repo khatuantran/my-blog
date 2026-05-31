@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { Mood, Prisma, Role, type User } from '@prisma/client';
-import { CloudinaryService, type SignedUploadParams } from '../files/cloudinary.service';
+import { StorageService } from '../files/storage.service';
+import type { SignedUploadParams } from '../files/storage.types';
 import type { ListUsersDto } from './dto/list-users.dto';
 import type { UpdateUserDto } from './dto/update-user.dto';
 
@@ -41,7 +42,7 @@ export class UsersService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cloudinary: CloudinaryService,
+    private readonly storage: StorageService,
   ) {}
 
   async list(
@@ -249,7 +250,7 @@ export class UsersService {
   // làm prefix check khi save (chống cross-user PII injection qua publicId).
   getAvatarSignParams(userId: string): SignedUploadParams {
     const timestamp = Math.floor(Date.now() / 1000);
-    return this.cloudinary.signUpload({
+    return this.storage.signUpload({
       folder: 'avatars',
       publicId: `${userId}-${timestamp}`,
       resourceType: 'image',
@@ -272,7 +273,7 @@ export class UsersService {
 
     // Best-effort cleanup avatar cũ trên Cloudinary
     if (user.avatarPublicId) {
-      await this.cloudinary.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
+      await this.storage.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
     }
 
     return this.prisma.user.update({
@@ -286,7 +287,7 @@ export class UsersService {
     const user = await this.findById(userId);
 
     if (user.avatarPublicId) {
-      await this.cloudinary.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
+      await this.storage.destroyMany([{ publicId: user.avatarPublicId, resourceType: 'image' }]);
     }
 
     return this.prisma.user.update({

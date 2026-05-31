@@ -1,6 +1,8 @@
 import 'reflect-metadata';
+import { resolve } from 'node:path';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -11,7 +13,14 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // ADR-010: STORAGE_DRIVER=local → serve file đã upload tại /uploads từ volume.
+  if (process.env.STORAGE_DRIVER === 'local') {
+    const uploadsPath = resolve(process.env.STORAGE_LOCAL_PATH ?? './storage/uploads');
+    app.useStaticAssets(uploadsPath, { prefix: '/uploads/' });
+    new Logger('Bootstrap').log(`📁 serving local uploads from ${uploadsPath} at /uploads`);
+  }
 
   app.use(
     helmet({

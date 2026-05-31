@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { CloudinaryService } from '@/files/cloudinary.service';
+import { StorageService } from '@/files/storage.service';
 import { UsersService } from '@/users/users.service';
 
 type MockPrisma = {
@@ -58,7 +58,7 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         { provide: PrismaService, useValue: prisma },
-        { provide: CloudinaryService, useValue: cloudinary },
+        { provide: StorageService, useValue: cloudinary },
       ],
     }).compile();
     service = moduleRef.get(UsersService);

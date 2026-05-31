@@ -69,17 +69,19 @@ AnonymousSession (standalone — track guest)
 
 ### Image
 
-**Mục đích:** Ảnh thuộc bài viết (max 10/post, Cloudinary).
+**Mục đích:** Ảnh thuộc bài viết (max 10/post).
 
-| Field    | Type          | Constraints               | Notes                        |
-| -------- | ------------- | ------------------------- | ---------------------------- |
-| id       | String (cuid) | PK                        |                              |
-| postId   | String        | FK Post, onDelete Cascade |                              |
-| url      | String        |                           | Cloudinary secure URL        |
-| publicId | String        |                           | Cloudinary publicId (để xóa) |
-| width    | Int           |                           |                              |
-| height   | Int           |                           |                              |
-| order    | Int           | default 0                 | thứ tự hiển thị              |
+> **ADR-010 (storage driver):** `url`/`publicId` provider-agnostic — `cloudinary` (prod) lưu Cloudinary secure URL + publicId; `local` (dev) lưu `${STORAGE_PUBLIC_URL}/uploads/<publicId>` + publicId = relative path. KHÔNG đổi schema; cleanup dùng driver tương ứng (Cloudinary `destroy` / local `unlink`).
+
+| Field    | Type          | Constraints               | Notes                                 |
+| -------- | ------------- | ------------------------- | ------------------------------------- |
+| id       | String (cuid) | PK                        |                                       |
+| postId   | String        | FK Post, onDelete Cascade |                                       |
+| url      | String        |                           | secure URL (Cloudinary / local serve) |
+| publicId | String        |                           | publicId / relative path (để cleanup) |
+| width    | Int           |                           |                                       |
+| height   | Int           |                           |                                       |
+| order    | Int           | default 0                 | thứ tự hiển thị                       |
 
 **Relations:** `belongsTo` Post
 **Indexes:** `@@index([postId])`

@@ -16,7 +16,12 @@ const envSchema = z.object({
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('30d'),
 
-  // Cloudinary (optional ở dev — required khi FilesModule active T-022)
+  // Storage driver (ADR-010): cloudinary (prod) | local (dev volume)
+  STORAGE_DRIVER: z.enum(['cloudinary', 'local']).default('cloudinary'),
+  STORAGE_LOCAL_PATH: z.string().default('./storage/uploads'),
+  STORAGE_PUBLIC_URL: z.string().default('http://localhost:3001'),
+
+  // Cloudinary (chỉ required khi STORAGE_DRIVER=cloudinary)
   CLOUDINARY_CLOUD_NAME: z.string().default(''),
   CLOUDINARY_API_KEY: z.string().default(''),
   CLOUDINARY_API_SECRET: z.string().default(''),

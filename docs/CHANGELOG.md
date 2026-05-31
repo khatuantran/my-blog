@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-446/447/448 Storage driver abstraction + Docker-dev api (ADR-010)** (2026-05-31, Both/Infra): Local dev giờ chạy **api + postgres trong Docker** (web giữ host); upload tách theo `STORAGE_DRIVER`: prod `cloudinary` (signed direct upload, bất biến), local `local` (ghi `./storage/uploads` bind-mount + serve `/uploads`, không cần Cloudinary creds). BE: `StorageDriver` interface + `LocalStorageService` + `StorageService` facade + `POST /files/upload` (multipart) + `main.ts useStaticAssets`. FE: `uploadAsset` provider-aware (đọc `provider` từ `/files/sign`). DB `publicId` provider-agnostic (không đổi schema). Docker: `apps/api/Dockerfile.dev` + compose `api` service. Tests: BE local-storage/storage unit + files e2e + FE files.test. (Refs T-446/T-447/T-448)
+
 - **T-443 FE Create Post edit mode (`/admin/create?edit=<id>`)** (2026-05-31, FE): "Edit post" giờ prefill đầy đủ content/mood/tags/images/files + đổi label subbar `~/admin/edit-post`, status `editing`, button `Update`; submit → PATCH /posts/:id (thay POST). BE đã sẵn (PATCH/GET /posts/:id). Thêm `use-update-post` hook + RichTextEditor sync prefill async. CreatePostPage.test edit case. (Refs T-443)
 
 - **T-440 FE Feed PostCard collapse/expand bài dài** (2026-05-31, FE): Extract `CollapsibleContent` (dùng chung Feed + Create Post preview) — clamp content cao quá ngưỡng (Feed 400px / preview 320px) cắt đúng ranh giới dòng + nút show more/collapse. CollapsibleContent.test 3 case. (Refs T-440)

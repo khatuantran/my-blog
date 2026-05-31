@@ -1,27 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import type { Env } from '../config/env.schema';
+import type {
+  SignedUploadParams,
+  StorageAsset,
+  StorageDriver,
+  StorageResourceType,
+  UploadedAsset,
+} from './storage.types';
 
-export type CloudinaryResourceType = 'image' | 'raw';
-
-export interface SignedUploadParams {
-  signature: string;
-  timestamp: number;
-  apiKey: string;
-  cloudName: string;
-  folder: string;
-  resourceType: CloudinaryResourceType;
-  publicId: string | null;
-}
-
-export interface CloudinaryAsset {
-  publicId: string;
-  resourceType: CloudinaryResourceType;
-}
+// Back-compat re-exports (consumers cũ import từ đây).
+export type { SignedUploadParams } from './storage.types';
+export type { StorageAsset as CloudinaryAsset } from './storage.types';
+export type { StorageResourceType as CloudinaryResourceType } from './storage.types';
 
 @Injectable()
-export class CloudinaryService {
+export class CloudinaryService implements StorageDriver {
+  readonly provider = 'cloudinary' as const;
   private readonly logger = new Logger(CloudinaryService.name);
 
   constructor(private readonly config: ConfigService<Env, true>) {
@@ -36,11 +32,16 @@ export class CloudinaryService {
   signUpload(opts: {
     folder?: string;
     publicId?: string;
-    resourceType: CloudinaryResourceType;
+    resourceType: StorageResourceType;
   }): SignedUploadParams {
     const apiSecret = this.config.get('CLOUDINARY_API_SECRET', { infer: true });
-    if (!apiSecret) {
-      throw new Error('CLOUDINARY_API_SECRET not configured');
+    const apiKey = this.config.get('CLOUDINARY_API_KEY', { infer: true });
+    const cloudName = this.config.get('CLOUDINARY_CLOUD_NAME', { infer: true });
+    // Validate đủ 3 creds (tránh FE build URL cloudinary malformed khi thiếu key/cloudName).
+    if (!apiSecret || !apiKey || !cloudName) {
+      throw new Error(
+        'Cloudinary chưa cấu hình đủ (CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET) — set creds hoặc dùng STORAGE_DRIVER=local',
+      );
     }
     const timestamp = Math.floor(Date.now() / 1000);
     const folder = opts.folder ?? 'myblog';
@@ -50,17 +51,27 @@ export class CloudinaryService {
     const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
 
     return {
+      provider: 'cloudinary',
       signature,
       timestamp,
-      apiKey: this.config.get('CLOUDINARY_API_KEY', { infer: true }),
-      cloudName: this.config.get('CLOUDINARY_CLOUD_NAME', { infer: true }),
+      apiKey,
+      cloudName,
       folder,
       resourceType: opts.resourceType,
       publicId: opts.publicId ?? null,
     };
   }
 
-  async destroyMany(assets: CloudinaryAsset[]): Promise<void> {
+  // Cloudinary dùng direct upload (FE → api.cloudinary.com) → không hỗ trợ upload qua BE.
+  saveUpload(): Promise<UploadedAsset> {
+    throw new BadRequestException({
+      code: 'UPLOAD_NOT_SUPPORTED',
+      message:
+        'POST /files/upload chỉ dùng khi STORAGE_DRIVER=local; cloudinary dùng signed direct upload',
+    });
+  }
+
+  async destroyMany(assets: StorageAsset[]): Promise<void> {
     if (assets.length === 0) return;
     const apiSecret = this.config.get('CLOUDINARY_API_SECRET', { infer: true });
     if (!apiSecret) {

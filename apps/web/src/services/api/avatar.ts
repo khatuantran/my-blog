@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import { uploadToCloudinary, type SignedUploadParams } from './files';
+import { uploadAsset, type SignedUploadParams } from './files';
 
 // FR-11.7 — 3 endpoint cho User avatar upload/replace/remove self-scope.
 
@@ -28,12 +28,11 @@ export function removeAvatar(): Promise<AvatarResponse> {
   });
 }
 
-// Full upload chain: sign → upload Cloudinary → save BE.
+// Full upload chain: sign → upload theo provider (cloudinary | local, ADR-010) → save BE.
 // blob: cropped image blob từ react-easy-crop canvas.toBlob.
-// Filename arbitrary (Cloudinary publicId trong signed params overrides).
 export async function uploadAvatarChain(blob: Blob): Promise<AvatarResponse> {
   const signed = await signAvatarUpload();
   const file = new File([blob], 'avatar.jpg', { type: blob.type || 'image/jpeg' });
-  const cloud = await uploadToCloudinary(file, signed);
-  return setAvatar(cloud.secure_url, cloud.public_id);
+  const asset = await uploadAsset(file, signed);
+  return setAvatar(asset.url, asset.publicId);
 }

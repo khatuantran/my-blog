@@ -2,7 +2,8 @@ import { BadRequestException, Injectable, Logger, NotFoundException } from '@nes
 import { PrismaService } from 'nestjs-prisma';
 import { Prisma, PostStatus, ReactionType } from '@prisma/client';
 import { ActivityService } from '../activity/activity.service';
-import { CloudinaryAsset, CloudinaryService } from '../files/cloudinary.service';
+import { StorageService } from '../files/storage.service';
+import type { CloudinaryAsset } from '../files/cloudinary.service';
 import { TagsService, normalizeTagName as normalizeTagNameImpl } from '../tags/tags.service';
 import type { CreatePostDto } from './dto/create-post.dto';
 import type { UpdatePostDto } from './dto/update-post.dto';
@@ -137,7 +138,7 @@ export class PostsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly cloudinary: CloudinaryService,
+    private readonly storage: StorageService,
     private readonly tags: TagsService,
     private readonly activity: ActivityService,
   ) {}
@@ -330,7 +331,7 @@ export class PostsService {
     });
 
     // Best-effort Cloudinary cleanup after successful DB tx
-    await this.cloudinary.destroyMany(orphanedAssets);
+    await this.storage.destroyMany(orphanedAssets);
 
     return toPostView(post);
   }
@@ -441,7 +442,7 @@ export class PostsService {
     }
     await this.prisma.post.delete({ where: { id } });
     // Best-effort Cloudinary cleanup after cascade delete
-    await this.cloudinary.destroyMany([
+    await this.storage.destroyMany([
       ...existing.images.map((i) => ({ publicId: i.publicId, resourceType: 'image' as const })),
       ...existing.files.map((f) => ({ publicId: f.publicId, resourceType: 'raw' as const })),
     ]);

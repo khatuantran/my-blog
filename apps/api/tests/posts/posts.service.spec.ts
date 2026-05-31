@@ -3,7 +3,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { FileType, Mood, PostStatus, Role } from '@prisma/client';
 import { ActivityService } from '@/activity/activity.service';
-import { CloudinaryService } from '@/files/cloudinary.service';
+import { StorageService } from '@/files/storage.service';
 import { TagsService } from '@/tags/tags.service';
 import { PostsService, normalizeTagName } from '@/posts/posts.service';
 
@@ -92,7 +92,7 @@ describe('PostsService', () => {
       providers: [
         PostsService,
         { provide: PrismaService, useValue: prisma },
-        { provide: CloudinaryService, useValue: cloudinary },
+        { provide: StorageService, useValue: cloudinary },
         { provide: TagsService, useValue: tags },
         { provide: ActivityService, useValue: { log: jest.fn() } },
       ],

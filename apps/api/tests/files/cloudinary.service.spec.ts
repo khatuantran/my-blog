@@ -82,10 +82,18 @@ describe('CloudinaryService', () => {
       );
     });
 
-    it('throws when CLOUDINARY_API_SECRET missing', () => {
+    it('throws when Cloudinary creds missing (validate đủ cloud_name/api_key/api_secret)', () => {
+      // ADR-010: signUpload validate đủ 3 creds (tránh FE build URL malformed khi thiếu key/cloudName).
       envValues.CLOUDINARY_API_SECRET = '';
       expect(() => service.signUpload({ resourceType: 'image' })).toThrow(
-        'CLOUDINARY_API_SECRET not configured',
+        /Cloudinary chưa cấu hình đủ/,
+      );
+    });
+
+    it('throws khi thiếu API_KEY / CLOUD_NAME dù có secret (ADR-010 strengthen)', () => {
+      envValues.CLOUDINARY_API_KEY = '';
+      expect(() => service.signUpload({ resourceType: 'image' })).toThrow(
+        /Cloudinary chưa cấu hình đủ/,
       );
     });
   });

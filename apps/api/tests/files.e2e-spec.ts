@@ -57,6 +57,7 @@ describe('Files (e2e)', () => {
         .set('Cookie', adminCookies)
         .send({ resourceType: 'image', folder: 'myblog/posts' })
         .expect(200);
+      expect(res.body.data.provider).toBe('cloudinary');
       expect(res.body.data.signature).toBe('stub-signature');
       expect(res.body.data.apiKey).toBe('test-key');
       expect(cloudinaryMock.signUpload).toHaveBeenCalledWith({
@@ -80,6 +81,39 @@ describe('Files (e2e)', () => {
         .set('Cookie', adminCookies)
         .send({ resourceType: 'video' })
         .expect(400);
+    });
+  });
+
+  describe('POST /files/upload (local storage, ADR-010)', () => {
+    // Endpoint guard wiring (admin-only). Logic ghi file cover ở local-storage.service.spec
+    // (test-app dùng driver cloudinary mock nên không test ghi disk ở đây).
+    it('401 no cookie', async () => {
+      await request(app.getHttpServer())
+        .post('/files/upload')
+        .attach('file', Buffer.from('x'), 'x.png')
+        .field('folder', 'myblog/posts')
+        .field('resourceType', 'image')
+        .expect(401);
+    });
+
+    it('403 USER role', async () => {
+      await request(app.getHttpServer())
+        .post('/files/upload')
+        .set('Cookie', userCookies)
+        .attach('file', Buffer.from('x'), 'x.png')
+        .field('folder', 'myblog/posts')
+        .field('resourceType', 'image')
+        .expect(403);
+    });
+
+    it('400 admin thiếu file', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/files/upload')
+        .set('Cookie', adminCookies)
+        .field('folder', 'myblog/posts')
+        .field('resourceType', 'image')
+        .expect(400);
+      expect(res.body.error.code).toBe('FILE_REQUIRED');
     });
   });
 

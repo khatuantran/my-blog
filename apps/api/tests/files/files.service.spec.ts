@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { CloudinaryService } from '@/files/cloudinary.service';
+import { StorageService } from '@/files/storage.service';
 import { FilesService } from '@/files/files.service';
 
 describe('FilesService', () => {
@@ -27,7 +27,7 @@ describe('FilesService', () => {
       providers: [
         FilesService,
         { provide: PrismaService, useValue: prisma },
-        { provide: CloudinaryService, useValue: cloudinary },
+        { provide: StorageService, useValue: cloudinary },
       ],
     }).compile();
     service = moduleRef.get(FilesService);

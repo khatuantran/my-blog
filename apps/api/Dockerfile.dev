@@ -1,0 +1,13 @@
+# Dev-only image cho api (local Docker, ADR-010). Source bind-mount + hot-reload (nest --watch).
+# Prod KHÔNG dùng file này (Fly.io build riêng). node_modules dùng named volume (tách host darwin
+# ↔ container linux-musl). libc6-compat + openssl cho Prisma engine.
+FROM node:24-alpine
+
+RUN apk add --no-cache libc6-compat openssl
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app
+EXPOSE 3001
+
+# Command thực tế set ở docker-compose (install → prisma generate → migrate deploy → nest --watch).
+CMD ["sh", "-c", "pnpm install --filter api... && pnpm --filter api exec prisma generate && pnpm --filter api exec prisma migrate deploy && pnpm --filter api dev"]

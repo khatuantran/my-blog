@@ -2,6 +2,10 @@
 node_modules/
 .pnpm-store/
 
+# Local storage uploads (ADR-010 STORAGE_DRIVER=local) — giữ thư mục, bỏ file
+storage/uploads/*
+!storage/uploads/.gitkeep
+
 # Build output
 dist/
 build/

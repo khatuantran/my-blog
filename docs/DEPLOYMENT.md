@@ -175,17 +175,33 @@ volumes:
    - `VITE_API_URL` = `https://myblog-api.fly.dev` (production) / `https://myblog-api-preview.fly.dev` (preview)
    - `VITE_WS_URL` = `wss://myblog-api.fly.dev` (production)
    - `VITE_SENTRY_DSN` = (optional, Sentry FE)
+   - `OG_API_URL` = `https://myblog-api.fly.dev` — **server-side, KHÔNG prefix `VITE_`** (không expose ra browser). Base URL BE cho OG Edge Function (`apps/web/api/og.ts`) fetch post data render Open Graph meta cho social crawler (FR-05.3). Thiếu → fallback hardcode trong function.
 
-3. **SPA routing (vercel.json — quan trọng):**
-   Tạo `apps/web/vercel.json`:
+3. **SPA routing + OG preview (`apps/web/vercel.json` — quan trọng):**
+   `vercel.json` đã có sẵn trong repo:
 
    ```json
    {
-     "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+     "rewrites": [
+       {
+         "source": "/post/:id",
+         "has": [
+           {
+             "type": "header",
+             "key": "user-agent",
+             "value": ".*(facebookexternalhit|Twitterbot|Telegrambot|WhatsApp|Discordbot|Slackbot|LinkedInBot|...).*"
+           }
+         ],
+         "destination": "/api/og?id=:id"
+       },
+       { "source": "/(.*)", "destination": "/index.html" }
+     ]
    }
    ```
 
-   (Để React Router client-side hoạt động — fallback to index.html cho mọi route)
+   - Rule 1: `/post/:id` chỉ rewrite sang OG Edge Function **khi User-Agent là social bot** → crawler nhận HTML có OG meta per-post.
+   - Rule 2: mọi route còn lại (gồm user thật xem `/post/:id`) → `/index.html` cho React Router client-side.
+   - **Verify (sau deploy):** `curl -A "facebookexternalhit/1.1" https://<domain>/post/<id>` → thấy `<meta property="og:*">`; hoặc [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) + dán link vào chat Telegram. `og:image` cần absolute https (Cloudinary prod OK; local `http://localhost` không hiện ngoài internet).
 
 4. **Custom domain (optional):**
    - Settings → Domains → Add `kha.blog`

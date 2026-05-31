@@ -14,6 +14,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 - **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height cắt đúng ranh giới dòng cuối qua `Range.getClientRects()` (xử lý multi-paragraph + margin). 2 test. (Refs T-439)
 
+### Changed
+
+- **T-450 FE Post Detail ảnh dùng ImageGrid collage + lightbox (thay ImageCarousel)** (2026-05-31, FE): Post Detail hiển thị ảnh dạng collage giống Feed/preview (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 `+N`); click ảnh mở `ImageLightbox` (popup) như Feed. `ImageCarousel` còn lại (chưa xóa). (Refs T-450)
+
 ### Fixed
 
 - **Preview polish (T-439/T-449 follow-up)** (2026-05-31, FE): (1) nút collapse/expand hiện đúng khi content thực sự bị clamp — `CollapsibleContent` đổi điều kiện `overflowing` sang `scrollHeight > collapsedH` (đồng bộ clamp, hết case clamp-nhưng-thiếu-nút); (2) preview image grid theo collage design-file (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 overlay `+N`) thay vì cap 3 — khớp `ImageGrid` feed/detail.

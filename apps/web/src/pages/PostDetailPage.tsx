@@ -6,7 +6,7 @@ import { PostHeader } from '@/components/post/PostHeader';
 import { PostContent } from '@/components/post/PostContent';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { MetaPanel } from '@/components/post/MetaPanel';
-import { ImageCarousel } from '@/components/post/ImageCarousel';
+import { ImageGrid } from '@/components/post/ImageGrid';
 import { ImageLightbox } from '@/components/feed/ImageLightbox';
 import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from '@/components/feed/ReactionButton';
@@ -57,7 +57,8 @@ export default function PostDetailPage() {
 
         <PostHeader post={post} avatarSize="lg" />
         <PostContent content={post.content} variant="detail" />
-        <ImageCarousel images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
+        {/* T-450: dùng ImageGrid collage (như feed/preview) + click mở lightbox, thay carousel. */}
+        <ImageGrid images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
         <FileAttachments files={post.files} />
 
         {post.tags.length > 0 && (

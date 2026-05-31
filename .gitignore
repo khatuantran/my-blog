@@ -51,6 +51,9 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Claude Code runtime state (skills/commands track có chủ đích — chỉ bỏ file lock)
+.claude/scheduled_tasks.lock
+
 # Misc
 *.tgz
 .cache/

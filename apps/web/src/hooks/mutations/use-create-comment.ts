@@ -34,7 +34,9 @@ export function useCreateComment() {
         if (!curr) {
           return { items: [optimistic], total: 1, page: 1, limit: 10 };
         }
-        return { ...curr, items: [optimistic, ...curr.items], total: curr.total + 1 };
+        // Append (cuối list) cho khớp BE order `createdAt: asc` (mới nhất ở CUỐI) — BUG-026:
+        // prepend cũ làm comment mới flash lên đầu rồi nhảy xuống cuối sau refetch.
+        return { ...curr, items: [...curr.items, optimistic], total: curr.total + 1 };
       });
       return { prev, tempId };
     },

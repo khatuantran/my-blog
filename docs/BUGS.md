@@ -11,6 +11,21 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-026] [Low] [FE] Comment mới optimistic hiện ở đầu list rồi nhảy xuống cuối (lệch BE order)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-445 (DONE 2026-05-31)
+- **Related FR/component:** FR-03 comments / `use-create-comment.ts`
+- **Mô tả:** Comment list hiển thị comment mới nhất ở đầu (sau khi gửi) trong khi BE trả `createdAt: asc` (mới nhất ở cuối) → comment vừa gửi flash lên đầu rồi nhảy xuống cuối sau refetch, bất nhất.
+- **Expected:** Comment mới nối tiếp ở CUỐI list (khớp BE asc + reply thread chronological).
+- **Actual:** Optimistic prepend → hiện ở đầu.
+- **Root cause:** `useCreateComment.onMutate` optimistic dùng `items: [optimistic, ...curr.items]` (prepend) trong khi BE `comments.service.list` sort `createdAt: asc`.
+- **Fix:** Đổi optimistic thành append `items: [...curr.items, optimistic]` → khớp server order (mới ở cuối), không còn flash đầu→cuối.
+- **Regression test:** `tests/hooks/use-create-comment.test.tsx` (`regression BUG-026: optimistic append cuối list`).
+- **Lesson learned:** optimistic insert phải khớp order của list query (BE `asc` → append cuối; nếu `desc` → prepend đầu), tránh item nhảy chỗ sau refetch.
+
 ### [BUG-025] [Low] [FE] Reply form hiện ở đầu danh sách replies thay vì cuối
 
 - **Status:** FIXED

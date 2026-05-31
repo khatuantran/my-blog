@@ -14,6 +14,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-026 FE comment mới optimistic append cuối list thay vì đầu (F3)** (2026-05-31, FE): Comment vừa gửi flash lên đầu rồi nhảy xuống cuối sau refetch (BE sort asc, FE optimistic prepend). Đổi `onMutate` sang append `[...items, optimistic]` khớp server order. 1 regression test. (Fixes BUG-026, Refs T-445)
+
 - **BUG-025 FE reply form đặt cuối thread thay vì đầu (F3)** (2026-05-31, FE): Ấn Reply → ô nhập hiện trên các reply cũ, đẩy chúng xuống. `CommentItem` render ReplyForm trước replies list → chuyển xuống cuối (sau replies + load-more). 1 regression test. (Fixes BUG-025, Refs T-444)
 
 - **BUG-023/024 FE Feed popup action — bị cắt khi card ngắn + ấn lần 2 không đóng (F3)** (2026-05-31, FE): BUG-023 `<article>` PostCard `overflow-hidden` clip `PostActionMenu` (absolute, mở lên trên) khi card ngắn → bỏ `overflow-hidden` (gradient line trong suốt 2 đầu nên không lú góc). BUG-024 ấn ⋯ lần 2 không đóng: mousedown outside-handler đóng menu rồi onClick toggle mở lại → thêm `triggerRef`, outside-handler bỏ qua trigger. 2 regression test. T-441 kèm: tách tag khỏi content (mt-1) cho thoáng. (Fixes BUG-023/BUG-024, Refs T-442/T-441)

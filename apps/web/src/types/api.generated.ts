@@ -642,6 +642,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/admin/interaction-logs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List interaction trace logs (admin, paginated + filter) */
+    get: operations['InteractionLogsController_list'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/posts/{id}/comments': {
     parameters: {
       query?: never;
@@ -1411,6 +1428,66 @@ export interface components {
        * @enum {string}
        */
       type: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
+    };
+    InteractionLogActorDto: {
+      /** @example usr_abc */
+      id: string;
+      /** @example alice */
+      username: string;
+    };
+    InteractionLogResponseDto: {
+      /** @example log_abc */
+      id: string;
+      /** @enum {string} */
+      action: 'COMMENT' | 'REPLY' | 'COMMENT_LIKE' | 'POST_REACTION';
+      /** @enum {string} */
+      targetType: 'POST' | 'COMMENT';
+      /** @example post_abc */
+      targetId: string;
+      /** @example post_abc */
+      postId: Record<string, never> | null;
+      /** @description null = anonymous */
+      actor: components['schemas']['InteractionLogActorDto'] | null;
+      /**
+       * @description null = anonymous
+       * @enum {string|null}
+       */
+      actorRole: 'ADMIN' | 'USER' | 'BANNED' | null;
+      /** @example 0x7F4A2C */
+      anonymousId: Record<string, never> | null;
+      /** @example 203.0.113.7 */
+      ip: Record<string, never> | null;
+      /** @example Mozilla/5.0 ... */
+      userAgent: Record<string, never> | null;
+      /** @example Chrome 120.0.0.0 */
+      browser: Record<string, never> | null;
+      /** @example macOS 10.15.7 */
+      os: Record<string, never> | null;
+      /** @example desktop */
+      device: Record<string, never> | null;
+      /** @example vi-VN */
+      acceptLang: Record<string, never> | null;
+      /** @example http://localhost:5173/ */
+      referer: Record<string, never> | null;
+      /** @example a1b2c3d4e5f6a7b8 */
+      fingerprint: Record<string, never> | null;
+      metadata: {
+        [key: string]: unknown;
+      } | null;
+      /**
+       * Format: date-time
+       * @example 2026-05-31T10:00:00.000Z
+       */
+      createdAt: string;
+    };
+    InteractionLogsListResponseDto: {
+      items: components['schemas']['InteractionLogResponseDto'][];
+      /** @example 128 */
+      total: number;
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
     };
     CommentAuthorDto: {
       /** @example cmpa-user-1 */
@@ -2585,6 +2662,36 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  InteractionLogsController_list: {
+    parameters: {
+      query?: {
+        /** @description Filter theo loại hành động */
+        action?: 'COMMENT' | 'REPLY' | 'COMMENT_LIKE' | 'POST_REACTION';
+        /** @description anon = chưa login, user = USER */
+        actorType?: 'anon' | 'user';
+        /** @description Tìm trong ip / fingerprint / anonymousId / userAgent */
+        q?: string;
+        /** @description Từ ngày (ISO 8601) — lọc createdAt >= */
+        from?: string;
+        /** @description Đến ngày (ISO 8601) — lọc createdAt <= */
+        to?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['InteractionLogsListResponseDto'];
+        };
       };
     };
   };

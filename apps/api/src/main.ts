@@ -15,6 +15,9 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // FR-18: tin reverse proxy (Fly.io) để `req.ip` lấy client IP thật từ X-Forwarded-For.
+  app.set('trust proxy', 1);
+
   // ADR-010: STORAGE_DRIVER=local → serve file đã upload tại /uploads từ volume.
   if (process.env.STORAGE_DRIVER === 'local') {
     const uploadsPath = resolve(process.env.STORAGE_LOCAL_PATH ?? './storage/uploads');

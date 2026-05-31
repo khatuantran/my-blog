@@ -10,6 +10,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { CommentsModule } from './comments/comments.module';
 import { FilesModule } from './files/files.module';
+import { InteractionLogsModule } from './interaction-logs/interaction-logs.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReactionsModule } from './reactions/reactions.module';
 import { PostsModule } from './posts/posts.module';
@@ -46,6 +47,7 @@ import { validateEnv } from './config/env.schema';
     SavedModule,
     SearchModule,
     AdminModule,
+    InteractionLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],

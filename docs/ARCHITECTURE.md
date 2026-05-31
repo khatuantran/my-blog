@@ -64,7 +64,11 @@ Deploy độc lập: FE → Vercel, BE → Fly.io, DB → Neon.
 - Browser ↔ apps/web: HTTPS static asset (Vercel CDN)
 - apps/web ↔ apps/api: HTTPS REST (`fetch` via TanStack Query) + WSS (Socket.io)
 - apps/api ↔ Neon: SQL via Prisma (pooled `DATABASE_URL` + direct `DIRECT_URL` cho migration)
-- apps/api ↔ Cloudinary: HTTPS upload qua signed URL
+- apps/api ↔ Cloudinary: HTTPS upload qua signed URL (**prod**, `STORAGE_DRIVER=cloudinary`)
+
+**Storage driver (ADR-010):** tầng upload trừu tượng hoá theo `STORAGE_DRIVER`. **Prod** dùng `cloudinary` (sơ đồ trên). **Local dev** dùng `local`: FE upload multipart lên apps/api → ghi volume bind-mount `./storage/uploads` → serve tĩnh `/uploads` (không cần Cloudinary).
+
+**Local dev topology (ADR-010):** khác prod — **apps/api + postgres chạy trong Docker Compose** (`apps/api/Dockerfile.dev`, bind-mount source + named-volume node_modules), **apps/web chạy host** (Vite `:5173`); storage = local volume. Prod vẫn Vercel + Fly.io + Neon + Cloudinary như sơ đồ.
 
 ## Component Diagram (C4 Level 3)
 
@@ -123,7 +127,7 @@ apps/api/
 │   ├── posts/                  PostsModule (CRUD posts + view tracking)
 │   ├── comments/               CommentsModule (CRUD + moderation)
 │   ├── likes/                  LikesModule (toggle posts/comments — 2 endpoint riêng)
-│   ├── files/                  FilesModule (Cloudinary signed upload + delete)
+│   ├── files/                  FilesModule (StorageService driver: Cloudinary | local volume — ADR-010)
 │   ├── tags/                   TagsModule (CRUD tags + popular list)
 │   ├── admin/                  AdminModule (stats, activity, users mgmt)
 │   ├── realtime/               RealtimeGateway (Socket.io @WebSocketGateway)
@@ -179,15 +183,18 @@ apps/api/
 
 ### Post creation flow (image/file upload)
 
+> Sơ đồ dưới = `STORAGE_DRIVER=cloudinary` (prod). Với `local` (dev, ADR-010): `/files/sign` trả `{ provider:'local', uploadUrl:'/files/upload' }`; FE POST file multipart lên `apps/api POST /files/upload` (thay Cloudinary) → BE ghi volume + trả `{ url, publicId }`; các bước `/posts` về sau giống hệt.
+
 ```
 [CreatePostPage] [apps/api]                  [Cloudinary]       [DB]
    │  POST /files/sign           │                                  │
    │ ───────────────────────────►│  generate signed params          │
-   │                             │  (sign with secret)              │
+   │                             │  (provider + sign with secret)   │
    │  signed params              │                                  │
    │◄────────────────────────────│                                  │
    │                                                                │
    │  POST direct lên Cloudinary với signed params                  │
+   │  (local: POST /files/upload multipart → apps/api ghi volume)   │
    │ ──────────────────────────────────────────►│                   │
    │  { secure_url, public_id, ... }            │                   │
    │◄───────────────────────────────────────────│                   │

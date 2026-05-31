@@ -28,18 +28,18 @@ Rồi mới xử lý prompt mới.
 
 Spec chi tiết: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Local setup: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-| Layer               | Tech                                                                                    |
-| ------------------- | --------------------------------------------------------------------------------------- |
-| Monorepo            | **Turborepo** + pnpm workspaces (`apps/web` + `apps/api` + `packages/`)                 |
-| Frontend (apps/web) | **Vite + React 19 + React Router v7** + TanStack Query + Zustand + Tailwind + shadcn/ui |
-| Backend (apps/api)  | **NestJS** + Passport JWT (access 15min + refresh 30d) + bcrypt + class-validator       |
-| Database            | **PostgreSQL** — Neon free (prod) + Docker local 2 DB (main + test)                     |
-| ORM                 | **Prisma** via `nestjs-prisma`                                                          |
-| Storage             | **Cloudinary** signed upload                                                            |
-| Real-time           | **WebSocket** qua `@nestjs/websockets` + Socket.io                                      |
-| API contract        | **OpenAPI 3.0 auto-gen** từ NestJS qua `@nestjs/swagger`; FE qua `openapi-typescript`   |
-| Testing             | **Vitest** (FE) + **Jest** (BE) + **Supertest** (integration) + **Playwright** (E2E)    |
-| Deploy              | FE → Vercel, BE → Fly.io free tier, DB → Neon free tier                                 |
+| Layer               | Tech                                                                                                           |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Monorepo            | **Turborepo** + pnpm workspaces (`apps/web` + `apps/api` + `packages/`)                                        |
+| Frontend (apps/web) | **Vite + React 19 + React Router v7** + TanStack Query + Zustand + Tailwind + shadcn/ui                        |
+| Backend (apps/api)  | **NestJS** + Passport JWT (access 15min + refresh 30d) + bcrypt + class-validator                              |
+| Database            | **PostgreSQL** — Neon free (prod) + Docker local 2 DB (main + test)                                            |
+| ORM                 | **Prisma** via `nestjs-prisma`                                                                                 |
+| Storage             | **Storage driver** (ADR-010) — Cloudinary signed upload (prod) / local volume (dev), chọn qua `STORAGE_DRIVER` |
+| Real-time           | **WebSocket** qua `@nestjs/websockets` + Socket.io                                                             |
+| API contract        | **OpenAPI 3.0 auto-gen** từ NestJS qua `@nestjs/swagger`; FE qua `openapi-typescript`                          |
+| Testing             | **Vitest** (FE) + **Jest** (BE) + **Supertest** (integration) + **Playwright** (E2E)                           |
+| Deploy              | FE → Vercel, BE → Fly.io free tier, DB → Neon free tier                                                        |
 
 Files quan trọng (sau khi scaffold):
 

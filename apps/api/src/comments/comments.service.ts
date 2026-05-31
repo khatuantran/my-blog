@@ -230,20 +230,24 @@ export class CommentsService {
 
     // FR-18: trace log (best-effort, skip admin internally). Dùng viewer.userId/role THẬT
     // (xuyên qua "post as anon") để admin truy vết — đây là log admin-only riêng.
-    await this.interactionLog.log({
-      action: dto.parentId ? InteractionAction.REPLY : InteractionAction.COMMENT,
-      targetType: InteractionTargetType.POST,
-      targetId: postId,
-      postId,
-      actorUserId: viewer.userId ?? null,
-      actorRole: viewer.role ?? null,
-      anonymousId: viewer.anonymousId ?? null,
-      client: viewer.client,
-      metadata: {
-        snippet: dto.content.slice(0, 80),
-        ...(dto.parentId ? { parentId: dto.parentId } : {}),
-      },
-    });
+    try {
+      await this.interactionLog.log({
+        action: dto.parentId ? InteractionAction.REPLY : InteractionAction.COMMENT,
+        targetType: InteractionTargetType.POST,
+        targetId: postId,
+        postId,
+        actorUserId: viewer.userId ?? null,
+        actorRole: viewer.role ?? null,
+        anonymousId: viewer.anonymousId ?? null,
+        client: viewer.client,
+        metadata: {
+          snippet: dto.content.slice(0, 80),
+          ...(dto.parentId ? { parentId: dto.parentId } : {}),
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`interactionLog ${dto.parentId ? 'REPLY' : 'COMMENT'} failed: ${err}`);
+    }
 
     if (effectiveUserId) {
       await this.activity.log({

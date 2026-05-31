@@ -16,7 +16,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // FR-18: tin reverse proxy (Fly.io) để `req.ip` lấy client IP thật từ X-Forwarded-For.
-  app.set('trust proxy', 1);
+  // Số hop tin tưởng configurable qua TRUST_PROXY (default 1) — chống spoof XFF nếu đổi topology.
+  app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
 
   // ADR-010: STORAGE_DRIVER=local → serve file đã upload tại /uploads từ volume.
   if (process.env.STORAGE_DRIVER === 'local') {

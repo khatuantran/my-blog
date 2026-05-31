@@ -18,6 +18,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **FR-18 hardening (adversarial review fixes)** (2026-05-31, BE): (1) `ListInteractionLogsDto.from/to` validate `@IsISO8601()` → reject malformed date 400 (tránh `new Date('garbage')`); (2) reaction **đổi type** giờ cũng trace POST_REACTION (metadata `previousType`) — trước chỉ log lúc tạo; (3) `TRUST_PROXY` env-configurable (default 1) thay hardcode — chống spoof X-Forwarded-For khi đổi topology; (4) wrap mọi `interactionLog.log()` call-site trong try-catch (defensive). +date-validation e2e + reaction-type-change e2e.
+
 - **FR-18 follow-up: geo-locate IP + phóng to logs table (T-467, F1)** (2026-05-31, Both): Trace log giờ geo-locate IP (`geoip-lite` offline → `geoCountry`/`geoCity`, strip `::ffff:` prefix, private/local → null) + migration `add_interaction_log_geo`. Admin `/admin/logs` table phóng to (row px-4 py-3.5 + text-mono-md) + cột IP hiện `ip 🌐 {country · city}`; search `q` giờ sync URL (giữ khi refresh/share). dep `geoip-lite`. (Refs T-467)
 
 - **FR-18 Interaction Trace Log — admin page (T-465, F2)** (2026-05-31, FE): Trang `/admin/logs` (`<ProtectedRoute requireRole="ADMIN">`) hiển thị bảng trace log (When / Action badge / Actor `~/user [ROLE]` hoặc `anon · id` / IP·browser·os·fingerprint / Target link) + filter chips action/actorType + search ip·fingerprint·anonId (debounce) + pagination. `useInteractionLogs` hook + `admin-logs` service + types + query-key `admin.logs`. AvatarMenu thêm `🛰 Trace Logs` (adminOnly). UI_DESIGN Screen 13 + UC-24. InteractionLogsPage.test 2 case. **FR-18 hoàn tất** (T-461..465). (Refs T-465)

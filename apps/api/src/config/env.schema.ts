@@ -4,6 +4,9 @@ const envSchema = z.object({
   // Runtime
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
+  // FR-18: số hop proxy tin tưởng để lấy client IP thật từ X-Forwarded-For.
+  // Default 1 (Fly.io 1 reverse proxy). Đặt cao hơn nếu thêm CDN/proxy chain.
+  TRUST_PROXY: z.coerce.number().int().min(0).default(1),
 
   // Database
   DATABASE_URL: z.string().url(),

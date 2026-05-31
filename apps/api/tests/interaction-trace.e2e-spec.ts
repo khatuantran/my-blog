@@ -126,6 +126,29 @@ describe('Interaction trace log (e2e) — FR-18', () => {
     expect(await prisma.interactionLog.count()).toBe(0);
   });
 
+  it('đổi reaction type → log POST_REACTION mới với previousType (review fix)', async () => {
+    const post = await makePost(prisma, { authorId: adminId });
+    await request(app.getHttpServer())
+      .post(`/posts/${post.id}/reactions`)
+      .set('Cookie', userCookies)
+      .send({ type: 'LIKE' })
+      .expect(200);
+    await request(app.getHttpServer())
+      .post(`/posts/${post.id}/reactions`)
+      .set('Cookie', userCookies)
+      .send({ type: 'LOVE' })
+      .expect(200);
+    const logs = await prisma.interactionLog.findMany({
+      where: { action: 'POST_REACTION' },
+      orderBy: { createdAt: 'asc' },
+    });
+    expect(logs).toHaveLength(2);
+    expect(
+      (logs[1].metadata as { reactionType?: string; previousType?: string }).reactionType,
+    ).toBe('LOVE');
+    expect((logs[1].metadata as { previousType?: string }).previousType).toBe('LIKE');
+  });
+
   it('remove reaction KHÔNG tạo log mới (chỉ log hành động create)', async () => {
     const post = await makePost(prisma, { authorId: adminId });
     await request(app.getHttpServer())

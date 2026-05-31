@@ -116,6 +116,17 @@ describe('GET /admin/interaction-logs (e2e) — FR-18', () => {
     expect(byAnon.body.data.total).toBe(2);
   });
 
+  it('400 khi from/to không phải ISO 8601 (review fix)', async () => {
+    await request(app.getHttpServer())
+      .get('/admin/interaction-logs?from=garbage')
+      .set('Cookie', adminCookies)
+      .expect(400);
+    await request(app.getHttpServer())
+      .get('/admin/interaction-logs?to=not-a-date')
+      .set('Cookie', adminCookies)
+      .expect(400);
+  });
+
   it('filter q (ip/fingerprint) + pagination', async () => {
     const byIp = await request(app.getHttpServer())
       .get('/admin/interaction-logs?q=203.0.113.10')

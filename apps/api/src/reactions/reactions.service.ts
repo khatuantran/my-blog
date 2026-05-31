@@ -135,6 +135,22 @@ export class ReactionsService {
           where: { id: existing.id },
           data: { type },
         });
+        // FR-18: trace log ĐỔI reaction type (best-effort, wrap defensive)
+        try {
+          await this.interactionLog.log({
+            action: InteractionAction.POST_REACTION,
+            targetType: InteractionTargetType.POST,
+            targetId: postId,
+            postId,
+            actorUserId: viewer.userId ?? null,
+            actorRole: viewer.role ?? null,
+            anonymousId: viewer.anonymousId ?? null,
+            client: viewer.client,
+            metadata: { reactionType: type, previousType: existing.type },
+          });
+        } catch (err) {
+          this.logger.warn(`interactionLog POST_REACTION (change) failed: ${err}`);
+        }
       }
       // Same type → treat as no-op (idempotent upsert; use DELETE to remove)
     } else {
@@ -142,17 +158,21 @@ export class ReactionsService {
         data: { postId, userId: key.userId, anonymousId: key.anonymousId, type },
       });
       // FR-18: trace log react mới (best-effort, skip admin internally)
-      await this.interactionLog.log({
-        action: InteractionAction.POST_REACTION,
-        targetType: InteractionTargetType.POST,
-        targetId: postId,
-        postId,
-        actorUserId: viewer.userId ?? null,
-        actorRole: viewer.role ?? null,
-        anonymousId: viewer.anonymousId ?? null,
-        client: viewer.client,
-        metadata: { reactionType: type },
-      });
+      try {
+        await this.interactionLog.log({
+          action: InteractionAction.POST_REACTION,
+          targetType: InteractionTargetType.POST,
+          targetId: postId,
+          postId,
+          actorUserId: viewer.userId ?? null,
+          actorRole: viewer.role ?? null,
+          anonymousId: viewer.anonymousId ?? null,
+          client: viewer.client,
+          metadata: { reactionType: type },
+        });
+      } catch (err) {
+        this.logger.warn(`interactionLog POST_REACTION failed: ${err}`);
+      }
       if (key.userId && key.userId !== post.authorId) {
         await this.activity.log({
           actorId: key.userId,
@@ -296,16 +316,20 @@ export class ReactionsService {
         data: { commentId, userId: key.userId, anonymousId: key.anonymousId },
       });
       // FR-18: trace log comment-like mới (chỉ khi like, không khi unlike). Skip admin internally.
-      await this.interactionLog.log({
-        action: InteractionAction.COMMENT_LIKE,
-        targetType: InteractionTargetType.COMMENT,
-        targetId: commentId,
-        postId: comment.postId,
-        actorUserId: viewer.userId ?? null,
-        actorRole: viewer.role ?? null,
-        anonymousId: viewer.anonymousId ?? null,
-        client: viewer.client,
-      });
+      try {
+        await this.interactionLog.log({
+          action: InteractionAction.COMMENT_LIKE,
+          targetType: InteractionTargetType.COMMENT,
+          targetId: commentId,
+          postId: comment.postId,
+          actorUserId: viewer.userId ?? null,
+          actorRole: viewer.role ?? null,
+          anonymousId: viewer.anonymousId ?? null,
+          client: viewer.client,
+        });
+      } catch (err) {
+        this.logger.warn(`interactionLog COMMENT_LIKE failed: ${err}`);
+      }
     }
 
     const count = await this.prisma.commentLike.count({ where: { commentId } });

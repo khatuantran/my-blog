@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsISO8601, IsOptional, IsString, Max, Min } from 'class-validator';
 import { InteractionAction } from '@prisma/client';
 
 export class ListInteractionLogsDto {
@@ -21,12 +21,12 @@ export class ListInteractionLogsDto {
 
   @ApiPropertyOptional({ description: 'Từ ngày (ISO 8601) — lọc createdAt >=' })
   @IsOptional()
-  @IsString()
+  @IsISO8601()
   from?: string;
 
   @ApiPropertyOptional({ description: 'Đến ngày (ISO 8601) — lọc createdAt <=' })
   @IsOptional()
-  @IsString()
+  @IsISO8601()
   to?: string;
 
   @ApiPropertyOptional({ example: 1, default: 1 })

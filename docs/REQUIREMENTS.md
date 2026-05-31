@@ -563,8 +563,14 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - `UserResponseDto` (GET `/users/by-username/:username` + `/users/:id`) trả thêm 5 fields.
   - `AuthUserDto` (GET `/auth/me` + login/register/refresh) expand 4 fields đã có trong DB (`avatarPublicId, title, bio, skills`) + 5 contact fields mới — để FE `useAuth()` consumer (vd ProfileAvatar hero, AvatarMenu) có đủ data 1 query thay phải fetch `/users/by-username` riêng cho viewer-self case.
 - **Migration**: `add_user_contact_fields` — 5 ADD COLUMN nullable, backfill N/A (existing rows = NULL). Non-breaking.
+- **Display name ở feed/detail/comment (amended 2026-05-31):** Ngoài profile hero, `name` còn hiển thị làm tên tác giả ở Feed/Post Detail + comment:
+  - **PostHeader (Feed + Detail):** hiển thị **CẢ** `name` (đậm, blu, dòng trên) **+** `~/username` (highlight cyan, dòng dưới — xếp **dọc**). Nếu chưa đặt `name` → chỉ `~/username` (blu, làm tên chính). `[ ADMIN ]` badge + status dot + timestamp nằm **horizontal** ở meta row dưới. Click khối tên → `/profile/:username`.
+  - **Comment + Reply:** hiển thị `name` (fallback `@username` nếu chưa đặt) qua helper `authorLabel(author, '@')`.
+  - **BE:** post author select + comment author select trả thêm `name` (PostAuthorDto/CommentAuthorDto `name: string | null`).
 - **Acceptance**:
   - Given login admin → GET `/auth/me` trả full 14 field profile (id, username, email, role, avatarUrl, avatarPublicId, title, bio, skills, name, location, bornYear, github, website, createdAt)
+  - Given post của author có `name="Trần Tuấn Kha"` → Feed PostHeader hiển thị "Trần Tuấn Kha" (đậm) + "~/admin" (cyan) xếp dọc; author chưa có name → chỉ "~/admin"
+  - Given GET /posts hoặc GET /posts/:id/comments → mỗi author object chứa field `name`
   - Given EditProfileDrawer submit PATCH `/users/:selfId` với contact section (location: "HCM", bornYear: 1995, github: "khatran", website: `https://kha.dev`) → 200 OK + DB updated
   - Given bornYear input "abc" → 400 IsInt validation fail
   - Given bornYear 1899 → 400 Min validation fail
@@ -580,11 +586,13 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **BE:** `UpdateUserDto` thêm `username?` (MinLength 3, MaxLength 32, Matches). `UsersService.update` check unique trừ self → **409 `DUPLICATE_USERNAME`** nếu trùng. Propagate vào `data.username`.
 - **FE:** EditProfileDrawer field Handle editable (prefix `@`, value = username không kèm @); submit chỉ gửi `username` khi đổi; 409 → toast "Handle đã được dùng". Sau đổi thành công → `navigate(/profile/:newUsername, {replace})` vì URL cũ 404.
 - **Hệ quả (chấp nhận):** đổi handle làm `/profile/:oldUsername` 404 + post cũ hiển thị handle mới sau khi posts refetch (author join). Không backfill/redirect old slug (blog solo).
+- **FE TẠM DISABLE (2026-05-31):** Sau khi chuyển sang hiển thị display name (FR-11.8) ở feed/detail/comment, nhu cầu đổi handle giảm → **tạm tắt UI đổi username**: EditProfileDrawer field Handle trở lại **read-only** (`@username`, opacity-50), submit KHÔNG gửi `username`. **BE giữ nguyên capability** (`UpdateUserDto.username` + unique check 409) ở trạng thái dormant — bật lại FE khi cần mà không cần đổi BE. Acceptance BE bên dưới vẫn valid; acceptance FE "handle editable" tạm gác.
 - **Acceptance:**
-  - Given self PATCH `username: "new-handle"` hợp lệ → 200 + `data.username = "new-handle"`
-  - Given username trùng user khác → 409 `DUPLICATE_USERNAME`
-  - Given username `"a b!"` (sai format) hoặc < 3 / > 32 ký tự → 400
-- **Linked Tests**: BE e2e (PATCH username success + 409 dup + 400 format) + FE EditProfileDrawer (handle editable, không readonly)
+  - Given self PATCH `username: "new-handle"` hợp lệ → 200 + `data.username = "new-handle"` (BE — vẫn active)
+  - Given username trùng user khác → 409 `DUPLICATE_USERNAME` (BE — vẫn active)
+  - Given username `"a b!"` (sai format) hoặc < 3 / > 32 ký tự → 400 (BE — vẫn active)
+  - Given mở EditProfileDrawer → field Handle read-only, không submit `username` (FE — sau khi disable)
+- **Linked Tests**: BE e2e (PATCH username success + 409 dup + 400 format — vẫn pass) + FE EditProfileDrawer (handle read-only sau disable)
 
 ### FR-12: Full-text Search
 

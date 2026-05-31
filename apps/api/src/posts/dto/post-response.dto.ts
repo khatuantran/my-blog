@@ -8,6 +8,9 @@ export class PostAuthorDto {
   @ApiProperty({ example: 'kha' })
   username!: string;
 
+  @ApiProperty({ example: 'Kha Tran', nullable: true, description: 'Display name (FR-11.8)' })
+  name!: string | null;
+
   @ApiProperty({ enum: Role, example: Role.ADMIN })
   role!: Role;
 

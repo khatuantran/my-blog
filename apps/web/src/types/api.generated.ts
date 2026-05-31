@@ -1074,6 +1074,8 @@ export interface components {
       color: string;
     };
     UpdateUserDto: {
+      /** @example kha */
+      username?: string;
       /** @example kha@example.com */
       email?: string;
       /** @example https://res.cloudinary.com/.../avatar.jpg */
@@ -1226,6 +1228,11 @@ export interface components {
       id: string;
       /** @example kha */
       username: string;
+      /**
+       * @description Display name (FR-11.8)
+       * @example Kha Tran
+       */
+      name: Record<string, never> | null;
       /**
        * @example ADMIN
        * @enum {string}
@@ -1410,6 +1417,11 @@ export interface components {
       id: string;
       /** @example kha */
       username: string;
+      /**
+       * @description Display name (FR-11.8)
+       * @example Kha Tran
+       */
+      name: Record<string, never> | null;
       /**
        * @example USER
        * @enum {string}

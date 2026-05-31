@@ -124,16 +124,17 @@ describe('TopBar — authed USER (non-admin)', () => {
     });
   });
 
-  it('dropdown ẩn admin-only items (Manage Posts + Admin Dashboard) — T-364 stale-assumption update', async () => {
-    // T-364 test-stale-assumption: design v2 menu uses Manage Posts/Manage Tags/System Settings instead of Create Post/Saved.
-    // Non-admin user keeps Manage Tags + Profile + System Settings (disabled) + Logout.
+  it('dropdown non-admin chỉ còn Profile + Logout (Manage Posts/Admin/Manage Tags/System Settings ẩn) — T-457 stale-assumption update', async () => {
+    // T-457 test-stale-assumption: Manage Tags + System Settings giờ adminOnly (cùng Manage Posts + Admin Dashboard).
+    // Non-admin (USER) chỉ thấy Profile + Logout. Browse tags vẫn mở qua CommandPalette / URL /tags.
     const user = userEvent.setup();
     renderTopBar();
     await user.click(screen.getByRole('button', { name: /user menu/i }));
     expect(screen.queryByText('Manage Posts')).toBeNull();
     expect(screen.queryByText('Admin Dashboard')).toBeNull();
+    expect(screen.queryByText('Manage Tags')).toBeNull();
+    expect(screen.queryByText('System Settings')).toBeNull();
     expect(screen.getByText('Profile')).toBeInTheDocument();
-    expect(screen.getByText('Manage Tags')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
     expect(screen.queryByText('[ ADMIN ]')).toBeNull();
   });

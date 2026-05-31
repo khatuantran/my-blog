@@ -19,6 +19,7 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
   const ts = formatTimestamp(post.createdAt);
   const rel = formatRelative(post.createdAt);
   const isAdmin = author.role === 'ADMIN';
+  const authorName = author.name?.trim();
   const [showAvatar, setShowAvatar] = useState(false);
   return (
     <div className="mb-3 flex items-start gap-2.5">
@@ -39,14 +40,26 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="mb-px flex flex-wrap items-center gap-1.5">
-          <Link
-            to={`/profile/${author.username}`}
-            data-testid="post-author-link"
-            className="font-mono text-mono-lg font-semibold text-blu no-underline hover:underline"
+        {/* Name (đậm) trên — ~/username (highlight cyan) dưới, xếp dọc — FR-11.8. Click → profile. */}
+        <Link
+          to={`/profile/${author.username}`}
+          data-testid="post-author-link"
+          className="inline-flex flex-col leading-tight no-underline hover:underline"
+        >
+          {authorName && (
+            <span className="font-mono text-mono-lg font-semibold text-blu">{authorName}</span>
+          )}
+          <span
+            className={
+              authorName
+                ? 'font-mono text-mono-sm font-semibold text-cyan'
+                : 'font-mono text-mono-lg font-semibold text-blu'
+            }
           >
             ~/{author.username}
-          </Link>
+          </span>
+        </Link>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
           {isAdmin && (
             <span
               className="inline-flex items-center rounded-xs border border-ora/50 bg-ora/[0.06] font-mono text-[10px] leading-none text-ora"
@@ -55,12 +68,10 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
               [ ADMIN ]
             </span>
           )}
-          <span className="font-mono text-mono text-td">·</span>
-          <span className="font-mono text-mono text-tm">{ts}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
           <span className="animate-pulse-status text-[8px] text-grn">●</span>
           <span className="font-mono text-mono text-tm">{rel}</span>
+          <span className="font-mono text-mono text-td">·</span>
+          <span className="font-mono text-mono text-tm">{ts}</span>
         </div>
       </div>
       <MoodBadge mood={post.mood} />

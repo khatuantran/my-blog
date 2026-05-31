@@ -15,7 +15,7 @@ export { PostStatus };
 export const normalizeTagName = normalizeTagNameImpl;
 
 export const POST_INCLUDE = {
-  author: { select: { id: true, username: true, role: true, avatarUrl: true } },
+  author: { select: { id: true, username: true, name: true, role: true, avatarUrl: true } },
   postTags: { include: { tag: true } },
   images: { orderBy: { order: 'asc' as const } },
   files: { orderBy: { createdAt: 'asc' as const } },

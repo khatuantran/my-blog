@@ -18,7 +18,13 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
-- **FR-11.9 cho phép đổi handle/username (T-454, F2)** (2026-05-31, Both): Amend policy cũ "reject username change" → self/admin đổi `username` được. BE `UpdateUserDto` +username (3-32, `[a-zA-Z0-9_-]`) + unique check case-insensitive (409 `DUPLICATE_USERNAME`). FE EditProfileDrawer Handle editable (prefix @) + sau đổi `navigate(/profile/:new)` (URL cũ 404). 3 BE e2e + EditProfileDrawer test. (Refs T-454)
+- **FR-11.8 hiển thị display name + ~/handle ở feed/detail/comment (T-455, F2)** (2026-05-31, Both): Feed/Post Detail PostHeader giờ hiển thị **CẢ** display name (`User.name`, đậm blu) **+** `~/username` (highlight cyan) xếp **dọc** (name trên / handle dưới); `[ ADMIN ]` badge + status dot + timestamp ở meta row **horizontal** phía dưới. Author chưa đặt `name` → chỉ `~/username` (làm tên chính). Comment + Reply hiển thị `name` (fallback `@username`) qua helper `authorLabel`. BE: posts/comments author select + DTO trả thêm `name: string|null`. openapi.yaml + api.generated.ts regenerated. 1 PostHeader test mới + 59 BE e2e + 47 BE unit pass. (Refs T-455)
+
+- **FR-11.9 TẠM DISABLE FE đổi username (T-456, F2)** (2026-05-31, FE): Sau khi chuyển sang hiển thị display name (T-455), tạm tắt UI đổi handle — EditProfileDrawer field Handle trở lại read-only (`@username`, opacity-50), FE không gửi `username`. **BE giữ nguyên capability** (`UpdateUserDto.username` + unique 409) dormant — bật lại FE không cần đổi BE. EditProfileDrawer test (handle read-only). (Refs T-456)
+
+- **AvatarMenu gate Manage Tags + System Settings cho admin (T-457, F2)** (2026-05-31, FE): Non-admin (role USER) giờ chỉ thấy `Profile` + `Logout` trong dropdown avatar; `Manage Tags` + `System Settings` thêm `adminOnly` (cùng Manage Posts + Admin Dashboard sẵn có). Browse tags vẫn mở cho mọi role qua CommandPalette / URL `/tags` — chỉ entry menu ẩn với non-admin. DESIGN_SYSTEM AvatarMenu spec sync (4 adminOnly + Role gating note). AvatarMenu test cập nhật (non-admin chỉ Profile/Logout). (Refs T-457)
+
+- **FR-11.9 cho phép đổi handle/username (T-454, F2)** (2026-05-31, Both): Amend policy cũ "reject username change" → self/admin đổi `username` được. BE `UpdateUserDto` +username (3-32, `[a-zA-Z0-9_-]`) + unique check case-insensitive (409 `DUPLICATE_USERNAME`). FE EditProfileDrawer Handle editable (prefix @) + sau đổi `navigate(/profile/:new)` (URL cũ 404). 3 BE e2e + EditProfileDrawer test. **Note: FE phần này TẠM DISABLE bởi T-456 cùng ngày — BE vẫn active.** (Refs T-454)
 
 - **T-451 FE phóng to ảnh post (ImageGrid variant feed/detail)** (2026-05-31, FE): Ảnh post to hơn cho social network UX — `ImageGrid` thêm `variant`: feed (single 460/2-col 340/3+ 400px) · detail (single 640/2-col 460/3+ 520px), override design-file gốc 200/160/180. Post Detail dùng `detail`. (Refs T-451)
 

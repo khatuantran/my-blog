@@ -8,7 +8,7 @@ import type { CommentResponseDto } from './dto/comment-response.dto';
 import type { ModeratableStatus } from './dto/update-status.dto';
 
 const COMMENT_INCLUDE = {
-  user: { select: { id: true, username: true, role: true, avatarUrl: true } },
+  user: { select: { id: true, username: true, name: true, role: true, avatarUrl: true } },
   _count: { select: { likes: true } },
 } satisfies Prisma.CommentInclude;
 
@@ -42,6 +42,7 @@ function toCommentResponse(c: CommentWithRelations): CommentResponseDto {
       ? {
           id: c.user.id,
           username: c.user.username,
+          name: c.user.name,
           role: c.user.role,
           avatarUrl: c.user.avatarUrl,
         }

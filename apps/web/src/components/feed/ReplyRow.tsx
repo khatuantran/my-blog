@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Avatar } from '@/components/shared/Avatar';
 import { formatRelative } from '@/lib/format-date';
 import { useToggleCommentLike } from '@/hooks/mutations/use-comment-like';
+import { authorLabel } from '@/lib/display-name';
 import type { Comment } from '@/types/api';
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 };
 
 function displayName(c: Comment): string {
-  if (c.author) return `@${c.author.username}`;
+  if (c.author) return authorLabel(c.author, '@'); // full name, fallback @username
   return c.anonymousName ? `Anon · ${c.anonymousName}` : 'Anon';
 }
 

@@ -913,13 +913,14 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
   - Mini avatar 28 cyan border + gradient.
   - Info: `~/admin` blu mono 12 + `[ ADMIN ]` ora mono 10 (chỉ render khi role ADMIN).
 - **Items (7 entries):**
-  - `📝 Manage Posts` blu (`#7DCFFF`) → `/admin/posts`.
-  - `⚙️ Admin Dashboard` pur (`#BB9AF7`) + `⌘3` desc → `/admin`.
-  - `🏷 Manage Tags` yel (`#E0AF68`) → `/tags`.
-  - `🔧 System Settings` grn (`#9ECE6A`) → TBD.
+  - `📝 Manage Posts` blu (`#7DCFFF`) → `/admin/posts`. **adminOnly.**
+  - `⚙️ Admin Dashboard` pur (`#BB9AF7`) + `⌘3` desc → `/admin`. **adminOnly.**
+  - `🏷 Manage Tags` yel (`#E0AF68`) → `/tags`. **adminOnly** (browse tags vẫn mở cho mọi role qua CommandPalette / URL `/tags` — chỉ entry menu này ẩn với non-admin).
+  - `🔧 System Settings` grn (`#9ECE6A`) → TBD. **adminOnly.**
   - **Separator** 1px `--b2`.
-  - `👤 Profile` (color default `--ts` thay vì accent) → `/profile/<user>`.
-  - `🚪 Logout` red (`#F7768E`) + `⌘Q` desc → POST `/auth/logout`.
+  - `👤 Profile` (color default `--ts` thay vì accent) → `/profile/<user>`. Hiển thị mọi role.
+  - `🚪 Logout` red (`#F7768E`) + `⌘Q` desc → POST `/auth/logout`. Hiển thị mọi role.
+- **Role gating:** non-admin (USER) chỉ thấy `Profile` + `Logout`. Tất cả entry còn lại đều `adminOnly`.
 - **Item structure:** flex gap 8 padding 7/10 radius `radius-sm`. Icon 15px + label flex-1 14 (per-item color) + optional desc mono 11 muted right.
 - **Item hover:** bg `cyan/8` (uniform — KHÔNG per-color hover).
 - **Behavior:** click outside (mousedown listener) → close. Avatar status dot (8×8 green bottom-right border `--bg`).

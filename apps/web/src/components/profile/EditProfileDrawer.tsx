@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { ApiError } from '@/services/api/client';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { ProfileAvatar } from '@/components/shared/ProfileAvatar';
@@ -23,7 +22,6 @@ type Props = {
 export function EditProfileDrawer({ open, user, onClose }: Props) {
   // basic.info
   const [name, setName] = useState(user.name ?? '');
-  const [handle, setHandle] = useState(user.username); // FR-11.9: đổi username/handle
   const [title, setTitle] = useState(user.title ?? '');
   const [bio, setBio] = useState(user.bio ?? '');
 
@@ -45,7 +43,6 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwOk, setPwOk] = useState(false);
 
-  const navigate = useNavigate();
   const updateMut = useUpdateProfile();
   const pwMut = useChangePassword();
   const removeAvatarMut = useRemoveAvatar(user.username);
@@ -61,7 +58,6 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
   useEffect(() => {
     if (!open) return;
     setName(user.name ?? '');
-    setHandle(user.username);
     setTitle(user.title ?? '');
     setBio(user.bio ?? '');
     setLocation(user.location ?? '');
@@ -92,38 +88,25 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
   function handleProfileSubmit(e: React.FormEvent) {
     e.preventDefault();
     setProfileError(null);
-    const trimmedHandle = handle.trim();
-    if (trimmedHandle && !/^[a-zA-Z0-9_-]{3,32}$/.test(trimmedHandle)) {
-      setProfileError('Handle: 3-32 ký tự, chỉ chữ/số/_/-');
-      return;
-    }
     const body: Parameters<typeof updateMut.mutate>[0]['body'] = {
       title: title || undefined,
       bio: bio || undefined,
       skills,
       name: name || undefined,
-      // chỉ gửi khi đổi (tránh "username đã được dùng" với chính mình ở vài BE; BE cũng đã loại trừ self)
-      username: trimmedHandle && trimmedHandle !== user.username ? trimmedHandle : undefined,
+      // FR-11.9 tạm DISABLE đổi username (handle read-only) — KHÔNG gửi username. BE vẫn support.
       location: location || undefined,
       bornYear: bornYear ? Number(bornYear) : undefined,
       github: github || undefined,
       website: website || undefined,
     };
-    const newHandle = body.username;
     updateMut.mutate(
       { id: user.id, body },
       {
-        onSuccess: () => {
-          onClose();
-          // Đổi handle → URL /profile/:username cũ sẽ 404 → điều hướng sang handle mới.
-          if (newHandle) navigate(`/profile/${newHandle}`, { replace: true });
-        },
+        onSuccess: () => onClose(),
         onError: (err) => {
           let msg = err.message;
-          if (err instanceof ApiError && err.status === 409) {
-            msg = 'Handle đã được dùng — chọn tên khác';
-          } else if (err instanceof ApiError && err.status === 400) {
-            msg = 'Invalid input · check fields (handle 3-32 / title 80 / bio 500 / skills 20)';
+          if (err instanceof ApiError && err.status === 400) {
+            msg = 'Invalid input · check fields (title 80 / bio 500 / skills 20)';
           }
           setProfileError(msg);
         },
@@ -297,21 +280,14 @@ export function EditProfileDrawer({ open, user, onClose }: Props) {
                   />
                 </Field>
                 <Field label="Handle">
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-mono-sm text-td">
-                      @
-                    </span>
-                    <input
-                      type="text"
-                      value={handle}
-                      onChange={(e) => setHandle(e.target.value.replace(/^@+/, ''))}
-                      minLength={3}
-                      maxLength={32}
-                      aria-label="Handle (username)"
-                      placeholder="handle"
-                      className={`${inputCls} pl-7`}
-                    />
-                  </div>
+                  {/* FR-11.9 tạm DISABLE đổi handle — read-only (BE vẫn support, mở lại sau). */}
+                  <input
+                    type="text"
+                    value={`@${user.username}`}
+                    readOnly
+                    aria-label="Handle (read-only)"
+                    className={`${inputCls} cursor-default opacity-50`}
+                  />
                 </Field>
               </div>
               <Field label="Title (max 80)">

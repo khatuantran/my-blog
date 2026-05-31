@@ -31,8 +31,8 @@ const COLOR_CLASS: Record<ColorKey, string> = {
 const AUTHED_MENU: MenuEntry[] = [
   { icon: '📝', label: 'Manage Posts', to: '/admin/posts', color: 'blu', adminOnly: true },
   { icon: '⚙️', label: 'Admin Dashboard', to: '/admin', kbd: '⌘3', color: 'pur', adminOnly: true },
-  { icon: '🏷', label: 'Manage Tags', to: '/tags', color: 'yel' },
-  { icon: '🔧', label: 'System Settings', color: 'grn', disabled: true },
+  { icon: '🏷', label: 'Manage Tags', to: '/tags', color: 'yel', adminOnly: true },
+  { icon: '🔧', label: 'System Settings', color: 'grn', disabled: true, adminOnly: true },
   { icon: '👤', label: 'Profile', to: '/me', color: 'ts', separatorBefore: true },
 ];
 

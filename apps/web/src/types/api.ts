@@ -90,6 +90,7 @@ export type CommentStatus = 'APPROVED' | 'PENDING' | 'REJECTED';
 export type PostAuthor = {
   id: string;
   username: string;
+  name?: string | null; // FR-11.8 display name — hiển thị thay username ở feed/detail/comment
   role: Role;
   avatarUrl: string | null;
 };

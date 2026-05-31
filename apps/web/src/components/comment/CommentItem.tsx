@@ -5,6 +5,7 @@ import { useToggleCommentLike } from '@/hooks/mutations/use-comment-like';
 import { useReplies } from '@/hooks/queries/use-replies';
 import { ReplyForm } from '@/components/feed/ReplyForm';
 import { ReplyRow } from '@/components/feed/ReplyRow';
+import { authorLabel } from '@/lib/display-name';
 import type { Comment } from '@/types/api';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 };
 
 function displayName(c: Comment): string {
-  if (c.author) return `@${c.author.username}`;
+  if (c.author) return authorLabel(c.author, '@'); // full name, fallback @username
   return c.anonymousName ? `Anon · ${c.anonymousName}` : 'Anon';
 }
 

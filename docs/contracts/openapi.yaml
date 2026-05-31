@@ -1589,6 +1589,11 @@ components:
     UpdateUserDto:
       type: object
       properties:
+        username:
+          type: string
+          example: kha
+          minLength: 3
+          maxLength: 32
         email:
           type: string
           example: kha@example.com
@@ -1827,6 +1832,11 @@ components:
         username:
           type: string
           example: kha
+        name:
+          type: object
+          example: Kha Tran
+          nullable: true
+          description: Display name (FR-11.8)
         role:
           type: string
           enum:
@@ -1841,6 +1851,7 @@ components:
       required:
         - id
         - username
+        - name
         - role
         - avatarUrl
     PostTagDto:
@@ -2200,6 +2211,11 @@ components:
         username:
           type: string
           example: kha
+        name:
+          type: object
+          example: Kha Tran
+          nullable: true
+          description: Display name (FR-11.8)
         role:
           type: string
           enum:
@@ -2214,6 +2230,7 @@ components:
       required:
         - id
         - username
+        - name
         - role
         - avatarUrl
     CommentResponseDto:

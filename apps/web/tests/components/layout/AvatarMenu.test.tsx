@@ -57,7 +57,7 @@ describe('AvatarMenu (T-364)', () => {
     expect(screen.getByText('[ ADMIN ]')).toBeInTheDocument();
   });
 
-  it('non-admin user filters out adminOnly entries (Manage Posts + Admin Dashboard hidden)', async () => {
+  it('non-admin user chỉ thấy Profile + Logout (Manage Posts/Admin/Manage Tags/System Settings ẩn)', async () => {
     useAuthStore.setState({
       status: 'authed',
       user: {
@@ -72,10 +72,14 @@ describe('AvatarMenu (T-364)', () => {
     const user = userEvent.setup();
     renderMenu();
     await user.click(screen.getByTestId('avatar-menu-trigger'));
+    // adminOnly entries đều ẩn với role USER
     expect(screen.queryByTestId('avatar-menu-item-manage-posts')).toBeNull();
     expect(screen.queryByTestId('avatar-menu-item-admin-dashboard')).toBeNull();
-    expect(screen.getByTestId('avatar-menu-item-manage-tags')).toBeInTheDocument();
+    expect(screen.queryByTestId('avatar-menu-item-manage-tags')).toBeNull();
+    expect(screen.queryByTestId('avatar-menu-item-system-settings')).toBeNull();
+    // Chỉ còn Profile (+ Logout) cho non-admin
     expect(screen.getByTestId('avatar-menu-item-profile')).toBeInTheDocument();
+    expect(screen.getByTestId('avatar-menu-item-logout')).toBeInTheDocument();
     expect(screen.queryByText('[ ADMIN ]')).toBeNull();
   });
 

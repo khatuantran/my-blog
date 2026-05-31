@@ -86,14 +86,13 @@ describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
     expect(screen.getByText('// security')).toBeInTheDocument();
   });
 
-  it('FR-11.9: basic.info pre-fills title + bio; handle editable (= username, không @)', () => {
+  it('basic.info pre-fills title + bio; handle read-only @username (đổi username tạm disable — FR-11.9 dormant)', () => {
     wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
     expect(screen.getByDisplayValue('Dev')).toBeInTheDocument();
     expect(screen.getByDisplayValue('hi')).toBeInTheDocument();
-    // F2 amend (FR-11.9): handle giờ EDIT được — value 'alice' (không @, @ là prefix span), không readonly.
-    const handle = screen.getByLabelText(/handle \(username\)/i);
-    expect(handle).toHaveValue('alice');
-    expect(handle).not.toHaveAttribute('readonly');
+    const handle = screen.getByLabelText(/handle \(read-only\)/i);
+    expect(handle).toHaveValue('@alice');
+    expect(handle).toHaveAttribute('readonly');
   });
 
   it('T-376: contact.links section renders location + born year + github + website fields', () => {

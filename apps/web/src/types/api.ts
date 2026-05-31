@@ -235,6 +235,8 @@ export type InteractionLog = {
   device: string | null;
   acceptLang: string | null;
   referer: string | null;
+  geoCountry: string | null;
+  geoCity: string | null;
   fingerprint: string | null;
   metadata: Record<string, unknown> | null;
   createdAt: string;

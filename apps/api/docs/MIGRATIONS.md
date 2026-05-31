@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260531114351_add_interaction_log_geo
+
+- **Created:** 2026-05-31
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** `InteractionLog` (+2 nullable: `geoCountry TEXT`, `geoCity TEXT`)
+- **Breaking:** no — cột mới nullable.
+- **Notes:** FR-18 geo-locate IP qua `geoip-lite` (offline). Populate khi log (IP public); private/local → null. Applied main + test.
+- **Task:** T-467
+- **Rollback:** `prisma migrate resolve --rolled-back 20260531114351_add_interaction_log_geo` + `ALTER TABLE "InteractionLog" DROP COLUMN "geoCountry", DROP COLUMN "geoCity";`
+
 ### 20260531110620_add_interaction_log
 
 - **Created:** 2026-05-31

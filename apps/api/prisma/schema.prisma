@@ -367,6 +367,8 @@ model InteractionLog {
   device      String?
   acceptLang  String?
   referer     String?
+  geoCountry  String? // FR-18: ISO country code từ IP (geoip-lite offline)
+  geoCity     String? // city (có thể rỗng — DB free thường thiếu city)
   fingerprint String? // sha256(ip+ua+acceptLang) cắt 16 — gom theo thiết bị kể cả khi xoá cookie
   metadata    Json? // { reactionType?, snippet?, parentId? }
   createdAt   DateTime              @default(now())

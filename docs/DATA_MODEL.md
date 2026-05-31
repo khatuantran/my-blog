@@ -328,7 +328,7 @@ model Comment {
 
 Audit trace append-only cho interaction của actor **non-admin** (anonymous + USER). Mirror `ActivityLog` (polymorphic soft-FK), nhưng log CẢ anon (actorUserId null) và lưu metadata network/device.
 
-**Fields:** `id` (cuid), `action` (`InteractionAction`), `targetType` (`InteractionTargetType`) + `targetId` (soft FK — Post.id/Comment.id, no relation), `postId String?` (denorm nav/filter), `actorUserId String?` (FK User SetNull, null=anon), `actorRole Role?` (null=anon), `anonymousId String?` (cookie `anon_id`), `ip String?`, `userAgent String?`, `browser/os/device String?` (parse từ UA), `acceptLang String?`, `referer String?`, `fingerprint String?` (sha256(ip+ua+acceptLang) cắt 16), `metadata Json?` (`reactionType`/snippet/`parentId`), `createdAt`.
+**Fields:** `id` (cuid), `action` (`InteractionAction`), `targetType` (`InteractionTargetType`) + `targetId` (soft FK — Post.id/Comment.id, no relation), `postId String?` (denorm nav/filter), `actorUserId String?` (FK User SetNull, null=anon), `actorRole Role?` (null=anon), `anonymousId String?` (cookie `anon_id`), `ip String?`, `userAgent String?`, `browser/os/device String?` (parse từ UA), `acceptLang String?`, `referer String?`, `geoCountry String?` + `geoCity String?` (geo-locate IP qua `geoip-lite` offline — null nếu IP private/local), `fingerprint String?` (sha256(ip+ua+acceptLang) cắt 16), `metadata Json?` (`reactionType`/snippet/`parentId`), `createdAt`.
 
 **Indexes:** `@@index([createdAt])`, `@@index([actorUserId, createdAt])`, `@@index([anonymousId, createdAt])`, `@@index([fingerprint, createdAt])`, `@@index([postId])`.
 

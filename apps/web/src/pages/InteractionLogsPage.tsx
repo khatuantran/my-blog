@@ -49,7 +49,7 @@ function ActionBadge({ action }: { action: InteractionAction }) {
 function ActorCell({ log }: { log: InteractionLog }) {
   if (log.actor) {
     return (
-      <span className="font-mono text-mono-sm">
+      <span className="font-mono text-mono-md">
         <Link to={`/profile/${log.actor.username}`} className="text-blu hover:underline">
           ~/{log.actor.username}
         </Link>
@@ -58,7 +58,7 @@ function ActorCell({ log }: { log: InteractionLog }) {
     );
   }
   return (
-    <span className="font-mono text-mono-sm text-tm">
+    <span className="font-mono text-mono-md text-tm">
       anon{log.anonymousId ? ` · ${log.anonymousId}` : ''}
     </span>
   );
@@ -74,13 +74,26 @@ export default function InteractionLogsPage() {
   const [debouncedQ, setDebouncedQ] = useState(q);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Debounce: cập nhật query + sync `q` vào URL (giữ khi refresh/share — review fix).
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQ(q), 300);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQ(q);
+      setParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (q) next.set('q', q);
+          else next.delete('q');
+          if ((prev.get('q') ?? '') !== q) next.delete('page'); // reset page khi đổi search
+          return next;
+        },
+        { replace: true },
+      );
+    }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [q]);
+  }, [q, setParams]);
 
   const { data, isLoading, isError } = useInteractionLogs({
     action: actionParam || undefined,
@@ -173,47 +186,54 @@ export default function InteractionLogsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-b2" data-testid="logs-table">
-          <div className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] gap-2 border-b border-b2 bg-bg px-3 py-2 font-mono text-mono-xs font-semibold uppercase tracking-wide text-tm">
+          <div className="grid grid-cols-[110px_130px_1fr_1.7fr_0.9fr] gap-3 border-b border-b2 bg-bg px-4 py-2.5 font-mono text-mono-sm font-semibold uppercase tracking-wide text-tm">
             <span>When</span>
             <span>Action</span>
             <span>Actor</span>
-            <span>IP / device</span>
+            <span>IP · geo / device</span>
             <span>Target</span>
           </div>
-          {items.map((log) => (
-            <div
-              key={log.id}
-              data-testid={`log-row-${log.id}`}
-              className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] items-center gap-2 border-b border-b1 px-3 py-2 font-medium last:border-b-0 hover:bg-elev/50"
-            >
-              <span
-                className="font-mono text-mono-sm text-ts"
-                title={formatTimestamp(log.createdAt)}
+          {items.map((log) => {
+            const ip = log.ip ? log.ip.replace(/^::ffff:/, '') : '—';
+            const geo = [log.geoCountry, log.geoCity].filter(Boolean).join(' · ');
+            return (
+              <div
+                key={log.id}
+                data-testid={`log-row-${log.id}`}
+                className="grid grid-cols-[110px_130px_1fr_1.7fr_0.9fr] items-center gap-3 border-b border-b1 px-4 py-3.5 font-medium last:border-b-0 hover:bg-elev/50"
               >
-                {formatRelative(log.createdAt)}
-              </span>
-              <span>
-                <ActionBadge action={log.action} />
-              </span>
-              <ActorCell log={log} />
-              <span className="min-w-0 font-mono text-mono-sm text-tp">
-                <span className="font-semibold text-tp">{log.ip ?? '—'}</span>
-                <span className="block truncate text-mono-xs text-tm">
-                  {[log.browser, log.os].filter(Boolean).join(' · ') || log.userAgent || '—'}
-                  {log.fingerprint ? ` · #${log.fingerprint}` : ''}
+                <span
+                  className="font-mono text-mono-md text-ts"
+                  title={formatTimestamp(log.createdAt)}
+                >
+                  {formatRelative(log.createdAt)}
                 </span>
-              </span>
-              <span className="min-w-0 truncate font-mono text-mono-sm text-ts">
-                {log.postId ? (
-                  <Link to={`/post/${log.postId}`} className="text-cyan hover:underline">
-                    {log.targetType.toLowerCase()} → {log.targetId.slice(-6)}
-                  </Link>
-                ) : (
-                  `${log.targetType.toLowerCase()} → ${log.targetId.slice(-6)}`
-                )}
-              </span>
-            </div>
-          ))}
+                <span>
+                  <ActionBadge action={log.action} />
+                </span>
+                <ActorCell log={log} />
+                <span className="min-w-0 font-mono text-mono-md text-tp">
+                  <span className="flex flex-wrap items-center gap-x-2">
+                    <span className="font-semibold text-tp">{ip}</span>
+                    {geo && <span className="text-cyan">🌐 {geo}</span>}
+                  </span>
+                  <span className="block truncate text-mono-sm font-normal text-tm">
+                    {[log.browser, log.os].filter(Boolean).join(' · ') || log.userAgent || '—'}
+                    {log.fingerprint ? ` · #${log.fingerprint}` : ''}
+                  </span>
+                </span>
+                <span className="min-w-0 truncate font-mono text-mono-md text-ts">
+                  {log.postId ? (
+                    <Link to={`/post/${log.postId}`} className="text-cyan hover:underline">
+                      {log.targetType.toLowerCase()} → {log.targetId.slice(-6)}
+                    </Link>
+                  ) : (
+                    `${log.targetType.toLowerCase()} → ${log.targetId.slice(-6)}`
+                  )}
+                </span>
+              </div>
+            );
+          })}
         </div>
       )}
 

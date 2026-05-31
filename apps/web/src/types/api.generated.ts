@@ -1469,6 +1469,13 @@ export interface components {
       acceptLang: Record<string, never> | null;
       /** @example http://localhost:5173/ */
       referer: Record<string, never> | null;
+      /**
+       * @description ISO country code từ IP (geoip)
+       * @example VN
+       */
+      geoCountry: Record<string, never> | null;
+      /** @example Ho Chi Minh City */
+      geoCity: Record<string, never> | null;
       /** @example a1b2c3d4e5f6a7b8 */
       fingerprint: Record<string, never> | null;
       metadata: {

@@ -55,6 +55,12 @@ export class InteractionLogResponseDto {
   @ApiProperty({ example: 'http://localhost:5173/', nullable: true })
   referer!: string | null;
 
+  @ApiProperty({ example: 'VN', nullable: true, description: 'ISO country code từ IP (geoip)' })
+  geoCountry!: string | null;
+
+  @ApiProperty({ example: 'Ho Chi Minh City', nullable: true })
+  geoCity!: string | null;
+
   @ApiProperty({ example: 'a1b2c3d4e5f6a7b8', nullable: true })
   fingerprint!: string | null;
 

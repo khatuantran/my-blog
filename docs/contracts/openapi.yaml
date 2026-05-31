@@ -2336,6 +2336,15 @@ components:
           type: object
           example: http://localhost:5173/
           nullable: true
+        geoCountry:
+          type: object
+          example: VN
+          nullable: true
+          description: ISO country code từ IP (geoip)
+        geoCity:
+          type: object
+          example: Ho Chi Minh City
+          nullable: true
         fingerprint:
           type: object
           example: a1b2c3d4e5f6a7b8
@@ -2364,6 +2373,8 @@ components:
         - device
         - acceptLang
         - referer
+        - geoCountry
+        - geoCity
         - fingerprint
         - metadata
         - createdAt

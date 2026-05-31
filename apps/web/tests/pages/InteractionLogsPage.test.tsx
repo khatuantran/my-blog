@@ -29,6 +29,8 @@ function makeLog(overrides: Partial<InteractionLog> = {}): InteractionLog {
     device: 'desktop',
     acceptLang: 'vi-VN',
     referer: null,
+    geoCountry: null,
+    geoCity: null,
     fingerprint: 'a1b2c3d4e5f6a7b8',
     metadata: null,
     createdAt: '2026-05-31T10:00:00.000Z',
@@ -75,7 +77,9 @@ beforeEach(() => {
               actor: { id: 'u1', username: 'alice' },
               actorRole: 'USER',
               anonymousId: null,
-              ip: '198.51.100.5',
+              ip: '::ffff:198.51.100.5',
+              geoCountry: 'US',
+              geoCity: 'Mountain View',
             }),
           ],
           total: 2,
@@ -104,6 +108,9 @@ describe('InteractionLogsPage (FR-18)', () => {
     // action badges render
     expect(screen.getByText('COMMENT')).toBeInTheDocument();
     expect(screen.getByText('POST_REACTION')).toBeInTheDocument();
+    // geo hiển thị + IP strip prefix ::ffff:
+    expect(screen.getByText(/🌐 US · Mountain View/)).toBeInTheDocument();
+    expect(screen.getByText('198.51.100.5')).toBeInTheDocument();
     // search input
     expect(screen.getByLabelText('Search logs')).toBeInTheDocument();
   });

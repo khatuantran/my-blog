@@ -54,6 +54,17 @@ describe('InteractionLogService (FR-18)', () => {
     expect(data.fingerprint).toMatch(/^[a-f0-9]{16}$/);
   });
 
+  it('geo-locate IP public → geoCountry; IPv4-mapped prefix bị strip', async () => {
+    await service.log({
+      action: InteractionAction.POST_REACTION,
+      targetType: InteractionTargetType.POST,
+      targetId: 'p1',
+      client: { ip: '::ffff:8.8.8.8', userAgent: CHROME_UA },
+    });
+    const data = prisma.interactionLog.create.mock.calls[0][0].data;
+    expect(data.geoCountry).toBe('US'); // geoip-lite offline lookup
+  });
+
   it('log USER interaction giữ actorUserId + actorRole=USER', async () => {
     await service.log({
       action: InteractionAction.COMMENT_LIKE,

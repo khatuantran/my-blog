@@ -3,6 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InteractionAction, InteractionTargetType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { UAParser } from 'ua-parser-js';
+import geoip from 'geoip-lite';
 import type { ClientInfo } from '../common/decorators/client-info.decorator';
 import type { ListInteractionLogsDto } from './dto/list-interaction-logs.dto';
 import type {
@@ -33,6 +34,8 @@ function toResponse(row: LogRow): InteractionLogResponseDto {
     device: row.device,
     acceptLang: row.acceptLang,
     referer: row.referer,
+    geoCountry: row.geoCountry,
+    geoCity: row.geoCity,
     fingerprint: row.fingerprint,
     metadata: (row.metadata as Record<string, unknown> | null) ?? null,
     createdAt: row.createdAt,
@@ -67,6 +70,10 @@ export class InteractionLogService {
     try {
       const client = input.client ?? {};
       const ua = client.userAgent ? new UAParser(client.userAgent).getResult() : null;
+      // FR-18: geo-locate IP (offline geoip-lite). Bỏ prefix IPv4-mapped `::ffff:`;
+      // IP private/local → lookup null (geoCountry/geoCity null).
+      const cleanIp = client.ip ? client.ip.replace(/^::ffff:/, '') : null;
+      const geo = cleanIp ? geoip.lookup(cleanIp) : null;
       await this.prisma.interactionLog.create({
         data: {
           action: input.action,
@@ -83,6 +90,8 @@ export class InteractionLogService {
           device: ua ? (ua.device.type ?? 'desktop') : null,
           acceptLang: client.acceptLanguage ?? null,
           referer: client.referer ?? null,
+          geoCountry: geo?.country || null,
+          geoCity: geo?.city || null,
           fingerprint: fingerprint(client),
           metadata: input.metadata ?? Prisma.JsonNull,
         },

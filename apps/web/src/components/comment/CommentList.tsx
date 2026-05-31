@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import { usePostComments } from '@/hooks/queries/use-comments';
 import { CommentItem } from './CommentItem';
 import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 
 type Props = {
   postId: string;
+  /** Hiển thị mới→cũ (reverse BE `createdAt asc` order) — dùng ở Post Detail (FR-03.7). */
+  newestFirst?: boolean;
+  /** Chỉ hiện N comment đầu + nút show more / collapse. 0 = hiện hết (default). */
+  collapseAfter?: number;
 };
 
-export function CommentList({ postId }: Props) {
+export function CommentList({ postId, newestFirst = false, collapseAfter = 0 }: Props) {
   const { data, isLoading, isError } = usePostComments(postId);
+  const [expanded, setExpanded] = useState(false);
 
   if (isLoading) {
     return (
@@ -31,11 +37,30 @@ export function CommentList({ postId }: Props) {
     );
   }
 
+  // FR-03.7: Post Detail hiển thị mới→cũ (reverse) + collapse N comment đầu.
+  const ordered = newestFirst ? [...items].reverse() : items;
+  const collapsible = collapseAfter > 0 && ordered.length > collapseAfter;
+  const displayed = collapsible && !expanded ? ordered.slice(0, collapseAfter) : ordered;
+  const hiddenCount = ordered.length - collapseAfter;
+
   return (
     <div className="space-y-2">
-      {items.map((c) => (
+      {displayed.map((c) => (
         <CommentItem key={c.id} comment={c} />
       ))}
+      {collapsible && (
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          data-testid="comments-toggle"
+          className="font-mono text-mono-sm text-cyan hover:underline"
+        >
+          {expanded
+            ? '▴ collapse comments'
+            : `▾ show ${hiddenCount} more ${hiddenCount === 1 ? 'comment' : 'comments'}`}
+        </button>
+      )}
     </div>
   );
 }

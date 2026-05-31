@@ -228,18 +228,18 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 │                                      │              │
 │  ❯ // comments [5]                   │              │
 │                                      │              │
-│  ┌─ Comment form ─────────────┐     │              │
-│  │ // add a comment...        │     │              │
-│  │                            │     │              │
-│  │ as: ~/admin   [as anon]  ↵Send│  │              │
-│  └────────────────────────────┘     │              │
-│                                      │              │
-│  ┌─ CommentItem ─────────────┐      │              │
+│  ┌─ CommentItem (newest first) ┐     │              │
 │  │ U @user1 · 1h ago         │      │              │
 │  │ Relatable quá! ...        │      │              │
 │  │ ❤3  ↩Reply               │      │              │
 │  └───────────────────────────┘      │              │
-│  [more comments...]                  │              │
+│  [4 more newest comments...]         │              │
+│  ▾ show N more comments              │              │
+│                                      │              │
+│  ┌─ Comment form (CUỐI section) ┐    │              │
+│  │ // add a comment...        │     │              │
+│  │ as: ~/admin   [as anon]  ↵Send│  │              │
+│  └────────────────────────────┘     │              │
 │                                      │              │
 ├──────────────────────────────────────┴──────────────┤
 └────────────────── StatusBar (28px) ───────────────────┘
@@ -259,6 +259,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 | CommentItem                            | DESIGN_SYSTEM > CommentItem |
 | MetaPanel right                        | DESIGN_SYSTEM > MetaPanel   |
 | ShareButton                            | DESIGN_SYSTEM > ShareButton |
+
+**Comment section (FR-03.7):** comment hiển thị **mới→cũ** (`CommentList newestFirst`); mặc định 5 comment mới nhất + nút `▾ show N more comments` / `▴ collapse comments` (`collapseAfter={5}`); CommentForm đặt **cuối** section (sau list). BE order vẫn `createdAt ASC` (reverse display-only). Feed `CommentsModal` giữ cũ→mới — KHÔNG đổi.
 
 ### State machine
 

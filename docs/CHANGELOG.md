@@ -18,6 +18,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **FR-03.7 Post Detail comment display: mới→cũ + collapse 5 + form xuống cuối (T-458, F2)** (2026-05-31, FE): Màn Post Detail (`/post/:id`) giờ hiển thị comment **mới→cũ** (newest first); mặc định 5 comment mới nhất + nút `▾ show N more comments` / `▴ collapse comments`; CommentForm "add a comment" chuyển xuống **cuối** section. `CommentList` thêm props `newestFirst` + `collapseAfter` (display-only — BE giữ `createdAt ASC`). Feed `CommentsModal` KHÔNG đổi (vẫn cũ→mới). CommentList +3 test + PostDetailPage +1 test. (Refs T-458)
+
 - **FR-11.8 hiển thị display name + ~/handle + role ở feed/detail/comment (T-455, F2)** (2026-05-31, Both): Feed/Post Detail PostHeader giờ **mirror layout profile hero** — line 1: `name || username` (đậm `text-tp`) + `[ ROLE ]` badge inline horizontal (role-colored ADMIN ora / BANNED red / USER); line 2: `~/username` (cyan) · status dot · relative · timestamp. Tên là Link → `/profile/:username`. Comment + Reply hiển thị `name` (fallback `@username`) qua helper `authorLabel`. BE: posts/comments author select + DTO trả thêm `name: string|null`. openapi.yaml + api.generated.ts regenerated. 2 PostHeader test + 59 BE e2e + 47 BE unit pass. (Refs T-455)
 
 - **FR-11.9 TẠM DISABLE FE đổi username (T-456, F2)** (2026-05-31, FE): Sau khi chuyển sang hiển thị display name (T-455), tạm tắt UI đổi handle — EditProfileDrawer field Handle trở lại read-only (`@username`, opacity-50), FE không gửi `username`. **BE giữ nguyên capability** (`UpdateUserDto.username` + unique 409) dormant — bật lại FE không cần đổi BE. EditProfileDrawer test (handle read-only). (Refs T-456)

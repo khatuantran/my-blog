@@ -403,10 +403,17 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
     - `GET /posts/:id/comments?page=&limit=` extend return shape: top-level comments + nested `replies` array per comment (limit 3 first, "load more" button cho replies > 3 — defer to phase 2).
   - **UI (FE):** `CommentItemRow` (top-level comment wrapper) + `ReplyForm` (inline form mở khi click `↩ Reply`, anon toggle giữ giống CommentForm) + `ReplyRow` (nested under comment, indent 40px, avatar 24×24, **like dùng ♡/❤ traditional KHÔNG reaction picker**).
   - **Notification:** Reply trên comment của user X → trigger notification type=REPLY (FR-14.1) cho X với `metadata.replyTo: @<commenterUsername>`.
+- **FR-03.7 Comment display ở Post Detail (NEW — amended 2026-05-31, user feedback):** Trang Post Detail (`/post/:id`) hiển thị comment theo UX riêng (Feed `CommentsModal` GIỮ NGUYÊN cũ→mới):
+  - **Order:** comment hiển thị **mới→cũ** (newest first). BE giữ `createdAt ASC` (display-only reverse ở FE — `CommentList newestFirst`).
+  - **Collapse:** mặc định hiện **5 comment mới nhất**, nút `▾ show N more comments` để mở hết + `▴ collapse comments` thu lại (`CommentList collapseAfter={5}`).
+  - **Form position:** section "add a comment" (CommentForm) đặt **cuối** section comment (sau list + nút collapse), không phải đầu.
+  - **Optimistic:** comment vừa gửi (append cuối asc per BUG-026) sau reverse → hiện ở **đầu** list (trong 5 đầu), khớp newest-first. Không đổi `use-create-comment`.
 - **Acceptance:**
   - Given anonymous đã like post X → When click lại → Then unlike, count giảm
   - Given auth user save post X → When vào `/me/saved` → Then thấy post X
   - Given admin xóa comment Y → When user khác load lại → Then không thấy comment Y
+  - Given Post Detail có 7 comment → Then hiện 5 mới nhất (mới→cũ) + nút "show 2 more comments"; click → hiện hết
+  - Given Post Detail → Then CommentForm nằm cuối section comment (sau list)
   - Given user A reply comment B của user X → Then Comment row mới với `parentId=B.id, replyTo={username:'X', isAnon:false}` + notification REPLY cho X
   - Given user reply trên 1 reply (depth 2) → Then API trả 400 `INVALID_PARENT_DEPTH` (chỉ cho reply depth 1)
   - Given xóa parent comment B → Then tất cả replies cascade delete (Comment.onDelete CASCADE)

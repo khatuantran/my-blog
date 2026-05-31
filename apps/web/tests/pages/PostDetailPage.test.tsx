@@ -63,6 +63,48 @@ describe('PostDetailPage', () => {
     expect(screen.getByText('[5]')).toBeInTheDocument();
   });
 
+  it('comment form đặt SAU comment list (FR-03.7: add comment ở cuối section)', async () => {
+    mswServer.use(
+      http.get(`${API_URL}/posts/abc123`, () =>
+        HttpResponse.json({
+          data: makePost({ id: 'abc123', counts: { reactions: 0, comments: 2 } }),
+        }),
+      ),
+      http.post(`${API_URL}/posts/abc123/view`, () =>
+        HttpResponse.json({ data: { viewCount: 1, counted: true } }),
+      ),
+      http.get(`${API_URL}/posts/abc123/comments`, () =>
+        HttpResponse.json({
+          data: {
+            items: [
+              {
+                id: 'c1',
+                postId: 'abc123',
+                content: 'a comment body',
+                status: 'APPROVED',
+                author: { id: 'u1', username: 'user1', role: 'USER', avatarUrl: null },
+                anonymousName: null,
+                likesCount: 0,
+                liked: false,
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            total: 1,
+            page: 1,
+            limit: 50,
+          },
+        }),
+      ),
+    );
+
+    renderAt('/post/abc123');
+
+    const comment = await screen.findByText('a comment body');
+    const form = screen.getByRole('form', { name: /add comment/i });
+    // Form FOLLOW comment trong DOM → comment list ở trên, form ở cuối
+    expect(comment.compareDocumentPosition(form) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('404 → renders "// post not found" + back to feed link', async () => {
     mswServer.use(
       http.get(`${API_URL}/posts/missing`, () =>

@@ -21,10 +21,10 @@ export function ReplyRow({ reply }: Props) {
 
   useEffect(() => {
     setOptimistic(null);
-  }, [reply.liked, reply.likeCount]);
+  }, [reply.liked, reply.likesCount]);
 
   const liked = optimistic?.liked ?? !!reply.liked;
-  const count = optimistic?.count ?? reply.likeCount;
+  const count = optimistic?.count ?? reply.likesCount ?? 0;
 
   function handleLike() {
     const next = !liked;

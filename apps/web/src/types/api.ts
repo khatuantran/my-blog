@@ -227,7 +227,7 @@ export type Comment = {
   status: CommentStatus;
   author: PostAuthor | null;
   anonymousName: string | null;
-  likeCount: number;
+  likesCount: number; // BE/openapi field = likesCount (was mistyped likeCount → undefined → NaN, BUG-016)
   liked?: boolean;
   parentId?: string | null;
   replyTo?: { username: string; isAnon: boolean } | null;

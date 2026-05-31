@@ -12,7 +12,7 @@ function makeReply(overrides: Partial<Comment> = {}): Comment {
     status: 'APPROVED',
     author: { id: 'u2', username: 'bob', role: 'USER', avatarUrl: null },
     anonymousName: null,
-    likeCount: 3,
+    likesCount: 3,
     parentId: 'c1',
     replyTo: { username: 'alice', isAnon: false },
     createdAt: new Date().toISOString(),

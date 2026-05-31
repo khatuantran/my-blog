@@ -11,6 +11,22 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-016] [High] [FE] Comment/reply like count = NaN khi ấn tim
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-431 (DONE 2026-05-31)
+- **Related FR/component:** FR-03 comments / `CommentItem.tsx` + `ReplyRow.tsx` + `types/api.ts` Comment type
+- **Mô tả:** Ấn ♡ trên comment hoặc reply → count thành `NaN` (hiển thị `❤ NaN`).
+- **Steps:** Mở `/post/:id` → ấn ♡ trên 1 comment/reply → `❤ NaN`.
+- **Expected:** count tăng/giảm số đúng (vd `♡ 1` → `❤ 2`).
+- **Actual:** `❤ NaN`.
+- **Root cause:** FE hand-typed `Comment.likeCount` nhưng BE/openapi trả field **`likesCount`** (openapi.yaml:2202 required + BE `comments.service` `likesCount: c._count.likes` + api.generated.ts đúng `likesCount`). → `comment.likeCount` = `undefined` → optimistic `count + 1` = `undefined + 1` = **NaN**. Type drift (hand-typed `Comment` sai vs contract). Replies dùng cùng `Comment` type → cũng NaN.
+- **Fix:** rename FE `likeCount` → `likesCount` (types/api.ts Comment + CommentItem + ReplyRow + use-create-comment optimistic + 4 test mocks) + defensive `?? 0`. Confirmed render: `♡ 1` → `❤ 2`, no NaN.
+- **Regression test:** `CommentItem.test`/`ReplyRow.test`/`CommentList.test`/`CommentForm.test` (18 pass) — mocks dùng `likesCount` đúng field; CommentItem.test assert count tăng khi like.
+- **Lesson:** hand-typed FE type PHẢI khớp openapi field name — nên generate từ openapi (api.generated.ts đã đúng `likesCount`, Comment type hand-typed bỏ sót gây drift). BE count convention = plural `likesCount`.
+
 ### [BUG-015] [High] [FE] Tag picker "+ add tag" rỗng — `sort=top` invalid → query 400
 
 - **Status:** FIXED

@@ -16,7 +16,7 @@ function makeComment(content: string, anonymousName?: string) {
     status: 'APPROVED',
     author: null,
     anonymousName: anonymousName ?? null,
-    likeCount: 0,
+    likesCount: 0,
     liked: false,
     createdAt: new Date().toISOString(),
   };

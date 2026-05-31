@@ -24,10 +24,10 @@ export function CommentItem({ comment }: Props) {
 
   useEffect(() => {
     setOptimistic(null);
-  }, [comment.liked, comment.likeCount]);
+  }, [comment.liked, comment.likesCount]);
 
   const liked = optimistic?.liked ?? !!comment.liked;
-  const count = optimistic?.count ?? comment.likeCount;
+  const count = optimistic?.count ?? comment.likesCount ?? 0;
 
   function handleLike() {
     const next = !liked;

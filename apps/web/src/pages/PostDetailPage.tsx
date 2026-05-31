@@ -10,7 +10,6 @@ import { ImageCarousel } from '@/components/post/ImageCarousel';
 import { ImageLightbox } from '@/components/feed/ImageLightbox';
 import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from '@/components/feed/ReactionButton';
-import { SaveButton } from '@/components/feed/SaveButton';
 import { CommentForm } from '@/components/comment/CommentForm';
 import { CommentList } from '@/components/comment/CommentList';
 import { ApiError } from '@/services/api/client';
@@ -92,7 +91,6 @@ export default function PostDetailPage() {
             <span>↗</span>
             <span>Share</span>
           </button>
-          <SaveButton postId={post.id} saved={!!post.saved} />
           <span className="ml-auto font-mono text-mono-sm text-tm">👁 {post.viewCount} views</span>
         </div>
 

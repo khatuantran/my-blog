@@ -15,7 +15,7 @@ function makeComment(id: string, content: string) {
     status: 'APPROVED',
     author: { id: 'u1', username: 'user1', role: 'USER', avatarUrl: null },
     anonymousName: null,
-    likeCount: 0,
+    likesCount: 0,
     liked: false,
     createdAt: new Date().toISOString(),
   };

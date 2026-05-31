@@ -17,7 +17,7 @@ function makeComment(overrides: Partial<Comment> = {}): Comment {
     status: 'APPROVED',
     author: { id: 'u1', username: 'user1', role: 'USER', avatarUrl: null },
     anonymousName: null,
-    likeCount: 3,
+    likesCount: 3,
     liked: false,
     createdAt: new Date('2026-05-18T11:55:00.000Z').toISOString(),
     ...overrides,
@@ -57,7 +57,7 @@ describe('CommentItem', () => {
     const user = userEvent.setup();
     render(
       <TestProviders>
-        <CommentItem comment={makeComment({ liked: false, likeCount: 3 })} />
+        <CommentItem comment={makeComment({ liked: false, likesCount: 3 })} />
       </TestProviders>,
     );
     const btn = screen.getByRole('button', { name: /like comment/i });

@@ -26,7 +26,7 @@ export function useCreateComment() {
         status: 'APPROVED',
         author: null,
         anonymousName: dto.anonymousName ?? null,
-        likeCount: 0,
+        likesCount: 0,
         liked: false,
         createdAt: new Date().toISOString(),
       };

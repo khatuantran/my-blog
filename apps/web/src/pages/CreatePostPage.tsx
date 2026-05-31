@@ -270,7 +270,13 @@ export default function CreatePostPage() {
             aria-label="Live preview"
           >
             <div className="sb-lbl">// live.preview</div>
-            <PostPreview mood={mood} content={trimmed} tags={tags} imageCount={images.length} />
+            <PostPreview
+              mood={mood}
+              content={trimmed}
+              tags={tags}
+              imageCount={images.length}
+              files={files.map((f) => ({ name: f.name, size: f.size }))}
+            />
             <div className="mt-2 font-mono text-mono-sm text-td">// preview updates real-time</div>
           </aside>
         </div>

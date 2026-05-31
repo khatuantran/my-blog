@@ -222,6 +222,35 @@ describe('Posts (e2e)', () => {
         .send({ content: 'no mood' })
         .expect(400);
     });
+
+    it('regression: chấp nhận localhost url cho image/file (ADR-010 local storage, @IsUrl require_tld:false)', async () => {
+      // Trước fix: @IsUrl() reject http://localhost:3001/... (không TLD) → 400 chặn publish local.
+      await request(app.getHttpServer())
+        .post('/posts')
+        .set('Cookie', adminCookies)
+        .send({
+          content: 'local upload',
+          mood: Mood.HAPPY,
+          images: [
+            {
+              url: 'http://localhost:3001/uploads/myblog/posts/1-x.png',
+              publicId: 'myblog/posts/1-x.png',
+              width: 1,
+              height: 1,
+            },
+          ],
+          files: [
+            {
+              name: 'a.xlsx',
+              type: FileType.XLSX,
+              size: 10,
+              url: 'http://localhost:3001/uploads/myblog/files/1-a.xlsx',
+              publicId: 'myblog/files/1-a.xlsx',
+            },
+          ],
+        })
+        .expect(201);
+    });
   });
 
   describe('PATCH /posts/:id', () => {

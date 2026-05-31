@@ -22,6 +22,32 @@ describe('PostPreview', () => {
     expect(container.querySelectorAll('[role="img"]').length).toBe(3);
   });
 
+  it('files hiển thị attachments list (badge từ ext + name + size)', () => {
+    render(
+      <PostPreview
+        mood="HAPPY"
+        content=""
+        tags={[]}
+        imageCount={0}
+        files={[
+          { name: 'report.pdf', size: 2_100_000 },
+          { name: 'data.xlsx', size: 16_275 },
+        ]}
+      />,
+    );
+    const att = screen.getByTestId('preview-attachments');
+    expect(att).toHaveTextContent('// attachments [2]');
+    expect(att).toHaveTextContent('report.pdf');
+    expect(att).toHaveTextContent('PDF');
+    expect(att).toHaveTextContent('data.xlsx');
+    expect(att).toHaveTextContent('XLSX');
+  });
+
+  it('không có files → không render attachments block', () => {
+    render(<PostPreview mood="HAPPY" content="" tags={[]} imageCount={0} />);
+    expect(screen.queryByTestId('preview-attachments')).toBeNull();
+  });
+
   it('tags hiển thị TagPill list', () => {
     render(
       <PostPreview

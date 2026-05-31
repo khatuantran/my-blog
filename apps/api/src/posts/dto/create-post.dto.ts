@@ -17,7 +17,7 @@ import { FileType, Mood } from '@prisma/client';
 
 export class ImageInputDto {
   @ApiProperty({ example: 'https://res.cloudinary.com/.../img.jpg' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @MaxLength(500)
   url!: string;
 
@@ -59,7 +59,7 @@ export class FileInputDto {
   size!: number;
 
   @ApiProperty({ example: 'https://res.cloudinary.com/.../report.pdf' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @MaxLength(500)
   url!: string;
 

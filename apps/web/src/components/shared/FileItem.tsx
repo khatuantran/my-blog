@@ -9,7 +9,10 @@ type Props = {
 };
 
 export function FileItem({ name, type, size, onRemove, uploading }: Props) {
-  const { label, color } = getFileConfig(type);
+  // Badge derive từ extension của tên file (PDF/DOCX/XLSX…), KHÔNG từ MIME `type`
+  // (MIME như `application/vnd…sheet` không khớp FILE_CFG → hiện chuỗi xấu). Fallback `type`.
+  const ext = name.includes('.') ? (name.split('.').pop() ?? '') : '';
+  const { label, color } = getFileConfig(ext || type);
   return (
     <div
       className="flex items-center gap-2.5 rounded-md bg-elev px-3 py-1.5"

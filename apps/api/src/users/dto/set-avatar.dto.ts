@@ -10,8 +10,10 @@ export class SetAvatarDto {
   })
   @IsString()
   @MaxLength(500)
-  @Matches(/^https:\/\/res\.cloudinary\.com\//, {
-    message: 'url phải bắt đầu bằng https://res.cloudinary.com/',
+  // ADR-010: Cloudinary (prod) HOẶC đường dẫn /uploads/ (local storage). Giữ ràng buộc
+  // chống lưu URL tùy ý (SSRF/avatar injection) nhưng support cả 2 driver.
+  @Matches(/^(https:\/\/res\.cloudinary\.com\/|https?:\/\/[^/]+\/uploads\/)/, {
+    message: 'url phải là Cloudinary (res.cloudinary.com) hoặc /uploads/ (local storage)',
   })
   url!: string;
 

@@ -28,7 +28,9 @@ export class FilesService {
   ): Promise<UploadedAsset> {
     return this.storage.saveUpload({
       buffer: file.buffer,
-      originalName: file.originalname,
+      // Multer decode filename theo latin1 → tên unicode (vd "Thẩm niên.xlsx") bị mojibake.
+      // Decode lại latin1→utf8 để giữ tên gốc.
+      originalName: Buffer.from(file.originalname, 'latin1').toString('utf8'),
       mimetype: file.mimetype,
       size: file.size,
       folder: opts.folder,

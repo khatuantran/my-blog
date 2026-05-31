@@ -5,8 +5,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '@/app.module';
 import { HttpExceptionFilter } from '@/common/filters/http-exception.filter';
 import { TransformInterceptor } from '@/common/interceptors/transform.interceptor';
-import { CloudinaryService } from '@/files/cloudinary.service';
-import { LocalStorageService } from '@/files/local-storage.service';
+import { StorageService } from '@/files/storage.service';
 
 export interface TestContext {
   app: INestApplication;
@@ -18,7 +17,11 @@ export interface TestContext {
 }
 
 export async function createTestApp(): Promise<TestContext> {
+  // Override StorageService (facade mà files/posts/users dùng) = mock cloudinary → e2e xác định,
+  // KHÔNG phụ thuộc STORAGE_DRIVER (tránh local rò từ apps/api/.env dev qua dotenv). Tên giữ
+  // `cloudinaryMock` cho tương thích assertion hiện có.
   const cloudinaryMock = {
+    provider: 'cloudinary',
     signUpload: jest.fn().mockReturnValue({
       provider: 'cloudinary',
       signature: 'stub-signature',
@@ -30,13 +33,6 @@ export async function createTestApp(): Promise<TestContext> {
       publicId: null,
     }),
     destroyMany: jest.fn().mockResolvedValue(undefined),
-  };
-
-  // Mock cả LocalStorageService để test isolation (tránh I/O đĩa thật nếu STORAGE_DRIVER=local).
-  const localMock = {
-    provider: 'local',
-    signUpload: jest.fn().mockReturnValue({ provider: 'local', uploadUrl: '/files/upload' }),
-    destroyMany: jest.fn().mockResolvedValue(undefined),
     saveUpload: jest.fn().mockResolvedValue({
       url: 'http://localhost:3001/uploads/myblog/x.png',
       publicId: 'myblog/x.png',
@@ -47,10 +43,8 @@ export async function createTestApp(): Promise<TestContext> {
   };
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-    .overrideProvider(CloudinaryService)
+    .overrideProvider(StorageService)
     .useValue(cloudinaryMock)
-    .overrideProvider(LocalStorageService)
-    .useValue(localMock)
     .compile();
   const app = moduleRef.createNestApplication();
 

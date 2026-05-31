@@ -5,19 +5,27 @@ import { TagPill } from '@/components/shared/TagPill';
 import { ImgSlot } from '@/components/post/ImgSlot';
 import { ReactionIcon } from '@/components/feed/ReactionIcon';
 import { REACTION_CONFIG } from '@/lib/reaction-config';
+import { getFileConfig, formatBytes } from '@/lib/file-config';
 import type { Mood } from '@/lib/mood-config';
 import type { TagDraft } from './TagPickerDropdown';
+
+export type PreviewFile = { name: string; size: number };
 
 type Props = {
   mood: Mood;
   content: string;
   tags: TagDraft[];
   imageCount: number;
+  files?: PreviewFile[];
 };
+
+function fileExt(name: string): string {
+  return name.includes('.') ? (name.split('.').pop() ?? '') : '';
+}
 
 // Mini PostCard preview cho CreatePostPage right pane.
 // Match design-file/MyBlog Create Post.html:75-132.
-export function PostPreview({ mood, content, tags, imageCount }: Props) {
+export function PostPreview({ mood, content, tags, imageCount, files = [] }: Props) {
   const visibleImages = Math.min(imageCount, 3);
 
   return (
@@ -66,6 +74,43 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
           {Array.from({ length: visibleImages }).map((_, i) => (
             <ImgSlot key={i} idx={i} />
           ))}
+        </div>
+      )}
+
+      {/* Attachments — file đã upload (design-file Create Post.html "// attachments [N]"). */}
+      {files.length > 0 && (
+        <div className="mb-3" data-testid="preview-attachments">
+          <div className="mb-1.5 font-mono text-mono-sm text-tm">
+            // attachments [{files.length}]
+          </div>
+          <div className="flex flex-col gap-1">
+            {files.map((f, i) => {
+              const { label, color } = getFileConfig(fileExt(f.name) || undefined);
+              return (
+                <div
+                  key={`${f.name}-${i}`}
+                  className="flex items-center gap-2.5 rounded-md bg-elev px-3 py-1.5"
+                  style={{ border: `1px solid ${color}28`, borderLeft: `2px solid ${color}80` }}
+                >
+                  <span
+                    className="shrink-0 rounded-[3px] px-1.5 py-px font-mono text-[9px]"
+                    style={{ color, background: `${color}18`, border: `1px solid ${color}50` }}
+                  >
+                    {label}
+                  </span>
+                  <span
+                    className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-mono"
+                    style={{ color: '#C9D1D9' }}
+                  >
+                    {f.name}
+                  </span>
+                  <span className="shrink-0 font-mono text-mono-sm text-tm">
+                    {formatBytes(f.size)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

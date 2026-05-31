@@ -16,6 +16,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-027/028/029 file upload local — publish blocked + multi-upload + display (F3, ADR-010 follow-up)** (2026-05-31, Both): **BUG-028** `@IsUrl()` reject `localhost` url → không publish post có ảnh/file upload local → `@IsUrl({require_tld:false})` + SetAvatarDto cho phép `/uploads/`. **BUG-027** multi-upload chỉ giữ file cuối (UploadZone stale `value` closure) → tích lũy local. **BUG-029** badge hiện MIME thô→derive từ extension; tên unicode mojibake→decode latin1→utf8 (multer); preview thiếu attachments→PostPreview render `// attachments [N]`. test-app override StorageService (e2e deterministic). 154 BE unit + 231 e2e + 16 upload FE pass. (Fixes BUG-027/BUG-028/BUG-029, Refs T-449)
+
 - **BUG-026 FE comment mới optimistic append cuối list thay vì đầu (F3)** (2026-05-31, FE): Comment vừa gửi flash lên đầu rồi nhảy xuống cuối sau refetch (BE sort asc, FE optimistic prepend). Đổi `onMutate` sang append `[...items, optimistic]` khớp server order. 1 regression test. (Fixes BUG-026, Refs T-445)
 
 - **BUG-025 FE reply form đặt cuối thread thay vì đầu (F3)** (2026-05-31, FE): Ấn Reply → ô nhập hiện trên các reply cũ, đẩy chúng xuống. `CommentItem` render ReplyForm trước replies list → chuyển xuống cuối (sau replies + load-more). 1 regression test. (Fixes BUG-025, Refs T-444)

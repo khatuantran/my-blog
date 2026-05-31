@@ -11,6 +11,45 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-028] [High] [BE] Không publish được post có ảnh/file upload local (`@IsUrl` reject localhost)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 + Docker api / Layer: BE
+- **Related task:** T-449 (DONE 2026-05-31)
+- **Related FR/component:** FR-02.3/02.5 / `create-post.dto.ts` + `set-avatar.dto.ts`
+- **Mô tả:** Upload ảnh/file local (URL `http://localhost:3001/uploads/...`) rồi Publish → BE 400 `images.0.url must be a URL address` / `files.0.url must be a URL address`.
+- **Root cause:** `@IsUrl()` (class-validator) mặc định `require_tld:true` → `localhost` (không TLD) bị reject. `SetAvatarDto.url` còn hard-match `^https://res.cloudinary.com/`. Cả 2 cản local storage (ADR-010).
+- **Fix:** `ImageInputDto`/`FileInputDto.url` → `@IsUrl({ require_tld: false })`. `SetAvatarDto.url` `@Matches` cho phép Cloudinary HOẶC `…/uploads/…` (giữ chống URL tùy ý). Verified curl: POST /posts localhost url → 201.
+- **Regression test:** `posts.e2e-spec.ts` (`regression: chấp nhận localhost url cho image/file`).
+- **Lesson learned:** `@IsUrl()` reject localhost — feature có URL nội bộ phải `require_tld:false`; domain allowlist phải driver-aware.
+
+### [BUG-027] [Medium] [FE] Multi-upload chỉ giữ file cuối (stale `value` closure)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-449 (DONE 2026-05-31)
+- **Related FR/component:** FR-02.3/02.5 / `UploadZone.tsx`
+- **Mô tả:** Chọn nhiều ảnh/file 1 lần → chỉ file cuối được thêm; phải upload từng cái.
+- **Root cause:** `handleFiles` loop `await` rồi `onChange([...value, asset])` — `value` là closure snapshot (rỗng) suốt loop → mỗi vòng ghi đè vòng trước.
+- **Fix:** tích lũy `added[]` local, `onChange([...value, ...added])` mỗi vòng → giữ tất cả file trong batch.
+- **Regression test:** verify manual (multi-select); logic đơn giản (xem `UploadZone.test` nếu thêm).
+- **Lesson learned:** loop async cập nhật state từ props phải tích lũy local (props closure không cập nhật giữa các await).
+
+### [BUG-029] [Low] [FE] File upload không giống design — badge MIME + tên unicode mangle + preview thiếu attachments
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: Both
+- **Related task:** T-449 (DONE 2026-05-31)
+- **Related FR/component:** FR-09 Create Post / `FileItem.tsx` + `files.service.ts` + `PostPreview.tsx`
+- **Mô tả:** (a) Badge file hiện full MIME `APPLICATION/VND…SHEET` thay vì `XLSX`; (b) tên file unicode bị mojibake; (c) preview phải hiện attachments nhưng trống.
+- **Root cause:** (a) `FileItem` truyền MIME `type` vào `getFileConfig` (key là extension) → fallback hiện MIME; (b) multer decode `originalname` theo latin1 → tên có dấu thành mojibake; (c) `PostPreview` không nhận/không render `files`.
+- **Fix:** (a) `FileItem` derive badge từ **extension của name**; (b) BE decode `Buffer.from(file.originalname,'latin1').toString('utf8')`; (c) `PostPreview` thêm prop `files` + render block `// attachments [N]`, CreatePostPage truyền `files`.
+- **Regression test:** `FileItem.test` (badge từ ext) + `PostPreview.test` (attachments render).
+- **Lesson learned:** badge file dựa extension, không dựa MIME; multer cần decode latin1→utf8 cho tên unicode; preview phải mirror đủ media (ảnh + file).
+
 ### [BUG-026] [Low] [FE] Comment mới optimistic hiện ở đầu list rồi nhảy xuống cuối (lệch BE order)
 
 - **Status:** FIXED

@@ -49,6 +49,10 @@ export function UploadZone({
     const files = Array.from(list)
       .filter((f) => f.size <= sizeLimitBytes)
       .slice(0, remaining);
+    // Tích lũy asset đã upload trong batch — `value` là closure cũ (snapshot lúc gọi), nên
+    // mỗi vòng phải append `value + tất cả asset đã add` (BUG-027: trước đó `[...value, asset]`
+    // dùng value rỗng mỗi vòng → multi-upload chỉ giữ file cuối).
+    const added: UploadEntry[] = [];
     for (const file of files) {
       const id = `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const previewUrl = variant === 'image' ? URL.createObjectURL(file) : undefined;
@@ -58,7 +62,8 @@ export function UploadZone({
       ]);
       try {
         const asset = await upload.mutateAsync({ file, folder });
-        onChange([...value, { ...asset, id }]);
+        added.push({ ...asset, id });
+        onChange([...value, ...added]);
       } catch {
         // silent — pending remove khi finally
       } finally {

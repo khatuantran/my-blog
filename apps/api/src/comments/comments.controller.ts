@@ -17,6 +17,8 @@ import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
 import { AnonymousId } from '../common/decorators/anonymous-id.decorator';
+import { ClientInfo } from '../common/decorators/client-info.decorator';
+import type { ClientInfo as ClientInfoType } from '../common/decorators/client-info.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -62,8 +64,13 @@ export class CommentsController {
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
     @AnonymousId() anonymousId: string | undefined,
+    @ClientInfo() client: ClientInfoType,
   ): Promise<CommentResponseDto> {
-    return this.comments.create(postId, { userId: user?.sub, anonymousId }, dto);
+    return this.comments.create(
+      postId,
+      { userId: user?.sub, anonymousId, role: user?.role, client },
+      dto,
+    );
   }
 
   @Get('comments/:id/replies')

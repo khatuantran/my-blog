@@ -13,6 +13,8 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AnonymousId } from '../common/decorators/anonymous-id.decorator';
+import { ClientInfo } from '../common/decorators/client-info.decorator';
+import type { ClientInfo as ClientInfoType } from '../common/decorators/client-info.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { JwtOptionalAuthGuard } from '../common/guards/jwt-optional-auth.guard';
@@ -43,8 +45,13 @@ export class ReactionsController {
     @Body() dto: UpsertReactionDto,
     @CurrentUser() user: AuthenticatedUser | undefined,
     @AnonymousId() anonymousId: string | undefined,
+    @ClientInfo() client: ClientInfoType,
   ): Promise<UpsertReactionResult> {
-    return this.reactions.upsertReaction(id, { userId: user?.sub, anonymousId }, dto.type);
+    return this.reactions.upsertReaction(
+      id,
+      { userId: user?.sub, anonymousId, role: user?.role, client },
+      dto.type,
+    );
   }
 
   @Delete('posts/:id/reactions')
@@ -101,7 +108,13 @@ export class ReactionsController {
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser | undefined,
     @AnonymousId() anonymousId: string | undefined,
+    @ClientInfo() client: ClientInfoType,
   ): Promise<ToggleResult> {
-    return this.reactions.toggleCommentLike(id, { userId: user?.sub, anonymousId });
+    return this.reactions.toggleCommentLike(id, {
+      userId: user?.sub,
+      anonymousId,
+      role: user?.role,
+      client,
+    });
   }
 }

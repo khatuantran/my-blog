@@ -4,6 +4,7 @@ import { CommentStatus, Role } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '@/activity/activity.service';
 import { NotificationsService } from '@/notifications/notifications.service';
+import { InteractionLogService } from '@/interaction-logs/interaction-logs.service';
 import { CommentsService } from '@/comments/comments.service';
 
 type MockPrisma = {
@@ -57,6 +58,7 @@ describe('CommentsService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: ActivityService, useValue: { log: jest.fn() } },
         { provide: NotificationsService, useValue: { createNotification } },
+        { provide: InteractionLogService, useValue: { log: jest.fn() } },
       ],
     }).compile();
     service = moduleRef.get(CommentsService);

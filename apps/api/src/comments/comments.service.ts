@@ -1,8 +1,17 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CommentStatus, NotificationType, Prisma, Role } from '@prisma/client';
+import {
+  CommentStatus,
+  InteractionAction,
+  InteractionTargetType,
+  NotificationType,
+  Prisma,
+  Role,
+} from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '../activity/activity.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { InteractionLogService } from '../interaction-logs/interaction-logs.service';
+import type { ClientInfo } from '../common/decorators/client-info.decorator';
 import type { CreateCommentDto } from './dto/create-comment.dto';
 import type { CommentResponseDto } from './dto/comment-response.dto';
 import type { ModeratableStatus } from './dto/update-status.dto';
@@ -31,6 +40,7 @@ export interface Viewer {
   userId?: string;
   anonymousId?: string;
   role?: Role;
+  client?: ClientInfo; // FR-18: ip/ua/... cho trace log
 }
 
 function toCommentResponse(c: CommentWithRelations): CommentResponseDto {
@@ -74,6 +84,7 @@ export class CommentsService {
     private readonly prisma: PrismaService,
     private readonly activity: ActivityService,
     private readonly notifications: NotificationsService,
+    private readonly interactionLog: InteractionLogService,
   ) {}
 
   async listForAdmin(
@@ -216,6 +227,24 @@ export class CommentsService {
     this.logger.log(
       `Comment ${comment.id} created on post ${postId} by ${viewer.userId ?? viewer.anonymousId}`,
     );
+
+    // FR-18: trace log (best-effort, skip admin internally). Dùng viewer.userId/role THẬT
+    // (xuyên qua "post as anon") để admin truy vết — đây là log admin-only riêng.
+    await this.interactionLog.log({
+      action: dto.parentId ? InteractionAction.REPLY : InteractionAction.COMMENT,
+      targetType: InteractionTargetType.POST,
+      targetId: postId,
+      postId,
+      actorUserId: viewer.userId ?? null,
+      actorRole: viewer.role ?? null,
+      anonymousId: viewer.anonymousId ?? null,
+      client: viewer.client,
+      metadata: {
+        snippet: dto.content.slice(0, 80),
+        ...(dto.parentId ? { parentId: dto.parentId } : {}),
+      },
+    });
+
     if (effectiveUserId) {
       await this.activity.log({
         actorId: effectiveUserId,

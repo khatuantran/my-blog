@@ -1,13 +1,24 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CommentStatus, NotificationType, ReactionType } from '@prisma/client';
+import {
+  CommentStatus,
+  InteractionAction,
+  InteractionTargetType,
+  NotificationType,
+  ReactionType,
+  Role,
+} from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '../activity/activity.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { InteractionLogService } from '../interaction-logs/interaction-logs.service';
+import type { ClientInfo } from '../common/decorators/client-info.decorator';
 import type { ListReactionsDto } from './dto/list-reactions.dto';
 
 export interface Viewer {
   userId?: string;
   anonymousId?: string;
+  role?: Role; // FR-18: phân biệt admin (không trace)
+  client?: ClientInfo; // FR-18: ip/ua/... cho trace log
 }
 
 interface DedupKey {
@@ -70,6 +81,7 @@ export class ReactionsService {
     private readonly prisma: PrismaService,
     private readonly activity: ActivityService,
     private readonly notifications: NotificationsService,
+    private readonly interactionLog: InteractionLogService,
   ) {}
 
   private async buildCounts(
@@ -128,6 +140,18 @@ export class ReactionsService {
     } else {
       await this.prisma.reaction.create({
         data: { postId, userId: key.userId, anonymousId: key.anonymousId, type },
+      });
+      // FR-18: trace log react mới (best-effort, skip admin internally)
+      await this.interactionLog.log({
+        action: InteractionAction.POST_REACTION,
+        targetType: InteractionTargetType.POST,
+        targetId: postId,
+        postId,
+        actorUserId: viewer.userId ?? null,
+        actorRole: viewer.role ?? null,
+        anonymousId: viewer.anonymousId ?? null,
+        client: viewer.client,
+        metadata: { reactionType: type },
       });
       if (key.userId && key.userId !== post.authorId) {
         await this.activity.log({
@@ -251,7 +275,7 @@ export class ReactionsService {
 
     const comment = await this.prisma.comment.findUnique({
       where: { id: commentId },
-      select: { id: true, status: true },
+      select: { id: true, status: true, postId: true },
     });
     if (!comment || comment.status !== CommentStatus.APPROVED) {
       throw new NotFoundException({
@@ -270,6 +294,17 @@ export class ReactionsService {
     } else {
       await this.prisma.commentLike.create({
         data: { commentId, userId: key.userId, anonymousId: key.anonymousId },
+      });
+      // FR-18: trace log comment-like mới (chỉ khi like, không khi unlike). Skip admin internally.
+      await this.interactionLog.log({
+        action: InteractionAction.COMMENT_LIKE,
+        targetType: InteractionTargetType.COMMENT,
+        targetId: commentId,
+        postId: comment.postId,
+        actorUserId: viewer.userId ?? null,
+        actorRole: viewer.role ?? null,
+        anonymousId: viewer.anonymousId ?? null,
+        client: viewer.client,
       });
     }
 

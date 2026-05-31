@@ -17,6 +17,7 @@ export async function resetDb(prisma: PrismaService): Promise<void> {
     prisma.postTag.deleteMany({}),
     prisma.savedPost.deleteMany({}),
     prisma.activityLog.deleteMany({}),
+    prisma.interactionLog.deleteMany({}),
     prisma.post.deleteMany({}),
     prisma.tag.deleteMany({}),
     prisma.anonymousSession.deleteMany({}),

@@ -4,6 +4,7 @@ import { ReactionType, CommentStatus } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { ActivityService } from '@/activity/activity.service';
 import { NotificationsService } from '@/notifications/notifications.service';
+import { InteractionLogService } from '@/interaction-logs/interaction-logs.service';
 import { ReactionsService } from '@/reactions/reactions.service';
 
 type MockPrisma = {
@@ -60,6 +61,7 @@ describe('ReactionsService', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: ActivityService, useValue: { log: activityLog } },
         { provide: NotificationsService, useValue: { createNotification } },
+        { provide: InteractionLogService, useValue: { log: jest.fn() } },
       ],
     }).compile();
     service = moduleRef.get(ReactionsService);

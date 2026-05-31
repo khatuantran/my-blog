@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-469 Favicon = logo app** (2026-05-31, FE): Thêm `apps/web/public/favicon.svg` (cặp ngoặc `< >` cyan #00FFE5 + tím #BB9AF7 trên tile bg #0A0E1A) đồng bộ brand mark trong `Logo.tsx`. Trước đó `index.html` trỏ `/favicon.svg` nhưng file không tồn tại (chưa có thư mục `public/`) → browser tab fallback về globe mặc định. (Refs T-469)
+
 - **T-468 Makefile dev shortcuts** (2026-05-31, Infra): Thêm `Makefile` ở root gom command hay dùng (wrapper quanh pnpm/turbo/docker compose, không thay thế). `make`/`make help` self-document toàn bộ target; `make start` = bật Postgres + `pnpm dev` (quick start); `make setup` = install → copy env → db → migrate → seed → openapi types. Kèm target `db`/`db-reset`/`docker-api` (ADR-010), `migrate`/`seed`/`studio`, `lint`/`typecheck`/`test`/`check`/`build`, `openapi`, `clean`. (Refs T-468)
 
 - **T-453 FE PostHeader avatar popup + tên → profile** (2026-05-31, FE): Feed/detail — click avatar mở `AvatarPreviewModal` (ảnh avatar phóng to; click backdrop/Esc/× đóng); click tên `~/username` → `/profile/:username`. Profile tự ẩn phần self/admin-only cho non-self viewer (gating `isSelf`/`canViewSaved` sẵn có). PostHeader.test 2 case. (Refs T-453)

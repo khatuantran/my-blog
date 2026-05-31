@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Brand mark: `< >` chevrons (đồng bộ apps/web/src/components/layout/Logo.tsx) -->
+  <rect width="32" height="32" rx="7" fill="#0A0E1A" />
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" fill="none" stroke="#1A1F2E" />
+  <polyline
+    points="11,6 6,16 11,26"
+    fill="none"
+    stroke="#00FFE5"
+    stroke-width="3.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <polyline
+    points="21,6 26,16 21,26"
+    fill="none"
+    stroke="#BB9AF7"
+    stroke-width="3.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -55,53 +55,59 @@ export default function PostDetailPage() {
           <span>~/post/{post.id.slice(-6)}</span>
         </div>
 
-        <PostHeader post={post} avatarSize="lg" />
-        <PostContent content={post.content} variant="detail" />
-        {/* T-450: ImageGrid collage + click mở lightbox. variant detail = ảnh to (T-451). */}
-        <ImageGrid
-          images={post.images}
-          variant="detail"
-          onImageClick={(idx) => setLightboxIdx(idx)}
-        />
-        <FileAttachments files={post.files} />
-
-        {post.tags.length > 0 && (
-          <div className="my-4 flex flex-wrap gap-1.5">
-            {post.tags.map((t) => (
-              <TagPill key={t.id} name={t.name} color={t.color} />
-            ))}
-          </div>
-        )}
-
-        {/* Actions — border-wrapped row (design L397: borderTop+borderBottom, padding 12/0) */}
-        <div className="mb-6 flex items-center gap-1 border-y border-b1 py-3">
-          <ReactionButton
-            postId={post.id}
-            myReaction={post.myReaction}
-            topReactions={post.topReactions}
-            count={post.counts.reactions}
+        {/* Post card — bordered wrap (user feedback: detail thiếu border) */}
+        <div className="rounded-lg border border-b2 bg-surf p-5">
+          <PostHeader post={post} avatarSize="lg" />
+          <PostContent content={post.content} variant="detail" />
+          {/* T-450: ImageGrid collage + click mở lightbox. variant detail = ảnh to (T-451). */}
+          <ImageGrid
+            images={post.images}
+            variant="detail"
+            onImageClick={(idx) => setLightboxIdx(idx)}
           />
-          <button
-            type="button"
-            className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
-            aria-label="Jump to comments"
-          >
-            <span className="text-sm">💬</span>
-            <span>{post.counts.comments}</span>
-          </button>
-          <button
-            type="button"
-            aria-label="Share post (placeholder)"
-            className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
-          >
-            <span>↗</span>
-            <span>Share</span>
-          </button>
-          <span className="ml-auto font-mono text-mono-sm text-tm">👁 {post.viewCount} views</span>
+          <FileAttachments files={post.files} />
+
+          {post.tags.length > 0 && (
+            <div className="my-4 flex flex-wrap gap-1.5">
+              {post.tags.map((t) => (
+                <TagPill key={t.id} name={t.name} color={t.color} />
+              ))}
+            </div>
+          )}
+
+          {/* Actions — top-divider row trong card (design L397 borderTop) */}
+          <div className="mt-2 flex items-center gap-1 border-t border-b1 pt-3">
+            <ReactionButton
+              postId={post.id}
+              myReaction={post.myReaction}
+              topReactions={post.topReactions}
+              count={post.counts.reactions}
+            />
+            <button
+              type="button"
+              className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
+              aria-label="Jump to comments"
+            >
+              <span className="text-sm">💬</span>
+              <span>{post.counts.comments}</span>
+            </button>
+            <button
+              type="button"
+              aria-label="Share post (placeholder)"
+              className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
+            >
+              <span>↗</span>
+              <span>Share</span>
+            </button>
+            <span className="ml-auto font-mono text-mono-sm text-tm">
+              👁 {post.viewCount} views
+            </span>
+          </div>
         </div>
+        {/* /Post card */}
 
         {/* Comments header (design L419): ❯ cyan + // comments white + [N] muted */}
-        <section aria-label="Comments" className="space-y-4">
+        <section aria-label="Comments" className="mt-6 space-y-4">
           <div className="flex items-center gap-2 font-mono text-mono-lg">
             <span className="text-cyan">❯</span>
             <span className="text-tp">// comments</span>

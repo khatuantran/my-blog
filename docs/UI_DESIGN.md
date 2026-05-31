@@ -260,6 +260,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 | MetaPanel right                        | DESIGN_SYSTEM > MetaPanel   |
 | ShareButton                            | DESIGN_SYSTEM > ShareButton |
 
+**Post card (override 2026-05-31):** post (PostHeader→content→ImageGrid→files→tags→actions) bọc trong card `rounded-lg border border-b2 bg-surf p-5`; actions row `border-t` (divider trong card); breadcrumb trên card, comments dưới card. Override T-430 borderless full-width theo user feedback "detail thiếu border".
+
 **Comment section (FR-03.7):** comment + reply hiển thị **mới→cũ** ở **cả Feed CommentsModal lẫn Post Detail** (BE `createdAt DESC` canonical — top-level + reply preview 3 mới nhất). Post Detail thêm collapse: mặc định 5 comment mới nhất + nút `▾ show N more comments` / `▴ collapse comments` (`CommentList collapseAfter={5}`) + CommentForm đặt **cuối** section. Feed CommentsModal hiện hết (scroll riêng).
 
 ### State machine

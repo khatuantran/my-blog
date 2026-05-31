@@ -768,6 +768,24 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked UCs:** UC-22
 - **Linked Tests:** ai.service.spec.ts (mock provider 6 case) + ai.e2e-spec.ts (4 case: success 200, rate limit 429, 401/403 auth, validation 400) + AISuggestModal.test.tsx (5 case: open/close/generate/regenerate/replace content)
 
+### FR-18: Interaction Trace Log (NEW — 2026-05-31, user feedback)
+
+> Admin cần truy vết hành động của người **không phải admin** (anonymous + USER) để phát hiện spam/abuse. Ghi audit log mỗi interaction kèm IP, user-agent, fingerprint, ...
+
+- **FR-18.1 Scope:** Log mỗi hành động `COMMENT`, `REPLY`, `COMMENT_LIKE`, `POST_REACTION` do actor **role ≠ ADMIN** (anonymous role=null + USER) thực hiện. Admin KHÔNG bị log (tự truy vết mình vô nghĩa). Remove reaction / unlike KHÔNG log (chỉ log hành động tạo).
+- **FR-18.2 Capture (best-effort, KHÔNG block hành động):** mỗi log lưu `action`, `targetType`+`targetId` (+`postId` denorm), actor (`actorUserId`|null + `actorRole`|null + `anonymousId`), `ip`, `userAgent` (+ parse `browser`/`os`/`device` qua `ua-parser-js`), `acceptLang`, `referer`, `fingerprint` (= `sha256(ip+ua+acceptLang)` cắt 16 — gom theo thiết bị kể cả khi xoá cookie `anon_id`), `metadata` JSON (`reactionType`/snippet/`parentId`), `createdAt`. Ghi async fire-and-forget (try-catch + logger.warn) như `activity.log`.
+- **FR-18.3 IP thật:** bật express `trust proxy` để lấy client IP từ `X-Forwarded-For` (sau reverse proxy Fly.io), không lấy IP proxy.
+- **FR-18.4 Admin xem:** `GET /admin/interaction-logs` (admin-only, paginated + filter `action`/actor-type/`q` ip-fingerprint-anonymousId/date range, sort `createdAt DESC`) + trang admin `/admin/logs` (bảng có filter). FE gate `<ProtectedRoute requireRole="ADMIN">` + entry trong AvatarMenu (adminOnly).
+- **FR-18.5 Retention:** v1 giữ log vô thời hạn, purge thủ công (SQL/admin). Auto-purge (job theo TTL) defer. **Lưu ý PII:** IP + fingerprint là dữ liệu cá nhân — dùng cho mục đích chống abuse blog cá nhân.
+- **Acceptance:**
+  - Given anonymous comment/reply/like/react → Then 1 row InteractionLog với action đúng + ip/userAgent/fingerprint + actorRole=null
+  - Given USER (non-admin) react → Then log row với actorUserId set + actorRole=USER
+  - Given ADMIN comment/react → Then KHÔNG có log row
+  - Given remove reaction → Then KHÔNG tạo log
+  - Given anonymous gọi `GET /admin/interaction-logs` → 401; USER → 403; ADMIN → 200 paginated
+- **Linked UCs:** UC-23 (admin truy vết interaction)
+- **Linked Tests:** interaction-log.service.spec.ts (skip admin, fingerprint, UA parse) + comments/reactions e2e (log row created anon/USER, none for admin) + interaction-logs.e2e-spec.ts (401/403/200 + filter) + InteractionLogsPage.test.tsx
+
 ## Non-Functional Requirements
 
 - **NFR-01: Performance API** — Response time p95 < 500ms. Measurement: Sentry transactions, Fly metrics.

@@ -81,6 +81,19 @@ enum PostStatus {
   ARCHIVED
 }
 
+// FR-18: trace log cho hành động của actor KHÔNG phải admin (anon + USER).
+enum InteractionAction {
+  COMMENT
+  REPLY
+  COMMENT_LIKE
+  POST_REACTION
+}
+
+enum InteractionTargetType {
+  POST
+  COMMENT
+}
+
 // ──────────────────────────────────────────────────────────
 // Models
 // ──────────────────────────────────────────────────────────
@@ -110,10 +123,11 @@ model User {
   commentLikes          CommentLike[]
   savedPosts            SavedPost[]
   refreshTokens         RefreshToken[]
-  actorActivities       ActivityLog[]  @relation("ActorActivities")
-  targetActivities      ActivityLog[]  @relation("TargetOwnerActivities")
-  receivedNotifications Notification[] @relation("ReceivedNotifications")
-  sentNotifications     Notification[] @relation("SentNotifications")
+  actorActivities       ActivityLog[]    @relation("ActorActivities")
+  targetActivities      ActivityLog[]    @relation("TargetOwnerActivities")
+  receivedNotifications Notification[]   @relation("ReceivedNotifications")
+  sentNotifications     Notification[]   @relation("SentNotifications")
+  interactionLogs       InteractionLog[] @relation("ActorInteractionLogs")
 }
 
 model Post {
@@ -333,4 +347,35 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([userId, read])
+}
+
+// FR-18: append-only audit trace cho interaction của actor non-admin (anon + USER).
+// Mirror ActivityLog (polymorphic soft-FK targetType+targetId, không cascade).
+model InteractionLog {
+  id          String                @id @default(cuid())
+  action      InteractionAction
+  targetType  InteractionTargetType
+  targetId    String // soft FK (Post.id hoặc Comment.id) — không declare relation
+  postId      String? // denorm để filter/nav nhanh (luôn set, kể cả comment-like)
+  actorUserId String? // null = anonymous; FK User (SetNull giữ log khi user bị xoá)
+  actorRole   Role? // role tại thời điểm hành động (null = anon)
+  anonymousId String? // cookie anon_id (gom hành động ẩn danh cùng session)
+  ip          String?
+  userAgent   String?
+  browser     String?
+  os          String?
+  device      String?
+  acceptLang  String?
+  referer     String?
+  fingerprint String? // sha256(ip+ua+acceptLang) cắt 16 — gom theo thiết bị kể cả khi xoá cookie
+  metadata    Json? // { reactionType?, snippet?, parentId? }
+  createdAt   DateTime              @default(now())
+
+  actorUser User? @relation("ActorInteractionLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([anonymousId, createdAt])
+  @@index([fingerprint, createdAt])
+  @@index([postId])
 }

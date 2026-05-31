@@ -17,6 +17,16 @@
 
 ## Migrations
 
+### 20260531110620_add_interaction_log
+
+- **Created:** 2026-05-31
+- **Type:** schema (additive — non-breaking)
+- **Entities affected:** new model `InteractionLog` + 2 enums (`InteractionAction` COMMENT/REPLY/COMMENT_LIKE/POST_REACTION, `InteractionTargetType` POST/COMMENT). FK `InteractionLog.actorUserId → User.id` ON DELETE SET NULL.
+- **Breaking:** no — new table only, không đụng table cũ.
+- **Notes:** FR-18 trace log interaction của actor non-admin (anon + USER). Append-only (chỉ `createdAt`), polymorphic soft-FK (`targetType`+`targetId`, không cascade) mirror `ActivityLog`. Indexes: `[createdAt]`, `[actorUserId, createdAt]`, `[anonymousId, createdAt]`, `[fingerprint, createdAt]`, `[postId]`. **Migration SQL được dọn tay** — `migrate diff` từ live DB kéo theo drift cũ (rename constraint `Like_*`→`Reaction_*` + `updatedAt` DROP DEFAULT) KHÔNG liên quan → đã loại, chỉ giữ thay đổi InteractionLog. Applied cả main DB :5434 + test DB :5433.
+- **Task:** T-461
+- **Rollback:** `prisma migrate resolve --rolled-back 20260531110620_add_interaction_log` + `DROP TABLE "InteractionLog"; DROP TYPE "InteractionAction"; DROP TYPE "InteractionTargetType";`
+
 ### 20260530180000_add_user_contact_fields
 
 - **Created:** 2026-05-30

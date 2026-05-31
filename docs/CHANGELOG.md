@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-470 Seed: bài intro chi tiết giới thiệu app** (2026-05-31, BE/seed): `apps/api/prisma/seed.ts` thêm 1 bài viết HTML chi tiết giới thiệu kha.blog + mọi cách bạn bè tương tác (đọc bài/lightbox/file, 6 loại reaction, comment ẩn danh + reply + like comment, share FB/X/Telegram/copy, search/tag, save bài, command palette). Bài intro **idempotent qua marker** `<!--seed:intro-v1-->` — luôn ensure dù DB đã có post (create lần đầu → update lần sau, không nhân đôi) — kèm tương tác mẫu (3 comment + 1 reply tác giả + 4 reaction LOVE/LIKE/HAHA/WOW). 3 bài mẫu cũ convert markdown→HTML (đúng engine TipTap). Smoke: `db:seed` chạy lại OK, intro=1 / comments=4 / reactions=4 không trùng. (Refs T-470)
+
 - **T-469 Favicon = logo app** (2026-05-31, FE): Thêm `apps/web/public/favicon.svg` (cặp ngoặc `< >` cyan #00FFE5 + tím #BB9AF7 trên tile bg #0A0E1A) đồng bộ brand mark trong `Logo.tsx`. Trước đó `index.html` trỏ `/favicon.svg` nhưng file không tồn tại (chưa có thư mục `public/`) → browser tab fallback về globe mặc định. (Refs T-469)
 
 - **T-468 Makefile dev shortcuts** (2026-05-31, Infra): Thêm `Makefile` ở root gom command hay dùng (wrapper quanh pnpm/turbo/docker compose, không thay thế). `make`/`make help` self-document toàn bộ target; `make start` = bật Postgres + `pnpm dev` (quick start); `make setup` = install → copy env → db → migrate → seed → openapi types. Kèm target `db`/`db-reset`/`docker-api` (ADR-010), `migrate`/`seed`/`studio`, `lint`/`typecheck`/`test`/`check`/`build`, `openapi`, `clean`. (Refs T-468)

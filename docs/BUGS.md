@@ -11,6 +11,22 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-022] [Medium] [FE] Create Post — text.color không dùng chung được với bold
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-438 (DONE 2026-05-31)
+- **Related FR/component:** FR-09 Create Post / `globals.css` prose CSS (RichTextEditor TipTap)
+- **Mô tả:** Tô màu chữ (text.color) cho đoạn text đã bold (hoặc bold sau khi tô màu) → chữ không hiển thị màu đã chọn, vẫn ra màu mặc định.
+- **Steps:** `/admin/create` → chọn text → Bold → mở A▾ chọn màu (vd pink) → chữ bold vẫn màu trắng tp, không pink.
+- **Expected:** Bold + text.color kết hợp được (chữ vừa đậm vừa đúng màu).
+- **Actual:** Màu bị mất khi text đang bold.
+- **Root cause:** TipTap nest mark `<span style="color: …"><strong>text</strong></span>` (span màu là cha, `<strong>` là con — confirm qua repro `editor.getHTML()`). Prose CSS T-437 đặt rule `[data-testid='rte-editor'] strong { color: var(--tp) }` → set `color` thẳng trên `<strong>` (con) → **đè** màu kế thừa từ span cha → bold luôn ra tp. (Underline `<u>` không có rule color → đã combine được; chỉ `strong/b` bị.)
+- **Fix:** Bỏ `@apply text-tp` (color) khỏi rule `strong, b` trong `globals.css`, chỉ giữ `font-weight: 700`. Bold kế thừa màu từ span cha (text.color) hoặc màu editor mặc định khi không tô màu.
+- **Regression test:** `RichTextEditor.test.tsx` (`regression BUG-022: color span + bold mark coexist trong content`) — assert content `<span style=color><strong>` render giữ cả span màu lẫn strong. CSS cascade verify manual (jsdom không load globals.css).
+- **Lesson learned:** prose CSS cho rich-text KHÔNG hardcode `color` trên inline mark (strong/b/em) — TipTap nest textStyle(color) làm cha của các mark khác, set color trên con sẽ đè. Inline mark chỉ set thuộc tính riêng (font-weight/style), để màu kế thừa.
+
 ### [BUG-019] [Medium] [FE] Create Post — preview không hiển thị được với content HTML
 
 - **Status:** FIXED

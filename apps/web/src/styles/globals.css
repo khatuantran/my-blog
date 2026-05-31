@@ -161,11 +161,13 @@
   [data-testid='post-content-html'] ol {
     list-style: decimal;
   }
+  /* Bold: CHỈ font-weight, KHÔNG set `color` — TipTap nest `<span style=color><strong>`,
+     nếu hardcode color trên strong sẽ đè màu text.color đã chọn (BUG-022). Để strong kế
+     thừa màu từ span cha (hoặc màu editor mặc định khi không tô màu). */
   [data-testid='rte-editor'] strong,
   [data-testid='rte-editor'] b,
   [data-testid='post-content-html'] strong,
   [data-testid='post-content-html'] b {
-    @apply text-tp;
     font-weight: 700;
   }
   [data-testid='rte-editor'] a,

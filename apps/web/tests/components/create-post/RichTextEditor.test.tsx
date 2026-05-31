@@ -55,6 +55,20 @@ describe('RichTextEditor (T-435 — TipTap engine)', () => {
     await waitFor(() => expect(screen.getByText(/rich-text · 3 chars/)).toBeInTheDocument());
   });
 
+  it('regression BUG-022: text color span + bold mark coexist trong content (không strip khi combine)', async () => {
+    // TipTap nest `<span style=color><strong>` — color phải dùng chung được với bold.
+    render(
+      <Wrapper
+        initial={'<p><span style="color: rgb(255, 110, 150)"><strong>bold pink</strong></span></p>'}
+      />,
+    );
+    const editor = await waitForEditor();
+    await waitFor(() => expect(editor.textContent).toContain('bold pink'));
+    expect(editor.querySelector('strong')?.textContent).toBe('bold pink');
+    // textStyle color mark giữ nguyên khi có bold (không bị strip).
+    expect(editor.innerHTML).toContain('color');
+  });
+
   it('click A (text color) → opens 7-swatch popover', async () => {
     const user = userEvent.setup();
     render(<Wrapper />);

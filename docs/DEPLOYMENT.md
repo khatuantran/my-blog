@@ -85,6 +85,24 @@ docker compose down              # stop Postgres, keep data
 docker compose down -v           # stop + delete data (full reset)
 ```
 
+### Makefile shortcuts
+
+Root có `Makefile` gom các command trên cho gọn (wrapper quanh pnpm/turbo/docker compose — source of truth vẫn là `package.json` + `docker-compose.yml`). Chạy `make` hoặc `make help` để xem full list.
+
+```bash
+make setup     # First-time: install + copy env + db + migrate + seed + openapi types
+make start     # Quick start: bật Postgres (main+test) rồi pnpm dev (FE :5173 / BE :3001)
+
+make db        # Bật Postgres main(:5434) + test(:5433)
+make migrate   # Prisma migrate dev
+make seed      # Seed admin + sample data
+make studio    # Prisma Studio
+
+make check     # Pre-commit gate: lint + typecheck + unit test
+make openapi   # Regenerate openapi.yaml + FE types
+make docker-api  # Chạy api + postgres trong Docker (ADR-010, web host) — xem mục dưới
+```
+
 ### Local Dev — API trong Docker + storage local (ADR-010)
 
 Mặc định local giờ chạy **api + postgres trong Docker**; **web chạy host** (vite). Upload dùng **STORAGE_DRIVER=local** → ghi vào `./storage/uploads` (bind-mount), serve tại `http://localhost:3001/uploads/...` (không cần Cloudinary creds).

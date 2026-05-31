@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-468 Makefile dev shortcuts** (2026-05-31, Infra): Thêm `Makefile` ở root gom command hay dùng (wrapper quanh pnpm/turbo/docker compose, không thay thế). `make`/`make help` self-document toàn bộ target; `make start` = bật Postgres + `pnpm dev` (quick start); `make setup` = install → copy env → db → migrate → seed → openapi types. Kèm target `db`/`db-reset`/`docker-api` (ADR-010), `migrate`/`seed`/`studio`, `lint`/`typecheck`/`test`/`check`/`build`, `openapi`, `clean`. (Refs T-468)
+
 - **T-453 FE PostHeader avatar popup + tên → profile** (2026-05-31, FE): Feed/detail — click avatar mở `AvatarPreviewModal` (ảnh avatar phóng to; click backdrop/Esc/× đóng); click tên `~/username` → `/profile/:username`. Profile tự ẩn phần self/admin-only cho non-self viewer (gating `isSelf`/`canViewSaved` sẵn có). PostHeader.test 2 case. (Refs T-453)
 
 - **T-446/447/448 Storage driver abstraction + Docker-dev api (ADR-010)** (2026-05-31, Both/Infra): Local dev giờ chạy **api + postgres trong Docker** (web giữ host); upload tách theo `STORAGE_DRIVER`: prod `cloudinary` (signed direct upload, bất biến), local `local` (ghi `./storage/uploads` bind-mount + serve `/uploads`, không cần Cloudinary creds). BE: `StorageDriver` interface + `LocalStorageService` + `StorageService` facade + `POST /files/upload` (multipart) + `main.ts useStaticAssets`. FE: `uploadAsset` provider-aware (đọc `provider` từ `/files/sign`). DB `publicId` provider-agnostic (không đổi schema). Docker: `apps/api/Dockerfile.dev` + compose `api` service. Tests: BE local-storage/storage unit + files e2e + FE files.test. (Refs T-446/T-447/T-448)

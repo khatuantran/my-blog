@@ -11,6 +11,21 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-025] [Low] [FE] Reply form hiện ở đầu danh sách replies thay vì cuối
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-444 (DONE 2026-05-31)
+- **Related FR/component:** FR-03.6 reply / `CommentItem.tsx`
+- **Mô tả:** Khi ấn Reply, ô nhập reply hiện ở TRÊN các reply đã có, đẩy chúng xuống — nhìn kỳ. Đáng lẽ nằm CUỐI thread.
+- **Expected:** Reply form nằm sau danh sách replies (nối tiếp thread).
+- **Actual:** Reply form ở đầu, đẩy replies cũ xuống.
+- **Root cause:** `CommentItem` render block `ReplyForm` TRƯỚC block danh sách replies + load-more.
+- **Fix:** Di chuyển block `ReplyForm` xuống CUỐI (sau replies list + load-more button).
+- **Regression test:** `CommentItem.test.tsx` (`regression BUG-025: reply form nằm cuối` — `compareDocumentPosition` form sau replies).
+- **Lesson learned:** input "thêm mới vào thread" đặt cuối list (chronological append), không chèn đầu.
+
 ### [BUG-024] [Medium] [FE] Feed — ấn nút ⋯ lần 2 không đóng menu mà mở lại
 
 - **Status:** FIXED

@@ -14,6 +14,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-025 FE reply form đặt cuối thread thay vì đầu (F3)** (2026-05-31, FE): Ấn Reply → ô nhập hiện trên các reply cũ, đẩy chúng xuống. `CommentItem` render ReplyForm trước replies list → chuyển xuống cuối (sau replies + load-more). 1 regression test. (Fixes BUG-025, Refs T-444)
+
 - **BUG-023/024 FE Feed popup action — bị cắt khi card ngắn + ấn lần 2 không đóng (F3)** (2026-05-31, FE): BUG-023 `<article>` PostCard `overflow-hidden` clip `PostActionMenu` (absolute, mở lên trên) khi card ngắn → bỏ `overflow-hidden` (gradient line trong suốt 2 đầu nên không lú góc). BUG-024 ấn ⋯ lần 2 không đóng: mousedown outside-handler đóng menu rồi onClick toggle mở lại → thêm `triggerRef`, outside-handler bỏ qua trigger. 2 regression test. T-441 kèm: tách tag khỏi content (mt-1) cho thoáng. (Fixes BUG-023/BUG-024, Refs T-442/T-441)
 
 - **BUG-022 FE Create Post — text.color không dùng chung được với bold (F3)** (2026-05-31, FE): Tô màu chữ cho text bold → mất màu. Root cause: TipTap nest `<span style=color><strong>` (span màu = cha); prose CSS T-437 set `color: var(--tp)` trên `strong` (con) → đè màu kế thừa. Fix: bỏ `color` khỏi rule `strong, b` (chỉ giữ `font-weight:700`) → bold kế thừa màu span cha. 1 regression test (color span + bold coexist). (Fixes BUG-022, Refs T-438)

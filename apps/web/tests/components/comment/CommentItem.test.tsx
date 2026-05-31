@@ -105,4 +105,22 @@ describe('CommentItem', () => {
     expect(screen.getByText(/load 3 more replies/i)).toBeInTheDocument();
     expect(screen.queryByText(/6 replies/i)).not.toBeInTheDocument();
   });
+
+  it('regression BUG-025: reply form nằm CUỐI (sau danh sách replies), không chèn lên đầu', async () => {
+    const user = userEvent.setup();
+    const reply = (id: string): Comment => makeComment({ id, parentId: 'c1', content: `r${id}` });
+    const comment = makeComment({ replies: [reply('r1'), reply('r2')], replyCount: 2 });
+    render(
+      <TestProviders>
+        <CommentItem comment={comment} />
+      </TestProviders>,
+    );
+    await user.click(screen.getByTestId(`reply-toggle-${comment.id}`));
+    const repliesEl = screen.getByTestId(`replies-${comment.id}`);
+    const formEl = screen.getByTestId(`reply-form-${comment.id}`);
+    // form phải đứng SAU replies trong DOM order.
+    expect(
+      repliesEl.compareDocumentPosition(formEl) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
 });

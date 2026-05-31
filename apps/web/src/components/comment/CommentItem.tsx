@@ -95,18 +95,6 @@ export function CommentItem({ comment }: Props) {
         </button>
       </div>
 
-      {/* Inline reply form */}
-      {showReplyForm && (
-        <div className="mt-2.5">
-          <ReplyForm
-            postId={comment.postId}
-            parentId={comment.id}
-            parentUsername={parentUsername}
-            onClose={() => setShowReplyForm(false)}
-          />
-        </div>
-      )}
-
       {/* Replies preview / full list */}
       {displayedReplies.length > 0 && (
         <div className="mt-2.5 space-y-2" data-testid={`replies-${comment.id}`}>
@@ -126,6 +114,19 @@ export function CommentItem({ comment }: Props) {
         >
           ↳ load {remainingReplies} more {remainingReplies === 1 ? 'reply' : 'replies'}
         </button>
+      )}
+
+      {/* Inline reply form — đặt CUỐI (sau replies + load more) để reply mới nối tiếp thread,
+          không chèn lên đầu đẩy các reply cũ xuống (BUG-025). */}
+      {showReplyForm && (
+        <div className="mt-2.5">
+          <ReplyForm
+            postId={comment.postId}
+            parentId={comment.id}
+            parentUsername={parentUsername}
+            onClose={() => setShowReplyForm(false)}
+          />
+        </div>
       )}
     </article>
   );

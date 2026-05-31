@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   Logger,
@@ -202,10 +203,24 @@ export class UsersService {
       }
     }
 
+    // FR-11.9: đổi handle (username) — check unique (case-insensitive) trừ chính mình.
+    if (dto.username) {
+      const taken = await this.prisma.user.findFirst({
+        where: { username: { equals: dto.username, mode: 'insensitive' }, NOT: { id: targetId } },
+      });
+      if (taken) {
+        throw new ConflictException({
+          code: 'DUPLICATE_USERNAME',
+          message: 'Username đã được dùng',
+        });
+      }
+    }
+
     const data: Prisma.UserUpdateInput = {
       email: dto.email,
       avatarUrl: dto.avatarUrl,
     };
+    if (dto.username !== undefined) data.username = dto.username;
     if (dto.title !== undefined) data.title = dto.title;
     if (dto.bio !== undefined) data.bio = dto.bio;
     if (dto.skills !== undefined) {

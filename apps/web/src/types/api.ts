@@ -40,6 +40,7 @@ export type ProfileStats = {
 };
 
 export type UpdateUserPayload = {
+  username?: string; // FR-11.9: đổi handle (3-32, [a-zA-Z0-9_-], unique)
   email?: string;
   avatarUrl?: string;
   title?: string;

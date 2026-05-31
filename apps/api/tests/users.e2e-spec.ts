@@ -105,6 +105,32 @@ describe('Users (e2e)', () => {
       expect(res.body.error.code).toBe('FORBIDDEN');
     });
 
+    it('FR-11.9: 200 self đổi username (handle)', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ username: 'alice-new-handle' })
+        .expect(200);
+      expect(res.body.data.username).toBe('alice-new-handle');
+    });
+
+    it('FR-11.9: 409 username trùng người khác', async () => {
+      const res = await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ username: 'test-admin' })
+        .expect(409);
+      expect(res.body.error.code).toBe('DUPLICATE_USERNAME');
+    });
+
+    it('FR-11.9: 400 username sai format', async () => {
+      await request(app.getHttpServer())
+        .patch(`/users/${userId}`)
+        .set('Cookie', userCookies)
+        .send({ username: 'a b!' })
+        .expect(400);
+    });
+
     it('200 admin update other', async () => {
       const res = await request(app.getHttpServer())
         .patch(`/users/${userId}`)

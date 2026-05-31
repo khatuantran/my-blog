@@ -572,6 +572,20 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Linked UCs**: UC-14 (extends)
 - **Linked Tests**: BE unit (UsersService.update 5 fields propagation) + e2e (PATCH 5 fields success + 400 invalid bornYear + AuthUserDto includes 5 fields)
 
+### FR-11.9: Đổi handle/username (amended 2026-05-31)
+
+> User feedback: feed hiển thị `~/username` làm tên → muốn đổi được handle. **Amend policy cũ** (API_CONTRACT trước đây "Reject username change") → cho phép self/admin đổi `username`. F2 change request (không phải bug — code cũ match spec "reject").
+
+- **Rule:** `username` 3-32 ký tự, `/^[a-zA-Z0-9_-]+$/` (giống register). Unique (case-insensitive). Self hoặc admin đổi được (cùng guard FR-11.8 update).
+- **BE:** `UpdateUserDto` thêm `username?` (MinLength 3, MaxLength 32, Matches). `UsersService.update` check unique trừ self → **409 `DUPLICATE_USERNAME`** nếu trùng. Propagate vào `data.username`.
+- **FE:** EditProfileDrawer field Handle editable (prefix `@`, value = username không kèm @); submit chỉ gửi `username` khi đổi; 409 → toast "Handle đã được dùng". Sau đổi thành công → `navigate(/profile/:newUsername, {replace})` vì URL cũ 404.
+- **Hệ quả (chấp nhận):** đổi handle làm `/profile/:oldUsername` 404 + post cũ hiển thị handle mới sau khi posts refetch (author join). Không backfill/redirect old slug (blog solo).
+- **Acceptance:**
+  - Given self PATCH `username: "new-handle"` hợp lệ → 200 + `data.username = "new-handle"`
+  - Given username trùng user khác → 409 `DUPLICATE_USERNAME`
+  - Given username `"a b!"` (sai format) hoặc < 3 / > 32 ký tự → 400
+- **Linked Tests**: BE e2e (PATCH username success + 409 dup + 400 format) + FE EditProfileDrawer (handle editable, không readonly)
+
 ### FR-12: Full-text Search
 
 - **FR-12.1:** `GET /search?q=&type=all|posts|files|tags&mood=&page=&limit=` — Postgres ILIKE multi-table (`Post.content` + `Tag.name` substring + `File.name`). Empty q → trả `stats` toàn cục, không chạy ILIKE.

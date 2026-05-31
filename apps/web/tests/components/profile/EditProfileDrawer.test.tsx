@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router';
 import { ToastProvider } from '@/components/shared/Toast';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { mswServer } from '../../_helpers/msw-server';
@@ -64,7 +65,9 @@ function wrap(ui: React.ReactElement) {
   });
   return render(
     <QueryClientProvider client={qc}>
-      <ToastProvider>{ui}</ToastProvider>
+      <MemoryRouter>
+        <ToastProvider>{ui}</ToastProvider>
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -83,13 +86,14 @@ describe('EditProfileDrawer (T-376, T-222, FR-11.3)', () => {
     expect(screen.getByText('// security')).toBeInTheDocument();
   });
 
-  it('T-376: basic.info pre-fills title + bio; handle is readonly @username', () => {
+  it('FR-11.9: basic.info pre-fills title + bio; handle editable (= username, không @)', () => {
     wrap(<EditProfileDrawer open user={USER} onClose={vi.fn()} />);
     expect(screen.getByDisplayValue('Dev')).toBeInTheDocument();
     expect(screen.getByDisplayValue('hi')).toBeInTheDocument();
-    const handle = screen.getByLabelText(/handle \(read-only\)/i);
-    expect(handle).toHaveValue('@alice');
-    expect(handle).toHaveAttribute('readonly');
+    // F2 amend (FR-11.9): handle giờ EDIT được — value 'alice' (không @, @ là prefix span), không readonly.
+    const handle = screen.getByLabelText(/handle \(username\)/i);
+    expect(handle).toHaveValue('alice');
+    expect(handle).not.toHaveAttribute('readonly');
   });
 
   it('T-376: contact.links section renders location + born year + github + website fields', () => {

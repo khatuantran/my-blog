@@ -18,6 +18,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **FR-11.9 cho phép đổi handle/username (T-454, F2)** (2026-05-31, Both): Amend policy cũ "reject username change" → self/admin đổi `username` được. BE `UpdateUserDto` +username (3-32, `[a-zA-Z0-9_-]`) + unique check case-insensitive (409 `DUPLICATE_USERNAME`). FE EditProfileDrawer Handle editable (prefix @) + sau đổi `navigate(/profile/:new)` (URL cũ 404). 3 BE e2e + EditProfileDrawer test. (Refs T-454)
+
 - **T-451 FE phóng to ảnh post (ImageGrid variant feed/detail)** (2026-05-31, FE): Ảnh post to hơn cho social network UX — `ImageGrid` thêm `variant`: feed (single 460/2-col 340/3+ 400px) · detail (single 640/2-col 460/3+ 520px), override design-file gốc 200/160/180. Post Detail dùng `detail`. (Refs T-451)
 
 - **T-450 FE Post Detail ảnh dùng ImageGrid collage + lightbox (thay ImageCarousel)** (2026-05-31, FE): Post Detail hiển thị ảnh dạng collage giống Feed/preview (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 `+N`); click ảnh mở `ImageLightbox` (popup) như Feed. `ImageCarousel` còn lại (chưa xóa). (Refs T-450)

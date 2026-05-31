@@ -9,9 +9,11 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
   Max,
   MaxLength,
   Min,
+  MinLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -27,6 +29,16 @@ export class SkillItemDto {
 }
 
 export class UpdateUserDto {
+  // FR-11.9: cho phép đổi handle (username). Rule giống register (3-32, [a-zA-Z0-9_-]).
+  // BE check unique. Lưu ý: username là slug URL /profile/:username → đổi làm link cũ 404.
+  @ApiPropertyOptional({ example: 'kha', minLength: 3, maxLength: 32 })
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(32)
+  @Matches(/^[a-zA-Z0-9_-]+$/, { message: 'username chỉ chứa chữ, số, _, -' })
+  username?: string;
+
   @ApiProperty({ example: 'kha@example.com', required: false })
   @IsOptional()
   @IsEmail()

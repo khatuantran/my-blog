@@ -389,6 +389,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 - **Tag input**: Enter / comma / space → add tag; auto prefix `#` nếu thiếu; click × remove; cycle color qua palette (7 colors)
 - **Save Draft** (⌘S): save local OR backend draft endpoint (TBD — defer); toast confirm
 - **Publish** (⌘↵): submit; show ASCII spinner; redirect on success
+- **Edit mode (T-443, `?edit=<postId>`)**: vào từ PostActionMenu "Edit post". `usePost(editId)` → prefill content/mood/tags/images/files 1 lần (map PostImage/PostFile → UploadEntry). Subbar path → `~/admin/edit-post`, status `● editing` / `⠋ updating...` / `✓ updated`, button → `⌘↵ Update`. Submit → `PATCH /posts/:id` (replace images/files/tags). Redirect `/post/:id` on success.
 
 ### Responsive
 

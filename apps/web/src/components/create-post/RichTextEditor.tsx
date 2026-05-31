@@ -128,12 +128,17 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
         : null,
   });
 
-  // External value sync: set nội dung khi mount + khi parent clear (value === '').
-  // KHÔNG setContent mỗi tick value (sẽ clobber cursor) — user-typed flow qua onUpdate.
+  // External value sync: KHÔNG setContent mỗi tick value (sẽ clobber cursor) — user-typed
+  // flow đi qua onUpdate. Chỉ đồng bộ 2 trường hợp external: (1) parent clear (value rỗng)
+  // → clearContent; (2) prefill khi editor đang rỗng nhưng value có nội dung (edit mode load
+  // async, value đổi từ '' → HTML sau khi fetch xong).
   useEffect(() => {
     if (!editor) return;
-    if (value === '' && !editor.isEmpty) {
+    const isBlank = value === '' || value === '<p></p>';
+    if (isBlank && !editor.isEmpty) {
       editor.commands.clearContent();
+    } else if (!isBlank && editor.isEmpty) {
+      editor.commands.setContent(value);
     }
   }, [value, editor]);
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { MoodPicker } from '@/components/create-post/MoodPicker';
 import { RichTextEditor, type RichTextEditorHandle } from '@/components/create-post/RichTextEditor';
 import { LinkInsertModal } from '@/components/create-post/LinkInsertModal';
@@ -7,6 +7,8 @@ import { UploadZone, type UploadEntry } from '@/components/shared/UploadZone';
 import { TagPickerDropdown, type TagDraft } from '@/components/create-post/TagPickerDropdown';
 import { PostPreview } from '@/components/create-post/PostPreview';
 import { useCreatePost } from '@/hooks/mutations/use-create-post';
+import { useUpdatePost } from '@/hooks/mutations/use-update-post';
+import { usePost } from '@/hooks/queries/use-posts';
 import { deriveFileType } from '@/lib/file-config';
 import type { Mood } from '@/lib/mood-config';
 
@@ -15,6 +17,10 @@ const MAX_FILES = 20;
 
 export default function CreatePostPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit'); // ?edit=<postId> → edit mode (FR-02)
+  const isEdit = !!editId;
+
   const [mood, setMood] = useState<Mood>('HAPPY');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState<TagDraft[]>([]);
@@ -25,40 +31,75 @@ export default function CreatePostPage() {
   const [linkInitialText, setLinkInitialText] = useState('');
   const [showAi, setShowAi] = useState(false); // FR-17 AI suggest — UI shell (generate build sau)
   const editorRef = useRef<RichTextEditorHandle>(null);
-  const m = useCreatePost();
+  const createM = useCreatePost();
+  const updateM = useUpdatePost();
+  const m = isEdit ? updateM : createM;
+
+  // Edit mode: fetch post + prefill 1 lần khi data về (ref guard tránh clobber edit của user).
+  const editQuery = usePost(editId ?? undefined);
+  const prefilledRef = useRef(false);
+  useEffect(() => {
+    const p = editQuery.data;
+    if (!p || prefilledRef.current) return;
+    prefilledRef.current = true;
+    setMood(p.mood);
+    setContent(p.content);
+    setTags(p.tags.map((t) => ({ name: t.name, color: t.color ?? '#00FFE5' })));
+    setImages(
+      p.images.map((img) => ({
+        id: img.id,
+        url: img.url,
+        publicId: img.publicId,
+        width: img.width,
+        height: img.height,
+        size: 0,
+        name: '',
+        type: 'image',
+      })),
+    );
+    setFiles(
+      p.files.map((f) => ({
+        id: f.id,
+        url: f.url,
+        publicId: f.publicId,
+        name: f.name,
+        size: f.size,
+        type: f.type,
+      })),
+    );
+  }, [editQuery.data]);
 
   const trimmed = content.trim();
   const canPublish = trimmed.length > 0 && !m.isPending;
 
   function publish() {
     if (!canPublish) return;
-    m.mutate(
-      {
-        content: trimmed,
-        mood,
-        tags: tags.map((t) => t.name),
-        images: images.map((img, order) => ({
-          url: img.url,
-          publicId: img.publicId,
-          width: img.width ?? 1,
-          height: img.height ?? 1,
-          order,
-        })),
-        files: files.map((f) => ({
-          name: f.name,
-          type: deriveFileType(f.name),
-          size: f.size,
-          url: f.url,
-          publicId: f.publicId,
-        })),
-      },
-      {
-        onSuccess: (post) => {
-          // Brief success state trước khi navigate
-          setTimeout(() => navigate(`/post/${post.id}`), 800);
-        },
-      },
-    );
+    const payload = {
+      content: trimmed,
+      mood,
+      tags: tags.map((t) => t.name),
+      images: images.map((img, order) => ({
+        url: img.url,
+        publicId: img.publicId,
+        width: img.width ?? 1,
+        height: img.height ?? 1,
+        order,
+      })),
+      files: files.map((f) => ({
+        name: f.name,
+        type: deriveFileType(f.name),
+        size: f.size,
+        url: f.url,
+        publicId: f.publicId,
+      })),
+    };
+    // Brief success state trước khi navigate về post detail.
+    const onSuccess = (post: { id: string }) => setTimeout(() => navigate(`/post/${post.id}`), 800);
+    if (isEdit && editId) {
+      updateM.mutate({ id: editId, ...payload }, { onSuccess });
+    } else {
+      createM.mutate(payload, { onSuccess });
+    }
   }
 
   function saveDraft() {
@@ -89,23 +130,33 @@ export default function CreatePostPage() {
   }, []);
 
   const status = m.isSuccess
-    ? '✓ published'
+    ? isEdit
+      ? '✓ updated'
+      : '✓ published'
     : m.isPending
-      ? '⠋ publishing...'
-      : savedAt
-        ? '● draft · saved'
-        : '● draft · unsaved';
+      ? isEdit
+        ? '⠋ updating...'
+        : '⠋ publishing...'
+      : isEdit
+        ? '● editing'
+        : savedAt
+          ? '● draft · saved'
+          : '● draft · unsaved';
 
   return (
     <>
       {/* Fixed SubBar — design L509: top:52px full-width h-44 (đồng bộ Tags/ManagePosts pattern) */}
       <div className="fixed left-0 right-0 top-[52px] z-[90] flex h-11 items-center gap-3 border-b border-b2 bg-elev px-6 font-mono text-[12px]">
-        <span className="text-tm">~/admin/create-post</span>
+        <span className="text-tm">~/admin/{isEdit ? 'edit-post' : 'create-post'}</span>
         <span className="text-td">──</span>
         <span className={m.isSuccess ? 'text-grn' : savedAt ? 'text-grn' : 'text-yel'}>
           {status}
         </span>
-        {m.isError && <span className="text-red">// {m.error?.message ?? 'publish failed'}</span>}
+        {m.isError && (
+          <span className="text-red">
+            // {m.error?.message ?? (isEdit ? 'update failed' : 'publish failed')}
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-2">
           {/* btn-draft (design L42): bg-elev border-b2 padding 8/20 font 13 */}
           <button
@@ -124,7 +175,7 @@ export default function CreatePostPage() {
             className="rounded-md bg-cyan px-5 py-1.5 font-mono text-[13px] font-semibold text-[#0A0E1A] shadow-[0_0_14px_rgba(0,255,229,0.3)] transition-all hover:bg-cyan/80 hover:shadow-[0_0_22px_rgba(0,255,229,0.5)] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             title="⌘↵"
           >
-            ⌘↵ Publish
+            ⌘↵ {isEdit ? 'Update' : 'Publish'}
           </button>
         </div>
       </div>

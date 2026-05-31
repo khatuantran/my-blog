@@ -93,6 +93,35 @@ describe('CreatePostPage', () => {
     });
   });
 
+  it('edit mode (?edit=<id>): prefill content + label Update + submit PATCH /posts/:id', async () => {
+    const user = userEvent.setup();
+    const received: unknown[] = [];
+    mswServer.use(
+      http.get(`${API_URL}/posts/p1`, () =>
+        HttpResponse.json({
+          data: makePost({ id: 'p1', content: '<p>existing body</p>', mood: 'EXCITED', tags: [] }),
+        }),
+      ),
+      http.patch(`${API_URL}/posts/p1`, async ({ request }) => {
+        received.push(await request.json());
+        return HttpResponse.json({ data: makePost({ id: 'p1' }) });
+      }),
+    );
+
+    renderAt('/admin/create?edit=p1');
+    // Prefill content hiển thị (editor + preview) + label edit mode.
+    expect((await screen.findAllByText('existing body')).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+    expect(screen.getAllByText('~/admin/edit-post').length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole('button', { name: /update/i }));
+    await waitFor(() => {
+      expect(received).toEqual([
+        expect.objectContaining({ content: '<p>existing body</p>', mood: 'EXCITED' }),
+      ]);
+    });
+  });
+
   it('click Save → status flip về `draft · saved`', async () => {
     const user = userEvent.setup();
     renderAt('/admin/create');

@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-443 FE Create Post edit mode (`/admin/create?edit=<id>`)** (2026-05-31, FE): "Edit post" giờ prefill đầy đủ content/mood/tags/images/files + đổi label subbar `~/admin/edit-post`, status `editing`, button `Update`; submit → PATCH /posts/:id (thay POST). BE đã sẵn (PATCH/GET /posts/:id). Thêm `use-update-post` hook + RichTextEditor sync prefill async. CreatePostPage.test edit case. (Refs T-443)
+
 - **T-440 FE Feed PostCard collapse/expand bài dài** (2026-05-31, FE): Extract `CollapsibleContent` (dùng chung Feed + Create Post preview) — clamp content cao quá ngưỡng (Feed 400px / preview 320px) cắt đúng ranh giới dòng + nút show more/collapse. CollapsibleContent.test 3 case. (Refs T-440)
 
 - **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height cắt đúng ranh giới dòng cuối qua `Range.getClientRects()` (xử lý multi-paragraph + margin). 2 test. (Refs T-439)

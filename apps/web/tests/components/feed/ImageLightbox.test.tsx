@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ImageLightbox } from '@/components/feed/ImageLightbox';
@@ -28,6 +28,21 @@ describe('ImageLightbox (T-355)', () => {
     expect(screen.getByTestId('image-lightbox-counter')).toHaveTextContent('1/3');
     expect(screen.getByTestId('image-lightbox-close')).toBeInTheDocument();
     expect(screen.getByTestId('image-lightbox-img')).toHaveAttribute('src', 'https://e/x1.jpg');
+  });
+
+  it('regression BUG-031: click vùng đen (image area) → onClose; click ảnh → KHÔNG đóng', () => {
+    const onClose = vi.fn();
+    render(
+      <TestProviders>
+        <ImageLightbox images={sampleImages} startIdx={0} onClose={onClose} />
+      </TestProviders>,
+    );
+    const img = screen.getByTestId('image-lightbox-img');
+    const area = img.parentElement as HTMLElement;
+    fireEvent.click(img); // click ảnh → giữ nguyên
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.click(area); // click vùng đen quanh ảnh → đóng
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('2. keyboard ← → → nav between images', async () => {

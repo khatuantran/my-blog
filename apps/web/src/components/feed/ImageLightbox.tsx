@@ -72,10 +72,14 @@ export function ImageLightbox({ images, startIdx, postPath, onClose }: Props) {
         </button>
       </header>
 
-      {/* Image area */}
+      {/* Image area — click vùng đen quanh ảnh (chính container) → đóng; click ảnh/nút thì không.
+          stopPropagation để click con không bubble lên root (tránh double-close). */}
       <div
         className="relative flex flex-1 items-center justify-center p-5"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
         {current?.url ? (
           <img

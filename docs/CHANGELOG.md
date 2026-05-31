@@ -22,6 +22,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-031 FE ImageLightbox click vùng đen không đóng (F3)** (2026-05-31, FE): Image area div `stopPropagation` toàn bộ → click backdrop quanh ảnh không bubble lên root onClose. Sửa: `stopPropagation` + `if (target===currentTarget) onClose()` → click vùng đen đóng, click ảnh/nút không. 1 regression test. (Fixes BUG-031, Refs T-452)
+
 - **BUG-030 FE bài post ngắn vẫn hiện "show more" (F3)** (2026-05-31, FE): `CollapsibleContent` đổi `overflowing` so với `collapsedH` (line-box thiếu margin) → false-positive với bài ngắn. Sửa: so `scrollHeight > maxHeight + 1` + chỉ clamp khi overflow thật. (Fixes BUG-030, Refs T-451)
 
 - **Preview polish (T-439/T-449 follow-up)** (2026-05-31, FE): (1) nút collapse/expand hiện đúng khi content thực sự bị clamp — `CollapsibleContent` đổi điều kiện `overflowing` sang `scrollHeight > collapsedH` (đồng bộ clamp, hết case clamp-nhưng-thiếu-nút); (2) preview image grid theo collage design-file (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 overlay `+N`) thay vì cap 3 — khớp `ImageGrid` feed/detail.

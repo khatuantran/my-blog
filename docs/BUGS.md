@@ -11,6 +11,19 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-031] [Low] [FE] ImageLightbox click vùng đen ngoài ảnh không đóng (chỉ × đóng)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-452 (DONE 2026-05-31)
+- **Related FR/component:** FR-04 / `ImageLightbox.tsx`
+- **Mô tả:** Mở xem ảnh (lightbox) → click vùng đen quanh ảnh không đóng; chỉ nút × đóng. Footer ghi "click outside to close" nhưng không hoạt động.
+- **Root cause:** Root có `onClick={onClose}` nhưng vùng giữa do `image area` div (`flex-1`) phủ kín + `onClick stopPropagation` toàn bộ → click vùng đen (chính image area) bị chặn không bubble lên root.
+- **Fix:** image area `onClick`: `e.stopPropagation()` (tránh con bubble lên root) + `if (e.target === e.currentTarget) onClose()` → click trúng vùng đen của container thì đóng; click ảnh/nút thì không.
+- **Regression test:** `ImageLightbox.test` (`regression BUG-031: click vùng đen → onClose; click ảnh → không đóng`).
+- **Lesson learned:** click-outside-to-close: vùng "outside" phải là phần tử nhận `onClick` so `target===currentTarget`, không stopPropagation mù làm chặn cả backdrop.
+
 ### [BUG-030] [Low] [FE] Bài post ngắn vẫn hiện nút "show more" (false-positive collapse)
 
 - **Status:** FIXED

@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-018 FE load-more replies hiển thị total thay vì remaining** (2026-05-31, FE): Nút load-more ghi `{replyCount}` (total 6) thay vì số reply còn lại (3). Fix `remainingReplies = replyCount - previewReplies.length` + text `↳ load {N} more {reply/replies}`. 1 regression test. (Fixes BUG-018, Refs T-433)
+
 - **BUG-017 BE comment "post as anon" không hoạt động cho authed user** (2026-05-31, BE): User login bật "post as anon" → comment vẫn hiện tên thật (`@admin`). `comments.service.create` khi authed → luôn attribute cho user, bỏ qua `dto.anonymousName` (design + FE có toggle nhưng BE chưa honor). Fix: `effectiveUserId = viewer.userId && !dto.anonymousName ? userId : null` → authed + anonymousName = comment anon (author=null + anonymousName, không log activity/notification dưới user). 2 regression (e2e + unit) + 2 stale-assumption update. (Fixes BUG-017, Refs T-432)
 
 - **BUG-016 FE comment/reply like count = NaN (likeCount vs likesCount field mismatch)** (2026-05-31, FE): Ấn ♡ comment/reply → `❤ NaN`. FE hand-typed `Comment.likeCount` nhưng BE/openapi field = `likesCount` → undefined → optimistic `+1` = NaN (replies cùng type → cũng NaN). Fix: rename `likeCount` → `likesCount` (type + CommentItem + ReplyRow + use-create-comment + 4 test mocks) + defensive `?? 0`. Đồng thời bỏ SaveButton khỏi Post Detail action bar (design không có save — user "bỏ icon tag"). Render verify `♡1→❤2` no NaN. (Fixes BUG-016, Refs T-431)

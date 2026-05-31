@@ -11,6 +11,21 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-018] [Low] [FE] Load-more replies hiển thị total thay vì remaining
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-433 (DONE 2026-05-31)
+- **Related FR/component:** FR-03.6 / `CommentItem.tsx` load-more button
+- **Mô tả:** Comment có 6 reply, 3 đã hiện (preview) → nút "load more" ghi `↳ 6 replies (load more)` — số 6 là TOTAL, gây hiểu nhầm còn 6 chưa load (thực ra còn 3).
+- **Expected:** Hiển thị số reply CÒN LẠI chưa hiện (3).
+- **Actual:** Hiển thị total (6).
+- **Root cause:** `↳ {replyCount} replies (load more)` dùng `replyCount` (total) thay vì `replyCount - previewReplies.length` (remaining).
+- **Fix:** `remainingReplies = replyCount - previewReplies.length` → nút ghi `↳ load {N} more {reply/replies}` (pluralize). Render verify: 6 total / 3 preview → "↳ load 3 more replies".
+- **Regression test:** `CommentItem.test.tsx` (`regression BUG-018: load-more remaining không phải total`).
+- **Lesson learned:** count cạnh "load more" phải là remaining (cái sẽ được load), không phải total.
+
 ### [BUG-017] [Medium] [BE] Comment "post as anon" không hoạt động cho authed user
 
 - **Status:** FIXED

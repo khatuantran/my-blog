@@ -39,6 +39,8 @@ export function CommentItem({ comment }: Props) {
   const previewReplies = comment.replies ?? [];
   const replyCount = comment.replyCount ?? 0;
   const hasMoreReplies = replyCount > previewReplies.length;
+  // Số reply CÒN LẠI chưa hiển thị (preview tối đa 3) — KHÔNG phải total replyCount.
+  const remainingReplies = replyCount - previewReplies.length;
   const repliesQuery = useReplies(comment.id, { page: 1, limit: 50 }, loadMore);
   const displayedReplies = loadMore ? (repliesQuery.data?.items ?? previewReplies) : previewReplies;
 
@@ -122,7 +124,7 @@ export function CommentItem({ comment }: Props) {
           data-testid={`replies-load-more-${comment.id}`}
           className="ml-10 mt-2 font-mono text-mono-sm text-cyan hover:underline"
         >
-          ↳ {replyCount} replies (load more)
+          ↳ load {remainingReplies} more {remainingReplies === 1 ? 'reply' : 'replies'}
         </button>
       )}
     </article>

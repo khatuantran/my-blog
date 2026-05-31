@@ -88,4 +88,21 @@ describe('CommentItem', () => {
     await user.click(btn);
     expect(screen.queryByTestId(`reply-form-${comment.id}`)).not.toBeInTheDocument();
   });
+
+  it('regression BUG-018: load-more hiển thị số reply CÒN LẠI (remaining) không phải total', () => {
+    const reply = (id: string): Comment => makeComment({ id, parentId: 'c1', content: `r${id}` });
+    render(
+      <TestProviders>
+        <CommentItem
+          comment={makeComment({
+            replies: [reply('r1'), reply('r2'), reply('r3')],
+            replyCount: 6,
+          })}
+        />
+      </TestProviders>,
+    );
+    // 6 total − 3 preview = 3 remaining → "load 3 more replies" (KHÔNG phải "6 replies")
+    expect(screen.getByText(/load 3 more replies/i)).toBeInTheDocument();
+    expect(screen.queryByText(/6 replies/i)).not.toBeInTheDocument();
+  });
 });

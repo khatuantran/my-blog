@@ -376,9 +376,9 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 - **FR-02.1:** Chỉ ADMIN đăng/sửa/xóa bài
 - **FR-02.2:** Bài viết có: `content` (markdown text), `images[]`, `files[]`, `mood`, `tags[]`
-- **FR-02.3:** Upload ảnh: max 10 ảnh/bài, ≤ 5MB each, format PNG/JPG/WebP (Cloudinary)
+- **FR-02.3:** Upload ảnh: max 10 ảnh/bài, ≤ 5MB each, format PNG/JPG/WebP (storage driver — Cloudinary prod / local volume dev, ADR-010)
 - **FR-02.4:** `mood` ∈ {HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY}
-- **FR-02.5:** Upload file: max 20 files/bài, ≤ 20MB each, format PDF/DOC/DOCX/XLS/XLSX/TXT/CSV (Cloudinary signed upload)
+- **FR-02.5:** Upload file: max 20 files/bài, ≤ 20MB each, format PDF/DOC/DOCX/XLS/XLSX/TXT/CSV (storage driver — Cloudinary prod / local volume dev, ADR-010)
 - **FR-02.6:** Content support markdown (paragraph, bold, italic, code block, link, heading)
 - **FR-02.7:** Emoji picker tích hợp trong MarkdownEditor toolbar — 4 nhóm (faces / hands / dev / nature) × 16 emoji mỗi nhóm = 64 emoji. Click emoji insert vào textarea tại cursor position. Popover close on Esc hoặc outside-click.
 - **Acceptance:**

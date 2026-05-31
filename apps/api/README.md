@@ -1,18 +1,28 @@
 # `@myblog/api` — Backend
 
-NestJS + Prisma + Passport JWT + Socket.io + Cloudinary.
+NestJS + Prisma + Passport JWT + Socket.io. Storage driver (ADR-010): Cloudinary (prod) / local volume (dev) qua `STORAGE_DRIVER`.
 
 ## Quick Start
 
+**Khuyến nghị (ADR-010): chạy trong Docker** (api + postgres, storage=local):
+
 ```bash
-# Từ root repo
+# Từ root repo — cần apps/api/.env (cp từ .env.example, điền JWT/ADMIN)
+cp apps/api/.env.example apps/api/.env
+docker compose up -d postgres-main api          # api: Dockerfile.dev, install→generate→migrate→watch :3001
+# Swagger UI: http://localhost:3001/swagger · uploads local: ./storage/uploads → /uploads
+```
+
+**Hoặc chạy host:**
+
+```bash
 pnpm install
-cp apps/api/.env.example apps/api/.env         # điền secrets thật (dev)
-# Optional: cp apps/api/.env.example apps/api/.env.test  # override DATABASE_URL → :5433 cho test
-docker compose up -d                            # postgres-main + postgres-test
-pnpm --filter api prisma:generate               # generate Prisma client
+cp apps/api/.env.example apps/api/.env
+# Optional: apps/api/.env.test (override DATABASE_URL → :5433 cho test)
+docker compose up -d postgres-main postgres-test
+pnpm --filter api prisma:generate
 pnpm --filter api dev                           # nest start --watch → :3001
-# Swagger UI: http://localhost:3001/swagger (dev only)
+# Storage host: set STORAGE_DRIVER=local (volume) hoặc cloudinary + creds trong .env
 ```
 
 ## Scripts

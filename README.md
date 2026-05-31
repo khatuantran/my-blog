@@ -6,7 +6,8 @@
 ## Stack
 
 - **Frontend** (`apps/web`): Vite + React 19 + React Router v7 + TanStack Query + Zustand + Tailwind + shadcn/ui
-- **Backend** (`apps/api`): NestJS + Passport JWT + Prisma + Socket.io + Cloudinary + class-validator + Swagger
+- **Backend** (`apps/api`): NestJS + Passport JWT + Prisma + Socket.io + class-validator + Swagger
+- **Storage** (ADR-010): storage driver — Cloudinary signed upload (prod) / local volume (dev), chọn qua `STORAGE_DRIVER`
 - **Database**: PostgreSQL (Neon prod / Docker local 2 DBs)
 - **Real-time**: WebSocket via Socket.io
 - **API contract**: OpenAPI 3.0 auto-gen từ NestJS Swagger
@@ -26,25 +27,17 @@ pnpm install
 cp apps/api/.env.example apps/api/.env              # backend (Prisma auto-read .env)
 cp apps/web/.env.example apps/web/.env.local        # frontend (Vite convention)
 
-# 3. Start Postgres (main + test)
-docker compose up -d
+# 3. Start postgres + api trong Docker (ADR-010: api chạy trong container, storage=local)
+docker compose up -d postgres-main api
+#    api tự chạy: install → prisma generate → migrate deploy → nest --watch (:3001)
+#    upload local → ./storage/uploads, serve tại http://localhost:3001/uploads/...
 
-# 4. Migrate + seed DB
-pnpm --filter api prisma migrate dev
-pnpm --filter api prisma db seed
-
-# 5. Generate OpenAPI types cho FE
-pnpm --filter api openapi:generate
-pnpm --filter web openapi:types
-
-# 6. Start dev servers (Turbo parallel FE + BE)
-pnpm dev
-# FE: http://localhost:5173
-# BE: http://localhost:3001
-# Swagger UI: http://localhost:3001/swagger
+# 4. Web chạy host
+pnpm --filter web dev
+# FE: http://localhost:5173 · BE: http://localhost:3001 · Swagger: :3001/swagger
 ```
 
-Chi tiết setup: [docs/DEPLOYMENT.md > Local Dev Setup](docs/DEPLOYMENT.md).
+> Cách cũ chạy cả 2 trên host (`docker compose up -d` postgres-only + `pnpm dev`) vẫn được — xem [docs/DEPLOYMENT.md > Local Dev Setup](docs/DEPLOYMENT.md). Storage: prod dùng Cloudinary (`STORAGE_DRIVER=cloudinary` + creds), local mặc định volume.
 
 ## Documentation
 
@@ -87,7 +80,7 @@ myblog/
 └── README.md
 ```
 
-**Lưu ý:** `apps/`, `packages/`, `docker-compose.yml`, `turbo.json`, `pnpm-workspace.yaml`, `e2e/` chưa tồn tại — sẽ được scaffold ở M2 (xem [docs/PROGRESS.md](docs/PROGRESS.md)).
+**Lưu ý:** `storage/uploads/` (git-ignored, chỉ giữ `.gitkeep`) là nơi lưu file khi `STORAGE_DRIVER=local`; `apps/api/Dockerfile.dev` cho local dev (api trong Docker). Tiến độ: [docs/PROGRESS.md](docs/PROGRESS.md).
 
 ## Workflow (SDD)
 

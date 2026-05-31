@@ -394,10 +394,12 @@ export const postFactory = (overrides = {}) => ({
 | Integration (BE) | `beforeAll`: full reset + seed; `beforeEach`: truncate volatile tables                |
 | E2E              | Pre-suite: full reset + seed; in-suite via test API `/test/reset` (dev/test env only) |
 
-### Cloudinary in tests
+### Storage in tests (ADR-010)
 
-- Integration test: dùng **test upload preset** Cloudinary (separate folder) OR mock Cloudinary SDK với in-memory
-- E2E: dùng **MSW** hoặc Cloudinary mock server để intercept upload, return fake URL
+- **Driver abstraction:** `createTestApp` override **cả** `CloudinaryService` + `LocalStorageService` (mock) → e2e không gọi Cloudinary thật / không ghi đĩa thật. Mặc định `.env.test` `STORAGE_DRIVER=cloudinary`.
+- **Local driver unit:** `LocalStorageService` test ghi vào temp dir thật (`os.tmpdir`) — verify saveUpload/destroyMany + path-traversal (`local-storage.service.spec`).
+- **`POST /files/upload`:** e2e test guard (401/403/400-missing-file); logic ghi file cover ở unit spec (driver mock trong e2e).
+- Integration test (cloudinary): mock Cloudinary SDK in-memory; E2E FE: **MSW** intercept upload (cloudinary URL hoặc `/files/upload` local), return fake asset.
 
 ### WebSocket in tests
 

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { TagPill } from '@/components/shared/TagPill';
+import { openShare, type SharePlatform } from '@/lib/share';
+import { stripHtml } from '@/lib/strip-html';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -8,10 +10,15 @@ type Props = {
 
 // design L474: per-brand color
 const SHARE_TARGETS = [
-  { icon: '📘', label: 'Facebook', color: '#1877F2' },
-  { icon: '🐦', label: 'X (Twitter)', color: '#E6EDF3' },
-  { icon: '✈️', label: 'Telegram', color: '#2AABEE' },
-] as const;
+  { platform: 'facebook', icon: '📘', label: 'Facebook', color: '#1877F2' },
+  { platform: 'x', icon: '🐦', label: 'X (Twitter)', color: '#E6EDF3' },
+  { platform: 'telegram', icon: '✈️', label: 'Telegram', color: '#2AABEE' },
+] as const satisfies readonly {
+  platform: SharePlatform;
+  icon: string;
+  label: string;
+  color: string;
+}[];
 
 function buildPostUrl(postId: string): string {
   if (typeof window === 'undefined') return `/post/${postId}`;
@@ -20,6 +27,7 @@ function buildPostUrl(postId: string): string {
 
 export function MetaPanel({ post }: Props) {
   const [copied, setCopied] = useState(false);
+  const shareText = stripHtml(post.content).slice(0, 120);
 
   async function handleCopyLink() {
     const url = buildPostUrl(post.id);
@@ -78,6 +86,7 @@ export function MetaPanel({ post }: Props) {
             <button
               key={s.label}
               type="button"
+              onClick={() => openShare(s.platform, { url: buildPostUrl(post.id), text: shareText })}
               aria-label={`Share to ${s.label}`}
               style={{ color: s.color }}
               className="flex items-center gap-1.5 rounded-sm border border-b2 bg-elev px-3 py-1.5 font-mono text-mono transition-colors hover:border-b3"

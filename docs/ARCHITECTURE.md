@@ -340,6 +340,20 @@ apps/api/
   - Pro: 1 source (code is spec), FE types auto-sync, contract test dễ
   - Con: phụ thuộc decorator discipline (mọi DTO + endpoint phải có `@ApiProperty`, `@ApiResponse`); cần CI step `pnpm openapi:generate` + commit yaml
 
+### ADR-009: RichTextEditor engine — execCommand → TipTap (ProseMirror)
+
+- **Date:** 2026-05-31
+- **Status:** Accepted
+- **Context:** RichTextEditor (Create Post, T-368/T-369) ban đầu dựng trên `document.execCommand` + `contentEditable`. `execCommand` đã deprecated và sinh HTML không kiểm soát (`<font>`, `<span style>` lồng nhau) → content phình to với text ngắn (BUG-020), markup khó render/truncate ổn định ở preview (BUG-019), và spacing block không nhất quán (BUG-021).
+- **Decision:** Thay engine sang **TipTap (ProseMirror)** — schema-based editor cho output HTML semantic gọn và đoán được (`<p>/<strong>/<em>/<u>/<s>/<mark>/<h1>/<h2>/<ul>/<ol>/<a>`). Giữ nguyên public contract của component (`RichTextEditorHandle.applyLink`, `onRequestLink`, `value/onChange` HTML string) + design-file fidelity (11-button toolbar, 7 text-color/7 highlight swatches, EmojiPicker, data-testid/aria) — chỉ đổi cơ chế bên trong.
+- **Alternatives considered:**
+  - Giữ contentEditable + tự normalize output (Range/DOM manipulation) — không thêm dep nhưng code DOM-manip thủ công tỉ mỉ, dễ phát sinh edge-case; user chọn lib chuẩn.
+  - Slate / Lexical — mạnh tương đương; TipTap chọn vì API React (`useEditor`) gọn + extension sẵn cho color/highlight/link/underline.
+- **Consequences:**
+  - Pro: markup sạch ổn định → fix 3 bug tận gốc (preview render đúng, không phình, prose spacing kiểm soát qua CSS); chuẩn lib maintain dễ.
+  - Con: thêm dependency FE (~100kb gồm ProseMirror core + extensions); toolbar binding viết lại theo TipTap command; test RichTextEditor rewrite (bỏ stub execCommand → assert mark/node render).
+  - Backward-compatible: content cũ (markdown legacy / HTML execCommand đã publish) vẫn render qua nhánh `isHtmlContent`/markdown của `PostContent` — không cần migrate.
+
 ## Security Policy
 
 ### Auth model

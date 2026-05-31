@@ -1,4 +1,9 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { useEditor, useEditorState, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import { TextStyle, Color } from '@tiptap/extension-text-style';
+import Highlight from '@tiptap/extension-highlight';
+import Placeholder from '@tiptap/extension-placeholder';
 import { EmojiPicker } from './EmojiPicker';
 
 export interface RichTextEditorHandle {
@@ -16,6 +21,10 @@ type Props = {
 
 type TextColor = { color: string; label: string };
 type HighlightColor = { color: string; label: string; preview: string };
+
+// BE @MaxLength(50000) đếm toàn chuỗi HTML — cảnh báo khi gần ngưỡng (BUG-020).
+const HTML_MAX = 50000;
+const HTML_WARN = 45000;
 
 // 7 text colors per design-file/MyBlog Create Post.html L416-423
 const TEXT_COLORS: TextColor[] = [
@@ -39,170 +48,150 @@ const HIGHLIGHT_COLORS: HighlightColor[] = [
   { color: '#7DCFFF40', label: 'blue', preview: '#7DCFFF' },
 ];
 
-// RichTextEditor (T-368/T-369) — contentEditable rich-text editor per design-file v2 spec.
-// Renders 11-button toolbar + 2 inline color popovers + keyboard shortcuts.
-// Exposes RichTextEditorHandle.applyLink for LinkInsertModal integration (T-369).
+// RichTextEditor (T-368/T-369/T-397; T-435 engine → TipTap) — rich-text editor per design-file v2 spec.
+// ADR-009: dùng TipTap (ProseMirror) thay `document.execCommand` (deprecated) → markup HTML semantic
+// gọn (`<p>/<strong>/<mark>/<h1>`…), không phình inline-style → fix BUG-019/020/021.
+// Renders 11-button toolbar + 2 inline color popovers + emoji picker + keyboard shortcuts.
 // Output: HTML string (admin-only content creation — no sanitization needed yet).
 export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function RichTextEditor(
   {
     value,
     onChange,
     placeholder = 'Start writing... (highlight text and use toolbar to format)',
-    minHeight = 280,
+    minHeight = 220,
     onRequestLink,
   },
   ref,
 ) {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const savedSelectionRef = useRef<Range | null>(null);
   const [showColor, setShowColor] = useState(false);
   const [showHighlight, setShowHighlight] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
 
-  // Sync DOM from external value: on first mount AND on subsequent external clears
-  // (e.g., form reset). User-typed changes flow via onInput → onChange → parent state,
-  // so re-setting innerHTML on every value tick would clobber the cursor — guard with
-  // an explicit mount flag + clear detection.
-  const mountedRef = useRef(false);
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2] },
+        // StarterKit v3 bundles Link — chỉ tắt auto open/autolink, mở link qua toolbar/⌘K.
+        link: { openOnClick: false, autolink: false, HTMLAttributes: { rel: null, target: null } },
+      }),
+      TextStyle,
+      Color,
+      Highlight.configure({ multicolor: true }),
+      Placeholder.configure({ placeholder }),
+    ],
+    content: value,
+    editorProps: {
+      attributes: {
+        role: 'textbox',
+        'aria-multiline': 'true',
+        'aria-label': 'Post content rich-text editor',
+        'data-testid': 'rte-editor',
+        // box styling — min-height + scroll nội bộ (BUG-021: bỏ resize-y nở vô hạn).
+        // Prose descendant styling (h1/h2/ul/mark margins) ở globals.css.
+        class:
+          'w-full rounded-md border border-b2 bg-bg p-3 font-sans text-body text-tp outline-none overflow-y-auto focus:border-cyan focus:shadow-glow-cyan-sm',
+        style: `min-height:${minHeight}px`,
+      },
+      handleKeyDown(_view, event) {
+        // ⌘K / Ctrl+K → mở link modal (TipTap không bind sẵn). ⌘B/I/U built-in.
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+          event.preventDefault();
+          handleLinkClick();
+          return true;
+        }
+        return false;
+      },
+    },
+    onUpdate({ editor: e }) {
+      onChange(e.getHTML());
+    },
+  });
+
+  // Reactive editor state (active marks + char counts) — useEditor v3 KHÔNG re-render mỗi
+  // transaction, nên subscribe qua useEditorState để toolbar active + counter cập nhật.
+  const s = useEditorState({
+    editor,
+    selector: ({ editor: e }) =>
+      e
+        ? {
+            isBold: e.isActive('bold'),
+            isItalic: e.isActive('italic'),
+            isUnderline: e.isActive('underline'),
+            isStrike: e.isActive('strike'),
+            isH1: e.isActive('heading', { level: 1 }),
+            isH2: e.isActive('heading', { level: 2 }),
+            isBullet: e.isActive('bulletList'),
+            isOrdered: e.isActive('orderedList'),
+            isLink: e.isActive('link'),
+          }
+        : null,
+  });
+
+  // External value sync: set nội dung khi mount + khi parent clear (value === '').
+  // KHÔNG setContent mỗi tick value (sẽ clobber cursor) — user-typed flow qua onUpdate.
   useEffect(() => {
-    if (!editorRef.current) return;
-    if (!mountedRef.current) {
-      editorRef.current.innerHTML = value;
-      mountedRef.current = true;
-      return;
+    if (!editor) return;
+    if (value === '' && !editor.isEmpty) {
+      editor.commands.clearContent();
     }
-    if (value === '' && editorRef.current.innerHTML !== '') {
-      editorRef.current.innerHTML = '';
-    }
-  }, [value]);
-
-  // Range API patterns — exposed for internal use + programmatic insert hooks.
-  function exec(cmd: string, val?: string) {
-    editorRef.current?.focus();
-    document.execCommand(cmd, false, val);
-    onChange(editorRef.current?.innerHTML ?? '');
-  }
-
-  function insertHTML(html: string) {
-    editorRef.current?.focus();
-    document.execCommand('insertHTML', false, html);
-    onChange(editorRef.current?.innerHTML ?? '');
-  }
-
-  function saveSelection() {
-    const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0) {
-      savedSelectionRef.current = sel.getRangeAt(0).cloneRange();
-    }
-  }
-
-  function restoreSelection() {
-    const r = savedSelectionRef.current;
-    if (!r) return;
-    const sel = window.getSelection();
-    sel?.removeAllRanges();
-    sel?.addRange(r);
-  }
+  }, [value, editor]);
 
   function handleLinkClick() {
-    saveSelection();
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to, ' ');
     if (onRequestLink) {
-      const sel = window.getSelection();
-      onRequestLink(sel?.toString() ?? '');
+      onRequestLink(selectedText);
     } else {
-      // Fallback for standalone use (T-369 wires LinkInsertModal via onRequestLink).
+      // Fallback standalone use (T-369 wires LinkInsertModal via onRequestLink).
       const url = window.prompt('Enter URL', 'https://');
       if (!url) return;
-      restoreSelection();
-      const sel = window.getSelection();
-      const hasSel = sel && sel.toString().length > 0;
-      if (hasSel) {
-        exec('createLink', url);
-      } else {
-        insertHTML(`<a href="${url}">${url}</a>`);
-      }
+      applyLink(url, selectedText);
     }
   }
 
-  // GIỮ popover mở khi apply (design: chỉ × đóng). saveSelection để re-apply lên cùng selection.
+  const applyLink = useCallback(
+    (url: string, label: string) => {
+      if (!editor) return;
+      const { empty } = editor.state.selection;
+      if (!empty) {
+        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      } else {
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: 'text',
+            text: label || url,
+            marks: [{ type: 'link', attrs: { href: url } }],
+          })
+          .run();
+      }
+    },
+    [editor],
+  );
+
+  useImperativeHandle(ref, () => ({ applyLink }), [applyLink]);
+
   function applyTextColor(color: string) {
-    restoreSelection();
-    exec('foreColor', color);
-    saveSelection();
+    editor?.chain().focus().setColor(color).run();
   }
 
   function applyHighlight(color: string) {
-    restoreSelection();
-    exec('hiliteColor', color);
-    saveSelection();
+    editor?.chain().focus().toggleHighlight({ color }).run();
   }
 
   function insertEmoji(emoji: string) {
-    // GIỮ picker mở khi chèn (design-file: chỉ đóng khi click ×). Save lại selection sau
-    // insert để lần chèn kế tiếp đặt cursor đúng sau emoji vừa thêm (multi-insert).
-    restoreSelection();
-    insertHTML(emoji);
-    saveSelection();
+    // GIỮ picker mở khi chèn (design-file L638: chỉ × đóng) — multi-insert.
+    editor?.chain().focus().insertContent(emoji).run();
   }
 
-  // Stable-ref pattern: keep latest handlers in a ref so the keydown listener installs
-  // once (no churn on every render) yet always calls fresh closures.
-  const handlersRef = useRef({
-    exec,
-    handleLinkClick,
-    applyLink: (_url: string, _label: string) => {},
-  });
-  handlersRef.current = {
-    exec,
-    handleLinkClick,
-    applyLink(url: string, label: string) {
-      restoreSelection();
-      const sel = window.getSelection();
-      const hasSel = sel && sel.toString().length > 0;
-      if (hasSel) {
-        exec('createLink', url);
-      } else {
-        insertHTML(`<a href="${url}">${label || url}</a>`);
-      }
-    },
-  };
-
-  // Expose applyLink for LinkInsertModal (T-369) — deps [] is intentional; the actual
-  // implementation always delegates to handlersRef.current which is always fresh.
-  useImperativeHandle(
-    ref,
-    () => ({
-      applyLink: (url: string, label: string) => handlersRef.current.applyLink(url, label),
-    }),
-    [],
-  );
-
-  // Keyboard shortcuts — only fire when editor has focus.
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      const editor = editorRef.current;
-      if (!editor) return;
-      const focused = document.activeElement === editor || editor.contains(document.activeElement);
-      if (!focused) return;
-      if (!(e.metaKey || e.ctrlKey)) return;
-      const k = e.key.toLowerCase();
-      if (k === 'b') {
-        e.preventDefault();
-        handlersRef.current.exec('bold');
-      } else if (k === 'i') {
-        e.preventDefault();
-        handlersRef.current.exec('italic');
-      } else if (k === 'u') {
-        e.preventDefault();
-        handlersRef.current.exec('underline');
-      } else if (k === 'k') {
-        e.preventDefault();
-        handlersRef.current.handleLinkClick();
-      }
-    }
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  // Counts đọc trực tiếp từ editor (useEditorState lo re-render khi gõ; tránh snapshot
+  // stale cho initial content). textLen = text thực (BUG-020: KHÔNG đếm markup HTML).
+  const textLen = editor?.getText().length ?? 0;
+  const htmlLen = editor?.getHTML().length ?? 0;
+  const nearLimit = htmlLen >= HTML_WARN;
 
   return (
     <div>
@@ -212,15 +201,38 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
         data-testid="rte-toolbar"
         className="mb-1.5 flex items-center gap-1 overflow-x-auto rounded-md border border-b2 bg-bg px-2 py-1.5 [scrollbar-width:none]"
       >
-        <ToolbarBtn label="B" title="Bold (⌘B)" onClick={() => exec('bold')} weight="700" />
-        <ToolbarBtn label="I" title="Italic (⌘I)" onClick={() => exec('italic')} italic />
-        <ToolbarBtn label="U" title="Underline (⌘U)" onClick={() => exec('underline')} underline />
-        <ToolbarBtn label="S" title="Strikethrough" onClick={() => exec('strikeThrough')} strike />
+        <ToolbarBtn
+          label="B"
+          title="Bold (⌘B)"
+          onClick={() => editor?.chain().focus().toggleBold().run()}
+          weight="700"
+          active={s?.isBold}
+        />
+        <ToolbarBtn
+          label="I"
+          title="Italic (⌘I)"
+          onClick={() => editor?.chain().focus().toggleItalic().run()}
+          italic
+          active={s?.isItalic}
+        />
+        <ToolbarBtn
+          label="U"
+          title="Underline (⌘U)"
+          onClick={() => editor?.chain().focus().toggleUnderline().run()}
+          underline
+          active={s?.isUnderline}
+        />
+        <ToolbarBtn
+          label="S"
+          title="Strikethrough"
+          onClick={() => editor?.chain().focus().toggleStrike().run()}
+          strike
+          active={s?.isStrike}
+        />
         <ToolbarBtn
           label="🖍"
           title="Highlight background"
           onClick={() => {
-            saveSelection();
             setShowHighlight((v) => !v);
             setShowColor(false);
             setShowEmoji(false);
@@ -230,18 +242,43 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
           aria-expanded={showHighlight}
           data-testid="rte-btn-highlight"
         />
-        <ToolbarBtn label="H1" title="Heading 1" onClick={() => exec('formatBlock', 'h1')} />
-        <ToolbarBtn label="H2" title="Heading 2" onClick={() => exec('formatBlock', 'h2')} />
-        <ToolbarBtn label="•" title="Bullet list" onClick={() => exec('insertUnorderedList')} />
-        <ToolbarBtn label="1." title="Numbered list" onClick={() => exec('insertOrderedList')} />
+        <ToolbarBtn
+          label="H1"
+          title="Heading 1"
+          onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+          active={s?.isH1}
+        />
+        <ToolbarBtn
+          label="H2"
+          title="Heading 2"
+          onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+          active={s?.isH2}
+        />
+        <ToolbarBtn
+          label="•"
+          title="Bullet list"
+          onClick={() => editor?.chain().focus().toggleBulletList().run()}
+          active={s?.isBullet}
+        />
+        <ToolbarBtn
+          label="1."
+          title="Numbered list"
+          onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+          active={s?.isOrdered}
+        />
         <ToolbarBtn
           label="🔗"
           title="Link (⌘K)"
           onClick={handleLinkClick}
           fontSize="13px"
+          active={s?.isLink}
           data-testid="rte-btn-link"
         />
-        <ToolbarBtn label="✕" title="Clear formatting" onClick={() => exec('removeFormat')} />
+        <ToolbarBtn
+          label="✕"
+          title="Clear formatting"
+          onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()}
+        />
         <ToolbarBtn
           label={
             <>
@@ -250,7 +287,6 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
           }
           title="Text color"
           onClick={() => {
-            saveSelection();
             setShowColor((v) => !v);
             setShowHighlight(false);
             setShowEmoji(false);
@@ -264,7 +300,6 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
           label="🙂"
           title="Insert emoji"
           onClick={() => {
-            saveSelection();
             setShowEmoji((v) => !v);
             setShowColor(false);
             setShowHighlight(false);
@@ -289,6 +324,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
               <button
                 key={c.label}
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => applyTextColor(c.color)}
                 aria-label={`Text color ${c.label}`}
                 data-testid={`rte-textcolor-${c.label}`}
@@ -323,6 +359,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
               <button
                 key={c.label}
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={() => applyHighlight(c.color)}
                 aria-label={`Highlight ${c.label}`}
                 data-testid={`rte-highlight-${c.label}`}
@@ -339,12 +376,8 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
             ))}
             <button
               type="button"
-              onClick={() => {
-                restoreSelection();
-                exec('hiliteColor', 'transparent');
-                exec('removeFormat');
-                saveSelection();
-              }}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => editor?.chain().focus().unsetHighlight().run()}
               title="Remove highlight"
               data-testid="rte-highlight-clear"
               className="inline-flex h-6 items-center gap-1 rounded border border-b2 px-2.5 font-mono text-[10px] text-red hover:bg-red/10"
@@ -366,21 +399,15 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(function R
 
       <EmojiPicker open={showEmoji} onSelect={insertEmoji} onClose={() => setShowEmoji(false)} />
 
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        role="textbox"
-        aria-multiline="true"
-        aria-label="Post content rich-text editor"
-        data-testid="rte-editor"
-        data-placeholder={placeholder}
-        onInput={() => onChange(editorRef.current?.innerHTML ?? '')}
-        style={{ minHeight }}
-        className="w-full resize-y rounded-md border border-b2 bg-bg p-3 font-sans text-body text-tp outline-none focus:border-cyan focus:shadow-glow-cyan-sm"
-      />
-      <div className="mt-1.5 font-mono text-mono-sm text-tm">
-        // rich-text · {(editorRef.current?.textContent ?? '').length} chars
+      <EditorContent editor={editor} />
+
+      <div className="mt-1.5 flex items-center gap-2 font-mono text-mono-sm text-tm">
+        <span>// rich-text · {textLen} chars</span>
+        {nearLimit && (
+          <span className="text-yel" data-testid="rte-near-limit">
+            ⚠ {htmlLen}/{HTML_MAX} html chars
+          </span>
+        )}
       </div>
     </div>
   );
@@ -402,7 +429,7 @@ type ToolbarBtnProps = {
 
 // Fixed 32×30 uniform buttons per design-file `.toolbar-btn` (width 32 / height 30 / 13px /
 // inline-flex center) — KHÔNG dùng padding-based sizing (gây chiều cao lệch nhau). `active`
-// = popover đang mở (cyan tint).
+// = popover đang mở hoặc mark đang active (cyan tint).
 function ToolbarBtn({
   label,
   title,

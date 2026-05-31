@@ -106,10 +106,77 @@
     height: 1px;
     background: var(--b1);
   }
-  /* RichTextEditor contentEditable placeholder (design-file `.editor-area:empty::before`). */
-  [data-testid='rte-editor']:empty::before {
+  /* RichTextEditor placeholder — TipTap Placeholder extension (T-435) đặt `data-placeholder`
+     + class `is-editor-empty` lên paragraph rỗng đầu tiên (thay rule `:empty::before` cũ của
+     contentEditable execCommand). */
+  [data-testid='rte-editor'] p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     @apply font-sans italic text-td;
+    float: left;
+    height: 0;
     pointer-events: none;
+  }
+
+  /* Prose styling — dùng chung cho RichTextEditor (TipTap) lẫn post hiển thị
+     (`PostContent` dangerouslySetInnerHTML). Port từ design-file/MyBlog Create Post.html
+     `.editor-area` L29-36 (T-437, fix BUG-021 margin/spacing). */
+  [data-testid='rte-editor'],
+  [data-testid='post-content-html'] {
+    line-height: 1.7;
+  }
+  [data-testid='rte-editor'] p,
+  [data-testid='post-content-html'] p {
+    margin: 0 0 0.6em;
+  }
+  [data-testid='rte-editor'] > :last-child,
+  [data-testid='post-content-html'] > :last-child {
+    margin-bottom: 0;
+  }
+  [data-testid='rte-editor'] h1,
+  [data-testid='post-content-html'] h1 {
+    @apply text-tp;
+    margin: 8px 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+  }
+  [data-testid='rte-editor'] h2,
+  [data-testid='post-content-html'] h2 {
+    @apply text-tp;
+    margin: 8px 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  [data-testid='rte-editor'] ul,
+  [data-testid='rte-editor'] ol,
+  [data-testid='post-content-html'] ul,
+  [data-testid='post-content-html'] ol {
+    margin: 6px 0;
+    padding-left: 24px;
+  }
+  [data-testid='rte-editor'] ul,
+  [data-testid='post-content-html'] ul {
+    list-style: disc;
+  }
+  [data-testid='rte-editor'] ol,
+  [data-testid='post-content-html'] ol {
+    list-style: decimal;
+  }
+  [data-testid='rte-editor'] strong,
+  [data-testid='rte-editor'] b,
+  [data-testid='post-content-html'] strong,
+  [data-testid='post-content-html'] b {
+    @apply text-tp;
+    font-weight: 700;
+  }
+  [data-testid='rte-editor'] a,
+  [data-testid='post-content-html'] a {
+    @apply text-cyan underline;
+  }
+  /* Highlight (TipTap multicolor → inline `background-color` per swatch). Giữ padding/radius,
+     để màu nền từ inline style của `<mark>` thắng. */
+  [data-testid='rte-editor'] mark,
+  [data-testid='post-content-html'] mark {
+    padding: 0 2px;
+    border-radius: 2px;
   }
 }

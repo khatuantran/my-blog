@@ -78,10 +78,12 @@ describe('CreatePostPage', () => {
     await user.type(await screen.findByLabelText(/post content/i), 'hello world');
     await user.click(screen.getByRole('button', { name: /publish/i }));
 
+    // T-435: RichTextEditor giờ là TipTap → content gửi đi là HTML semantic (`<p>…</p>`),
+    // không còn plain text (stale-assumption update).
     await waitFor(() => {
       expect(received).toEqual([
         expect.objectContaining({
-          content: 'hello world',
+          content: '<p>hello world</p>',
           mood: 'HAPPY',
           tags: [],
           images: [],

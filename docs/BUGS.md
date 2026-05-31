@@ -11,6 +11,51 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-019] [Medium] [FE] Create Post — preview không hiển thị được với content HTML
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-436 (DONE 2026-05-31)
+- **Related FR/component:** FR-09 Create Post / `PostPreview.tsx` + `PostContent.tsx`
+- **Mô tả:** Ở `/admin/create`, panel live preview bên phải không review được content nữa (trống hoặc vỡ định dạng).
+- **Expected:** Preview hiển thị content đã format real-time, không vỡ.
+- **Actual:** Preview trống / HTML vỡ.
+- **Root cause:** `PostPreview.tsx` truncate `content.slice(0, 300)` rồi đưa vào `PostContent` render `dangerouslySetInnerHTML`. Từ khi RichTextEditor xuất **HTML** (T-368), 300 ký tự đầu phần lớn là thẻ/inline-style → cắt giữa thẻ → HTML không hợp lệ → render trống/vỡ. Logic truncate kiểu plain-text không còn hợp với content HTML.
+- **Fix:** Bỏ truncate theo ký tự. Render **full** `content` qua `PostContent` trong wrapper `overflow-hidden` + `max-height:320px` (clamp bằng CSS, không cắt chuỗi HTML giữa thẻ). `data-testid=preview-content-clamp`. (Follow-up user feedback: bỏ fade-out gradient vì làm mờ dòng cuối; actions row preview match action bar Feed/Detail 1:1 — `ReactionIcon` LIKE + `React` · `💬 0` · `↗ Share`, bỏ icon 🏷 cũ, font `text-mono-md text-tm`.)
+- **Regression test:** `PostPreview.test.tsx` (`regression BUG-019: HTML content render nguyên thẻ + clamp bằng CSS` — content `<p><strong>…</strong></p><h2>…` dài → `<strong>`/`<h2>` còn nguyên trong DOM).
+- **Lesson learned:** truncate content phải HTML-aware (clamp CSS hoặc cắt theo text node) — không slice chuỗi HTML theo ký tự. Liên đới đổi engine editor sang HTML (T-435).
+
+### [BUG-020] [Medium] [FE] Create Post — content HTML phình to (execCommand) + counter đếm lệch BE limit
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE (validate BE)
+- **Related task:** T-435 (DONE 2026-05-31)
+- **Related FR/component:** FR-09 Create Post / `RichTextEditor.tsx` + `create-post.dto.ts` `@MaxLength(50000)`
+- **Mô tả:** Gõ ít chữ nhưng content HTML rất dài → khi publish dễ bị reject do vượt giới hạn ký tự content; counter FE hiển thị số nhỏ gây hiểu nhầm.
+- **Expected:** Markup gọn; số ký tự FE phản ánh đúng giới hạn BE đếm.
+- **Actual:** `execCommand` (`foreColor`/`hiliteColor`/format) sinh markup lồng nhau (`<font>`, `<span style>`) phình to cho text ngắn; counter FE đếm `textContent` (chỉ text) còn BE đếm **toàn chuỗi HTML** (`@MaxLength(50000)`) → lệch.
+- **Root cause:** Editor dựa trên `document.execCommand` (deprecated) → output HTML không kiểm soát, nhiều inline-style thừa.
+- **Fix:** Thay engine RichTextEditor sang **TipTap (ProseMirror)** (ADR-009) — schema chỉ phát mark semantic (`<strong>/<em>/<mark>/<h1>`…), drop `<font>`/inline-style thừa khi parse. Counter hiển thị `editor.getText().length` (text thực) + cảnh báo `⚠ {htmlLen}/50000 html chars` khi `getHTML().length ≥ 45000` (đếm đúng đơn vị BE).
+- **Regression test:** `RichTextEditor.test.tsx` (`regression BUG-020: initial messy <font> HTML → normalizes to <strong> (no <font>/inline-weight)` + `char counter shows text length only`).
+- **Lesson learned:** `document.execCommand` deprecated + markup bloat → dùng editor schema-based (TipTap) cho rich-text. Counter rich-text phải đếm theo đơn vị BE validate (HTML length) để cảnh báo đúng.
+
+### [BUG-021] [Low] [FE] Create Post — ô content margin/dead-space (thiếu port prose CSS)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-437 (DONE 2026-05-31)
+- **Related FR/component:** FR-09 Create Post / `globals.css` + `RichTextEditor.tsx` editor box
+- **Mô tả:** Khi nhập content, ô content tự nở ra nhưng phần dư phía dưới không dùng được; margin giữa các block (heading/list) quá lớn.
+- **Expected:** Ô có chiều cao ổn định + margin block gọn theo design-file `.editor-area`.
+- **Actual:** Ô dùng `resize-y` không `overflow`; heading/list/mark/paragraph dùng margin mặc định browser (rất lớn) → dead-space + spacing thừa.
+- **Root cause:** design-file `.editor-area` L29-36 định nghĩa margin gọn cho `h1/h2/ul/ol/mark`, nhưng `globals.css` chỉ port mỗi rule placeholder — bỏ sót toàn bộ style nội dung. (Áp cho cả editor lẫn post hiển thị vì `PostContent` render HTML qua `dangerouslySetInnerHTML` cũng thiếu CSS.)
+- **Fix:** Editor box (TipTap `editorProps.class`): bỏ `resize-y`, set `min-height:220px` + `overflow-y-auto`. `globals.css`: port prose styling dùng chung `[data-testid='rte-editor']` + `[data-testid='post-content-html']` — `p` margin 0.6em (last-child 0), `h1/h2` (size 22/18 + margin 8px 0 4px), `ul/ol` (padding-left 24 + margin 6px 0 + list-style), `mark` (padding 0 2px radius 2px, giữ bg inline), `a` cyan underline, `strong/b` 700. Placeholder đổi sang TipTap `p.is-editor-empty:first-child::before` (rule `:empty` cũ không áp dụng cho ProseMirror).
+- **Regression test:** verify Playwright/manual (prose CSS khó assert qua jsdom — ghi trong PROGRESS).
+- **Lesson learned:** khi port component từ design-file phải port TRỌN block CSS (`.editor-area` không chỉ placeholder); prose styling cho HTML content dùng chung editor + display để nhất quán.
+
 ### [BUG-018] [Low] [FE] Load-more replies hiển thị total thay vì remaining
 
 - **Status:** FIXED

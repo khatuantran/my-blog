@@ -3,6 +3,8 @@ import { MoodBadge } from '@/components/shared/MoodBadge';
 import { PostContent } from '@/components/post/PostContent';
 import { TagPill } from '@/components/shared/TagPill';
 import { ImgSlot } from '@/components/post/ImgSlot';
+import { ReactionIcon } from '@/components/feed/ReactionIcon';
+import { REACTION_CONFIG } from '@/lib/reaction-config';
 import type { Mood } from '@/lib/mood-config';
 import type { TagDraft } from './TagPickerDropdown';
 
@@ -13,13 +15,13 @@ type Props = {
   imageCount: number;
 };
 
-const CONTENT_PREVIEW_LIMIT = 300;
+// Chiều cao tối đa vùng content trong preview — clamp bằng CSS thay vì cắt chuỗi (BUG-019:
+// content là HTML, slice theo ký tự sẽ cắt giữa thẻ → vỡ render).
+const CONTENT_PREVIEW_MAX_H = 320;
 
 // Mini PostCard preview cho CreatePostPage right pane.
 // Match design-file/MyBlog Create Post.html:75-132.
 export function PostPreview({ mood, content, tags, imageCount }: Props) {
-  const truncated = content.length > CONTENT_PREVIEW_LIMIT;
-  const display = truncated ? content.slice(0, CONTENT_PREVIEW_LIMIT) : content;
   const visibleImages = Math.min(imageCount, 3);
 
   return (
@@ -49,12 +51,16 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
         <MoodBadge mood={mood} />
       </div>
 
-      {/* Content */}
+      {/* Content — render full HTML, clamp chiều cao bằng CSS (BUG-019: không cắt chuỗi
+          HTML giữa thẻ). */}
       {content ? (
-        <>
-          <PostContent content={display} variant="card" />
-          {truncated && <div className="-mt-2 mb-3 font-mono text-mono-sm text-tm">...</div>}
-        </>
+        <div
+          className="mb-3 overflow-hidden"
+          style={{ maxHeight: CONTENT_PREVIEW_MAX_H }}
+          data-testid="preview-content-clamp"
+        >
+          <PostContent content={content} variant="card" />
+        </div>
       ) : (
         <div className="mb-3 font-mono text-mono italic text-td">
           // content preview will appear here...
@@ -82,13 +88,23 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
         </div>
       )}
 
-      {/* Actions row (disabled placeholders) */}
-      <div className="flex gap-0.5 border-t border-b1 pt-2 font-mono text-mono-sm text-td">
-        {['♡ 0', '💬 0', '🏷', '↗'].map((a) => (
-          <span key={a} className="px-2 py-1">
-            {a}
+      {/* Actions row (placeholder, mirror Feed/Detail action bar style — design-file 1:1).
+          Tĩnh: React · 💬 · Share, count 0 cho post mới. */}
+      <div className="flex items-center gap-0.5 border-t border-b1 pt-2 font-mono text-mono-md text-tm">
+        <span className="flex items-center gap-1 px-2.5 py-1">
+          <span aria-hidden className="inline-flex">
+            <ReactionIcon r={REACTION_CONFIG.LIKE} size={16} />
           </span>
-        ))}
+          <span>React</span>
+        </span>
+        <span className="flex items-center gap-1 px-2.5 py-1">
+          <span className="text-sm">💬</span>
+          <span>0</span>
+        </span>
+        <span className="flex items-center gap-1 px-2.5 py-1">
+          <span>↗</span>
+          <span>Share</span>
+        </span>
       </div>
     </div>
   );

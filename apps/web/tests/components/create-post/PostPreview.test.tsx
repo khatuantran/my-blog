@@ -14,10 +14,20 @@ describe('PostPreview', () => {
     expect(screen.getByText(/excited/i)).toBeInTheDocument();
   });
 
-  it('truncate content > 300 chars + ... suffix', () => {
-    const long = 'x'.repeat(350);
-    render(<PostPreview mood="HAPPY" content={long} tags={[]} imageCount={0} />);
-    expect(screen.getByText('...')).toBeInTheDocument();
+  it('regression BUG-019: HTML content render nguyên thẻ (không cắt giữa tag) + clamp bằng CSS', () => {
+    // Content HTML dài (TipTap output). Cách cũ slice(0,300) cắt giữa thẻ → vỡ render.
+    const html = `<p><strong>bold start</strong> ${'word '.repeat(120)}</p><h2>heading</h2>`;
+    const { container } = render(
+      <PostPreview mood="HAPPY" content={html} tags={[]} imageCount={0} />,
+    );
+    // HTML render qua PostContent (dangerouslySetInnerHTML) — thẻ semantic còn nguyên.
+    const rendered = screen.getByTestId('post-content-html');
+    expect(rendered.querySelector('strong')?.textContent).toBe('bold start');
+    expect(rendered.querySelector('h2')?.textContent).toBe('heading');
+    // Clamp bằng CSS max-height + overflow-hidden (không cắt chuỗi).
+    const clamp = screen.getByTestId('preview-content-clamp');
+    expect(clamp).toHaveClass('overflow-hidden');
+    expect(container).toBeTruthy();
   });
 
   it('imageCount 3 → 3 ImgSlot grid cells', () => {

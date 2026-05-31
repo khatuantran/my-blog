@@ -6,7 +6,7 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
-- **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height snap theo bội số line-height → cắt sạch ranh giới dòng. 2 test. (Refs T-439)
+- **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height cắt đúng ranh giới dòng cuối qua `Range.getClientRects()` (xử lý multi-paragraph + margin). 2 test. (Refs T-439)
 
 ### Fixed
 

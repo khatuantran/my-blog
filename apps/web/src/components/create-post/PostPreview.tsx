@@ -29,8 +29,9 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
-  // Chiều cao collapsed snap theo bội số line-height → cắt SẠCH ranh giới dòng, không lú
-  // nửa dòng cuối. Fallback CONTENT_PREVIEW_MAX_H nếu không đo được line-height.
+  // Chiều cao collapsed cắt ĐÚNG ranh giới dòng cuối còn nằm trọn trong ngưỡng — đo vị trí
+  // từng line box thực qua Range.getClientRects() (xử lý đúng cả multi-paragraph + margin +
+  // heading line-height khác nhau), tránh lú nửa dòng. Fallback ngưỡng nếu không đo được.
   const [collapsedH, setCollapsedH] = useState(CONTENT_PREVIEW_MAX_H);
 
   useEffect(() => {
@@ -41,12 +42,20 @@ export function PostPreview({ mood, content, tags, imageCount }: Props) {
     }
     // scrollHeight = full content height (bỏ qua maxHeight clamp) → so với ngưỡng.
     setOverflowing(el.scrollHeight > CONTENT_PREVIEW_MAX_H + 4);
-    // Snap maxHeight xuống bội số line-height gần nhất ≤ ngưỡng.
-    const inner = el.firstElementChild ?? el;
-    const lh = parseFloat(getComputedStyle(inner).lineHeight);
-    setCollapsedH(
-      lh > 0 ? Math.max(lh, Math.floor(CONTENT_PREVIEW_MAX_H / lh) * lh) : CONTENT_PREVIEW_MAX_H,
-    );
+
+    const top = el.getBoundingClientRect().top;
+    const limit = top + CONTENT_PREVIEW_MAX_H;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    // getClientRects trả 1 rect / line box (kể cả phần bị overflow clip) → tìm rect cuối có
+    // bottom ≤ limit, cắt ngay tại đó. Bỏ rect rỗng (height 0).
+    let cut = 0;
+    for (const r of Array.from(range.getClientRects())) {
+      if (r.height <= 0) continue;
+      if (r.bottom <= limit) cut = r.bottom - top;
+      else break;
+    }
+    setCollapsedH(cut > 0 ? cut : CONTENT_PREVIEW_MAX_H);
   }, [content]);
 
   // Content mới ngắn lại → reset về collapsed.

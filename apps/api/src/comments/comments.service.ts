@@ -185,11 +185,15 @@ export class CommentsService {
       parentForNotify = { id: parent.id, userId: parent.userId };
     }
 
-    const baseData = viewer.userId
+    // BUG-017: authed user vẫn comment ẩn danh được (design "post as anon" toggle) — khi
+    // dto.anonymousName được gửi → tạo comment anon (author=null), KHÔNG attribute cho user
+    // (và không log activity / gửi notification dưới danh nghĩa user → giữ ẩn danh thật).
+    const effectiveUserId = viewer.userId && !dto.anonymousName ? viewer.userId : null;
+    const baseData = effectiveUserId
       ? {
           content: dto.content,
           post: { connect: { id: postId } },
-          user: { connect: { id: viewer.userId } },
+          user: { connect: { id: effectiveUserId } },
         }
       : {
           content: dto.content,
@@ -209,9 +213,9 @@ export class CommentsService {
     this.logger.log(
       `Comment ${comment.id} created on post ${postId} by ${viewer.userId ?? viewer.anonymousId}`,
     );
-    if (viewer.userId) {
+    if (effectiveUserId) {
       await this.activity.log({
-        actorId: viewer.userId,
+        actorId: effectiveUserId,
         type: 'COMMENT_CREATED',
         targetType: 'POST',
         targetId: postId,
@@ -221,10 +225,10 @@ export class CommentsService {
         if (parentForNotify) {
           // FR-14.1: Reply → REPLY notification to parent comment author
           // Skip nếu parent anonymous (userId null) hoặc self-reply (avoid spam)
-          if (parentForNotify.userId && parentForNotify.userId !== viewer.userId) {
+          if (parentForNotify.userId && parentForNotify.userId !== effectiveUserId) {
             await this.notifications.createNotification({
               userId: parentForNotify.userId,
-              actorId: viewer.userId,
+              actorId: effectiveUserId,
               type: NotificationType.REPLY,
               targetType: 'COMMENT',
               targetId: parentForNotify.id,
@@ -237,7 +241,7 @@ export class CommentsService {
           // Top-level comment → COMMENT notification to post author
           await this.notifications.createNotification({
             userId: post.authorId,
-            actorId: viewer.userId,
+            actorId: effectiveUserId,
             type: NotificationType.COMMENT,
             targetType: 'POST',
             targetId: postId,

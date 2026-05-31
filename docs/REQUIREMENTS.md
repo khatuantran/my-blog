@@ -100,7 +100,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   1. Vào `/post/[id]`
   2. Nhập content, (optional) nhập tên hiển thị (`anonymousName`)
   3. Click Send → comment hiển thị (status `PENDING` chờ admin approve hoặc `APPROVED` tự động tuỳ config)
-- **Alternative (comment):** Toggle "post as anon" off → comment với role anon mặc định
+- **Alternative (comment — authed user "post as anon", BUG-017):** Authed user toggle "post as anon" + nhập `anonymousName` → comment **ẩn danh** (author=null + anonymousName), KHÔNG attribute cho user + KHÔNG log activity / gửi notification dưới danh nghĩa user (ẩn danh thật). BE: khi `dto.anonymousName` được gửi (kể cả authed) → anon path. Toggle off → comment dưới tên user.
 - **Postcondition:** Like/Comment được lưu DB; hiển thị real-time qua WebSocket cho mọi viewer
 
 ### UC-05: Auth user save bài

@@ -11,6 +11,22 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-017] [Medium] [BE] Comment "post as anon" không hoạt động cho authed user
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local BE :3001 / Layer: BE
+- **Related task:** T-432 (DONE 2026-05-31)
+- **Related FR/component:** FR-03 / UC-04 comments / `apps/api/src/comments/comments.service.ts` create()
+- **Mô tả:** User đã login bật toggle "post as anon" + nhập tên → comment vẫn hiện tên thật (`@admin`), KHÔNG ẩn danh. Feature "comment as anonymous" cho authed user không hoạt động.
+- **Steps:** Login admin → /post/:id → toggle `[as anon]` + nhập name → Send → comment hiện `@admin` (sai, phải ẩn danh).
+- **Expected:** Comment ẩn danh (author=null + anonymousName), không attribute cho user.
+- **Actual:** Comment attribute cho authed user (`author: {admin}`, anonymousName bị bỏ).
+- **Root cause:** `comments.service.create` dùng `baseData = viewer.userId ? attribute-to-user : anon` — khi authed (`viewer.userId` set) thì LUÔN attribute cho user, BỎ QUA `dto.anonymousName`. Design-file "Post Detail.html" L435-437 có toggle "post as anon" + FE `CommentForm` có `[as anon]` → feature được intend nhưng BE chưa honor (half-built). Confirmed curl: authed + anonymousName → `author: admin`.
+- **Fix:** `const effectiveUserId = viewer.userId && !dto.anonymousName ? viewer.userId : null` — khi authed user gửi `anonymousName` (anon intent) → tạo comment anon (author=null, dùng anonymousId cookie + anonymousName), KHÔNG log activity / gửi notification dưới danh nghĩa user (giữ ẩn danh thật). Confirmed: authed + anonymousName → `author: null`; authed no-name → `author: admin`.
+- **Regression test:** `comments.e2e-spec.ts` (`regression BUG-017: auth user + anonymousName → author=null, userId null`) + `comments.service.spec.ts` (`regression BUG-017: auth + anonymousName → no user.connect`). 23/23 e2e + 23/23 unit pass.
+- **Lesson learned:** half-built feature (design + FE có toggle nhưng BE chưa honor) = bug. Borderline F2 (nới policy authed-anon) nhưng design-file (spec source) có toggle → intend sẵn → F3 complete feature. FR clarification thêm UC-04 (authed user post as anon).
+
 ### [BUG-016] [High] [FE] Comment/reply like count = NaN khi ấn tim
 
 - **Status:** FIXED

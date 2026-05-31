@@ -131,18 +131,28 @@ describe('CommentsService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('auth user: userId set, anonymousName ignored', async () => {
+    it('auth user (no anon): userId set', async () => {
+      prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
+      prisma.comment.create.mockResolvedValue(baseComment);
+      await service.create('p1', { userId: 'u1', anonymousId: '0x1' }, { content: 'hi' });
+      const arg = prisma.comment.create.mock.calls[0][0];
+      expect(arg.data.user).toEqual({ connect: { id: 'u1' } });
+      expect(arg.data.anonymousName).toBeUndefined();
+      expect(arg.data.anonymousId).toBeUndefined();
+    });
+
+    it('regression BUG-017: auth user + anonymousName → anon (no user.connect, anonymousName set)', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
       prisma.comment.create.mockResolvedValue(baseComment);
       await service.create(
         'p1',
         { userId: 'u1', anonymousId: '0x1' },
-        { content: 'hi', anonymousName: 'IgnoreMe' },
+        { content: 'hi', anonymousName: 'GhostUser' },
       );
       const arg = prisma.comment.create.mock.calls[0][0];
-      expect(arg.data.user).toEqual({ connect: { id: 'u1' } });
-      expect(arg.data.anonymousName).toBeUndefined();
-      expect(arg.data.anonymousId).toBeUndefined();
+      expect(arg.data.user).toBeUndefined();
+      expect(arg.data.anonymousName).toBe('GhostUser');
+      expect(arg.data.anonymousId).toBe('0x1');
     });
 
     it('anon: anonymousId + anonymousName set', async () => {

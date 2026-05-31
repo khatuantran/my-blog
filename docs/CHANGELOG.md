@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-017 BE comment "post as anon" không hoạt động cho authed user** (2026-05-31, BE): User login bật "post as anon" → comment vẫn hiện tên thật (`@admin`). `comments.service.create` khi authed → luôn attribute cho user, bỏ qua `dto.anonymousName` (design + FE có toggle nhưng BE chưa honor). Fix: `effectiveUserId = viewer.userId && !dto.anonymousName ? userId : null` → authed + anonymousName = comment anon (author=null + anonymousName, không log activity/notification dưới user). 2 regression (e2e + unit) + 2 stale-assumption update. (Fixes BUG-017, Refs T-432)
+
 - **BUG-016 FE comment/reply like count = NaN (likeCount vs likesCount field mismatch)** (2026-05-31, FE): Ấn ♡ comment/reply → `❤ NaN`. FE hand-typed `Comment.likeCount` nhưng BE/openapi field = `likesCount` → undefined → optimistic `+1` = NaN (replies cùng type → cũng NaN). Fix: rename `likeCount` → `likesCount` (type + CommentItem + ReplyRow + use-create-comment + 4 test mocks) + defensive `?? 0`. Đồng thời bỏ SaveButton khỏi Post Detail action bar (design không có save — user "bỏ icon tag"). Render verify `♡1→❤2` no NaN. (Fixes BUG-016, Refs T-431)
 
 - **BUG-015 FE tag picker "+ add tag" rỗng — `sort=top` invalid → 400** (2026-05-30, FE): Click "+ add tag" ở `/admin/create` → dropdown rỗng + "// all tags added" sai → không add tag được. Root cause: `TagPickerDropdown` gọi `useTags({ sort: 'top' })` nhưng BE chỉ nhận `name|posts|recent` → `GET /tags?sort=top` 400 → `tagsQ.data` undefined → available rỗng. Pre-existing từ T-367 (TagSort type cũng thiếu 'top'). Fix: `sort: 'top'` → `'posts'` + thêm `isError` branch. (Fixes BUG-015, Refs T-428)

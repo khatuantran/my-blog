@@ -125,18 +125,32 @@ describe('Comments (e2e)', () => {
       expect(db!.userId).toBeNull();
     });
 
-    it('201 auth user: author set, anonymousName ignored, userId tracked', async () => {
+    it('201 auth user (no anon): author set, userId tracked', async () => {
       const post = await makePost(prisma, { authorId: adminId });
       const res = await request(app.getHttpServer())
         .post(`/posts/${post.id}/comments`)
         .set('Cookie', userCookies)
-        .send({ content: 'auth comment', anonymousName: 'IgnoreMe' })
+        .send({ content: 'auth comment' })
         .expect(201);
       expect(res.body.data.author?.id).toBe(userId);
       expect(res.body.data.anonymousName).toBeNull();
       const db = await prisma.comment.findUnique({ where: { id: res.body.data.id } });
       expect(db!.userId).toBe(userId);
       expect(db!.anonymousId).toBeNull();
+    });
+
+    it('regression BUG-017: auth user + anonymousName → comment ẩn danh (author=null, userId null)', async () => {
+      // Design "post as anon" toggle: authed user vẫn comment ẩn danh được khi gửi anonymousName.
+      const post = await makePost(prisma, { authorId: adminId });
+      const res = await request(app.getHttpServer())
+        .post(`/posts/${post.id}/comments`)
+        .set('Cookie', userCookies)
+        .send({ content: 'as anon by authed user', anonymousName: 'GhostUser' })
+        .expect(201);
+      expect(res.body.data.author).toBeNull();
+      expect(res.body.data.anonymousName).toBe('GhostUser');
+      const db = await prisma.comment.findUnique({ where: { id: res.body.data.id } });
+      expect(db!.userId).toBeNull();
     });
 
     it('regression FR-03.6: 201 reply with parentId → replyTo denormalized', async () => {

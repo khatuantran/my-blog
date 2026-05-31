@@ -16,10 +16,17 @@ describe('PostPreview', () => {
     expect(screen.getByTestId('collapsible-content')).toBeInTheDocument();
   });
 
-  it('imageCount 3 → 3 ImgSlot grid cells', () => {
+  it('imageCount 5 → collage 4 slot (1 trái + 3 phải) + overlay +1 (design collage)', () => {
     const { container } = render(<PostPreview mood="HAPPY" content="" tags={[]} imageCount={5} />);
-    // 3 visible (capped at min(count,3))
-    expect(container.querySelectorAll('[role="img"]').length).toBe(3);
+    // shown = min(5,4) = 4 ImgSlot; slot phải cuối overlay "+1".
+    expect(container.querySelectorAll('[role="img"]').length).toBe(4);
+    expect(screen.getByTestId('preview-image-more')).toHaveTextContent('+1');
+  });
+
+  it('imageCount 4 → 4 slot, KHÔNG overlay', () => {
+    const { container } = render(<PostPreview mood="HAPPY" content="" tags={[]} imageCount={4} />);
+    expect(container.querySelectorAll('[role="img"]').length).toBe(4);
+    expect(screen.queryByTestId('preview-image-more')).toBeNull();
   });
 
   it('files hiển thị attachments list (badge từ ext + name + size)', () => {

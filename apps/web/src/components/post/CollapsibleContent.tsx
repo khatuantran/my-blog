@@ -32,8 +32,6 @@ export function CollapsibleContent({
       setOverflowing(false);
       return;
     }
-    // scrollHeight = full content height (bỏ qua maxHeight clamp) → so với ngưỡng.
-    setOverflowing(el.scrollHeight > maxHeight + 4);
 
     const top = el.getBoundingClientRect().top;
     const limit = top + maxHeight;
@@ -47,7 +45,11 @@ export function CollapsibleContent({
       if (r.bottom <= limit) cut = r.bottom - top;
       else break;
     }
-    setCollapsedH(cut > 0 ? cut : maxHeight);
+    const collapsed = cut > 0 ? cut : maxHeight;
+    setCollapsedH(collapsed);
+    // Hiện nút show more KHI content thực sự bị cắt (cao hơn chiều cao collapsed hiển thị) —
+    // đồng bộ với clamp, tránh case clamp nhưng thiếu nút (so với maxHeight+tolerance trước đây).
+    setOverflowing(el.scrollHeight > collapsed + 1);
   }, [content, maxHeight]);
 
   // Content ngắn lại (không còn overflow) → reset về collapsed.

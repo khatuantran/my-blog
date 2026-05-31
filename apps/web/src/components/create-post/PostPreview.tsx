@@ -26,7 +26,7 @@ function fileExt(name: string): string {
 // Mini PostCard preview cho CreatePostPage right pane.
 // Match design-file/MyBlog Create Post.html:75-132.
 export function PostPreview({ mood, content, tags, imageCount, files = [] }: Props) {
-  const visibleImages = Math.min(imageCount, 3);
+  const shown = Math.min(imageCount, 4); // grid collage tối đa 4 (design-file PostPreview L224-265)
 
   return (
     <div
@@ -65,15 +65,43 @@ export function PostPreview({ mood, content, tags, imageCount, files = [] }: Pro
         </div>
       )}
 
-      {/* Image grid mini */}
-      {imageCount > 0 && (
-        <div
-          className="mb-3 grid h-20 gap-[3px] overflow-hidden rounded-sm"
-          style={{ gridTemplateColumns: `repeat(${visibleImages},1fr)` }}
-        >
-          {Array.from({ length: visibleImages }).map((_, i) => (
-            <ImgSlot key={i} idx={i} />
-          ))}
+      {/* Image grid collage (design-file PostPreview): 1 full · 2 split · ≥3 trái full + phải
+          stack (tối đa 4) · >4 overlay `+N` trên slot phải cuối. */}
+      {imageCount === 1 && (
+        <div className="mb-3 h-[140px] overflow-hidden rounded-[5px]">
+          <ImgSlot idx={0} />
+        </div>
+      )}
+      {imageCount === 2 && (
+        <div className="mb-3 grid h-[110px] grid-cols-2 gap-[3px] overflow-hidden rounded-[5px]">
+          <div className="overflow-hidden rounded">
+            <ImgSlot idx={0} />
+          </div>
+          <div className="overflow-hidden rounded">
+            <ImgSlot idx={1} />
+          </div>
+        </div>
+      )}
+      {imageCount >= 3 && (
+        <div className="mb-3 grid h-[130px] grid-cols-2 gap-[3px] overflow-hidden rounded-[5px]">
+          <div className="overflow-hidden rounded">
+            <ImgSlot idx={0} />
+          </div>
+          <div className="grid gap-[3px]" style={{ gridTemplateRows: `repeat(${shown - 1},1fr)` }}>
+            {Array.from({ length: shown - 1 }).map((_, i) => (
+              <div key={i} className="relative overflow-hidden rounded">
+                <ImgSlot idx={i + 1} />
+                {imageCount > 4 && i === shown - 2 && (
+                  <div
+                    className="absolute inset-0 flex items-center justify-center bg-[rgba(10,14,26,0.78)] font-mono text-mono-md font-semibold text-tp"
+                    data-testid="preview-image-more"
+                  >
+                    +{imageCount - 4}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

@@ -260,7 +260,7 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 | MetaPanel right                        | DESIGN_SYSTEM > MetaPanel   |
 | ShareButton                            | DESIGN_SYSTEM > ShareButton |
 
-**Comment section (FR-03.7):** comment hiển thị **mới→cũ** (`CommentList newestFirst`); mặc định 5 comment mới nhất + nút `▾ show N more comments` / `▴ collapse comments` (`collapseAfter={5}`); CommentForm đặt **cuối** section (sau list). BE order vẫn `createdAt ASC` (reverse display-only). Feed `CommentsModal` giữ cũ→mới — KHÔNG đổi.
+**Comment section (FR-03.7):** comment + reply hiển thị **mới→cũ** ở **cả Feed CommentsModal lẫn Post Detail** (BE `createdAt DESC` canonical — top-level + reply preview 3 mới nhất). Post Detail thêm collapse: mặc định 5 comment mới nhất + nút `▾ show N more comments` / `▴ collapse comments` (`CommentList collapseAfter={5}`) + CommentForm đặt **cuối** section. Feed CommentsModal hiện hết (scroll riêng).
 
 ### State machine
 

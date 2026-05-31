@@ -30,14 +30,18 @@ export function useCreateComment() {
         liked: false,
         createdAt: new Date().toISOString(),
       };
-      qc.setQueryData<PaginatedComments>(qk.comments.list(postId), (curr) => {
-        if (!curr) {
-          return { items: [optimistic], total: 1, page: 1, limit: 10 };
-        }
-        // Append (cuối list) cho khớp BE order `createdAt: asc` (mới nhất ở CUỐI) — BUG-026:
-        // prepend cũ làm comment mới flash lên đầu rồi nhảy xuống cuối sau refetch.
-        return { ...curr, items: [...curr.items, optimistic], total: curr.total + 1 };
-      });
+      // Reply (parentId) KHÔNG chèn optimistic vào top-level list (tránh phantom comment ở
+      // top-level); reply hiện qua invalidate `comments.replies` ở onSettled.
+      if (!dto.parentId) {
+        qc.setQueryData<PaginatedComments>(qk.comments.list(postId), (curr) => {
+          if (!curr) {
+            return { items: [optimistic], total: 1, page: 1, limit: 10 };
+          }
+          // Prepend (đầu list) cho khớp BE order `createdAt: desc` (mới nhất ở ĐẦU) — FR-03.7.
+          // (Trước đây append cuối cho asc — BUG-026; BE giờ desc nên prepend.)
+          return { ...curr, items: [optimistic, ...curr.items], total: curr.total + 1 };
+        });
+      }
       return { prev, tempId };
     },
 

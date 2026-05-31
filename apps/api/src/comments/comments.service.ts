@@ -17,7 +17,8 @@ const COMMENT_TOPLEVEL_INCLUDE = {
   replies: {
     where: { status: CommentStatus.APPROVED },
     include: COMMENT_INCLUDE,
-    orderBy: { createdAt: 'asc' as const },
+    // FR-03.7: preview = 3 reply MỚI NHẤT (newest-first), load-more lấy cũ hơn.
+    orderBy: { createdAt: 'desc' as const },
     take: 3,
   },
   _count: { select: { likes: true, replies: true } },
@@ -133,7 +134,8 @@ export class CommentsService {
     const items = await this.prisma.comment.findMany({
       where,
       include: COMMENT_TOPLEVEL_INCLUDE,
-      orderBy: { createdAt: 'asc' },
+      // FR-03.7: top-level comment mới→cũ (newest first) cho Feed + Post Detail.
+      orderBy: { createdAt: 'desc' },
     });
     return { items: items.map(toTopLevelCommentResponse) };
   }
@@ -283,7 +285,8 @@ export class CommentsService {
       this.prisma.comment.findMany({
         where,
         include: COMMENT_INCLUDE,
-        orderBy: { createdAt: 'asc' },
+        // FR-03.7: replies load-more cũng mới→cũ (khớp preview).
+        orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
       }),

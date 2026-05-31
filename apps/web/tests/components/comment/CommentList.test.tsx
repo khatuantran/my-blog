@@ -75,17 +75,16 @@ describe('CommentList', () => {
     expect(screen.getByText('second')).toBeInTheDocument();
   });
 
-  it('newestFirst đảo thứ tự BE asc → comment mới (cuối) hiển thị trước — FR-03.7', async () => {
-    // BE trả asc: c1 cũ nhất → c2 mới nhất. newestFirst → c2 render trước c1.
-    mockComments([makeComment('c1', 'older'), makeComment('c2', 'newer')]);
+  it('render comment theo đúng thứ tự BE trả (FR-03.7: BE desc = mới→cũ)', async () => {
+    // BE trả mới→cũ; CommentList render trực tiếp (không reverse). c-new trước c-old.
+    mockComments([makeComment('c2', 'newer'), makeComment('c1', 'older')]);
     render(
       <TestProviders>
-        <CommentList postId="p1" newestFirst />
+        <CommentList postId="p1" />
       </TestProviders>,
     );
     const newer = await screen.findByText('newer');
     const older = screen.getByText('older');
-    // newer đứng TRƯỚC older trong DOM (DOCUMENT_POSITION_FOLLOWING = 4)
     expect(newer.compareDocumentPosition(older) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 

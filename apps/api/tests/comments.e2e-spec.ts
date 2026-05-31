@@ -84,14 +84,15 @@ describe('Comments (e2e)', () => {
       expect(statuses).toEqual(['APPROVED', 'PENDING', 'REJECTED']);
     });
 
-    it('order by createdAt ASC', async () => {
+    it('order by createdAt DESC (mới→cũ — FR-03.7)', async () => {
       const post = await makePost(prisma, { authorId: adminId });
       await makeComment(prisma, { postId: post.id, content: 'first' });
       await new Promise((r) => setTimeout(r, 5));
       await makeComment(prisma, { postId: post.id, content: 'second' });
       const res = await request(app.getHttpServer()).get(`/posts/${post.id}/comments`).expect(200);
-      expect(res.body.data.items[0].content).toBe('first');
-      expect(res.body.data.items[1].content).toBe('second');
+      // Mới nhất ('second') ở đầu, cũ nhất ('first') ở cuối.
+      expect(res.body.data.items[0].content).toBe('second');
+      expect(res.body.data.items[1].content).toBe('first');
     });
   });
 

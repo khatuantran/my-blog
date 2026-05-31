@@ -41,7 +41,7 @@ describe('Comments replies (e2e) — FR-03.6', () => {
         userId: adminId,
         content: 'parent',
       });
-      // Create 3 replies
+      // Create 3 replies (delay để createdAt phân biệt cho assert order)
       for (let i = 0; i < 3; i++) {
         await prisma.comment.create({
           data: {
@@ -52,6 +52,7 @@ describe('Comments replies (e2e) — FR-03.6', () => {
             status: CommentStatus.APPROVED,
           },
         });
+        await new Promise((r) => setTimeout(r, 2));
       }
       const res = await request(app.getHttpServer())
         .get(`/comments/${parent.id}/replies`)
@@ -60,7 +61,8 @@ describe('Comments replies (e2e) — FR-03.6', () => {
       expect(res.body.data.total).toBe(3);
       expect(res.body.data.page).toBe(1);
       expect(res.body.data.limit).toBe(20);
-      expect(res.body.data.items[0].content).toBe('reply 0');
+      // FR-03.7: replies mới→cũ → 'reply 2' (mới nhất) ở đầu.
+      expect(res.body.data.items[0].content).toBe('reply 2');
     });
 
     it('regression FR-03.6: pagination respects limit + page params', async () => {

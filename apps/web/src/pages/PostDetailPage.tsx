@@ -107,8 +107,8 @@ export default function PostDetailPage() {
             <span className="text-tp">// comments</span>
             <span className="text-td">[{post.counts.comments}]</span>
           </div>
-          {/* FR-03.7: comment mới→cũ + collapse 5 đầu; form add comment ở CUỐI section. */}
-          <CommentList postId={post.id} newestFirst collapseAfter={5} />
+          {/* FR-03.7: comment mới→cũ (BE desc) + collapse 5 đầu; form add comment ở CUỐI section. */}
+          <CommentList postId={post.id} collapseAfter={5} />
           <CommentForm postId={post.id} />
         </section>
       </article>

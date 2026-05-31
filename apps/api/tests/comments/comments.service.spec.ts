@@ -68,14 +68,14 @@ describe('CommentsService', () => {
       await expect(service.list('nope', undefined)).rejects.toThrow(NotFoundException);
     });
 
-    it('non-admin: where filter APPROVED + parentId NULL (top-level only) + orderBy createdAt asc', async () => {
+    it('non-admin: where filter APPROVED + parentId NULL (top-level only) + orderBy createdAt desc (FR-03.7)', async () => {
       prisma.post.findUnique.mockResolvedValue({ id: 'p1' });
       prisma.comment.findMany.mockResolvedValue([baseComment]);
       const res = await service.list('p1', Role.USER);
       expect(prisma.comment.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { postId: 'p1', parentId: null, status: CommentStatus.APPROVED },
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: 'desc' },
         }),
       );
       expect(res.items[0].author?.username).toBe('kha');

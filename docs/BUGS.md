@@ -104,8 +104,9 @@ _(Trống)_
 - **Actual:** Optimistic prepend → hiện ở đầu.
 - **Root cause:** `useCreateComment.onMutate` optimistic dùng `items: [optimistic, ...curr.items]` (prepend) trong khi BE `comments.service.list` sort `createdAt: asc`.
 - **Fix:** Đổi optimistic thành append `items: [...curr.items, optimistic]` → khớp server order (mới ở cuối), không còn flash đầu→cuối.
-- **Regression test:** `tests/hooks/use-create-comment.test.tsx` (`regression BUG-026: optimistic append cuối list`).
+- **Regression test:** `tests/hooks/use-create-comment.test.tsx`.
 - **Lesson learned:** optimistic insert phải khớp order của list query (BE `asc` → append cuối; nếu `desc` → prepend đầu), tránh item nhảy chỗ sau refetch.
+- **⚠️ SUPERSEDED 2026-05-31 (T-460/FR-03.7):** Comment order đổi sang BE `createdAt DESC` (mới→cũ, user request feed+reply newest-first) → optimistic giờ **prepend đầu** (khớp desc). Lesson vẫn đúng (insert khớp server order); chỉ đảo chiều theo order mới. Test đổi tên `FR-03.7: optimistic prepend đầu`.
 
 ### [BUG-025] [Low] [FE] Reply form hiện ở đầu danh sách replies thay vì cuối
 

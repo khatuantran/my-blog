@@ -25,7 +25,7 @@ function makeComment(id: string, content: string): Comment {
 }
 
 describe('useCreateComment', () => {
-  it('regression BUG-026: optimistic comment append CUỐI list (khớp BE order asc, không prepend đầu)', async () => {
+  it('FR-03.7: optimistic comment prepend ĐẦU list (khớp BE order desc — mới nhất ở đầu)', async () => {
     // gcTime mặc định (không 0) để query seeded không bị GC khi không có observer.
     const qc = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -52,12 +52,12 @@ describe('useCreateComment', () => {
       result.current.mutate({ postId: 'p1', dto: { content: 'third' } });
     });
 
-    // Optimistic: comment mới nằm CUỐI (index cuối), không phải đầu.
+    // Optimistic: comment mới nằm ĐẦU (index 0), khớp BE desc.
     await waitFor(() => {
       const data = qc.getQueryData<PaginatedComments>(qk.comments.list('p1'));
       expect(data?.items.length).toBe(3);
-      expect(data?.items[data.items.length - 1].content).toBe('third');
-      expect(data?.items[0].content).toBe('first');
+      expect(data?.items[0].content).toBe('third');
+      expect(data?.items[data.items.length - 1].content).toBe('second');
     });
   });
 });

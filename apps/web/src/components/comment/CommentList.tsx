@@ -5,13 +5,11 @@ import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 
 type Props = {
   postId: string;
-  /** Hiển thị mới→cũ (reverse BE `createdAt asc` order) — dùng ở Post Detail (FR-03.7). */
-  newestFirst?: boolean;
   /** Chỉ hiện N comment đầu + nút show more / collapse. 0 = hiện hết (default). */
   collapseAfter?: number;
 };
 
-export function CommentList({ postId, newestFirst = false, collapseAfter = 0 }: Props) {
+export function CommentList({ postId, collapseAfter = 0 }: Props) {
   const { data, isLoading, isError } = usePostComments(postId);
   const [expanded, setExpanded] = useState(false);
 
@@ -37,8 +35,8 @@ export function CommentList({ postId, newestFirst = false, collapseAfter = 0 }: 
     );
   }
 
-  // FR-03.7: Post Detail hiển thị mới→cũ (reverse) + collapse N comment đầu.
-  const ordered = newestFirst ? [...items].reverse() : items;
+  // FR-03.7: BE trả mới→cũ (createdAt desc) — render trực tiếp. Post Detail collapse N đầu.
+  const ordered = items;
   const collapsible = collapseAfter > 0 && ordered.length > collapseAfter;
   const displayed = collapsible && !expanded ? ordered.slice(0, collapseAfter) : ordered;
   const hiddenCount = ordered.length - collapseAfter;

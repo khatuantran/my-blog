@@ -32,24 +32,27 @@ export function CollapsibleContent({
       setOverflowing(false);
       return;
     }
-
+    // Overflow = nội dung CAO HƠN ngưỡng maxHeight (scrollHeight gồm cả margin cuối). Chỉ khi
+    // đó mới hiện nút + clamp — tránh false-positive với bài ngắn (collapsedH theo line-box
+    // không gồm margin nên so collapsedH sẽ sai). +1 cho rounding.
+    const over = el.scrollHeight > maxHeight + 1;
+    setOverflowing(over);
+    if (!over) {
+      setCollapsedH(maxHeight);
+      return;
+    }
+    // Khi overflow: cắt ĐÚNG ranh giới dòng cuối còn ≤ maxHeight (đo line box qua getClientRects).
     const top = el.getBoundingClientRect().top;
     const limit = top + maxHeight;
     const range = document.createRange();
     range.selectNodeContents(el);
-    // getClientRects trả 1 rect / line box (kể cả phần bị overflow clip) → tìm rect cuối có
-    // bottom ≤ limit, cắt ngay tại đó. Bỏ rect rỗng (height 0).
     let cut = 0;
     for (const r of Array.from(range.getClientRects())) {
       if (r.height <= 0) continue;
       if (r.bottom <= limit) cut = r.bottom - top;
       else break;
     }
-    const collapsed = cut > 0 ? cut : maxHeight;
-    setCollapsedH(collapsed);
-    // Hiện nút show more KHI content thực sự bị cắt (cao hơn chiều cao collapsed hiển thị) —
-    // đồng bộ với clamp, tránh case clamp nhưng thiếu nút (so với maxHeight+tolerance trước đây).
-    setOverflowing(el.scrollHeight > collapsed + 1);
+    setCollapsedH(cut > 0 ? cut : maxHeight);
   }, [content, maxHeight]);
 
   // Content ngắn lại (không còn overflow) → reset về collapsed.
@@ -62,7 +65,7 @@ export function CollapsibleContent({
       <div
         ref={ref}
         className="overflow-hidden"
-        style={expanded ? undefined : { maxHeight: collapsedH }}
+        style={overflowing && !expanded ? { maxHeight: collapsedH } : undefined}
         data-testid="collapsible-content"
       >
         <PostContent content={content} variant={variant} />

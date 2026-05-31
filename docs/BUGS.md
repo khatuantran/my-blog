@@ -11,6 +11,19 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-030] [Low] [FE] Bài post ngắn vẫn hiện nút "show more" (false-positive collapse)
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-05-31
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-451 (DONE 2026-05-31)
+- **Related FR/component:** FR-04 / `CollapsibleContent.tsx`
+- **Mô tả:** Post nội dung ngắn (1-2 dòng, không có gì để collapse) vẫn hiện nút `▾ show more` ở feed.
+- **Root cause:** Fix trước (T-439 follow-up) đổi `overflowing = scrollHeight > collapsedH`; nhưng `collapsedH` đo theo **line box** (getClientRects) KHÔNG gồm margin cuối, còn `scrollHeight` gồm margin → bài ngắn vẫn `scrollHeight > collapsedH` → false-positive.
+- **Fix:** `overflowing = scrollHeight > maxHeight + 1` (so với ngưỡng, không so collapsedH). Chỉ clamp (`maxHeight: collapsedH`) khi `overflowing && !expanded` → tránh cả false-positive lẫn case cắt-mà-không-có-nút. collapsedH (line-snap clean cut) chỉ tính khi thật sự overflow.
+- **Regression test:** `CollapsibleContent.test` (no-overflow → no toggle; overflow → toggle + clamp).
+- **Lesson learned:** detect overflow phải so `scrollHeight` với **maxHeight** (cùng đơn vị, gồm margin), KHÔNG so với chiều cao line-box (lệch margin).
+
 ### [BUG-028] [High] [BE] Không publish được post có ảnh/file upload local (`@IsUrl` reject localhost)
 
 - **Status:** FIXED

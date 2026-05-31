@@ -57,8 +57,12 @@ export default function PostDetailPage() {
 
         <PostHeader post={post} avatarSize="lg" />
         <PostContent content={post.content} variant="detail" />
-        {/* T-450: dùng ImageGrid collage (như feed/preview) + click mở lightbox, thay carousel. */}
-        <ImageGrid images={post.images} onImageClick={(idx) => setLightboxIdx(idx)} />
+        {/* T-450: ImageGrid collage + click mở lightbox. variant detail = ảnh to (T-451). */}
+        <ImageGrid
+          images={post.images}
+          variant="detail"
+          onImageClick={(idx) => setLightboxIdx(idx)}
+        />
         <FileAttachments files={post.files} />
 
         {post.tags.length > 0 && (

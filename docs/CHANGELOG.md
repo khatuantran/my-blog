@@ -16,9 +16,13 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **T-451 FE phóng to ảnh post (ImageGrid variant feed/detail)** (2026-05-31, FE): Ảnh post to hơn cho social network UX — `ImageGrid` thêm `variant`: feed (single 460/2-col 340/3+ 400px) · detail (single 640/2-col 460/3+ 520px), override design-file gốc 200/160/180. Post Detail dùng `detail`. (Refs T-451)
+
 - **T-450 FE Post Detail ảnh dùng ImageGrid collage + lightbox (thay ImageCarousel)** (2026-05-31, FE): Post Detail hiển thị ảnh dạng collage giống Feed/preview (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 `+N`); click ảnh mở `ImageLightbox` (popup) như Feed. `ImageCarousel` còn lại (chưa xóa). (Refs T-450)
 
 ### Fixed
+
+- **BUG-030 FE bài post ngắn vẫn hiện "show more" (F3)** (2026-05-31, FE): `CollapsibleContent` đổi `overflowing` so với `collapsedH` (line-box thiếu margin) → false-positive với bài ngắn. Sửa: so `scrollHeight > maxHeight + 1` + chỉ clamp khi overflow thật. (Fixes BUG-030, Refs T-451)
 
 - **Preview polish (T-439/T-449 follow-up)** (2026-05-31, FE): (1) nút collapse/expand hiện đúng khi content thực sự bị clamp — `CollapsibleContent` đổi điều kiện `overflowing` sang `scrollHeight > collapsedH` (đồng bộ clamp, hết case clamp-nhưng-thiếu-nút); (2) preview image grid theo collage design-file (1 full / 2 split / ≥3 trái + phải stack tối đa 4 / >4 overlay `+N`) thay vì cap 3 — khớp `ImageGrid` feed/detail.
 

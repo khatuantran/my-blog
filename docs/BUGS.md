@@ -18,11 +18,11 @@ _(Trống)_
 - **Environment:** local FE :5173 / Layer: FE
 - **Related task:** T-466 (DONE 2026-05-31)
 - **Related FR/component:** FR-04 / `PostMiniCard.tsx`
-- **Mô tả:** Trang profile (Posts tab) — card bài viết hiển thị nguyên chuỗi HTML thô (`<p>test local url</p>`, `<code>…</code><span style=…>`) thay vì nội dung đọc được.
+- **Mô tả:** Trang profile (Posts tab) **+ trang Search** — card bài viết hiển thị nguyên chuỗi HTML thô (`<p>test local url</p>`, `<code>…</code><span style=…>`) thay vì nội dung đọc được.
 - **Steps:** Vào `/profile/:username` → tab Posts → thấy `<p>...</p>` literal trong card.
 - **Root cause:** Post mới là rich-text HTML (TipTap, từ T-368). `PostMiniCard` render `{post.content}` dạng **text node** (line-clamp excerpt) → React hiển thị raw markup. Feed/Detail dùng `PostContent` (dangerouslySetInnerHTML) nên không bị; mini card thì chủ ý render text nên lộ tag.
-- **Fix:** Thêm util `lib/strip-html.ts > stripHtml()` (bỏ tag + script/style + decode entity cơ bản + collapse whitespace) → `PostMiniCard` render `{stripHtml(post.content)}`. Markdown legacy (không tag) không ảnh hưởng.
-- **Regression test:** `strip-html.test.ts` (4 case) + `PostMiniCard.test` (`regression BUG-033: HTML content render dạng text`).
+- **Fix:** Thêm util `lib/strip-html.ts > stripHtml()` (bỏ tag + script/style + decode entity cơ bản + collapse whitespace) → `PostMiniCard` render `{stripHtml(post.content)}`; `ResultCard` (search) strip trước slice(200)/highlight. Markdown legacy (không tag) không ảnh hưởng.
+- **Regression test:** `strip-html.test.ts` (4 case) + `PostMiniCard.test` + `ResultCard.test` (`regression BUG-033: HTML content render dạng text`).
 - **Lesson learned:** content giờ là HTML — mọi nơi render dạng TEXT (excerpt/card/snippet) phải `stripHtml` trước; chỉ `PostContent` mới dangerouslySetInnerHTML.
 
 ### [BUG-032] [Low] [FE] PostActionMenu hiện "Save post" cho anonymous (vi phạm FR-03.3)

@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import type { Post } from '@/types/api';
 import { MOOD_CFG } from '@/lib/mood-config';
 import { formatTimestamp } from '@/lib/format-date';
+import { stripHtml } from '@/lib/strip-html';
 
 type Props = {
   post: Post;
@@ -26,7 +27,9 @@ function highlight(text: string, q: string): React.ReactNode[] {
 }
 
 export function ResultCard({ post, query, index = 0 }: Props) {
-  const preview = post.content.slice(0, 200);
+  // BUG-033: content là rich-text HTML → strip tag trước khi preview/highlight (render dạng text).
+  const plain = stripHtml(post.content);
+  const preview = plain.slice(0, 200);
   const idShort = post.id.slice(0, 6);
   const isAdmin = post.author.role === 'ADMIN';
   const mood = MOOD_CFG[post.mood];
@@ -105,7 +108,7 @@ export function ResultCard({ post, query, index = 0 }: Props) {
       {/* Content preview 15px line-clamp 2 */}
       <p className="mb-2.5 line-clamp-2 whitespace-pre-wrap text-body leading-[1.6] text-tp">
         {highlight(preview, query ?? '')}
-        {post.content.length > 200 && '…'}
+        {plain.length > 200 && '…'}
       </p>
 
       {/* Bottom row: tags + files badge + engagement stats (right) */}

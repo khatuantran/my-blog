@@ -23,6 +23,12 @@ describe('ResultCard (T-400 enriched design-file 1:1)', () => {
     expect(screen.getByTestId('result-card-post-id')).toHaveTextContent('#abc123');
   });
 
+  it('regression BUG-033: rich-text HTML content → strip tag (không hiện raw <p>)', () => {
+    renderCard(makePost({ content: '<p>test local url</p><p><strong>bold</strong> two</p>' }));
+    expect(screen.getByText(/test local url bold two/i)).toBeInTheDocument();
+    expect(screen.queryByText(/<p>/)).toBeNull();
+  });
+
   it('T-400.2 ADMIN badge: renders when author.role=ADMIN, hidden otherwise', () => {
     const { unmount } = renderCard(
       makePost({ author: { id: 'u', username: 'admin', role: 'ADMIN', avatarUrl: null } }),
@@ -50,8 +56,8 @@ describe('ResultCard (T-400 enriched design-file 1:1)', () => {
     const { unmount } = renderCard(
       makePost({
         files: [
-          { id: 'f1', name: 'a.pdf', type: 'pdf', size: 100, url: '/a', publicId: 'p1' },
-          { id: 'f2', name: 'b.docx', type: 'docx', size: 200, url: '/b', publicId: 'p2' },
+          { id: 'f1', name: 'a.pdf', type: 'PDF', size: 100, url: '/a', publicId: 'p1' },
+          { id: 'f2', name: 'b.docx', type: 'DOCX', size: 200, url: '/b', publicId: 'p2' },
         ],
       }),
     );

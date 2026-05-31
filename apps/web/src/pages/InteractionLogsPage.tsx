@@ -173,7 +173,7 @@ export default function InteractionLogsPage() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-b2" data-testid="logs-table">
-          <div className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] gap-2 border-b border-b2 bg-bg px-3 py-2 font-mono text-mono-xs uppercase tracking-wide text-td">
+          <div className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] gap-2 border-b border-b2 bg-bg px-3 py-2 font-mono text-mono-xs font-semibold uppercase tracking-wide text-tm">
             <span>When</span>
             <span>Action</span>
             <span>Actor</span>
@@ -184,10 +184,10 @@ export default function InteractionLogsPage() {
             <div
               key={log.id}
               data-testid={`log-row-${log.id}`}
-              className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] items-center gap-2 border-b border-b1 px-3 py-2 last:border-b-0 hover:bg-elev/50"
+              className="grid grid-cols-[120px_120px_1fr_1.4fr_1fr] items-center gap-2 border-b border-b1 px-3 py-2 font-medium last:border-b-0 hover:bg-elev/50"
             >
               <span
-                className="font-mono text-mono-sm text-tm"
+                className="font-mono text-mono-sm text-ts"
                 title={formatTimestamp(log.createdAt)}
               >
                 {formatRelative(log.createdAt)}
@@ -196,14 +196,14 @@ export default function InteractionLogsPage() {
                 <ActionBadge action={log.action} />
               </span>
               <ActorCell log={log} />
-              <span className="min-w-0 font-mono text-mono-sm text-ts">
-                <span className="text-tp">{log.ip ?? '—'}</span>
-                <span className="block truncate text-mono-xs text-td">
+              <span className="min-w-0 font-mono text-mono-sm text-tp">
+                <span className="font-semibold text-tp">{log.ip ?? '—'}</span>
+                <span className="block truncate text-mono-xs text-tm">
                   {[log.browser, log.os].filter(Boolean).join(' · ') || log.userAgent || '—'}
                   {log.fingerprint ? ` · #${log.fingerprint}` : ''}
                 </span>
               </span>
-              <span className="min-w-0 truncate font-mono text-mono-sm text-tm">
+              <span className="min-w-0 truncate font-mono text-mono-sm text-ts">
                 {log.postId ? (
                   <Link to={`/post/${log.postId}`} className="text-cyan hover:underline">
                     {log.targetType.toLowerCase()} → {log.targetId.slice(-6)}

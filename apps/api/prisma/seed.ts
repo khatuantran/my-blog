@@ -10,11 +10,14 @@ const prisma = new PrismaClient();
 
 const BCRYPT_COST = 10;
 
-// Marker vô hình (HTML comment) ở đầu content → nhận diện bài intro để upsert idempotent.
-const INTRO_MARKER = '<!--seed:intro-v1-->';
+// Nhận diện bài intro qua chuỗi tiêu đề (idempotent). KHÔNG đặt HTML comment ở ĐẦU
+// content: PostContent dùng heuristic /^\s*<(p|h1..)/ để quyết định render HTML —
+// comment ở đầu khiến content bị coi là plaintext → render ra raw HTML.
+// => content PHẢI bắt đầu bằng tag thật (<h1>).
+const INTRO_TITLE = '<h1>Chào mừng đến kha.blog';
 
 // Bài intro chi tiết — content là HTML (render qua PostContent/dangerouslySetInnerHTML).
-const INTRO_CONTENT = `${INTRO_MARKER}<h1>Chào mừng đến kha.blog 👋</h1>
+const INTRO_CONTENT = `<h1>Chào mừng đến kha.blog 👋</h1>
 <p>Đây là <strong>blog cá nhân</strong> mình tự tay code từ đầu — giao diện kiểu <mark>terminal / cyberpunk</mark>, nơi mình chia sẻ chuyện code, cuộc sống và mấy thứ linh tinh. Cảm ơn bạn đã ghé qua! Bài này giải thích <strong>tất cả những gì bạn có thể làm ở đây</strong> để tương tác với mình.</p>
 
 <h2>📖 Đọc bài viết</h2>
@@ -145,7 +148,7 @@ async function main() {
 
   // ── Bài INTRO (luôn đảm bảo tồn tại, idempotent qua marker) ──
   const existingIntro = await prisma.post.findFirst({
-    where: { authorId: admin.id, content: { startsWith: INTRO_MARKER } },
+    where: { authorId: admin.id, content: { contains: INTRO_TITLE } },
   });
 
   if (existingIntro) {

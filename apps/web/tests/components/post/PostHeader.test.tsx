@@ -6,18 +6,22 @@ import { TestProviders } from '../../_helpers/test-providers';
 import { makePost } from '../../_helpers/post-factory';
 
 describe('PostHeader (T-453)', () => {
-  it('tên author là Link → /profile/:username', () => {
+  it('tên author là Link → /profile/:username; chưa có name → username làm tên + ~/handle row', () => {
     render(
       <TestProviders>
         <PostHeader post={makePost({ id: 'p1' })} />
       </TestProviders>,
     );
     const link = screen.getByTestId('post-author-link');
-    expect(link).toHaveTextContent('~/admin');
+    // Author chưa đặt name → username làm tên (line 1, KHÔNG ~/ prefix)
+    expect(link).toHaveTextContent('admin');
     expect(link).toHaveAttribute('href', '/profile/admin');
+    // Handle row riêng (cyan) + role badge — mirror profile hero
+    expect(screen.getByText('~/admin')).toHaveClass('text-cyan');
+    expect(screen.getByText('[ ADMIN ]')).toBeInTheDocument();
   });
 
-  it('hiển thị CẢ full name + ~/username (highlight) khi author có name — FR-11.8', () => {
+  it('hiển thị name (tên) + ~/username + [ ROLE ] giống profile hero — FR-11.8', () => {
     render(
       <TestProviders>
         <PostHeader
@@ -34,10 +38,12 @@ describe('PostHeader (T-453)', () => {
       </TestProviders>,
     );
     const link = screen.getByTestId('post-author-link');
+    // Line 1: tên = display name (KHÔNG kèm handle), link → profile
     expect(link).toHaveTextContent('Trần Tuấn Kha');
-    expect(link).toHaveTextContent('~/admin');
+    expect(link).not.toHaveTextContent('~/admin');
     expect(link).toHaveAttribute('href', '/profile/admin');
-    // ~/username được highlight (cyan) khi đã có name
+    // Line 1: role badge; Line 2: ~/handle cyan
+    expect(screen.getByText('[ ADMIN ]')).toBeInTheDocument();
     expect(screen.getByText('~/admin')).toHaveClass('text-cyan');
   });
 

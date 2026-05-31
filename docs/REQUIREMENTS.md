@@ -563,13 +563,14 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - `UserResponseDto` (GET `/users/by-username/:username` + `/users/:id`) trả thêm 5 fields.
   - `AuthUserDto` (GET `/auth/me` + login/register/refresh) expand 4 fields đã có trong DB (`avatarPublicId, title, bio, skills`) + 5 contact fields mới — để FE `useAuth()` consumer (vd ProfileAvatar hero, AvatarMenu) có đủ data 1 query thay phải fetch `/users/by-username` riêng cho viewer-self case.
 - **Migration**: `add_user_contact_fields` — 5 ADD COLUMN nullable, backfill N/A (existing rows = NULL). Non-breaking.
-- **Display name ở feed/detail/comment (amended 2026-05-31):** Ngoài profile hero, `name` còn hiển thị làm tên tác giả ở Feed/Post Detail + comment:
-  - **PostHeader (Feed + Detail):** hiển thị **CẢ** `name` (đậm, blu, dòng trên) **+** `~/username` (highlight cyan, dòng dưới — xếp **dọc**). Nếu chưa đặt `name` → chỉ `~/username` (blu, làm tên chính). `[ ADMIN ]` badge + status dot + timestamp nằm **horizontal** ở meta row dưới. Click khối tên → `/profile/:username`.
+- **Display name ở feed/detail/comment (amended 2026-05-31):** Ngoài profile hero, `name` còn hiển thị làm tên tác giả ở Feed/Post Detail + comment. **PostHeader mirror layout profile hero** (cùng cấu trúc 2 row name/handle):
+  - **PostHeader (Feed + Detail) — line 1 (name row):** `name || username` (đậm, `text-tp`) **+** `[ ROLE ]` badge inline horizontal (role-colored: ADMIN ora / BANNED red / USER border-b2). Tên là Link → `/profile/:username`.
+  - **PostHeader — line 2 (handle row):** `~/username` (cyan) · status dot (●) · relative time · timestamp.
   - **Comment + Reply:** hiển thị `name` (fallback `@username` nếu chưa đặt) qua helper `authorLabel(author, '@')`.
   - **BE:** post author select + comment author select trả thêm `name` (PostAuthorDto/CommentAuthorDto `name: string | null`).
 - **Acceptance**:
   - Given login admin → GET `/auth/me` trả full 14 field profile (id, username, email, role, avatarUrl, avatarPublicId, title, bio, skills, name, location, bornYear, github, website, createdAt)
-  - Given post của author có `name="Trần Tuấn Kha"` → Feed PostHeader hiển thị "Trần Tuấn Kha" (đậm) + "~/admin" (cyan) xếp dọc; author chưa có name → chỉ "~/admin"
+  - Given post của author có `name="Trần Tuấn Kha"` role ADMIN → Feed PostHeader line 1 = "Trần Tuấn Kha" (đậm) + "[ ADMIN ]" badge; line 2 = "~/admin" (cyan). Author chưa có name → line 1 tên = "admin" (username)
   - Given GET /posts hoặc GET /posts/:id/comments → mỗi author object chứa field `name`
   - Given EditProfileDrawer submit PATCH `/users/:selfId` với contact section (location: "HCM", bornYear: 1995, github: "khatran", website: `https://kha.dev`) → 200 OK + DB updated
   - Given bornYear input "abc" → 400 IsInt validation fail

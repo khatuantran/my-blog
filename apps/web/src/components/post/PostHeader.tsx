@@ -21,7 +21,7 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
   const authorName = author.name?.trim();
   const [showAvatar, setShowAvatar] = useState(false);
   return (
-    <div className="mb-3 flex items-start gap-2.5">
+    <div className="mb-3 flex items-center gap-2.5">
       <button
         type="button"
         onClick={() => setShowAvatar(true)}
@@ -71,7 +71,9 @@ export function PostHeader({ post, avatarSize = 'md' }: Props) {
           <span className="text-tm">{ts}</span>
         </div>
       </div>
-      <MoodBadge mood={post.mood} />
+      <div className="self-start">
+        <MoodBadge mood={post.mood} />
+      </div>
     </div>
   );
 }

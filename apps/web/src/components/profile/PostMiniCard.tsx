@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { MoodBadge } from '@/components/shared/MoodBadge';
 import { useUpsertReaction } from '@/hooks/mutations/use-reaction';
 import { formatRelative } from '@/lib/format-date';
+import { stripHtml } from '@/lib/strip-html';
 import type { Post } from '@/types/api';
 
 type Props = {
@@ -49,9 +50,10 @@ export function PostMiniCard({ post }: Props) {
         </span>
       </div>
 
-      {/* Content — 15px per design L310, 3-line clamp */}
+      {/* Content — 15px per design L310, 3-line clamp. Strip HTML (BUG-033: post mới
+          là rich-text HTML; card render dạng text nên hiện raw `<p>...`). */}
       <p className="mb-2.5 line-clamp-3 font-mono text-[15px] leading-relaxed text-tp">
-        {post.content}
+        {stripHtml(post.content)}
       </p>
 
       {/* Image thumbs — 40×30 rounded 4px per design L320 */}

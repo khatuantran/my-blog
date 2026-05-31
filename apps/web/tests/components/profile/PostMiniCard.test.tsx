@@ -81,6 +81,19 @@ describe('PostMiniCard', () => {
     await waitFor(() => expect(mutationCalled).toBe(true));
   });
 
+  it('regression BUG-033: rich-text HTML content render dạng text (strip tag, không hiện raw <p>)', () => {
+    wrap(
+      <PostMiniCard
+        post={makePost({
+          content: '<p>test local url</p><p>second <strong>bold</strong> line</p>',
+        })}
+      />,
+    );
+    // Hiển thị text đã strip tag, KHÔNG còn `<p>` raw
+    expect(screen.getByText(/test local url second bold line/i)).toBeInTheDocument();
+    expect(screen.queryByText(/<p>/)).toBeNull();
+  });
+
   it('regression BUG-008: tags render as pill chip (bg + border color) and read link is bordered cyan pill', () => {
     wrap(
       <PostMiniCard

@@ -42,6 +42,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-033 FE Profile PostMiniCard hiện raw HTML string (F3)** (2026-05-31, FE): Card bài ở profile render `{post.content}` dạng text → post rich-text HTML (TipTap) hiện raw `<p>...`. Thêm `lib/strip-html.ts > stripHtml()` (bỏ tag/script/style + decode entity + collapse whitespace) → PostMiniCard render `{stripHtml(post.content)}`. strip-html.test 4 + PostMiniCard regression. (Fixes BUG-033, Refs T-466)
+
 - **BUG-032 FE PostActionMenu hiện Save cho anonymous + icon lệch (F3)** (2026-05-31, FE): Menu `⋯` hiện `🔖 Save post` cả khi chưa login (vi phạm FR-03.3 — save chỉ auth user) → wrap `{user && ...}` ẩn với anon. Đồng thời icon các action không thẳng cột / không căn giữa dòng (width ↗/🔗/🔖 khác nhau) → icon span `inline-flex w-5 justify-center leading-none` (fixed-width center → label thẳng hàng). PostActionMenu test: thêm case authed (save hiện) + anonymous (save ẩn). (Fixes BUG-032, Refs T-459)
 
 - **BUG-031 FE ImageLightbox click vùng đen không đóng (F3)** (2026-05-31, FE): Image area div `stopPropagation` toàn bộ → click backdrop quanh ảnh không bubble lên root onClose. Sửa: `stopPropagation` + `if (target===currentTarget) onClose()` → click vùng đen đóng, click ảnh/nút không. 1 regression test. (Fixes BUG-031, Refs T-452)

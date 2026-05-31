@@ -380,7 +380,8 @@ Triggered by ⌘K / Ctrl+K on bất kỳ page (FR-08).
 ### Interactions
 
 - **Mood picker**: click toggle, only 1 selected at a time, current mood highlighted với border cyan + glow
-- **Markdown editor**: keystrokes update content state; live preview updates in real-time (right pane); toolbar buttons insert markdown syntax at cursor
+- **Rich-text editor (TipTap, ADR-009)**: keystrokes update content state (HTML); live preview updates real-time (right pane); toolbar buttons apply TipTap marks/nodes (bold/italic/underline/strike/heading/list/link/color/highlight)
+- **Live preview collapse/expand (T-439)**: content render full HTML; khi cao quá ~320px → clamp `overflow-hidden` + nút `▾ show more` / `▴ collapse` (detect overflow qua `scrollHeight`); collapsed height snap bội số line-height → cắt sạch ranh giới dòng (không lú nửa dòng); collapsed mặc định, tự reset khi content ngắn lại
 - **Emoji picker (FR-02.7)**: click 😀 toolbar button → popover mở (320px wide) với 4 tab (faces/hands/dev/nature × 16 emoji); click emoji insert vào textarea tại cursor (reuse `insert-at-cursor.ts`); Esc hoặc outside-click close
 - **Image upload**: click upload zone → file picker; drag-drop area highlight on hover; per-file thumb với × remove; max 10 → ẩn upload zone
 - **File upload**: same as image; max 20

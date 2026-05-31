@@ -4,6 +4,10 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ## [Unreleased]
 
+### Added
+
+- **T-439 FE Create Post live preview collapse/expand** (2026-05-31, FE): Content preview render full HTML; khi cao quá ~320px → clamp + nút `▾ show more` / `▴ collapse` ẩn/hiện full content (detect overflow qua `scrollHeight`); collapsed height snap theo bội số line-height → cắt sạch ranh giới dòng. 2 test. (Refs T-439)
+
 ### Fixed
 
 - **BUG-022 FE Create Post — text.color không dùng chung được với bold (F3)** (2026-05-31, FE): Tô màu chữ cho text bold → mất màu. Root cause: TipTap nest `<span style=color><strong>` (span màu = cha); prose CSS T-437 set `color: var(--tp)` trên `strong` (con) → đè màu kế thừa. Fix: bỏ `color` khỏi rule `strong, b` (chỉ giữ `font-weight:700`) → bold kế thừa màu span cha. 1 regression test (color span + bold coexist). (Fixes BUG-022, Refs T-438)

@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { PostPreview } from '@/components/create-post/PostPreview';
 
 describe('PostPreview', () => {
@@ -28,6 +29,32 @@ describe('PostPreview', () => {
     const clamp = screen.getByTestId('preview-content-clamp');
     expect(clamp).toHaveClass('overflow-hidden');
     expect(container).toBeTruthy();
+  });
+
+  it('content ngắn (không overflow) → KHÔNG hiện toggle collapse/expand', () => {
+    render(<PostPreview mood="HAPPY" content="<p>short</p>" tags={[]} imageCount={0} />);
+    // jsdom scrollHeight = 0 → not overflowing → no toggle.
+    expect(screen.queryByTestId('preview-expand-toggle')).toBeNull();
+  });
+
+  it('content dài (overflow) → hiện nút show more/collapse + toggle clamp maxHeight', async () => {
+    const user = userEvent.setup();
+    const spy = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(999);
+    try {
+      render(
+        <PostPreview mood="HAPPY" content={`<p>${'x'.repeat(50)}</p>`} tags={[]} imageCount={0} />,
+      );
+      const toggle = await screen.findByTestId('preview-expand-toggle');
+      expect(toggle).toHaveTextContent('show more');
+      const clamp = screen.getByTestId('preview-content-clamp');
+      expect(clamp).toHaveStyle({ maxHeight: '320px' });
+      // expand → bỏ maxHeight, đổi label collapse
+      await user.click(toggle);
+      expect(toggle).toHaveTextContent('collapse');
+      expect(clamp).not.toHaveStyle({ maxHeight: '320px' });
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   it('imageCount 3 → 3 ImgSlot grid cells', () => {

@@ -16,6 +16,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const ManagePostsPage = lazy(() => import('./pages/ManagePostsPage'));
+const InteractionLogsPage = lazy(() => import('./pages/InteractionLogsPage'));
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -58,6 +59,14 @@ export const routes: RouteObject[] = [
         element: (
           <ProtectedRoute requireRole="ADMIN">
             <ManagePostsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/logs',
+        element: (
+          <ProtectedRoute requireRole="ADMIN">
+            <InteractionLogsPage />
           </ProtectedRoute>
         ),
       },

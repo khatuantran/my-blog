@@ -1062,6 +1062,24 @@ Empty states (2 variants):
 
 ---
 
+## Screen 13: Trace Logs (`/admin/logs`) — FR-18
+
+**Linked UCs:** UC-24 (admin truy vết interaction)
+**User roles:** ADMIN (gate `<ProtectedRoute requireRole="ADMIN">`)
+
+Admin xem log interaction của actor **non-admin** (anon + USER) để truy vết spam/abuse.
+
+- **Header:** `~/admin/logs` cyan + `// interaction trace · non-admin actors` + tổng số log (right).
+- **Toolbar (2 hàng filter):**
+  - `action` chips: All / Comment / Reply / Cmt like / Reaction (màu theo action: COMMENT cyan, REPLY blu, COMMENT_LIKE mag, POST_REACTION yel).
+  - `actor` chips: All / Anonymous / User + search input (ip / fingerprint / anon id, debounce 300ms).
+- **Table (5 cột):** `When` (relative + title full ts) · `Action` (badge màu) · `Actor` (`~/username [ROLE]` link profile, hoặc `anon · {anonymousId}`) · `IP / device` (ip + browser·os + `#fingerprint`) · `Target` (`post/comment → {id}` link `/post/:postId`).
+- **Pagination:** `← prev` / `page / totalPages` / `next →` (limit 20).
+- **States:** loading (AsciiSpinner) · error (`// failed to load logs`) · empty (`◎ // no logs matching filters`).
+- **Data:** `useInteractionLogs(params)` → `GET /admin/interaction-logs` (FR-18.4). Filter sync vào URL searchParams (reset page khi đổi filter).
+
+---
+
 ## Template thêm screen mới
 
 ```markdown

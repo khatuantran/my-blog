@@ -356,6 +356,20 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Postcondition:** User.avatarUrl + avatarPublicId trong DB cập nhật; Cloudinary `avatars/` folder chỉ chứa avatar hiện tại (không orphan); avatar mới hiển thị khắp UI ngay
 - **Linked FR:** FR-11.7
 
+### UC-24: Admin truy vết interaction non-admin (NEW 2026-05-31 — FR-18)
+
+- **Actor:** ADMIN
+- **Precondition:** Admin đã login, có interaction từ actor non-admin trong DB
+- **Main flow:**
+  1. Admin mở AvatarMenu → `🛰 Trace Logs` → `/admin/logs`
+  2. Trang hiển thị bảng log mới→cũ: When / Action / Actor (`~/user [ROLE]` hoặc `anon · {id}`) / IP·device / Target
+  3. Lọc theo `action` (comment/reply/like/reaction), `actorType` (anon/user), hoặc search ip/fingerprint/anonymousId
+  4. Click target → mở post; click actor user → profile
+  5. Phân trang prev/next (20/trang)
+- **Alternative:** non-admin truy cập `/admin/logs` → ProtectedRoute redirect `/`; gọi API trực tiếp → 401 (anon) / 403 (USER)
+- **Postcondition:** Admin xác định được thiết bị/IP/fingerprint của actor (truy vết kẻ spam kể cả khi đổi anon cookie — cùng fingerprint)
+- **Linked FR:** FR-18
+
 ## Functional Requirements
 
 ### FR-01: Quản lý người dùng
@@ -783,7 +797,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
   - Given ADMIN comment/react → Then KHÔNG có log row
   - Given remove reaction → Then KHÔNG tạo log
   - Given anonymous gọi `GET /admin/interaction-logs` → 401; USER → 403; ADMIN → 200 paginated
-- **Linked UCs:** UC-23 (admin truy vết interaction)
+- **Linked UCs:** UC-24 (admin truy vết interaction)
 - **Linked Tests:** interaction-log.service.spec.ts (skip admin, fingerprint, UA parse) + comments/reactions e2e (log row created anon/USER, none for admin) + interaction-logs.e2e-spec.ts (401/403/200 + filter) + InteractionLogsPage.test.tsx
 
 ## Non-Functional Requirements

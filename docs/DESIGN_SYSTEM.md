@@ -916,6 +916,7 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
   - `📝 Manage Posts` blu (`#7DCFFF`) → `/admin/posts`. **adminOnly.**
   - `⚙️ Admin Dashboard` pur (`#BB9AF7`) + `⌘3` desc → `/admin`. **adminOnly.**
   - `🏷 Manage Tags` yel (`#E0AF68`) → `/tags`. **adminOnly** (browse tags vẫn mở cho mọi role qua CommandPalette / URL `/tags` — chỉ entry menu này ẩn với non-admin).
+  - `🛰 Trace Logs` red (`#F7768E`) → `/admin/logs`. **adminOnly** (FR-18 — interaction trace của actor non-admin).
   - `🔧 System Settings` grn (`#9ECE6A`) → TBD. **adminOnly.**
   - **Separator** 1px `--b2`.
   - `👤 Profile` (color default `--ts` thay vì accent) → `/profile/<user>`. Hiển thị mọi role.

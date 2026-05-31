@@ -214,6 +214,49 @@ export type UpdateAdminPostPayload = {
   tags?: string[];
 };
 
+// FR-18: Interaction trace log (admin)
+export type InteractionAction = 'COMMENT' | 'REPLY' | 'COMMENT_LIKE' | 'POST_REACTION';
+export type InteractionTargetType = 'POST' | 'COMMENT';
+export type InteractionActorType = 'anon' | 'user';
+
+export type InteractionLog = {
+  id: string;
+  action: InteractionAction;
+  targetType: InteractionTargetType;
+  targetId: string;
+  postId: string | null;
+  actor: { id: string; username: string } | null;
+  actorRole: Role | null;
+  anonymousId: string | null;
+  ip: string | null;
+  userAgent: string | null;
+  browser: string | null;
+  os: string | null;
+  device: string | null;
+  acceptLang: string | null;
+  referer: string | null;
+  fingerprint: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+export type PaginatedInteractionLogs = {
+  items: InteractionLog[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export type ListInteractionLogsParams = {
+  action?: InteractionAction;
+  actorType?: InteractionActorType;
+  q?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+};
+
 export type ListPostsParams = {
   page?: number;
   limit?: number;

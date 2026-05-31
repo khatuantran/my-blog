@@ -4,6 +4,7 @@
 import type {
   ListActivityParams,
   ListAdminPostsParams,
+  ListInteractionLogsParams,
   ListNotificationsParams,
   ListPostsParams,
   ListReactionsParams,
@@ -42,6 +43,7 @@ export const qk = {
     comments: (params: { status?: string; page?: number; limit?: number } = {}) =>
       ['admin', 'comments', params] as const,
     posts: (params: ListAdminPostsParams = {}) => ['admin', 'posts', params] as const,
+    logs: (params: ListInteractionLogsParams = {}) => ['admin', 'logs', params] as const,
   },
   tags: {
     all: ['tags'] as const,

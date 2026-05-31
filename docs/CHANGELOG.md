@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Added
 
+- **T-453 FE PostHeader avatar popup + tên → profile** (2026-05-31, FE): Feed/detail — click avatar mở `AvatarPreviewModal` (ảnh avatar phóng to; click backdrop/Esc/× đóng); click tên `~/username` → `/profile/:username`. Profile tự ẩn phần self/admin-only cho non-self viewer (gating `isSelf`/`canViewSaved` sẵn có). PostHeader.test 2 case. (Refs T-453)
+
 - **T-446/447/448 Storage driver abstraction + Docker-dev api (ADR-010)** (2026-05-31, Both/Infra): Local dev giờ chạy **api + postgres trong Docker** (web giữ host); upload tách theo `STORAGE_DRIVER`: prod `cloudinary` (signed direct upload, bất biến), local `local` (ghi `./storage/uploads` bind-mount + serve `/uploads`, không cần Cloudinary creds). BE: `StorageDriver` interface + `LocalStorageService` + `StorageService` facade + `POST /files/upload` (multipart) + `main.ts useStaticAssets`. FE: `uploadAsset` provider-aware (đọc `provider` từ `/files/sign`). DB `publicId` provider-agnostic (không đổi schema). Docker: `apps/api/Dockerfile.dev` + compose `api` service. Tests: BE local-storage/storage unit + files e2e + FE files.test. (Refs T-446/T-447/T-448)
 
 - **T-443 FE Create Post edit mode (`/admin/create?edit=<id>`)** (2026-05-31, FE): "Edit post" giờ prefill đầy đủ content/mood/tags/images/files + đổi label subbar `~/admin/edit-post`, status `editing`, button `Update`; submit → PATCH /posts/:id (thay POST). BE đã sẵn (PATCH/GET /posts/:id). Thêm `use-update-post` hook + RichTextEditor sync prefill async. CreatePostPage.test edit case. (Refs T-443)

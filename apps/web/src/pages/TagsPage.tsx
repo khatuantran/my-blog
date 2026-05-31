@@ -7,6 +7,7 @@ import { TagCard } from '@/components/tags/TagCard';
 import { TagModal } from '@/components/tags/TagModal';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { PencilIcon, TrashIcon } from '@/components/shared/cyber-icons';
+import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 import type { CreateTagPayload, Tag, TagSort, TagWithStats } from '@/types/api';
 
 type ViewMode = 'grid' | 'list';
@@ -264,7 +265,9 @@ export default function TagsPage() {
 
         {/* Content states */}
         {isLoading && (
-          <div className="py-12 text-center font-mono text-mono-sm text-tm">⠋ loading tags...</div>
+          <div className="py-12 text-center font-mono text-mono-sm text-tm">
+            <AsciiSpinner /> loading tags...
+          </div>
         )}
         {isError && (
           <div className="py-12 text-center font-mono text-mono-sm text-red">

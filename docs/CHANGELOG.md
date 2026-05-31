@@ -6,6 +6,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **T-434 FE loading animation — animated AsciiSpinner thay text/char tĩnh (F5)** (2026-05-31, FE): User "animation khi loading của một trang đang không có". `AsciiSpinner` animate (braille 10-frame @80ms) nhưng nhiều loading state dùng tĩnh: route Suspense fallback (main.tsx) `loading…` + PostDetailPage `// loading post...` (không spinner), static `⠋` (1 frame, không spin) ở ManagePosts + Profile (×3) + Tags → đổi hết sang `<AsciiSpinner />`. (Refs T-434)
+
 - **BUG-018 FE load-more replies hiển thị total thay vì remaining** (2026-05-31, FE): Nút load-more ghi `{replyCount}` (total 6) thay vì số reply còn lại (3). Fix `remainingReplies = replyCount - previewReplies.length` + text `↳ load {N} more {reply/replies}`. 1 regression test. (Fixes BUG-018, Refs T-433)
 
 - **BUG-017 BE comment "post as anon" không hoạt động cho authed user** (2026-05-31, BE): User login bật "post as anon" → comment vẫn hiện tên thật (`@admin`). `comments.service.create` khi authed → luôn attribute cho user, bỏ qua `dto.anonymousName` (design + FE có toggle nhưng BE chưa honor). Fix: `effectiveUserId = viewer.userId && !dto.anonymousName ? userId : null` → authed + anonymousName = comment anon (author=null + anonymousName, không log activity/notification dưới user). 2 regression (e2e + unit) + 2 stale-assumption update. (Fixes BUG-017, Refs T-432)

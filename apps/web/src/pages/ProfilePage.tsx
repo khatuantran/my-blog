@@ -12,6 +12,7 @@ import { TabButtons } from '@/components/shared/TabButtons';
 import { EditProfileDrawer } from '@/components/profile/EditProfileDrawer';
 import { ProfileActivityList } from '@/components/profile/ProfileActivityList';
 import { PostMiniCard } from '@/components/profile/PostMiniCard';
+import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 import { MoodBar } from '@/components/admin/MoodBar';
 import { TagPill } from '@/components/shared/TagPill';
 import { StatCard } from '@/components/admin/StatCard';
@@ -68,7 +69,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-[1100px] py-16 text-center font-mono text-tm">
-        ⠋ loading profile...
+        <AsciiSpinner /> loading profile...
       </div>
     );
   }
@@ -428,7 +429,11 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 function PostsTab({ userId }: { userId: string }) {
   const { data, isLoading } = usePostsInfinite({});
   if (isLoading) {
-    return <div className="py-8 text-center font-mono text-mono-sm text-tm">⠋ loading...</div>;
+    return (
+      <div className="py-8 text-center font-mono text-mono-sm text-tm">
+        <AsciiSpinner /> loading...
+      </div>
+    );
   }
   const posts: Post[] =
     data?.pages.flatMap((p) => p.items).filter((p) => p.author.id === userId) ?? [];
@@ -450,7 +455,11 @@ function SavedTab() {
     queryFn: () => listSavedPosts(),
   });
   if (isLoading)
-    return <div className="py-8 text-center font-mono text-mono-sm text-tm">⠋ loading...</div>;
+    return (
+      <div className="py-8 text-center font-mono text-mono-sm text-tm">
+        <AsciiSpinner /> loading...
+      </div>
+    );
   if (!data || data.items.length === 0)
     return (
       <div className="space-y-3">

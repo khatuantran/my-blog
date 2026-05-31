@@ -7,6 +7,7 @@ import { router } from './routes';
 import './lib/env'; // side-effect: validate VITE_* env on startup
 import './styles/globals.css';
 import { useAuthStore } from './stores/auth-store';
+import { AsciiSpinner } from './components/feed/AsciiSpinner';
 
 // Kick off auth hydration ngay khi module load (before render).
 // Splash UI trong AppLayout sẽ cover cho đến khi resolve.
@@ -28,7 +29,13 @@ if (!rootEl) throw new Error('Root element #root not found');
 createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <Suspense fallback={<div className="p-4 font-mono text-mono text-tm">loading…</div>}>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center gap-2 font-mono text-mono text-tm">
+            <AsciiSpinner /> loading…
+          </div>
+        }
+      >
         <RouterProvider router={router} />
       </Suspense>
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}

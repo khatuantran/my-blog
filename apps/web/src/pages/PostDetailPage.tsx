@@ -12,6 +12,7 @@ import { TagPill } from '@/components/shared/TagPill';
 import { ReactionButton } from '@/components/feed/ReactionButton';
 import { CommentForm } from '@/components/comment/CommentForm';
 import { CommentList } from '@/components/comment/CommentList';
+import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 import { ApiError } from '@/services/api/client';
 
 export default function PostDetailPage() {
@@ -22,8 +23,8 @@ export default function PostDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-[1100px] px-6 py-12 text-center font-mono text-mono text-tm">
-        // loading post...
+      <div className="mx-auto max-w-[820px] px-8 py-12 text-center font-mono text-mono text-tm">
+        <AsciiSpinner /> loading post...
       </div>
     );
   }

@@ -7,6 +7,7 @@ import { PostRow } from '@/components/admin/manage-posts/PostRow';
 import { PostCardMng } from '@/components/admin/manage-posts/PostCardMng';
 import { QuickEditModal } from '@/components/admin/QuickEditModal';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import { AsciiSpinner } from '@/components/feed/AsciiSpinner';
 import type { AdminPost, PostStatus } from '@/types/api';
 
 type View = 'list' | 'card';
@@ -309,7 +310,7 @@ export default function ManagePostsPage() {
         {/* Content */}
         {isLoading ? (
           <div className="py-12 text-center font-mono text-mono-sm text-tm" data-testid="loading">
-            ⠋ loading...
+            <AsciiSpinner /> loading...
           </div>
         ) : posts.length === 0 ? (
           // T-417 design L624-629 — empty state with ◎ big icon

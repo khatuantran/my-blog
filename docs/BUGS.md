@@ -11,6 +11,20 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-034] [Medium] [FE] Nút "↗ Share" ở action bar (feed + detail) không bấm được
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-06-01
+- **Environment:** local FE :5173 / Layer: FE
+- **Related task:** T-473 (DONE 2026-06-01)
+- **Related FR/component:** FR-05.1 / `PostCard.tsx` + `PostDetailPage.tsx` action bar
+- **Mô tả:** Nút `↗ Share` trên action bar của bài (feed PostCard + Post Detail) bấm không có gì xảy ra.
+- **Steps:** Mở feed hoặc `/post/:id` → bấm `↗ Share` ở action row → không phản ứng.
+- **Root cause:** T-471 chỉ wire 3 nút share trong `MetaPanel` (sidebar, chỉ hiện desktop `lg:`), bỏ sót 2 nút `↗ Share` ở action bar (vẫn `aria-label="Share post (placeholder)"`, không có `onClick`).
+- **Fix:** Tạo component tái dùng `components/shared/SharePopover.tsx` — nút `↗ Share` mở popover 4 lựa chọn (Facebook / X / Telegram / Copy link) dùng `openShare` từ `@/lib/share` (T-471, share intent URL công khai, KHÔNG cần key). Thay 2 placeholder ở `PostCard` + `PostDetailPage` bằng `<SharePopover>`. Outside-click + trigger-toggle theo pattern BUG-024.
+- **Regression test:** `SharePopover.test.tsx` (4 case: popover toggle + click FB/Telegram mở intent + copy link).
+- **Lesson learned:** khi "wire feature có nhiều entry-point" phải grep TẤT CẢ chỗ render (action bar ≠ sidebar) — T-471 chỉ làm 1 trong 2 surface; placeholder `aria-label` là dấu hiệu nút chưa wire.
+
 ### [BUG-033] [Medium] [FE] Profile PostMiniCard hiển thị raw HTML string
 
 - **Status:** FIXED

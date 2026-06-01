@@ -9,6 +9,7 @@ import { MetaPanel } from '@/components/post/MetaPanel';
 import { ImageGrid } from '@/components/post/ImageGrid';
 import { ImageLightbox } from '@/components/feed/ImageLightbox';
 import { TagPill } from '@/components/shared/TagPill';
+import { SharePopover } from '@/components/shared/SharePopover';
 import { ReactionButton } from '@/components/feed/ReactionButton';
 import { CommentForm } from '@/components/comment/CommentForm';
 import { CommentList } from '@/components/comment/CommentList';
@@ -94,14 +95,10 @@ export default function PostDetailPage() {
               <span className="text-sm">💬</span>
               <span>{post.counts.comments}</span>
             </button>
-            <button
-              type="button"
-              aria-label="Share post (placeholder)"
-              className="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
-            >
-              <span>↗</span>
-              <span>Share</span>
-            </button>
+            <SharePopover
+              post={post}
+              triggerClassName="flex items-center gap-1 rounded-sm bg-transparent px-2.5 py-1 font-mono text-mono text-tm hover:bg-elev hover:text-tp"
+            />
             <span className="ml-auto font-mono text-mono-sm text-tm">
               👁 {post.viewCount} views
             </span>

@@ -4,6 +4,7 @@ import { CollapsibleContent } from '@/components/post/CollapsibleContent';
 import { ImageGrid } from '@/components/post/ImageGrid';
 import { FileAttachments } from '@/components/post/FileAttachments';
 import { TagPill } from '@/components/shared/TagPill';
+import { SharePopover } from '@/components/shared/SharePopover';
 import { ReactionButton } from './ReactionButton';
 import { CommentsModal } from './CommentsModal';
 import { PostActionMenu } from './PostActionMenu';
@@ -85,14 +86,10 @@ export function PostCard({ post, delay = 0 }: Props) {
           <span className="text-sm">💬</span>
           <span>{post.counts.comments}</span>
         </button>
-        <button
-          type="button"
-          aria-label="Share post (placeholder)"
-          className="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
-        >
-          <span>↗</span>
-          <span>Share</span>
-        </button>
+        <SharePopover
+          post={post}
+          triggerClassName="flex items-center gap-1 rounded-sm border-none bg-transparent px-2.5 py-1 font-mono text-mono-md text-tm cursor-pointer transition-colors hover:bg-elev hover:text-tp"
+        />
         <div className="relative ml-auto">
           <button
             ref={actionTriggerRef}

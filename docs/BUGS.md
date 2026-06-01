@@ -104,7 +104,7 @@ _(Trống)_
 - **Mô tả:** Chọn nhiều ảnh/file 1 lần → chỉ file cuối được thêm; phải upload từng cái.
 - **Root cause:** `handleFiles` loop `await` rồi `onChange([...value, asset])` — `value` là closure snapshot (rỗng) suốt loop → mỗi vòng ghi đè vòng trước.
 - **Fix:** tích lũy `added[]` local, `onChange([...value, ...added])` mỗi vòng → giữ tất cả file trong batch.
-- **Regression test:** ⚠️ TEST DEBT — chưa có test tự động assert batch-accumulation. `apps/web/tests/components/shared/UploadZone.test.tsx` hiện chỉ cover T-363 (maxSize/onChange), KHÔNG có case multi-select giữ đủ N file. Verify thủ công (multi-select 3 ảnh → đủ 3). TODO: thêm case `it('regression BUG-027: multi-select keeps all files', ...)` (mock 3 File → onChange gọi với length 3).
+- **Regression test:** `apps/web/tests/components/shared/UploadZone.test.tsx` → `it('regression BUG-027: multi-select giữ TẤT CẢ file (không chỉ file cuối)')` — upload 3 file 1 lần, assert 3 FileItem (3 nút Remove). Verify red: revert về `onChange([...value, asset])` → `got 1`. (T-475, 2026-06-01)
 - **Lesson learned:** loop async cập nhật state từ props phải tích lũy local (props closure không cập nhật giữa các await).
 
 ### [BUG-029] [Low] [FE] File upload không giống design — badge MIME + tên unicode mangle + preview thiếu attachments

@@ -161,6 +161,30 @@ describe('UploadZone', () => {
     expect(screen.queryByText('big.pdf')).not.toBeInTheDocument();
   });
 
+  it('regression BUG-027: multi-select giữ TẤT CẢ file (không chỉ file cuối)', async () => {
+    const user = userEvent.setup();
+    render(
+      <TestProviders>
+        <Wrapper variant="file" maxCount={10} />
+      </TestProviders>,
+    );
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const files = [
+      new File(['a'], 'alpha.pdf', { type: 'application/pdf' }),
+      new File(['b'], 'bravo.pdf', { type: 'application/pdf' }),
+      new File(['c'], 'charlie.pdf', { type: 'application/pdf' }),
+    ];
+    // Multi-select 1 lần (input multiple) → handleFiles xử lý cả batch sequential.
+    await user.upload(input, files);
+
+    // Mọi upload resolve cùng asset (mock 'doc') nhưng `id` tmp-* phân biệt → 1 FileItem/file.
+    // Trước fix (`onChange([...value, asset])`, value closure rỗng mỗi vòng) chỉ còn 1 FileItem.
+    // Sau fix (`[...value, ...added]` tích lũy) phải còn ĐỦ 3 → 3 nút Remove.
+    await waitFor(() => {
+      expect(screen.getAllByRole('button', { name: /^Remove/i })).toHaveLength(3);
+    });
+  });
+
   it('file variant renders FileItem rows', () => {
     const initial: UploadEntry[] = [
       {

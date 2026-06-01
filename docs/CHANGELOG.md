@@ -60,6 +60,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **BUG-027 backfill regression test (T-475)** (2026-06-01, FE/test): Thêm test tự động cho fix multi-upload (đã ship ở T-449 nhưng chỉ "verify manual") — `UploadZone.test.tsx` upload 3 file 1 lần → assert giữ đủ 3 (3 nút Remove). Verified red khi revert về `onChange([...value, asset])` (chỉ giữ file cuối → `got 1`). Đóng test-debt từ audit. (Refs T-475, BUG-027)
+
 - **BUG-034 Nút ↗ Share ở action bar không bấm được (T-473, FR-05.1)** (2026-06-01, FE): T-471 chỉ wire 3 nút share trong MetaPanel sidebar (desktop `lg:`), bỏ sót 2 nút `↗ Share` ở action bar feed PostCard + Post Detail (vẫn placeholder, không onClick). Tạo component tái dùng `SharePopover` (nút ↗ Share → popover FB/X/Telegram/Copy link, dùng `openShare`), thay 2 placeholder. SharePopover.test 4 case. (Fixes BUG-034, Refs T-473)
 
 - **Post Detail 💬 button scroll-to-comments (no-op → functional)** (2026-05-31, FE): Nút comment trên action bar Post Detail trước không có onClick → thêm `scrollIntoView` tới `#comments` section. (Audit doc-code sync wf_59facba7)

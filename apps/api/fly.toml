@@ -1,0 +1,37 @@
+# Fly.io config cho apps/api (NestJS BE). Deploy từ REPO ROOT:
+#   fly deploy --config apps/api/fly.toml        (build context = root, theo build.dockerfile bên dưới)
+# Secrets (DATABASE_URL/JWT/ADMIN/CLOUDINARY...) KHÔNG để ở đây — set qua `fly secrets set`.
+# Xem runbook đầy đủ: docs/DEPLOYMENT.md > Backend Deploy (Fly.io).
+app = "myblog-api"
+primary_region = "sin" # Singapore — gần VN nhất trong free tier
+
+[build]
+  dockerfile = "apps/api/Dockerfile" # relative tới repo root (build context)
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3001"
+  TRUST_PROXY = "1"
+  STORAGE_DRIVER = "cloudinary" # prod dùng Cloudinary signed upload (ADR-010)
+
+# Chạy migrate TRƯỚC khi release machine mới nhận traffic. Migration fail → Fly abort release.
+[deploy]
+  release_command = "pnpm exec prisma migrate deploy"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = "stop"  # free-tier: scale-to-zero khi idle (đánh đổi cold-start)
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/health"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "10s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb" # đủ cho NestJS + Prisma; nâng nếu OOM khi build/migrate

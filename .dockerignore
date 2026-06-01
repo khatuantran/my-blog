@@ -1,9 +1,24 @@
 node_modules
 **/node_modules
 .git
+.github
 .turbo
 **/dist
 **/.vite
 **/coverage
 storage/uploads
+storage
 *.log
+# Secrets — set qua `fly secrets`, KHÔNG bake vào image
+**/.env
+**/.env.*
+# Không cần cho prod api image (giữ apps/web/package.json cho --frozen-lockfile → KHÔNG loại apps/web)
+docs
+design-file
+e2e
+playwright-report
+test-results
+apps/api/tests
+apps/web/src
+apps/web/public
+apps/web/dist

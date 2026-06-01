@@ -229,74 +229,78 @@ volumes:
 
 ### First-time setup
 
-1. **Launch app:**
+> `apps/api/fly.toml` + `apps/api/Dockerfile` + `.dockerignore` **đã có sẵn trong repo** (T-121). KHÔNG cần hand-write. Mọi lệnh `fly` chạy **từ repo root** (build context = root vì pnpm workspace).
+
+1. **Launch app (không deploy, dùng config có sẵn):**
 
    ```bash
-   cd apps/api
-   fly launch --no-deploy
-   # Trả lời prompt: region sin (gần VN), app name myblog-api, postgres NO (dùng Neon)
+   # từ repo root
+   fly launch --no-deploy --copy-config --config apps/api/fly.toml --name myblog-api
+   # Trả lời prompt: region sin, postgres NO (dùng Neon), Redis NO. Không cho fly ghi đè fly.toml.
    ```
 
-2. **Adjust `fly.toml` (auto-generated, manual tweak):**
+   `fly.toml` đã cấu hình: `build.dockerfile = "apps/api/Dockerfile"`, healthcheck `GET /health`, `[deploy] release_command = "pnpm exec prisma migrate deploy"` (migrate tự chạy trước mỗi release), `auto_stop/start` (scale-to-zero free tier), VM `shared-cpu-1x` / `512mb`.
 
-   ```toml
-   app = "myblog-api"
-   primary_region = "sin"   # Singapore — gần VN nhất trong free tier regions
+2. **Dockerfile (`apps/api/Dockerfile`) — đã scaffold:**
 
-   [build]
-     dockerfile = "Dockerfile"
+   Single-stage, base `node:24-alpine` + `libc6-compat`/`openssl` (Prisma engine) + `pnpm@9.15.0`. Build context = repo root; `pnpm install --frozen-lockfile --filter api...` → `prisma generate` → `nest build` → `node dist/main`. Giữ devDeps (`prisma` CLI + `tsx`) để release migrate + one-time seed chạy được. (Image ~1.15GB — có thể slim bằng multi-stage + prune sau, không blocking.)
 
-   [env]
-     PORT = "3001"
-     NODE_ENV = "production"
-
-   [http_service]
-     internal_port = 3001
-     force_https = true
-     auto_stop_machines = "stop"   # sleep sau idle (free tier saving)
-     auto_start_machines = true
-     min_machines_running = 0      # 0 = full sleep (cold start ~3-5s)
-
-   [[vm]]
-     size = "shared-cpu-1x"
-     memory = "256mb"
-   ```
-
-3. **Dockerfile (apps/api/Dockerfile):**
-
-   Multi-stage build, NestJS production-optimized (sẽ scaffold sau với template chuẩn).
-
-4. **Set secrets:**
+   Smoke-test local trước khi deploy:
 
    ```bash
-   fly secrets set \
-     DATABASE_URL="postgresql://user:pass@ep-xxx.aws.neon.tech/myblog?sslmode=require&pgbouncer=true" \
-     DIRECT_URL="postgresql://user:pass@ep-xxx.aws.neon.tech/myblog?sslmode=require" \
+   docker build -f apps/api/Dockerfile -t myblog-api:smoke .   # từ repo root
+   ```
+
+3. **Set secrets (BẮT BUỘC — BE validate env lúc boot, xem `apps/api/src/config/env.schema.ts`):**
+
+   ```bash
+   fly secrets set --config apps/api/fly.toml \
+     DATABASE_URL="postgresql://user:pass@ep-xxx-pooler.../myblog?sslmode=require" \
+     DIRECT_URL="postgresql://user:pass@ep-xxx.../myblog?sslmode=require" \
      JWT_SECRET="$(openssl rand -base64 32)" \
      JWT_REFRESH_SECRET="$(openssl rand -base64 32)" \
+     ADMIN_USERNAME="admin" \
+     ADMIN_PASSWORD="<strong-password>" \
+     CORS_ORIGIN="https://<vercel-prod>.vercel.app" \
      CLOUDINARY_CLOUD_NAME="..." \
      CLOUDINARY_API_KEY="..." \
      CLOUDINARY_API_SECRET="..." \
-     ADMIN_USERNAME="admin" \
-     ADMIN_PASSWORD="<strong-password>" \
-     CORS_ORIGIN="https://kha.blog,https://*.vercel.app"
+     CLOUDINARY_UPLOAD_PRESET="myblog_uploads"
    ```
 
-5. **Deploy:**
+   - **Required (thiếu → BE KHÔNG boot):** `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET` (≥16 ký tự), `JWT_REFRESH_SECRET` (≥16), `ADMIN_USERNAME`, `ADMIN_PASSWORD` (≥8), `CORS_ORIGIN`.
+   - **Cloudinary:** không chặn boot (default `''`) nhưng **upload sẽ 500** nếu thiếu (`STORAGE_DRIVER=cloudinary` đã set trong `[env]`).
+   - **`CORS_ORIGIN` là exact-match (KHÔNG wildcard):** đặt đúng URL Vercel prod (vd `https://myblog.vercel.app`). Wildcard `*.vercel.app` **không hoạt động** — preview deploys sẽ bị CORS chặn (chấp nhận, hoặc thêm origin sau bằng comma).
+
+4. **Deploy:**
 
    ```bash
-   fly deploy
+   fly deploy --config apps/api/fly.toml   # từ repo root; release_command tự chạy `prisma migrate deploy`
    ```
 
-6. **Migrate prod DB (one-time + sau mỗi schema change):**
+5. **Seed admin + bài intro (one-time, idempotent):**
+
+   Migrate đã tự chạy qua `release_command`. Seed thì chạy **một lần** — đơn giản nhất là từ **máy local** trỏ vào Neon prod (local có sẵn `tsx` devDeps):
 
    ```bash
-   # Set DATABASE_URL local to point Neon prod (careful!)
-   DATABASE_URL=<neon-prod-url> pnpm --filter api prisma migrate deploy
-
-   # Seed admin (one-time)
-   DATABASE_URL=<neon-prod-url> pnpm --filter api prisma db seed
+   DATABASE_URL="<neon-pooled>" DIRECT_URL="<neon-direct>" \
+   ADMIN_USERNAME="admin" ADMIN_PASSWORD="<strong-password>" \
+   pnpm --filter api db:seed
    ```
+
+   (Hoặc trong container: `fly ssh console --config apps/api/fly.toml -C "pnpm db:seed"` — image giữ `tsx` nên chạy được.)
+
+### CD — GitHub Actions auto-deploy (T-CD)
+
+`.github/workflows/deploy.yml` đã có: trigger khi workflow **CI** chạy xong + **xanh** trên `main` → `flyctl deploy --remote-only`. Setup một lần:
+
+```bash
+fly tokens create deploy   # copy token
+# → GitHub repo → Settings → Secrets and variables → Actions → New secret
+#   Name: FLY_API_TOKEN   Value: <token>
+```
+
+Từ đó: push `main` → CI pass → BE tự deploy. FE deploy tự động qua Vercel GitHub integration (không cần workflow).
 
 ### Cold start mitigation
 
@@ -327,9 +331,9 @@ fly deploy --image registry.fly.io/myblog-api:deployment-XXX  # rollback specifi
    - Project name: `myblog`
    - Region: `Asia Pacific (Singapore) — ap-southeast-1`
 
-2. **Tạo branches:**
-   - `main` (default) — production
-   - `dev` — preview deployments
+2. **Branches:**
+   - `main` (default) — production (đủ cho solo).
+   - `dev` — **optional**, chỉ tạo khi cần preview DB riêng (M13 này dùng 1 branch cho gọn).
 
 3. **Connection strings (lấy từ Neon Console):**
    - **Pooled** (`DATABASE_URL` cho runtime): `postgresql://...pooler.../myblog?sslmode=require`

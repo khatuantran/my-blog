@@ -1,0 +1,28 @@
+name: Deploy BE (Fly.io)
+
+# CD backend: chỉ deploy sau khi workflow "CI" chạy xong + XANH trên main
+# (gate tránh deploy code lỗi). FE deploy tự động qua Vercel GitHub integration (không cần ở đây).
+# Cần GitHub repo secret: FLY_API_TOKEN (tạo bằng `fly tokens create deploy`).
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-fly
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: flyctl deploy
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      # Build context = repo root; fly đọc build.dockerfile từ apps/api/fly.toml.
+      # --remote-only: build trên Fly builder (không cần Docker trên runner).
+      - run: flyctl deploy --remote-only --config apps/api/fly.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

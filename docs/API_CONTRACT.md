@@ -305,7 +305,7 @@ Response khi rate limited: `429` với `Retry-After` header + error code `RATE_L
 
 ```bash
 # Generate OpenAPI YAML từ NestJS Swagger
-pnpm --filter api openapi:generate
+pnpm --filter api openapi:gen
 # → output: docs/contracts/openapi.yaml
 
 # Generate TypeScript types cho FE
@@ -317,7 +317,7 @@ pnpm --filter web openapi:types
 
 Trước khi commit task có touch BE controller hoặc DTO:
 
-1. Run `pnpm --filter api openapi:generate`
+1. Run `pnpm --filter api openapi:gen`
 2. Commit `docs/contracts/openapi.yaml` cùng commit code
 3. Run `pnpm --filter web openapi:types`
 4. Commit type changes

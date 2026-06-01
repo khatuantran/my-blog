@@ -441,7 +441,7 @@ app.useGlobalPipes(
   - `@ApiBody({ type: CreatePostDto })` — request body
 - **CI step:** generate `docs/contracts/openapi.yaml` from running app dump
   ```bash
-  pnpm --filter api openapi:generate
+  pnpm --filter api openapi:gen
   ```
 
 ### WebSocket Gateway

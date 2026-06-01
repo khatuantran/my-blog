@@ -63,11 +63,11 @@ docker compose up -d
 # Verify: docker ps -- nên thấy postgres-main + postgres-test
 
 # 5. Migrate + seed DB
-pnpm --filter api prisma migrate dev
-pnpm --filter api prisma db seed
+pnpm --filter api prisma migrate dev   # migrate dev đã auto-seed
+pnpm --filter api db:seed              # chạy riêng khi cần re-seed (admin + sample data)
 
 # 6. Generate OpenAPI types cho FE
-pnpm --filter api openapi:generate   # → docs/contracts/openapi.yaml
+pnpm --filter api openapi:gen        # → docs/contracts/openapi.yaml
 pnpm --filter web openapi:types      # → apps/web/src/types/api.ts
 
 # 7. Start dev servers (Turbo parallel)
@@ -414,21 +414,23 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 
 ## CI/CD
 
-### GitHub Actions workflows (sẽ tạo khi setup CI)
+### GitHub Actions workflows
 
 ```
 .github/workflows/
-├── ci.yml              On PR + push main: lint + typecheck + test (unit + integration + e2e)
-├── deploy-fe.yml       On push main: Vercel auto-deploy (handled by Vercel GitHub integration)
-├── deploy-be.yml       On push main: fly deploy (via flyctl-action)
-└── preview-be.yml      On PR: deploy preview Fly app
+├── ci.yml       On PR + push main: lint + typecheck + test (unit + integration + e2e) + openapi drift check
+└── deploy.yml   workflow_run: sau khi CI XANH trên main → flyctl deploy --remote-only --config apps/api/fly.toml
 ```
+
+- **BE deploy:** `deploy.yml` (gate bằng `workflow_run` của CI; chi tiết ở mục [CD — GitHub Actions auto-deploy](#cd--github-actions-auto-deploy-t-cd)).
+- **FE deploy:** tự động qua Vercel GitHub integration — **không có workflow** trong repo.
+- **Preview BE:** thủ công (`fly deploy --app myblog-api-preview`), chưa có workflow tự động.
 
 ### Required secrets (GitHub repo Settings → Secrets)
 
-- `FLY_API_TOKEN` — `fly auth token`
-- `VERCEL_TOKEN` — (auto qua Vercel integration)
-- `NEON_API_KEY` — (optional, cho preview DB branch tạo tự động)
+- `FLY_API_TOKEN` — **bắt buộc** cho `deploy.yml` (tạo bằng `fly tokens create deploy`)
+- `VERCEL_TOKEN` — không cần (FE deploy auto qua Vercel integration)
+- `NEON_API_KEY` — không cần (chưa có workflow tự tạo preview DB branch)
 
 ---
 

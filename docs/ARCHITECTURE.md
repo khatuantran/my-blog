@@ -349,7 +349,7 @@ apps/api/
   - GraphQL — overkill cho project nhỏ, học cost cao
 - **Consequences:**
   - Pro: 1 source (code is spec), FE types auto-sync, contract test dễ
-  - Con: phụ thuộc decorator discipline (mọi DTO + endpoint phải có `@ApiProperty`, `@ApiResponse`); cần CI step `pnpm openapi:generate` + commit yaml
+  - Con: phụ thuộc decorator discipline (mọi DTO + endpoint phải có `@ApiProperty`, `@ApiResponse`); cần CI step `pnpm openapi:gen` + commit yaml
 
 ### ADR-009: RichTextEditor engine — execCommand → TipTap (ProseMirror)
 

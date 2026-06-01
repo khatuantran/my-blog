@@ -7,13 +7,16 @@
 ```
 User ───< Post ───< Image
   │        ├──< File
-  │        ├──< Comment >── User (nullable)
+  │        ├──< Comment >── User (nullable)  [self-ref parent/replies — FR-03.6]
   │        │       └──< CommentLike >── User (nullable)
-  │        ├──< Like >── User (nullable)
+  │        ├──< Reaction >── User (nullable)  [multi-type — FR-16]
   │        ├──< SavedPost >── User
   │        ├──< PostView
-  │        └──< PostTag >── Tag
+  │        ├──< PostTag >── Tag
+  │        └──< Notification (denorm postId) >── User (recipient + actor)
   │
+  ├──< ActivityLog (actor + targetOwner) [FR-13]
+  ├──< InteractionLog (actorUser, soft-FK target) [FR-18]
   └──< RefreshToken (auth session)
 
 AnonymousSession (standalone — track guest)
@@ -45,7 +48,7 @@ AnonymousSession (standalone — track guest)
 | createdAt      | DateTime      | default(now())   |                                                                                 |
 | updatedAt      | DateTime      | @updatedAt       |                                                                                 |
 
-**Relations:** `hasMany` Post, Comment, Like, CommentLike, SavedPost, RefreshToken
+**Relations:** `hasMany` Post, Comment, Reaction, CommentLike, SavedPost, RefreshToken, ActivityLog (actor + targetOwner), Notification (received + sent), InteractionLog (actor)
 **Indexes:** username (auto unique), email (auto unique)
 **Validation (BE class-validator):** `title` max 80 chars, `bio` max 500 chars, `skills` IsArray + ArrayMaxSize(20) + nested DTO { name: string max 32, color: hex regex `/^#[0-9A-Fa-f]{6}$/` }.
 
@@ -64,8 +67,8 @@ AnonymousSession (standalone — track guest)
 | updatedAt | DateTime         | @updatedAt                |                               |
 | status    | Enum(PostStatus) | default(PUBLISHED)        | FR-15.2 — admin Manage Posts  |
 
-**Relations:** `belongsTo` User (author), `hasMany` Image, File, Comment, Reaction, PostTag, SavedPost, PostView
-**Indexes:** `@@index([createdAt])` cho feed sort DESC; `@@index([authorId])`
+**Relations:** `belongsTo` User (author), `hasMany` Image, File, Comment, Reaction, PostTag, SavedPost, PostView, Notification
+**Indexes:** `@@index([createdAt])` cho feed sort DESC; `@@index([authorId])`; `@@index([status])` (FR-15 — filter Manage Posts theo status)
 
 ### Image
 
@@ -424,6 +427,8 @@ enum ActivityTargetType { POST COMMENT }
 enum NotificationType   { REACTION COMMENT REPLY SHARE }
 enum ReactionType       { LIKE LOVE HAHA WOW SAD ANGRY }
 enum PostStatus         { PUBLISHED DRAFT ARCHIVED }
+enum InteractionAction     { COMMENT REPLY COMMENT_LIKE POST_REACTION } // FR-18
+enum InteractionTargetType { POST COMMENT }                            // FR-18
 
 model User {
   id            String        @id @default(cuid())
@@ -444,12 +449,17 @@ model User {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  posts         Post[]
-  comments      Comment[]
-  likes         Like[]
-  commentLikes  CommentLike[]
-  savedPosts    SavedPost[]
-  refreshTokens RefreshToken[]
+  posts                 Post[]
+  comments              Comment[]
+  reactions             Reaction[]
+  commentLikes          CommentLike[]
+  savedPosts            SavedPost[]
+  refreshTokens         RefreshToken[]
+  actorActivities       ActivityLog[]    @relation("ActorActivities")
+  targetActivities      ActivityLog[]    @relation("TargetOwnerActivities")
+  receivedNotifications Notification[]   @relation("ReceivedNotifications")
+  sentNotifications     Notification[]   @relation("SentNotifications")
+  interactionLogs       InteractionLog[] @relation("ActorInteractionLogs")
 }
 
 model Post {
@@ -470,9 +480,11 @@ model Post {
   postTags   PostTag[]
   savedBy    SavedPost[]
   views      PostView[]
+  notifications Notification[]
 
   @@index([createdAt])
   @@index([authorId])
+  @@index([status])
 }
 
 model Image {
@@ -531,7 +543,7 @@ model Reaction {
   postId      String
   userId      String?
   anonymousId String?
-  type        ReactionType
+  type        ReactionType @default(LIKE)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
@@ -668,6 +680,37 @@ model Notification {
   @@index([userId, createdAt])
   @@index([userId, read])
 }
+
+model InteractionLog {                                  // FR-18 — append-only audit trace (non-admin actors)
+  id          String                @id @default(cuid())
+  action      InteractionAction
+  targetType  InteractionTargetType
+  targetId    String                                   // soft FK (Post.id | Comment.id) — no relation
+  postId      String?                                  // denorm để filter/nav nhanh
+  actorUserId String?                                  // null = anonymous; FK User SetNull
+  actorRole   Role?                                    // role tại thời điểm hành động (null = anon)
+  anonymousId String?                                  // cookie anon_id
+  ip          String?
+  userAgent   String?
+  browser     String?
+  os          String?
+  device      String?
+  acceptLang  String?
+  referer     String?
+  geoCountry  String?                                  // FR-18 geoip-lite (null nếu IP private)
+  geoCity     String?
+  fingerprint String?                                  // sha256(ip+ua+acceptLang) cắt 16
+  metadata    Json?                                    // { reactionType?, snippet?, parentId? }
+  createdAt   DateTime              @default(now())
+
+  actorUser   User?                 @relation("ActorInteractionLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([anonymousId, createdAt])
+  @@index([fingerprint, createdAt])
+  @@index([postId])
+}
 ```
 
 ## Indexing Strategy (tổng hợp)
@@ -677,8 +720,15 @@ model Notification {
 | `Post.createdAt DESC`                      | Feed sort, default page query                        |
 | `Post.authorId`                            | List bài theo author (cho admin profile sau)         |
 | `Comment.postId + createdAt`               | Load + sort comments theo post                       |
-| `Like.postId`                              | Count likes nhanh                                    |
+| `Comment.parentId`                         | Fast lookup replies of a comment (FR-03.6)           |
+| `Reaction.postId`                          | Count reactions nhanh                                |
+| `Reaction.postId + type`                   | Count per reaction type (FR-16)                      |
 | `CommentLike.commentId`                    | Count likes nhanh per comment                        |
+| `Post.status`                              | Filter Manage Posts theo status (FR-15)              |
+| `Notification.userId + createdAt`          | List notification per user DESC                      |
+| `Notification.userId + read`               | Unread count fast (FR-14)                            |
+| `InteractionLog.createdAt`                 | Trace log feed sort (FR-18)                          |
+| `InteractionLog.fingerprint + createdAt`   | Gom theo thiết bị kể cả khi xoá cookie (FR-18)       |
 | `Tag.name` (unique auto)                   | Filter feed theo tag, dedup tag mới                  |
 | `Image.postId`, `File.postId`              | Load attachments theo post                           |
 | `PostView.postId + viewedAt`               | Dedup view trong 30min window                        |

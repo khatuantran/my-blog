@@ -195,11 +195,14 @@ background-size: 24px 24px;
 
 ### CRT scanline overlay (toggle-able)
 
+**OFF by default** — bật bằng cách add class `crt` lên `<body>` (impl: `apps/web/src/styles/globals.css`).
+
 ```css
-body::after {
+body.crt::after {
   content: '';
   position: fixed;
   inset: 0;
+  pointer-events: none;
   background: repeating-linear-gradient(
     0deg,
     transparent 0,
@@ -207,11 +210,7 @@ body::after {
     rgba(0, 0, 0, 0.028) 2px,
     rgba(0, 0, 0, 0.028) 4px
   );
-  pointer-events: none;
   z-index: 9999;
-}
-body.no-crt::after {
-  opacity: 0;
 }
 ```
 
@@ -653,14 +652,7 @@ Toggle via Tweaks panel (dev tool, không document).
   - Center: initial letter Space Grotesk 700, font-size `${size/3}`, color `--cyan`, **text-shadow `0 0 20px cyan/80`** (NEW glow).
 - **Online status dot (z 3):** absolute bottom:4 right:4, 12×12 green `#9ECE6A`, border 2px `--bg`, shadow `0 0 8px grn`, animation `pulse 2s`.
 - **Reference:** `design-file/MyBlog Profile.html` L260-289.
-- **⚠ Code drift (F3 user-reported bug — Gap 35):** FE `apps/web/src/components/shared/ProfileAvatar.tsx` hiện có 6 visual bugs vs design-file:
-  1. `spin 4s` thay `borderRotate 8s` — 2× quá nhanh.
-  2. Stroke solid cyan opacity 0.7 thay linearGradient 3 stops.
-  3. `strokeDasharray="20 12"` thay `"6 4"`.
-  4. Inner border `1px cyan/40` thay `2px cyan` full.
-  5. Missing inner shadow + text-shadow trên initial.
-  6. **Missing online status dot entirely**.
-     → Recommend F3 BUG task riêng để refactor + add `borderRotate` keyframe vào `tailwind.config.ts`.
+- **Impl:** `apps/web/src/components/shared/ProfileAvatar.tsx` — match design-file đầy đủ (linearGradient 3-stop stroke, `strokeDasharray "6 4"`, `borderRotate 8s`, 2px cyan inner border, inner+text shadow, online status dot với `pulse`). Đã fix 6 visual bug ở BUG-002 / T-341.
 
 ### StatSparkline (Profile stats inline — M11.5 FR-11.4)
 
@@ -741,7 +733,7 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Mobile:** popover transform full-width sticky bottom với 6 buttons 48×48px.
 - **Cross-ref:** [DATA_MODEL.md > Enum ReactionType](./DATA_MODEL.md), [[#ReactionIcon (FR-16, design-file 2026-05-24)]], [[#Hover-reveal popover with grace period]].
 - **Reference:** `design-file/MyBlog Feed.html` L717-758 + `design-file/MyBlog Post Detail.html` L281-321.
-- **Code drift (flag F1/F5 task):** FE `apps/web/src/components/feed/ReactionPicker.tsx` hiện dùng pill (`rounded-full`) + 36×36 emoji buttons + scale-125 hover. Cần refactor sang panel shape + 40×40 SVG buttons + translateY hover.
+- **Code drift:** RESOLVED — FE `apps/web/src/components/feed/ReactionPicker.tsx` đã match spec: panel `rounded-lg` + 40×40 `<ReactionIcon>` SVG buttons + translateY hover.
 
 ### ReactionList modal (FR-16.5, M11.7)
 
@@ -876,7 +868,7 @@ Bộ 5 SVG line-art icon dùng chung cho Manage Posts (PostRow + PostCardMng) + 
   - Row: anon toggle (`as: ~/admin` blu mono 12 / input name) + toggle button `post as anon` / `use account` + `↵ Send` cyan primary mono 12 bold.
 - **Behavior:** body scroll lock khi open, Esc → close, click backdrop → close.
 - **Reference:** `design-file/MyBlog Feed.html` L605-714.
-- **Code drift (flag F1/F2):** FE `apps/web/src/components/feed/PostCard.tsx` hiện link `<Link to="/post/...">` cho `💬` — cần đổi sang `onClick` mở modal + implement `CommentsModal.tsx`. Cần F2 amend FR-13 (Comments pattern) trước F1.
+- **Code drift:** RESOLVED (T-348/T-349, FR-04.7) — `apps/web/src/components/feed/PostCard.tsx` đã đổi `💬` sang `onClick` mở `CommentsModal.tsx` (state `showComments`); Post Detail page giữ cho deep-link/SEO.
 
 ### ReplyForm (FR-03.6 — depth-1 reply inline form)
 

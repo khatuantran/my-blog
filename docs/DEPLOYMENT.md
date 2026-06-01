@@ -167,7 +167,7 @@ volumes:
    - Import từ GitHub repo
    - **Root directory:** `apps/web`
    - **Framework preset:** Vite (auto-detect)
-   - **Build command:** `pnpm build` (Turbo + Vite production build)
+   - **Build command:** `pnpm build` (chạy trong `apps/web` → `tsc --noEmit && vite build`; **không** qua Turbo vì Root Directory đã là `apps/web`)
    - **Output directory:** `dist`
    - **Install command:** `pnpm install` (Vercel auto-detect monorepo)
 

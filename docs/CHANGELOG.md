@@ -64,6 +64,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **Vercel deploy blocker — `engines.node` format** (2026-06-02, Infra): Root `package.json` đặt `"node": ">=24"` — Vercel không chấp nhận semver range, cần major cố định `"24.x"`. Kết hợp `.npmrc engine-strict=true`, nếu Vercel fallback Node < 24 thì `pnpm install` hard-fail (`Unsupported engine`). Đổi `>=24` → `24.x`. Đính chính note build command ở `DEPLOYMENT.md` (với Root Directory=`apps/web`, `pnpm build` chạy vite trong web, không qua Turbo).
+
 - **BUG-027 backfill regression test (T-475)** (2026-06-01, FE/test): Thêm test tự động cho fix multi-upload (đã ship ở T-449 nhưng chỉ "verify manual") — `UploadZone.test.tsx` upload 3 file 1 lần → assert giữ đủ 3 (3 nút Remove). Verified red khi revert về `onChange([...value, asset])` (chỉ giữ file cuối → `got 1`). Đóng test-debt từ audit. (Refs T-475, BUG-027)
 
 - **BUG-034 Nút ↗ Share ở action bar không bấm được (T-473, FR-05.1)** (2026-06-01, FE): T-471 chỉ wire 3 nút share trong MetaPanel sidebar (desktop `lg:`), bỏ sót 2 nút `↗ Share` ở action bar feed PostCard + Post Detail (vẫn placeholder, không onClick). Tạo component tái dùng `SharePopover` (nút ↗ Share → popover FB/X/Telegram/Copy link, dùng `openShare`), thay 2 placeholder. SharePopover.test 4 case. (Fixes BUG-034, Refs T-473)

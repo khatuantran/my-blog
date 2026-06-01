@@ -5,7 +5,7 @@
   "description": "Social blog cá nhân — monorepo Turborepo (Vite React FE + NestJS BE)",
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=24",
+    "node": "24.x",
     "pnpm": ">=9"
   },
   "scripts": {

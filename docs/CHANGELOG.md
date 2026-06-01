@@ -30,6 +30,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **Bỏ interval polling 30s của notification unread-count (T-477, F2)** (2026-06-02, FE): `useUnreadCount` trước poll API mỗi 30s → giờ chỉ fetch **khi mount/reload trang** + invalidate sau action của user (mark read / delete đã invalidate `qk.notifications.all`). Giảm tải API (không còn request nền mỗi 30s/ tab). Đánh đổi: notification từ user khác chỉ hiện sau reload (realtime push vẫn defer T-315). Amend FR-14.6 + UC-17 + DESIGN_SYSTEM NotificationBell. NotificationBell.test 9/9 pass (fetch-on-mount giữ nguyên). (Refs T-477)
+
 - **OpenAPI response-schema cho reactions/notifications/search (T-474, F5)** (2026-06-01, BE): 13 endpoint của 3 controller trước dùng `@ApiResponse({ status: 200 })` không khai `type:` → `docs/contracts/openapi.yaml` ra `200` rỗng (no content), response shape chỉ tồn tại ở `apps/web/src/types/api.ts` viết tay. Thêm response DTO classes (reaction/notification/search; search.posts reuse `PaginatedPostsDto`) + gắn `type:` → openapi.yaml + `api.generated.ts` giờ có schema đầy đủ. Thuần Swagger metadata, KHÔNG đổi runtime behavior — 14 unit + 45 e2e (reactions/notifications/search) + lint + typecheck pass 100%. (Refs T-474, audit Gói B)
 
 - **Post Detail: card border quanh post (user feedback "thiếu border")** (2026-05-31, FE): Bọc post (PostHeader→content→ImageGrid→files→tags→actions) trong card `rounded-lg border border-b2 bg-surf p-5`; actions row đổi `border-y` → `border-t` (divider trong card); comments section nằm dưới card. Override design-file T-430 (vốn borderless full-width) theo ý user. PostDetailPage.test pass.

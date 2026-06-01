@@ -717,7 +717,7 @@ Toggle via Tweaks panel (dev tool, không document).
   - List (maxH 400 scroll) — render `NotifRowBell` items (xem [[#NotifRowBell (TopBar dropdown)]]). Group time (today/yesterday/older), label `// <group>` mono 10.
   - Empty state: `◎` 28px muted + `// all caught up!` (unread tab) hoặc `// no notifications yet`.
   - Footer (padding 10/16 border-top `--b1` bg `--bg`): `// click to mark as read` mono 10 muted + `view all →` cyan link to `/notifications`.
-- **Interactions:** click bell → toggle open; click outside (mousedown listener) / Esc → close; click row → navigate target + mark read; sync với `useUnreadCount()` polling 30s.
+- **Interactions:** click bell → toggle open; click outside (mousedown listener) / Esc → close; click row → navigate target + mark read; `useUnreadCount()` fetch khi mount/reload + invalidate sau action (KHÔNG interval polling — FR-14.6 amended T-477).
 - **Accessibility:** `aria-label="Notifications, N unread"`, role `button` aria-expanded; arrow keys nav list rows; Enter activate.
 - **Reference:** `design-file/myblog-shared-ui.jsx` L101-257 + `design-file/MyBlog Feed.html` L1057-1196.
 - **Code drift:** RESOLVED 2026-05-27 (T-359) — FE đã refactor sang SVG bell + bordered button + ring badge + threshold `>9 → "9+"` + color `--bg`.

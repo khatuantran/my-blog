@@ -251,7 +251,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **Main flow:**
   1. Actor react/comment/reply/share post của recipient
   2. BE service hook tạo row Notification `{userId=recipient, actorId, type, targetType/Id, postId, read=false, metadata: { reactionType? }}`
-  3. NotificationBell badge unread count +1 (FE polling 30s hoặc WS push T-315)
+  3. NotificationBell badge unread count cập nhật khi user reload (hoặc sau action của chính họ; WS push realtime defer T-315 — xem FR-14.6)
   4. User click bell → dropdown 10 items gần nhất, group time (today/yesterday/older)
   5. Click 1 item → navigate target (post detail / comment anchor) + auto mark read
 - **Alternative:** Anonymous engagement (anonymous react/comment) → KHÔNG tạo notification (cần actorId là user thật)
@@ -670,7 +670,7 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 - **FR-14.3 Bell dropdown:** NotificationBell trong TopBar hiển thị badge unread count (pulsing khi > 0). Dropdown 10 items gần nhất, group time (today/yesterday/older), link "view all →" sang `/notifications`.
 - **FR-14.4 Full page:** `/notifications` route (auth required) — tab All/Unread với count, list group time, **pagination** `page=1&limit=20` (max 50) theo NFR-06 với infinite scroll IntersectionObserver, bulk select checkbox, mark read/unread toggle per item, mark-all-read button, delete per item + bulk delete (max 100 ids).
 - **FR-14.5 Auto-mark read:** Click 1 notification → navigate target + PATCH `:id/read` với `read=true` (optimistic).
-- **FR-14.6 Realtime (defer):** WebSocket event `notification:new` push từ server → client room `user:<userId>` để FE invalidate query. Defer T-315; v1 dùng polling 30s.
+- **FR-14.6 Cập nhật unread count (amended 2026-06-02, T-477 — bỏ interval polling):** FE fetch unread count **khi mount/reload trang** + **invalidate sau action của chính user** (mark read / mark-all / delete → invalidate `qk.notifications.all`). **KHÔNG interval polling** (giảm tải API; trước đây polling 30s). Đánh đổi: notification mới từ user khác chỉ hiện sau khi reload. Realtime push (`notification:new` qua WebSocket room `user:<userId>`) vẫn **defer T-315** — khi enable sẽ thay phần này (push → invalidate, không cần reload).
 - **FR-14.7 NotificationsPage expanded scope (NEW — amended 2026-05-25 from design-file 2026-05-24 sync):** Trang `/notifications` mở rộng từ tab All/Unread thành **6 type tabs**:
   - **Tabs (6):** `◉ All` / `● Unread` / `❤ Reactions` / `💬 Comments` / `↩ Replies` / `↗ Shares` (icon + label + count badge per tab). Style `.tab-btn` mono 12, active = cyan border + bg `cyan/8` + glow.
   - **Filter logic FE:** Tab `All`/`Unread` đặc biệt (filter theo `read` flag). 4 tabs khác filter theo `n.type === tab` (REACTION/COMMENT/REPLY/SHARE).

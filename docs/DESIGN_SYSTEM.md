@@ -400,6 +400,14 @@ Toggle via Tweaks panel (dev tool, không document).
 - **Bar:** bg `--elev` (#1A1F2E), fill `linear-gradient(90deg, <color>80, <color>)` + `shadow 0 0 6px <color>60`
 - **Animation:** `transition: width 0.4s ease`
 
+### MoodPicker (Create Post)
+
+- **Impl:** `apps/web/src/components/create-post/MoodPicker.tsx` — 7-button emoji grid để chọn `Post.mood` khi tạo/sửa bài (FR-02). Khác MoodBadge (display chip) + MoodBar (admin stats).
+- **A11y:** container `role="radiogroup"` + `aria-label="Mood"`; mỗi nút `role="radio"` + `aria-checked`.
+- **Layout:** `flex flex-wrap gap-2`; mỗi nút emoji + label (`font-mono text-mono-sm`), `rounded-md border bg-elev px-3 py-1.5`, hover `border-b3`.
+- **Active state (theo `MOOD_CFG[m].color`):** `borderColor: color`, `background: ${color}15` (15% tint), `color: color`, `boxShadow: 0 0 12px ${color}40` (glow). Inactive: border `#2A3548`, text `#A0AEC0`.
+- **Source:** 7 mood từ `@/lib/mood-config` (`MOOD_KEYS` + `MOOD_CFG`) — đồng bộ enum `Mood` ([DATA_MODEL.md > Enum Mood](./DATA_MODEL.md)).
+
 ### UploadZone (Create Post)
 
 - **Style:** border 2px dashed `--b2`, radius `radius-lg`, padding `space-7 space-5`, text center, cursor pointer

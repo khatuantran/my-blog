@@ -30,23 +30,23 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ## Glossary
 
-| Term             | Definition                                                                                                                                                                                          |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Mood             | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)                                                                                                 |
-| Tag              | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                                                                                                     |
-| Anonymous ID     | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                                                                                                    |
-| Session          | Connection của user/anonymous từ browser → server (track cho live visitors)                                                                                                                         |
-| Activity         | Sự kiện như like/comment/save/new-session. **Admin-scope** (FR-07.5): toàn-cục real-time. **User-scope** (FR-13): per-user persistent log (POST/COMMENT/LIKE/SAVE created) cho Profile Activity tab |
-| Command Palette  | Overlay ⌘K cho quick navigation/actions                                                                                                                                                             |
-| Affected layer   | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                                                                                                                 |
-| Skill            | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`)                                                                                   |
-| Heatmap          | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity                                                                                        |
-| Notification     | Tin báo cho user khi có engagement event trên post của mình. Recipient = user nhận, Actor = user gây event. Stored append-only với flag `read` toggle                                               |
-| Engagement event | Hành động tạo notification: REACTION (react post), COMMENT (comment trên post của mình), REPLY (reply comment của mình), SHARE. KHÔNG tính remove-reaction/uncomment/unsave                         |
-| NotificationBell | UI primitive trong TopBar — bell icon + badge unread pulsing + dropdown 10 items gần nhất + link "view all →" sang `/notifications`                                                                 |
-| PostStatus       | Trạng thái bài viết: `PUBLISHED` (hiện feed), `DRAFT` (chỉ admin thấy trong Manage Posts), `ARCHIVED` (ẩn feed nhưng còn nav trực tiếp được)                                                        |
-| Reaction         | Multi-type interaction trên post (thay binary Like cũ). User chọn 1 trong 6 type; chọn lại type khác = đổi; chọn cùng type = remove (toggle off)                                                    |
-| ReactionType     | Enum 6 giá trị: LIKE 👍, LOVE ❤️, HAHA 😆, WOW 😮, SAD 😢, ANGRY 😡                                                                                                                                 |
+| Term             | Definition                                                                                                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Mood             | Trạng thái cảm xúc của bài viết (1 trong 7: HAPPY, EXCITED, THOUGHTFUL, CALM, SAD, GRATEFUL, ANGRY)                                                                                                                 |
+| Tag              | Hashtag user-generated (`#travel`, `#code`) — Admin gắn vào bài                                                                                                                                                     |
+| Anonymous ID     | UUID/hex ID lưu trong cookie để track anonymous user (vd: `Anon#7`, `0x7F·4A2C`)                                                                                                                                    |
+| Session          | Connection của user/anonymous từ browser → server (track cho live visitors)                                                                                                                                         |
+| Activity         | Sự kiện như like/comment/save/new-session. **Admin-scope** (FR-07.5): toàn-cục real-time. **User-scope** (FR-13): per-user persistent log (POST/COMMENT/LIKE/SAVE created) cho Profile Activity tab                 |
+| Command Palette  | Overlay ⌘K cho quick navigation/actions                                                                                                                                                                             |
+| Affected layer   | Phân loại task: `FE` (frontend) / `BE` (backend) / `Both` / `Infra`                                                                                                                                                 |
+| Skill            | Item kỹ năng trong profile user — `{ name: string, color: string }` (vd `{ name:'TypeScript', color:'#7DCFFF' }`)                                                                                                   |
+| Heatmap          | Grid 28 ô (4 tuần × 7 ngày) biểu diễn count theo ngày (post creation hoặc activity). Intensity 4 mức opacity                                                                                                        |
+| Notification     | Tin báo cho user khi có engagement event trên post của mình. Recipient = user nhận, Actor = user gây event. Stored append-only với flag `read` toggle                                                               |
+| Engagement event | Hành động tạo notification: REACTION (react post), COMMENT (comment trên post của mình), REPLY (reply comment của mình), SHARE _(defer — chưa implement, xem FR-14.1)_. KHÔNG tính remove-reaction/uncomment/unsave |
+| NotificationBell | UI primitive trong TopBar — bell icon + badge unread pulsing + dropdown 10 items gần nhất + link "view all →" sang `/notifications`                                                                                 |
+| PostStatus       | Trạng thái bài viết: `PUBLISHED` (hiện feed), `DRAFT` (chỉ admin thấy trong Manage Posts), `ARCHIVED` (ẩn feed nhưng còn nav trực tiếp được)                                                                        |
+| Reaction         | Multi-type interaction trên post (thay binary Like cũ). User chọn 1 trong 6 type; chọn lại type khác = đổi; chọn cùng type = remove (toggle off)                                                                    |
+| ReactionType     | Enum 6 giá trị: LIKE 👍, LOVE ❤️, HAHA 😆, WOW 😮, SAD 😢, ANGRY 😡                                                                                                                                                 |
 
 ## Use Cases
 
@@ -664,7 +664,8 @@ Khác biệt so với MXH thường: **single-author** (không phải user-gener
 
 ### FR-14: Notification System
 
-- **FR-14.1 Event types:** Tạo notification khi có engagement event — `REACTION` (user react post của recipient — payload `metadata.reactionType: LIKE|LOVE|HAHA|WOW|SAD|ANGRY`), `COMMENT` (comment trên post recipient), `REPLY` (reply comment recipient), `SHARE`. KHÔNG tạo cho remove-reaction/uncomment/unsave events. REACTION đổi type (vd LIKE → LOVE) cũng KHÔNG tạo notification mới (chỉ create event mới mới trigger).
+- **FR-14.1 Event types:** Tạo notification khi có engagement event — `REACTION` (user react post của recipient — payload `metadata.reactionType: LIKE|LOVE|HAHA|WOW|SAD|ANGRY`), `COMMENT` (comment trên post recipient), `REPLY` (reply comment recipient), `SHARE` **(defer — chưa implement)**. KHÔNG tạo cho remove-reaction/uncomment/unsave events. REACTION đổi type (vd LIKE → LOVE) cũng KHÔNG tạo notification mới (chỉ create event mới mới trigger).
+  > **SHARE defer note:** enum `NotificationType.SHARE` + FE tab `↗ Shares` (FR-14.7) đã sẵn, nhưng share là client-side share-intent (FR-05.1, không qua BE) nên KHÔNG có call-site tạo `SHARE` notification. Phase 2 nếu thêm server-side share tracking mới enable; hiện tab Shares luôn rỗng by design.
 - **FR-14.2 Recipient scope:** Chỉ authed user nhận notification (cần `userId` field). Anonymous user KHÔNG nhận. Self-action KHÔNG tạo notification (vd user react post của chính mình → skip).
 - **FR-14.3 Bell dropdown:** NotificationBell trong TopBar hiển thị badge unread count (pulsing khi > 0). Dropdown 10 items gần nhất, group time (today/yesterday/older), link "view all →" sang `/notifications`.
 - **FR-14.4 Full page:** `/notifications` route (auth required) — tab All/Unread với count, list group time, **pagination** `page=1&limit=20` (max 50) theo NFR-06 với infinite scroll IntersectionObserver, bulk select checkbox, mark read/unread toggle per item, mark-all-read button, delete per item + bulk delete (max 100 ids).

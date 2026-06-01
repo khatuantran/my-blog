@@ -28,6 +28,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Changed
 
+- **OpenAPI response-schema cho reactions/notifications/search (T-474, F5)** (2026-06-01, BE): 13 endpoint của 3 controller trước dùng `@ApiResponse({ status: 200 })` không khai `type:` → `docs/contracts/openapi.yaml` ra `200` rỗng (no content), response shape chỉ tồn tại ở `apps/web/src/types/api.ts` viết tay. Thêm response DTO classes (reaction/notification/search; search.posts reuse `PaginatedPostsDto`) + gắn `type:` → openapi.yaml + `api.generated.ts` giờ có schema đầy đủ. Thuần Swagger metadata, KHÔNG đổi runtime behavior — 14 unit + 45 e2e (reactions/notifications/search) + lint + typecheck pass 100%. (Refs T-474, audit Gói B)
+
 - **Post Detail: card border quanh post (user feedback "thiếu border")** (2026-05-31, FE): Bọc post (PostHeader→content→ImageGrid→files→tags→actions) trong card `rounded-lg border border-b2 bg-surf p-5`; actions row đổi `border-y` → `border-t` (divider trong card); comments section nằm dưới card. Override design-file T-430 (vốn borderless full-width) theo ý user. PostDetailPage.test pass.
 
 - **FR-18 hardening (adversarial review fixes)** (2026-05-31, BE): (1) `ListInteractionLogsDto.from/to` validate `@IsISO8601()` → reject malformed date 400 (tránh `new Date('garbage')`); (2) reaction **đổi type** giờ cũng trace POST_REACTION (metadata `previousType`) — trước chỉ log lúc tạo; (3) `TRUST_PROXY` env-configurable (default 1) thay hardcode — chống spoof X-Forwarded-For khi đổi topology; (4) wrap mọi `interactionLog.log()` call-site trong try-catch (defensive). +date-validation e2e + reaction-type-change e2e.

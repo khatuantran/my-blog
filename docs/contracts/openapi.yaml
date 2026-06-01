@@ -180,6 +180,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponseDto'
       tags:
         - notifications
   /notifications/unread-count:
@@ -190,6 +194,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountResponseDto'
       tags:
         - notifications
   /notifications/mark-all-read:
@@ -200,6 +208,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedCountResponseDto'
       tags:
         - notifications
   /notifications/{id}/read:
@@ -221,6 +233,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkReadResponseDto'
       tags:
         - notifications
   /notifications/bulk-read:
@@ -237,6 +253,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatedCountResponseDto'
       tags:
         - notifications
   /notifications/all:
@@ -247,6 +267,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedCountResponseDto'
       tags:
         - notifications
   /notifications/bulk:
@@ -263,6 +287,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedCountResponseDto'
       tags:
         - notifications
   /notifications/{id}:
@@ -760,6 +788,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpsertReactionResponseDto'
       tags:
         - reactions
     delete:
@@ -815,6 +847,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionListResponseDto'
       tags:
         - reactions
   /posts/{id}/reactions/counts:
@@ -830,6 +866,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReactionCountsResponseDto'
       tags:
         - reactions
   /posts/{id}/like:
@@ -855,6 +895,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToggleResultDto'
       tags:
         - reactions
   /admin/interaction-logs:
@@ -1097,6 +1141,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponseDto'
       tags:
         - search
   /admin/test-reset:
@@ -1473,6 +1521,114 @@ components:
         - total
         - page
         - limit
+    NotificationActorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: clx0a1b2c3d4e5f6g7h8i9j0
+        username:
+          type: string
+          example: alice
+        avatarUrl:
+          type: object
+          nullable: true
+          example: null
+      required:
+        - id
+        - username
+        - avatarUrl
+    NotificationItemDto:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - REACTION
+            - COMMENT
+            - REPLY
+            - SHARE
+          example: REACTION
+        actor:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/NotificationActorDto'
+        targetType:
+          type: string
+          example: POST
+          description: POST | COMMENT (polymorphic)
+        targetId:
+          type: string
+        postId:
+          type: object
+          nullable: true
+          description: Denorm post id cho fast nav
+        read:
+          type: boolean
+          example: false
+        metadata:
+          type: object
+          nullable: true
+          example:
+            reactionType: LOVE
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-30T12:00:00.000Z'
+      required:
+        - id
+        - type
+        - actor
+        - targetType
+        - targetId
+        - postId
+        - read
+        - metadata
+        - createdAt
+    NotificationListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationItemDto'
+        total:
+          type: number
+          example: 42
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 20
+        unreadCount:
+          type: number
+          example: 5
+          description: Tổng số chưa đọc của user
+      required:
+        - items
+        - total
+        - page
+        - limit
+        - unreadCount
+    UnreadCountResponseDto:
+      type: object
+      properties:
+        count:
+          type: number
+          example: 3
+      required:
+        - count
+    UpdatedCountResponseDto:
+      type: object
+      properties:
+        updated:
+          type: number
+          example: 5
+      required:
+        - updated
     MarkReadDto:
       type: object
       properties:
@@ -1480,6 +1636,17 @@ components:
           type: boolean
           example: true
       required:
+        - read
+    MarkReadResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        read:
+          type: boolean
+          example: true
+      required:
+        - id
         - read
     BulkMarkReadDto:
       type: object
@@ -1491,6 +1658,14 @@ components:
             type: string
       required:
         - ids
+    DeletedCountResponseDto:
+      type: object
+      properties:
+        deleted:
+          type: number
+          example: 5
+      required:
+        - deleted
     BulkDeleteDto:
       type: object
       properties:
@@ -2254,6 +2429,179 @@ components:
           description: Kiểu reaction
       required:
         - type
+    ReactionCountsMapDto:
+      type: object
+      properties:
+        LIKE:
+          type: number
+          example: 5
+        LOVE:
+          type: number
+          example: 2
+        HAHA:
+          type: number
+          example: 0
+        WOW:
+          type: number
+          example: 1
+        SAD:
+          type: number
+          example: 0
+        ANGRY:
+          type: number
+          example: 0
+      required:
+        - LIKE
+        - LOVE
+        - HAHA
+        - WOW
+        - SAD
+        - ANGRY
+    UpsertReactionResponseDto:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+          example: LOVE
+        totalCounts:
+          $ref: '#/components/schemas/ReactionCountsMapDto'
+        topThree:
+          type: array
+          example:
+            - LIKE
+            - LOVE
+          items:
+            type: string
+            enum:
+              - LIKE
+              - LOVE
+              - HAHA
+              - WOW
+              - SAD
+              - ANGRY
+      required:
+        - type
+        - totalCounts
+        - topThree
+    ReactionCountsResponseDto:
+      type: object
+      properties:
+        totalCounts:
+          $ref: '#/components/schemas/ReactionCountsMapDto'
+        topThree:
+          type: array
+          items:
+            type: string
+            enum:
+              - LIKE
+              - LOVE
+              - HAHA
+              - WOW
+              - SAD
+              - ANGRY
+        total:
+          type: number
+          example: 8
+        myReaction:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+          nullable: true
+          example: LIKE
+      required:
+        - totalCounts
+        - topThree
+        - total
+        - myReaction
+    ReactionActorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: clx0a1b2c3d4e5f6g7h8i9j0
+        username:
+          type: string
+          example: alice
+        avatarUrl:
+          type: object
+          nullable: true
+          example: null
+      required:
+        - id
+        - username
+        - avatarUrl
+    ReactionListItemDto:
+      type: object
+      properties:
+        actor:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/ReactionActorDto'
+        type:
+          type: string
+          enum:
+            - LIKE
+            - LOVE
+            - HAHA
+            - WOW
+            - SAD
+            - ANGRY
+        createdAt:
+          format: date-time
+          type: string
+          example: '2026-05-30T12:00:00.000Z'
+      required:
+        - actor
+        - type
+        - createdAt
+    ReactionListResponseDto:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReactionListItemDto'
+        total:
+          type: number
+          example: 8
+        page:
+          type: number
+          example: 1
+        limit:
+          type: number
+          example: 20
+        byType:
+          $ref: '#/components/schemas/ReactionCountsMapDto'
+      required:
+        - items
+        - total
+        - page
+        - limit
+        - byType
+    ToggleResultDto:
+      type: object
+      properties:
+        liked:
+          type: boolean
+          example: true
+        count:
+          type: number
+          example: 3
+      required:
+        - liked
+        - count
     InteractionLogActorDto:
       type: object
       properties:
@@ -2672,6 +3020,80 @@ components:
         - total
         - page
         - limit
+    SearchFileDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: report.pdf
+        postId:
+          type: string
+        type:
+          type: string
+          example: PDF
+      required:
+        - id
+        - name
+        - postId
+        - type
+    SearchTagDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: '#travel'
+        color:
+          type: object
+          nullable: true
+          example: '#00FFE5'
+      required:
+        - id
+        - name
+        - color
+    SearchStatsDto:
+      type: object
+      properties:
+        totalPosts:
+          type: number
+          example: 12
+        withImages:
+          type: number
+          example: 7
+        withFiles:
+          type: number
+          example: 3
+        savedCount:
+          type: number
+          example: 5
+      required:
+        - totalPosts
+        - withImages
+        - withFiles
+        - savedCount
+    SearchResponseDto:
+      type: object
+      properties:
+        posts:
+          $ref: '#/components/schemas/PaginatedPostsDto'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchFileDto'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchTagDto'
+        stats:
+          $ref: '#/components/schemas/SearchStatsDto'
+      required:
+        - posts
+        - files
+        - tags
+        - stats
     MetricBucketDto:
       type: object
       properties:

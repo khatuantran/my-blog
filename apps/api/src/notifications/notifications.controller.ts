@@ -18,6 +18,13 @@ import { BulkDeleteDto } from './dto/bulk-delete.dto';
 import { BulkMarkReadDto } from './dto/bulk-mark-read.dto';
 import { ListNotificationsDto } from './dto/list-notifications.dto';
 import { MarkReadDto } from './dto/mark-read.dto';
+import {
+  NotificationListResponseDto,
+  UnreadCountResponseDto,
+  MarkReadResponseDto,
+  UpdatedCountResponseDto,
+  DeletedCountResponseDto,
+} from './dto/notification-response.dto';
 import { NotificationsService } from './notifications.service';
 
 @ApiTags('notifications')
@@ -28,14 +35,14 @@ export class NotificationsController {
 
   @Get()
   @ApiOperation({ summary: 'List notifications của current user, filter all|unread, paginated' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: NotificationListResponseDto })
   list(@CurrentUser() user: AuthenticatedUser, @Query() query: ListNotificationsDto) {
     return this.notifications.listNotifications(user.sub, query);
   }
 
   @Get('unread-count')
   @ApiOperation({ summary: 'Số notification chưa đọc của current user' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: UnreadCountResponseDto })
   unreadCount(@CurrentUser() user: AuthenticatedUser) {
     return this.notifications.getUnreadCount(user.sub);
   }
@@ -44,14 +51,14 @@ export class NotificationsController {
   @Patch('mark-all-read')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Đánh dấu tất cả notification của user là đã đọc' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: UpdatedCountResponseDto })
   markAllRead(@CurrentUser() user: AuthenticatedUser) {
     return this.notifications.markAllRead(user.sub);
   }
 
   @Patch(':id/read')
   @ApiOperation({ summary: 'Đánh dấu 1 notification đã đọc/chưa đọc (self-scope)' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: MarkReadResponseDto })
   markRead(
     @CurrentUser() user: AuthenticatedUser,
     @Param('id') id: string,
@@ -66,7 +73,7 @@ export class NotificationsController {
   @ApiOperation({
     summary: 'Đánh dấu nhiều notification đã đọc (self-scope, ids khác user bị skip)',
   })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: UpdatedCountResponseDto })
   bulkMarkRead(@CurrentUser() user: AuthenticatedUser, @Body() dto: BulkMarkReadDto) {
     return this.notifications.bulkMarkRead(user.sub, dto.ids);
   }
@@ -74,7 +81,7 @@ export class NotificationsController {
   @Delete('all')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xóa tất cả notification của current user' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: DeletedCountResponseDto })
   deleteAll(@CurrentUser() user: AuthenticatedUser) {
     return this.notifications.deleteAll(user.sub);
   }
@@ -83,7 +90,7 @@ export class NotificationsController {
   @Delete('bulk')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Xóa nhiều notification (self-scope, ids không thuộc user bị skip)' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: DeletedCountResponseDto })
   deleteBulk(@CurrentUser() user: AuthenticatedUser, @Body() dto: BulkDeleteDto) {
     return this.notifications.deleteBulk(user.sub, dto.ids);
   }

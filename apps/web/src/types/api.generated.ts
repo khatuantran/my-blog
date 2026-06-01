@@ -998,12 +998,81 @@ export interface components {
       page: number;
       limit: number;
     };
+    NotificationActorDto: {
+      /** @example clx0a1b2c3d4e5f6g7h8i9j0 */
+      id: string;
+      /** @example alice */
+      username: string;
+      /** @example null */
+      avatarUrl: Record<string, never> | null;
+    };
+    NotificationItemDto: {
+      id: string;
+      /**
+       * @example REACTION
+       * @enum {string}
+       */
+      type: 'REACTION' | 'COMMENT' | 'REPLY' | 'SHARE';
+      actor: components['schemas']['NotificationActorDto'] | null;
+      /**
+       * @description POST | COMMENT (polymorphic)
+       * @example POST
+       */
+      targetType: string;
+      targetId: string;
+      /** @description Denorm post id cho fast nav */
+      postId: Record<string, never> | null;
+      /** @example false */
+      read: boolean;
+      /**
+       * @example {
+       *       "reactionType": "LOVE"
+       *     }
+       */
+      metadata: Record<string, never> | null;
+      /**
+       * Format: date-time
+       * @example 2026-05-30T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    NotificationListResponseDto: {
+      items: components['schemas']['NotificationItemDto'][];
+      /** @example 42 */
+      total: number;
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      /**
+       * @description Tổng số chưa đọc của user
+       * @example 5
+       */
+      unreadCount: number;
+    };
+    UnreadCountResponseDto: {
+      /** @example 3 */
+      count: number;
+    };
+    UpdatedCountResponseDto: {
+      /** @example 5 */
+      updated: number;
+    };
     MarkReadDto: {
+      /** @example true */
+      read: boolean;
+    };
+    MarkReadResponseDto: {
+      id: string;
       /** @example true */
       read: boolean;
     };
     BulkMarkReadDto: {
       ids: string[];
+    };
+    DeletedCountResponseDto: {
+      /** @example 5 */
+      deleted: number;
     };
     BulkDeleteDto: {
       ids: string[];
@@ -1429,6 +1498,80 @@ export interface components {
        */
       type: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
     };
+    ReactionCountsMapDto: {
+      /** @example 5 */
+      LIKE: number;
+      /** @example 2 */
+      LOVE: number;
+      /** @example 0 */
+      HAHA: number;
+      /** @example 1 */
+      WOW: number;
+      /** @example 0 */
+      SAD: number;
+      /** @example 0 */
+      ANGRY: number;
+    };
+    UpsertReactionResponseDto: {
+      /**
+       * @example LOVE
+       * @enum {string}
+       */
+      type: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
+      totalCounts: components['schemas']['ReactionCountsMapDto'];
+      /**
+       * @example [
+       *       "LIKE",
+       *       "LOVE"
+       *     ]
+       */
+      topThree: ('LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY')[];
+    };
+    ReactionCountsResponseDto: {
+      totalCounts: components['schemas']['ReactionCountsMapDto'];
+      topThree: ('LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY')[];
+      /** @example 8 */
+      total: number;
+      /**
+       * @example LIKE
+       * @enum {string|null}
+       */
+      myReaction: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY' | null;
+    };
+    ReactionActorDto: {
+      /** @example clx0a1b2c3d4e5f6g7h8i9j0 */
+      id: string;
+      /** @example alice */
+      username: string;
+      /** @example null */
+      avatarUrl: Record<string, never> | null;
+    };
+    ReactionListItemDto: {
+      actor: components['schemas']['ReactionActorDto'] | null;
+      /** @enum {string} */
+      type: 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
+      /**
+       * Format: date-time
+       * @example 2026-05-30T12:00:00.000Z
+       */
+      createdAt: string;
+    };
+    ReactionListResponseDto: {
+      items: components['schemas']['ReactionListItemDto'][];
+      /** @example 8 */
+      total: number;
+      /** @example 1 */
+      page: number;
+      /** @example 20 */
+      limit: number;
+      byType: components['schemas']['ReactionCountsMapDto'];
+    };
+    ToggleResultDto: {
+      /** @example true */
+      liked: boolean;
+      /** @example 3 */
+      count: number;
+    };
     InteractionLogActorDto: {
       /** @example usr_abc */
       id: string;
@@ -1642,6 +1785,37 @@ export interface components {
       page: number;
       /** @example 10 */
       limit: number;
+    };
+    SearchFileDto: {
+      id: string;
+      /** @example report.pdf */
+      name: string;
+      postId: string;
+      /** @example PDF */
+      type: string;
+    };
+    SearchTagDto: {
+      id: string;
+      /** @example #travel */
+      name: string;
+      /** @example #00FFE5 */
+      color: Record<string, never> | null;
+    };
+    SearchStatsDto: {
+      /** @example 12 */
+      totalPosts: number;
+      /** @example 7 */
+      withImages: number;
+      /** @example 3 */
+      withFiles: number;
+      /** @example 5 */
+      savedCount: number;
+    };
+    SearchResponseDto: {
+      posts: components['schemas']['PaginatedPostsDto'];
+      files: components['schemas']['SearchFileDto'][];
+      tags: components['schemas']['SearchTagDto'][];
+      stats: components['schemas']['SearchStatsDto'];
     };
     MetricBucketDto: {
       /** @example 42 */
@@ -1917,7 +2091,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['NotificationListResponseDto'];
+        };
       };
     };
   };
@@ -1934,7 +2110,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['UnreadCountResponseDto'];
+        };
       };
     };
   };
@@ -1951,7 +2129,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['UpdatedCountResponseDto'];
+        };
       };
     };
   };
@@ -1974,7 +2154,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['MarkReadResponseDto'];
+        };
       };
     };
   };
@@ -1995,7 +2177,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['UpdatedCountResponseDto'];
+        };
       };
     };
   };
@@ -2012,7 +2196,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['DeletedCountResponseDto'];
+        };
       };
     };
   };
@@ -2033,7 +2219,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['DeletedCountResponseDto'];
+        };
       };
     };
   };
@@ -2570,7 +2758,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['ReactionListResponseDto'];
+        };
       };
     };
   };
@@ -2593,7 +2783,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['UpsertReactionResponseDto'];
+        };
       };
     };
   };
@@ -2631,7 +2823,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['ReactionCountsResponseDto'];
+        };
       };
     };
   };
@@ -2668,7 +2862,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['ToggleResultDto'];
+        };
       };
     };
   };
@@ -2874,7 +3070,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['SearchResponseDto'];
+        };
       };
     };
   };

@@ -21,6 +21,12 @@ import { JwtOptionalAuthGuard } from '../common/guards/jwt-optional-auth.guard';
 import type { AuthenticatedUser } from '../auth/jwt-payload';
 import { UpsertReactionDto } from './dto/upsert-reaction.dto';
 import { ListReactionsDto } from './dto/list-reactions.dto';
+import {
+  UpsertReactionResponseDto,
+  ReactionCountsResponseDto,
+  ReactionListResponseDto,
+  ToggleResultDto,
+} from './dto/reaction-response.dto';
 import { ReactionsService } from './reactions.service';
 import type {
   ToggleResult,
@@ -40,6 +46,7 @@ export class ReactionsController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Upsert reaction cho post (optional auth, idempotent)' })
+  @ApiResponse({ status: 200, type: UpsertReactionResponseDto })
   upsertReaction(
     @Param('id') id: string,
     @Body() dto: UpsertReactionDto,
@@ -71,7 +78,7 @@ export class ReactionsController {
   @ApiOperation({
     summary: 'Aggregate reaction counts cho post (public, myReaction nếu có viewer)',
   })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: ReactionCountsResponseDto })
   getReactionCounts(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser | undefined,
@@ -82,7 +89,7 @@ export class ReactionsController {
 
   @Get('posts/:id/reactions')
   @ApiOperation({ summary: 'List users đã react, optional filter by type, paginated' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: ReactionListResponseDto })
   listReactions(
     @Param('id') id: string,
     @Query() query: ListReactionsDto,
@@ -103,7 +110,7 @@ export class ReactionsController {
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle like cho comment APPROVED (binary, optional auth)' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: ToggleResultDto })
   toggleCommentLike(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser | undefined,

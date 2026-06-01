@@ -2,12 +2,12 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { listNotifications } from '@/services/api/notifications';
 import { qk } from '@/lib/query-keys';
 
-export function useInfiniteNotifications(params: { filter?: string } = {}) {
+export function useInfiniteNotifications(params: { filter?: 'all' | 'unread' } = {}) {
   return useInfiniteQuery({
     queryKey: qk.notifications.list(params),
     queryFn: ({ pageParam = 1 }) =>
       listNotifications({
-        filter: params.filter as 'all' | 'unread' | undefined,
+        filter: params.filter,
         page: pageParam as number,
         limit: 20,
       }),

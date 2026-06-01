@@ -4,6 +4,9 @@
 import type { Mood } from '@/lib/mood-config';
 import type { FileType } from '@/lib/file-config';
 
+// Re-export enum-like types từ lib config để `@/types/api` là barrel duy nhất cho FE.
+export type { Mood } from '@/lib/mood-config';
+
 export type Role = 'ADMIN' | 'USER' | 'BANNED';
 
 export type Skill = { name: string; color: string };

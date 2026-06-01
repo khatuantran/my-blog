@@ -14,7 +14,7 @@ function makePost(overrides: Partial<Post> = {}): Post {
     content: 'Hello world this is a test post with some content.',
     mood: 'HAPPY',
     viewCount: 42,
-    author: { id: 'u1', username: 'alice', avatarUrl: null, role: 'USER', title: null },
+    author: { id: 'u1', username: 'alice', avatarUrl: null, role: 'USER' },
     tags: [{ id: 't1', name: '#dev', color: '#00FFE5' }],
     images: [],
     files: [],

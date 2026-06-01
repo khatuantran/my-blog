@@ -65,6 +65,7 @@ export function QuickEditModal({ post, onClose, onSaved }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!post) return;
     setError(null);
     updateMut.mutate(
       { id: post.id, body: { status, mood, content, tags } },

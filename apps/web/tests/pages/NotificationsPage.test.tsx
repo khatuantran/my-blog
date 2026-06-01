@@ -69,9 +69,9 @@ beforeEach(() => {
       role: 'USER',
       avatarUrl: null,
       email: 'alice@test.com',
+      createdAt: '2026-01-01T00:00:00.000Z',
     },
     status: 'authed',
-    accessToken: 'tok',
   });
 });
 

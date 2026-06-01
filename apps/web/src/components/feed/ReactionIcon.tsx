@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import type { ReactionType } from '@/types/api';
 import { REACTION_CONFIG, type ReactionConfig } from '@/lib/reaction-config';
 

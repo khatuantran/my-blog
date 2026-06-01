@@ -64,6 +64,8 @@ Tuân theo [Keep a Changelog](https://keepachangelog.com/) + [SemVer](https://se
 
 ### Fixed
 
+- **FE production build broken — 7 type errors lọt vào `main`** (2026-06-02, FE): `pnpm build` (`tsc --noEmit && vite build`) fail trên Vercel (CI typecheck cũng đang đỏ). Fix: (1) re-export `Mood` từ `@/types/api` (barrel thiếu export); (2) guard `if (!post) return` trong `QuickEditModal.handleSubmit` (possibly null trong closure); (3) `import type { JSX } from 'react'` trong `ReactionIcon` (React 19 bỏ global JSX namespace); (4) narrow `filter?: 'all' | 'unread'` ở `useInfiniteNotifications`; (5) stale test mocks: bỏ `PostAuthor.title` + auth-store `accessToken` (JWT là httpOnly cookie), thêm `AuthUser.createdAt`; (6) TS6305 `design-tokens.test` import `tailwind.config.ts` qua project reference → move `tailwind.config.ts` vào main `tsconfig` include. Build + lint + 511 unit test (trừ 3 fail pre-existing ở `ManagePostsPage`) pass.
+
 - **Vercel deploy blocker — `engines.node` format** (2026-06-02, Infra): Root `package.json` đặt `"node": ">=24"` — Vercel không chấp nhận semver range, cần major cố định `"24.x"`. Kết hợp `.npmrc engine-strict=true`, nếu Vercel fallback Node < 24 thì `pnpm install` hard-fail (`Unsupported engine`). Đổi `>=24` → `24.x`. Đính chính note build command ở `DEPLOYMENT.md` (với Root Directory=`apps/web`, `pnpm build` chạy vite trong web, không qua Turbo).
 
 - **BUG-027 backfill regression test (T-475)** (2026-06-01, FE/test): Thêm test tự động cho fix multi-upload (đã ship ở T-449 nhưng chỉ "verify manual") — `UploadZone.test.tsx` upload 3 file 1 lần → assert giữ đủ 3 (3 nút Remove). Verified red khi revert về `onChange([...value, asset])` (chỉ giữ file cuối → `got 1`). Đóng test-debt từ audit. (Refs T-475, BUG-027)

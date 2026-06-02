@@ -92,6 +92,33 @@ describe('AvatarMenu (T-364)', () => {
     expect(screen.queryByTestId('avatar-menu-panel')).not.toBeInTheDocument();
   });
 
+  it('regression BUG-036: trigger renders avatar <img> khi user có avatarUrl (không chỉ initial)', () => {
+    useAuthStore.setState({
+      status: 'authed',
+      user: {
+        id: 'admin-1',
+        username: 'kha',
+        email: 'a@x.com',
+        role: 'ADMIN',
+        avatarUrl: 'https://cdn.example.com/avatar-new.jpg',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
+    renderMenu();
+    const trigger = screen.getByTestId('avatar-menu-trigger');
+    const img = trigger.querySelector('img');
+    expect(img).not.toBeNull();
+    expect(img).toHaveAttribute('src', 'https://cdn.example.com/avatar-new.jpg');
+  });
+
+  it('regression BUG-036: trigger fallback về initial khi avatarUrl null (không có img)', () => {
+    // beforeEach set avatarUrl: null, username: admin
+    renderMenu();
+    const trigger = screen.getByTestId('avatar-menu-trigger');
+    expect(trigger.querySelector('img')).toBeNull();
+    expect(trigger).toHaveTextContent('A');
+  });
+
   it('avatar status dot present + pulses (animate-pulse-status class)', () => {
     renderMenu();
     const dot = screen.getByTestId('avatar-menu-status-dot');

@@ -11,6 +11,20 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-036] [Medium] [FE] Avatar TopBar (AvatarMenu) không hiện/không cập nhật ảnh sau khi đổi avatar
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-06-02
+- **Environment:** prod kha.blog / Layer: FE
+- **Related FR/component:** FR-11.7 / `components/layout/AvatarMenu.tsx`, `hooks/mutations/use-avatar.ts`
+- **Mô tả:** Đổi avatar xong, ảnh hero ProfilePage cập nhật đúng nhưng avatar nhỏ ở TopBar (góc phải) vẫn hiện chữ cái đầu "K", không hiện/không cập nhật ảnh.
+- **Steps:** Login admin → Settings → đổi avatar → ProfilePage hero hiện ảnh mới, nhưng AvatarMenu TopBar vẫn "K".
+- **Expected:** AvatarMenu TopBar hiện ảnh avatar mới (như comment trong use-avatar đã ghi "TopBar AvatarMenu refetch với avatarUrl mới").
+- **Root cause:** 2 bug. (A) `AvatarMenu` render **chỉ initial**, KHÔNG có `<img src={avatarUrl}>` (tự code tay, quên — khác `Avatar` component shared vốn render ảnh). (B) `useAuth` đọc từ Zustand auth store; `use-avatar` chỉ `invalidateQueries(['auth-me'])` nhưng **KHÔNG có query nào dùng key đó** (auth state đến từ store qua `hydrate()/getMe()`, không phải TanStack query) → store `avatarUrl` stale tới khi reload. ProfilePage hero cập nhật được vì đọc query `user-by-username` (có invalidate).
+- **Fix:** (A) `AvatarMenu` trigger + dropdown header render `<img>` khi `user.avatarUrl` có, fallback initial. (B) `use-avatar` onSuccess patch Zustand store (`setUser({...user, avatarUrl, avatarPublicId})`) thay vì invalidate query vô dụng; giữ invalidate `user-by-username`.
+- **Regression test:** `AvatarMenu.test` (2 case: có avatarUrl → render img đúng src / null → fallback initial) + `use-avatar.test` (2 case: upload/remove cập nhật store). 9/9 pass.
+- **Lesson learned:** auth state ở store Zustand (không phải TanStack query) → mutation đổi user data PHẢI patch store trực tiếp, invalidate query là no-op. Mọi UI surface hiện avatar nên dùng `Avatar`/`ProfileAvatar` shared (render img) thay vì tự code initial-only.
+
 ### [BUG-035] [Medium] [Infra] 5 FE unit test fail — RR7 client-nav × MSW/undici AbortSignal trong jsdom
 
 - **Status:** FIXED

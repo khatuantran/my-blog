@@ -76,12 +76,18 @@ export function AvatarMenu() {
         aria-label="User menu"
         aria-expanded={open}
         data-testid="avatar-menu-trigger"
-        className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-mono-md text-cyan cursor-pointer transition-shadow relative ${
+        className={`w-8 h-8 rounded-full border-2 border-cyan flex items-center justify-center font-brand font-bold text-mono-md text-cyan cursor-pointer transition-shadow relative overflow-hidden ${
           open ? 'shadow-glow-cyan-md' : 'shadow-glow-cyan-sm'
         }`}
-        style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
+        style={{
+          background: user?.avatarUrl ? undefined : 'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+        }}
       >
-        {initial}
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initial
+        )}
         <span
           aria-hidden="true"
           data-testid="avatar-menu-status-dot"
@@ -104,10 +110,18 @@ export function AvatarMenu() {
             <div className="px-2.5 pt-2 pb-2.5 border-b border-b2 mb-1">
               <div className="flex items-center gap-2">
                 <div
-                  className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-mono-sm text-cyan font-bold font-brand"
-                  style={{ background: 'linear-gradient(135deg,#00FFE520,#BB9AF720)' }}
+                  className="w-7 h-7 rounded-full border-[1.5px] border-cyan flex items-center justify-center text-mono-sm text-cyan font-bold font-brand overflow-hidden"
+                  style={{
+                    background: user?.avatarUrl
+                      ? undefined
+                      : 'linear-gradient(135deg,#00FFE520,#BB9AF720)',
+                  }}
                 >
-                  {initial}
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    initial
+                  )}
                 </div>
                 <div>
                   <div className="font-mono text-mono-sm text-blu">~/{user?.username}</div>

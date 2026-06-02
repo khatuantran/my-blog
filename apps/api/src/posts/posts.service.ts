@@ -274,61 +274,67 @@ export class PostsService {
       );
     }
 
-    const post = await this.prisma.$transaction(async (tx) => {
-      if (tagsProvided) {
-        const tags = await this.tags.upsertMany(dto.tags ?? [], tx);
-        await tx.postTag.deleteMany({ where: { postId: id } });
-        if (tags.length > 0) {
-          await tx.postTag.createMany({
-            data: tags.map((t) => ({ postId: id, tagId: t.id })),
-          });
+    const post = await this.prisma.$transaction(
+      async (tx) => {
+        if (tagsProvided) {
+          const tags = await this.tags.upsertMany(dto.tags ?? [], tx);
+          await tx.postTag.deleteMany({ where: { postId: id } });
+          if (tags.length > 0) {
+            await tx.postTag.createMany({
+              data: tags.map((t) => ({ postId: id, tagId: t.id })),
+            });
+          }
         }
-      }
 
-      if (imagesProvided) {
-        await tx.image.deleteMany({ where: { postId: id } });
-        if (dto.images && dto.images.length > 0) {
-          await tx.image.createMany({
-            data: dto.images.map((img, idx) => ({
-              postId: id,
-              url: img.url,
-              publicId: img.publicId,
-              width: img.width,
-              height: img.height,
-              order: img.order ?? idx,
-            })),
-          });
+        if (imagesProvided) {
+          await tx.image.deleteMany({ where: { postId: id } });
+          if (dto.images && dto.images.length > 0) {
+            await tx.image.createMany({
+              data: dto.images.map((img, idx) => ({
+                postId: id,
+                url: img.url,
+                publicId: img.publicId,
+                width: img.width,
+                height: img.height,
+                order: img.order ?? idx,
+              })),
+            });
+          }
         }
-      }
 
-      if (filesProvided) {
-        await tx.file.deleteMany({ where: { postId: id } });
-        if (dto.files && dto.files.length > 0) {
-          await tx.file.createMany({
-            data: dto.files.map((f) => ({
-              postId: id,
-              name: f.name,
-              type: f.type,
-              size: f.size,
-              url: f.url,
-              publicId: f.publicId,
-            })),
-          });
+        if (filesProvided) {
+          await tx.file.deleteMany({ where: { postId: id } });
+          if (dto.files && dto.files.length > 0) {
+            await tx.file.createMany({
+              data: dto.files.map((f) => ({
+                postId: id,
+                name: f.name,
+                type: f.type,
+                size: f.size,
+                url: f.url,
+                publicId: f.publicId,
+              })),
+            });
+          }
         }
-      }
 
-      return tx.post.update({
-        where: { id },
-        data: {
-          ...(dto.content !== undefined ? { content: dto.content } : {}),
-          ...(dto.mood !== undefined ? { mood: dto.mood } : {}),
-          ...('status' in dto && dto.status !== undefined
-            ? { status: dto.status as PostStatus }
-            : {}),
-        },
-        include: POST_INCLUDE,
-      });
-    });
+        return tx.post.update({
+          where: { id },
+          data: {
+            ...(dto.content !== undefined ? { content: dto.content } : {}),
+            ...(dto.mood !== undefined ? { mood: dto.mood } : {}),
+            ...('status' in dto && dto.status !== undefined
+              ? { status: dto.status as PostStatus }
+              : {}),
+          },
+          include: POST_INCLUDE,
+        });
+        // Cross-region latency (Fly sin ↔ Neon us-east ~250ms/query): nhiều query tuần tự
+        // dễ vượt default interactive-tx timeout 5s → "Transaction already closed". Nâng timeout.
+        // Fix gốc = co-locate app + DB cùng region (xem BUG-037).
+      },
+      { maxWait: 15_000, timeout: 30_000 },
+    );
 
     // Best-effort Cloudinary cleanup after successful DB tx
     await this.storage.destroyMany(orphanedAssets);

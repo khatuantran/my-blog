@@ -11,6 +11,20 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-037] [High] [BE] Update post 500 — interactive transaction timeout (cross-region Fly↔Neon)
+
+- **Status:** FIXED (workaround timeout; fix gốc = co-locate, đề xuất bên dưới)
+- **Reporter:** khatran — **Date:** 2026-06-02
+- **Environment:** prod Fly `sin` + Neon `us-east-1` / Layer: BE
+- **Related FR/component:** FR-04 / `posts.service.ts` `update()` (`$transaction`)
+- **Mô tả:** `PATCH /posts/:id` (update bài, vd thêm ảnh) trả 500 `INTERNAL_ERROR` trên prod. Local OK.
+- **Actual (Fly log):** `Transaction already closed: A query cannot be executed on an expired transaction. The timeout for this transaction was 5000 ms, however 5226 ms passed`.
+- **Root cause:** App Fly ở region `sin` (Singapore), Neon DB ở `us-east-1` (Mỹ) → mỗi query round-trip ~200-250ms qua liên lục địa. `update()` dùng **interactive `$transaction`** với ~7-10 query tuần tự (upsert tags + deleteMany/createMany images/files + post.update include) → tổng > 5000ms = default interactive-tx timeout của Prisma → transaction expired. Local (Postgres cùng máy <1ms) không bao giờ chạm nên không repro được ngoài prod.
+- **Fix (workaround):** nâng `$transaction(..., { maxWait: 15_000, timeout: 30_000 })` ở `update()` → update không còn 500 (dù vẫn chậm ~2-3s do cross-region).
+- **Fix gốc (đề xuất — không tự làm, cần user quyết định region):** **co-locate app + DB cùng region** → mọi query nhanh (~5ms), không chỉ update mà toàn app (feed/detail mỗi query đang ~250ms). Hoặc Fly đổi `primary_region='iad'` (gần Neon us-east), hoặc tạo Neon project mới ở `ap-southeast-1` (Singapore, gần Fly sin + user VN) rồi migrate + re-seed.
+- **Regression test:** KHÔNG repro được trong test env (test DB local <1ms, không bao giờ timeout). Integration test update hiện có vẫn pass (option timeout không đổi behavior với DB nhanh). Đánh dấu env-specific.
+- **Lesson learned:** interactive `$transaction` nhiều query tuần tự + DB cross-region = dễ timeout. Hoặc co-locate, hoặc giảm round-trip, hoặc nâng timeout. Cross-region DB còn làm CHẬM toàn app (mọi query +RTT).
+
 ### [BUG-036] [Medium] [FE] Avatar TopBar (AvatarMenu) không hiện/không cập nhật ảnh sau khi đổi avatar
 
 - **Status:** FIXED

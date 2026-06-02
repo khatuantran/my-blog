@@ -15,7 +15,7 @@ async function dump() {
     .setVersion('0.2.0-alpha')
     .addCookieAuth('access_token')
     .addServer('http://localhost:3001', 'Local dev')
-    .addServer('https://myblog-api.fly.dev', 'Production')
+    .addServer('https://kha-blog-api.fly.dev', 'Production')
     .build();
 
   const doc = SwaggerModule.createDocument(app, config);

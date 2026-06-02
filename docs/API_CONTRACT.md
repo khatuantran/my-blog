@@ -5,10 +5,10 @@
 
 ## Base URLs
 
-| Env        | URL                                                    |
-| ---------- | ------------------------------------------------------ |
-| Local      | `http://localhost:3001`                                |
-| Production | `https://myblog-api.fly.dev` (TBD — adjust khi deploy) |
+| Env        | URL                                                      |
+| ---------- | -------------------------------------------------------- |
+| Local      | `http://localhost:3001`                                  |
+| Production | `https://kha-blog-api.fly.dev` (TBD — adjust khi deploy) |
 
 ## Auth
 

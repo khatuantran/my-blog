@@ -1312,7 +1312,7 @@ tags: []
 servers:
   - url: http://localhost:3001
     description: Local dev
-  - url: https://myblog-api.fly.dev
+  - url: https://kha-blog-api.fly.dev
     description: Production
 components:
   securitySchemes:

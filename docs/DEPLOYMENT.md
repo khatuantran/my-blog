@@ -9,7 +9,7 @@
 | ---------- | --------------------- | ----------------------------- | ----------------------------------------------- | ------------------ |
 | Local      | Vite dev `:5173`      | NestJS `:3001`                | Docker Postgres `:5434` (main) + `:5433` (test) | docker-compose     |
 | Preview    | Vercel preview per PR | Fly.io preview app (optional) | Neon `dev` branch                               | auto trigger on PR |
-| Production | Vercel `kha.blog`     | Fly.io `myblog-api.fly.dev`   | Neon `main` branch                              | manual promote     |
+| Production | Vercel `kha.blog`     | Fly.io `kha-blog-api.fly.dev` | Neon `main` branch                              | manual promote     |
 
 ---
 
@@ -172,10 +172,10 @@ volumes:
    - **Install command:** `pnpm install` (Vercel auto-detect monorepo)
 
 2. **Environment variables (Vercel Dashboard → Settings → Environment Variables):**
-   - `VITE_API_URL` = `https://myblog-api.fly.dev` (production) / `https://myblog-api-preview.fly.dev` (preview)
-   - `VITE_WS_URL` = `wss://myblog-api.fly.dev` (production)
+   - `VITE_API_URL` = `https://kha-blog-api.fly.dev` (production) / `https://kha-blog-api-preview.fly.dev` (preview)
+   - `VITE_WS_URL` = `wss://kha-blog-api.fly.dev` (production)
    - `VITE_SENTRY_DSN` = (optional, Sentry FE)
-   - `OG_API_URL` = `https://myblog-api.fly.dev` — **server-side, KHÔNG prefix `VITE_`** (không expose ra browser). Base URL BE cho OG Edge Function (`apps/web/api/og.ts`) fetch post data render Open Graph meta cho social crawler (FR-05.3). Thiếu → fallback hardcode trong function.
+   - `OG_API_URL` = `https://kha-blog-api.fly.dev` — **server-side, KHÔNG prefix `VITE_`** (không expose ra browser). Base URL BE cho OG Edge Function (`apps/web/api/og.ts`) fetch post data render Open Graph meta cho social crawler (FR-05.3). Thiếu → fallback hardcode trong function.
 
 3. **SPA routing + OG preview (`apps/web/vercel.json` — quan trọng):**
    `vercel.json` đã có sẵn trong repo:
@@ -235,7 +235,7 @@ volumes:
 
    ```bash
    # từ repo root
-   fly launch --no-deploy --copy-config --config apps/api/fly.toml --name myblog-api
+   fly launch --no-deploy --copy-config --config apps/api/fly.toml --name kha-blog-api
    # Trả lời prompt: region sin, postgres NO (dùng Neon), Redis NO. Không cho fly ghi đè fly.toml.
    ```
 
@@ -248,7 +248,7 @@ volumes:
    Smoke-test local trước khi deploy:
 
    ```bash
-   docker build -f apps/api/Dockerfile -t myblog-api:smoke .   # từ repo root
+   docker build -f apps/api/Dockerfile -t kha-blog-api:smoke .   # từ repo root
    ```
 
 3. **Set secrets (BẮT BUỘC — BE validate env lúc boot, xem `apps/api/src/config/env.schema.ts`):**
@@ -315,14 +315,14 @@ Từ đó: push `main` → CI pass → BE tự deploy. FE deploy tự động qu
 ### Workflow
 
 - Push `main` → manual `fly deploy . --config apps/api/fly.toml --dockerfile apps/api/Dockerfile` (hoặc GitHub Actions auto)
-- Preview app riêng cho preview branches: `fly apps create myblog-api-preview` + `fly deploy . --app myblog-api-preview --config apps/api/fly.toml --dockerfile apps/api/Dockerfile`
+- Preview app riêng cho preview branches: `fly apps create kha-blog-api-preview` + `fly deploy . --app kha-blog-api-preview --config apps/api/fly.toml --dockerfile apps/api/Dockerfile`
 
 ### Rollback
 
 ```bash
 fly releases             # list versions
-fly deploy --image registry.fly.io/myblog-api:deployment-XXX  # rollback specific
-# Hoặc UI: https://fly.io/apps/myblog-api/releases
+fly deploy --image registry.fly.io/kha-blog-api:deployment-XXX  # rollback specific
+# Hoặc UI: https://fly.io/apps/kha-blog-api/releases
 ```
 
 ---
@@ -393,8 +393,8 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 | `TRUST_PROXY`              | api             | no (1 default)                 | `1`                                                           | FR-18: số hop proxy tin tưởng cho X-Forwarded-For → client IP thật. 1 = Fly.io single reverse proxy; tăng nếu thêm CDN/proxy chain                                                                                                            |
 | `THROTTLE_DISABLED`        | api             | no (test only)                 | `1`                                                           | `=1` tắt global `ThrottlerGuard` (`app.module.ts` `skipIf`). Chỉ set trong `.env.test` để e2e burst không bị 429. KHÔNG set ở prod.                                                                                                           |
 | `ALLOW_TEST_RESET`         | api             | no (test only)                 | `1`                                                           | `=1` mở `POST /admin/test-reset` (truncate DB cho e2e). Fail-closed: thiếu/≠`1` → endpoint trả 404. KHÔNG set ở prod.                                                                                                                         |
-| `VITE_API_URL`             | web             | yes                            | `https://myblog-api.fly.dev`                                  | BE base URL                                                                                                                                                                                                                                   |
-| `VITE_WS_URL`              | web             | yes                            | `wss://myblog-api.fly.dev`                                    | BE WebSocket URL                                                                                                                                                                                                                              |
+| `VITE_API_URL`             | web             | yes                            | `https://kha-blog-api.fly.dev`                                | BE base URL                                                                                                                                                                                                                                   |
+| `VITE_WS_URL`              | web             | yes                            | `wss://kha-blog-api.fly.dev`                                  | BE WebSocket URL                                                                                                                                                                                                                              |
 | `VITE_SENTRY_DSN`          | web             | no                             | `https://...@sentry.io/...`                                   | optional                                                                                                                                                                                                                                      |
 | `VITE_BUILD_SHA`           | web             | no                             | `a1b2c3`                                                      | Build hash hiển thị ở StatusBar (+ Login/Register). Vercel set qua `VERCEL_GIT_COMMIT_SHA`; fallback `a1b2c3` khi thiếu.                                                                                                                      |
 | `AI_PROVIDER`              | api             | no (only if FR-17 enabled)     | `anthropic`                                                   | **PLANNED FR-17 (chưa implement — T-346, env chưa có trong env.schema)** — `anthropic` (default v1) / `openai` / `gemini`                                                                                                                     |
@@ -428,7 +428,7 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 
 - **BE deploy:** `deploy.yml` (gate bằng `workflow_run` của CI; chi tiết ở mục [CD — GitHub Actions auto-deploy](#cd--github-actions-auto-deploy-t-cd)).
 - **FE deploy:** tự động qua Vercel GitHub integration — **không có workflow** trong repo.
-- **Preview BE:** thủ công (`fly deploy --app myblog-api-preview`), chưa có workflow tự động.
+- **Preview BE:** thủ công (`fly deploy --app kha-blog-api-preview`), chưa có workflow tự động.
 
 ### Required secrets (GitHub repo Settings → Secrets)
 

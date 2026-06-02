@@ -1,6 +1,6 @@
 # Prod image cho apps/api (NestJS) — Fly.io.
 # Build context = REPO ROOT (pnpm workspace cần lockfile + workspace manifests).
-#   Build: `docker build -f apps/api/Dockerfile -t myblog-api .` (chạy từ repo root)
+#   Build: `docker build -f apps/api/Dockerfile -t kha-blog-api .` (chạy từ repo root)
 #   Fly:   fly.toml `build.dockerfile = "apps/api/Dockerfile"`, deploy từ repo root.
 # Base theo Dockerfile.dev: alpine + libc6-compat + openssl (Prisma query engine) + pnpm@9.15.0.
 # Giữ devDeps (prisma CLI + tsx) trong image để release_command chạy `prisma migrate deploy`

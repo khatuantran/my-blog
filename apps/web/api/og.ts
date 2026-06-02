@@ -4,7 +4,7 @@
 // fetch dữ liệu post từ BE rồi render HTML tĩnh có OG tags. Người dùng thật (browser)
 // KHÔNG vào đây — vercel.json chỉ rewrite /post/:id sang đây khi User-Agent là bot.
 //
-// Env (Vercel): OG_API_URL = base URL của BE (vd https://myblog-api.fly.dev).
+// Env (Vercel): OG_API_URL = base URL của BE (vd https://kha-blog-api.fly.dev).
 
 export const config = { runtime: 'edge' };
 
@@ -12,7 +12,7 @@ export const config = { runtime: 'edge' };
 declare const process: { env: Record<string, string | undefined> };
 
 const SITE_NAME = 'kha.blog';
-const DEFAULT_API_URL = 'https://myblog-api.fly.dev';
+const DEFAULT_API_URL = 'https://kha-blog-api.fly.dev';
 
 type PostLike = {
   id?: string;

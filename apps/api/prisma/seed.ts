@@ -68,6 +68,38 @@ const INTRO_CONTENT = `<h1>Chào mừng đến kha.blog 👋</h1>
 <p>Vậy thôi! Cứ <strong>thả reaction</strong>, <strong>để lại bình luận</strong> hoặc <strong>reply</strong> — mình sẽ thấy hết. Chúc bạn vui khi khám phá 🚀</p>
 <p><em>— kha</em></p>`;
 
+// Bài ABOUT — giới thiệu bản thân tác giả. Idempotent qua marker <h1> ở đầu content
+// (cùng cơ chế INTRO: content PHẢI bắt đầu bằng tag thật để PostContent render HTML).
+const ABOUT_TITLE = '<h1>Về mình — Trần Tuấn Kha';
+
+const ABOUT_CONTENT = `<h1>Về mình — Trần Tuấn Kha 👨‍💻</h1>
+<p>Chào bạn, mình là <strong>Trần Tuấn Kha</strong>, <strong>sinh năm 2001</strong>, một <strong>developer</strong> với <strong>gần 4 năm kinh nghiệm</strong>. Đây là góc nhỏ trên internet nơi mình viết về code, sản phẩm và những thứ học được trên đường đi.</p>
+
+<h2>🚀 Mình làm gì</h2>
+<p>Mình là <strong>full-stack developer</strong> — thoải mái ở cả <strong>frontend</strong> lẫn <strong>backend</strong>. Gần 4 năm qua mình đi qua đủ vai trò: dựng giao diện, viết API, thiết kế database, rồi đưa sản phẩm lên production.</p>
+<ul>
+<li><strong>Frontend</strong>: React + TypeScript, state management, xây UI component tái dùng, chăm chút trải nghiệm &amp; accessibility.</li>
+<li><strong>Backend</strong>: NestJS / Node.js, thiết kế REST API, auth (JWT), tối ưu query với Prisma + PostgreSQL.</li>
+<li><strong>Hạ tầng</strong>: Docker, CI/CD, deploy (Vercel / Fly.io), tổ chức monorepo (Turborepo).</li>
+</ul>
+
+<h2>🧰 Tech stack quen tay</h2>
+<p>Bộ công cụ hằng ngày của mình: <code>TypeScript</code>, <code>React</code>, <code>NestJS</code>, <code>Node.js</code>, <code>PostgreSQL</code>, <code>Prisma</code>, <code>Tailwind</code>, <code>Docker</code>. Chính cái blog bạn đang đọc cũng do mình code từ đầu bằng đúng stack này — <mark>full-stack solo</mark>.</p>
+
+<h2>💡 Mình tin vào điều gì</h2>
+<ul>
+<li><strong>Code sạch hơn code nhiều</strong> — đọc lại 6 tháng sau vẫn hiểu mới là code tốt.</li>
+<li><strong>Sản phẩm trước, công nghệ sau</strong> — tech để giải quyết vấn đề, không phải để khoe.</li>
+<li><strong>Học hoài</strong> — gần 4 năm rồi nhưng mỗi tuần vẫn vỡ ra thứ mới.</li>
+</ul>
+
+<h2>🌱 Ngoài lúc code</h2>
+<p>Mình thích cà phê sáng, đọc về thiết kế sản phẩm, và mày mò mấy side-project nho nhỏ (như cái blog này 😄). Mình tin tự tay làm một thứ end-to-end là cách học nhanh nhất.</p>
+
+<h2>👋 Kết nối với mình</h2>
+<p>Nếu bạn muốn trao đổi về code, sản phẩm, hay chỉ chào hỏi — cứ <strong>để lại bình luận</strong> ở bất kỳ bài nào (không cần đăng nhập) hoặc <strong>thả reaction</strong>. Mình đọc hết. Cảm ơn bạn đã ghé qua! 🙌</p>
+<p><em>— Kha</em></p>`;
+
 async function main() {
   const adminUsername = process.env.ADMIN_USERNAME ?? 'admin';
   const adminPassword = process.env.ADMIN_PASSWORD;
@@ -77,20 +109,35 @@ async function main() {
   }
 
   // ── Admin user (idempotent) ────────────────────────────────
+  // Profile của tác giả — set ở cả create + update để seed về "desired state" (blog solo).
+  const adminProfile = {
+    name: 'Trần Tuấn Kha',
+    title: 'Full-stack Developer',
+    bio: 'Developer sinh năm 2001, gần 4 năm kinh nghiệm. Thích sản phẩm gọn, sạch, dùng sướng.',
+    bornYear: 2001,
+    skills: [
+      { name: 'TypeScript', color: '#3178C6' },
+      { name: 'React', color: '#61DAFB' },
+      { name: 'NestJS', color: '#E0234E' },
+      { name: 'Node.js', color: '#339933' },
+      { name: 'PostgreSQL', color: '#336791' },
+    ],
+  };
   const passwordHash = await bcrypt.hash(adminPassword, BCRYPT_COST);
   const admin = await prisma.user.upsert({
     where: { username: adminUsername },
-    update: { passwordHash, role: 'ADMIN' },
+    update: { passwordHash, role: 'ADMIN', ...adminProfile },
     create: {
       username: adminUsername,
       passwordHash,
       role: 'ADMIN',
+      ...adminProfile,
     },
   });
   console.log(`✓ Admin user upsert: ${admin.username} (id=${admin.id})`);
 
   // ── Tags (idempotent by name) ───────────────────────────────
-  const [tagDev, tagLife, tagWelcome] = await Promise.all([
+  const [tagDev, tagLife, tagWelcome, tagAbout] = await Promise.all([
     prisma.tag.upsert({
       where: { name: '#dev' },
       update: {},
@@ -106,8 +153,13 @@ async function main() {
       update: {},
       create: { name: '#welcome', color: '#BB9AF7' },
     }),
+    prisma.tag.upsert({
+      where: { name: '#about' },
+      update: {},
+      create: { name: '#about', color: '#7AA2F7' },
+    }),
   ]);
-  console.log(`✓ Tags: ${tagDev.name}, ${tagLife.name}, ${tagWelcome.name}`);
+  console.log(`✓ Tags: ${tagDev.name}, ${tagLife.name}, ${tagWelcome.name}, ${tagAbout.name}`);
 
   // ── Sample posts (HTML, chỉ tạo khi DB chưa có post nào) ─────
   const existing = await prisma.post.count({ where: { authorId: admin.id } });
@@ -218,6 +270,30 @@ async function main() {
       })),
     });
     console.log(`✓ Intro interactions: 3 comments + 1 reply + ${reactions.length} reactions`);
+  }
+
+  // ── Bài ABOUT (giới thiệu bản thân, idempotent qua marker) ──
+  const existingAbout = await prisma.post.findFirst({
+    where: { authorId: admin.id, content: { contains: ABOUT_TITLE } },
+  });
+
+  if (existingAbout) {
+    await prisma.post.update({
+      where: { id: existingAbout.id },
+      data: { content: ABOUT_CONTENT, mood: Mood.THOUGHTFUL },
+    });
+    console.log(`✓ About post updated (id=${existingAbout.id})`);
+  } else {
+    const about = await prisma.post.create({
+      data: {
+        content: ABOUT_CONTENT,
+        mood: Mood.THOUGHTFUL,
+        viewCount: 88,
+        authorId: admin.id,
+        postTags: { create: [{ tagId: tagAbout.id }, { tagId: tagDev.id }] },
+      },
+    });
+    console.log(`✓ About post created (id=${about.id})`);
   }
 }
 

@@ -3,6 +3,27 @@ import '@testing-library/jest-dom/vitest';
 import { resetMswHandlers, startMswServer, stopMswServer } from './_helpers/msw-server';
 import { useAuthStore } from '@/stores/auth-store';
 
+// BUG-035: jsdom cấp AbortController/AbortSignal riêng, nhưng undici (global `Request`,
+// dùng bởi @mswjs/interceptors) reject signal đó ("Expected signal to be an instance of
+// AbortSignal"). React Router v7 client-side navigation (setSearchParams) tạo Request kèm
+// signal → throw → URL không update. Shim global Request bỏ signal không tương thích trước
+// khi MSW proxy `globalThis.Request` (server.listen ở beforeAll). Test không cần abort nav.
+const NativeRequest = globalThis.Request;
+class CompatRequest extends NativeRequest {
+  constructor(input: RequestInfo | URL, init?: RequestInit) {
+    // Trong jsdom env mọi AbortSignal là của jsdom → undici reject. Test không cần abort
+    // navigation/fetch nên bỏ signal khi có. (Signal native không xuất hiện ở env này.)
+    if (init && 'signal' in init && init.signal) {
+      const { signal: _drop, ...rest } = init;
+      void _drop;
+      super(input, rest);
+    } else {
+      super(input, init);
+    }
+  }
+}
+globalThis.Request = CompatRequest as typeof Request;
+
 beforeAll(() => startMswServer());
 afterEach(() => resetMswHandlers());
 afterAll(() => stopMswServer());

@@ -11,6 +11,21 @@ _(Trống)_
 
 ## Fixed
 
+### [BUG-035] [Medium] [Infra] 5 FE unit test fail — RR7 client-nav × MSW/undici AbortSignal trong jsdom
+
+- **Status:** FIXED
+- **Reporter:** khatran — **Date:** 2026-06-02
+- **Environment:** vitest jsdom (FE unit) / Layer: Infra (test harness)
+- **Related FR/component:** `apps/web/tests/setup.ts`; ảnh hưởng test có navigation: `ManagePostsPage` (card view toggle / status filter / mood filter), `CreatePostPage`, `ModerationQueue`.
+- **Mô tả:** Test interaction nào click control gọi `setParams`/navigate đều fail (3 deterministic ở ManagePostsPage + 2 "flaky" CreatePostPage/ModerationQueue). Phát hiện khi fix production build (CI typecheck + web-unit đang đỏ trên `main`).
+- **Steps:** `pnpm --filter web test:unit` → fail (`post-card-mng` not found / URL không chứa `status=DRAFT`,`mood=HAPPY`).
+- **Expected:** click filter/view → URL update → re-render.
+- **Actual:** click không đổi URL (`aria-pressed` giữ false, `router.state.location.search` rỗng).
+- **Root cause:** React Router v7 client-side navigation (`setSearchParams`) tạo `Request` kèm `AbortSignal`. jsdom cấp `AbortSignal` riêng nhưng global `Request` (undici, bị `@mswjs/interceptors` proxy) reject → throw `RequestInit: Expected signal to be an instance of AbortSignal` → navigation abort, URL không đổi. **KHÔNG phải prod bug** (browser thật chạy bình thường); test edit/delete pass vì dùng local state (không navigate). Env-incompat RR7 × MSW × undici × jsdom.
+- **Fix:** Shim `globalThis.Request` trong `tests/setup.ts` (subclass `CompatRequest`) — bỏ `signal` không tương thích trước khi gọi `super()`, đặt **trước** khi MSW proxy `Request` (`server.listen` ở `beforeAll`). Test không cần abort navigation. Verify đã xác minh `new Request(url, {signal: jsdomSignal})` không còn throw.
+- **Regression test:** chính 5 test trên (đã un-skip) — full web suite **511/511 pass, 0 skip**, stable qua nhiều lần chạy.
+- **Lesson learned:** trong vitest jsdom, fetch primitives (`Request`/`fetch` = undici của Node) và `AbortController`/`AbortSignal` (= jsdom) khác realm → bất kỳ code tạo `Request` kèm signal (RR7 nav, fetch có cancel) sẽ throw. Shim Request ở setup là chốt chặn chung.
+
 ### [BUG-034] [Medium] [FE] Nút "↗ Share" ở action bar (feed + detail) không bấm được
 
 - **Status:** FIXED

@@ -1,1 +1,5 @@
 pnpm exec lint-staged
+# Gate chặn lỗi lọt vào main (sự cố 2026-06-02: 7 type error + 5 test fail vỡ Vercel build
+# vì pre-commit cũ chỉ chạy lint-staged). Cả 2 đều turbo-cached (~0s nếu input không đổi).
+pnpm typecheck
+pnpm test:unit

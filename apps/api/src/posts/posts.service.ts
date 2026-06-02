@@ -231,7 +231,8 @@ export class PostsService {
         },
         include: POST_INCLUDE,
       });
-    });
+      // Cross-region latency (Fly sin ↔ Neon us-east): nâng timeout như update() (BUG-037).
+    }, { maxWait: 15_000, timeout: 30_000 });
 
     this.logger.log(`Post ${post.id} created by ${authorId}`);
     await this.activity.log({

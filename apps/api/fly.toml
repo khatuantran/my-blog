@@ -1,6 +1,6 @@
 # Fly.io config cho apps/api (NestJS BE). App: kha-blog-api (kha-blog-api.fly.dev).
-# Deploy TỪ REPO ROOT (build context = root vì Dockerfile cần lockfile + workspace manifests):
-#   fly deploy . --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
+# DEPLOY TỪ REPO ROOT — `.` đặt build context = root (Dockerfile cần lockfile + workspace manifests):
+#   fly deploy . --config apps/api/fly.toml
 # Secrets (DATABASE_URL/JWT/ADMIN/CLOUDINARY...) KHÔNG để ở đây — set qua `fly secrets set`.
 # Runbook đầy đủ: docs/DEPLOYMENT.md > Backend Deploy (Fly.io).
 # Lưu ý: flyctl normalize file này khi `fly launch`/`fly config save` (strip comment, đổi quote).
@@ -8,7 +8,9 @@ app = 'kha-blog-api'
 primary_region = 'sin'                       # Singapore — gần VN nhất trong free tier
 
 [build]
-  dockerfile = 'apps/api/Dockerfile'
+  # flyctl resolve dockerfile = dir(fly.toml) + giá trị này → apps/api/Dockerfile.
+  # PHẢI để 'Dockerfile' (KHÔNG 'apps/api/Dockerfile' → sẽ thành apps/api/apps/api/Dockerfile).
+  dockerfile = 'Dockerfile'
 
 # Chạy migrate TRƯỚC khi release machine mới nhận traffic. Migration fail → Fly abort release.
 [deploy]

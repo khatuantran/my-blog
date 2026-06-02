@@ -275,7 +275,11 @@ volumes:
 4. **Deploy:**
 
    ```bash
-   fly deploy --config apps/api/fly.toml   # từ repo root; release_command tự chạy `prisma migrate deploy`
+   # CHẠY TỪ REPO ROOT. `.` = build context = root (Dockerfile cần lockfile + workspace
+   # manifests ở root). KHÔNG có `.` → fly lấy thư mục --config (apps/api) làm base →
+   # lỗi `apps/api/apps/api/Dockerfile not found`. --dockerfile override build.dockerfile.
+   fly deploy . --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
+   # release_command tự chạy `prisma migrate deploy` trước khi release live
    ```
 
 5. **Seed admin + bài intro (one-time, idempotent):**
@@ -292,7 +296,7 @@ volumes:
 
 ### CD — GitHub Actions auto-deploy (T-CD)
 
-`.github/workflows/deploy.yml` đã có: trigger khi workflow **CI** chạy xong + **xanh** trên `main` → `flyctl deploy --remote-only`. Setup một lần:
+`.github/workflows/deploy.yml` đã có: trigger khi workflow **CI** chạy xong + **xanh** trên `main` → `flyctl deploy . --remote-only --config apps/api/fly.toml --dockerfile apps/api/Dockerfile`. Setup một lần:
 
 ```bash
 fly tokens create deploy   # copy token
@@ -310,8 +314,8 @@ Từ đó: push `main` → CI pass → BE tự deploy. FE deploy tự động qu
 
 ### Workflow
 
-- Push `main` → manual `fly deploy` (hoặc GitHub Actions auto)
-- Preview app riêng cho preview branches: `fly apps create myblog-api-preview` + `fly deploy --app myblog-api-preview`
+- Push `main` → manual `fly deploy . --config apps/api/fly.toml --dockerfile apps/api/Dockerfile` (hoặc GitHub Actions auto)
+- Preview app riêng cho preview branches: `fly apps create myblog-api-preview` + `fly deploy . --app myblog-api-preview --config apps/api/fly.toml --dockerfile apps/api/Dockerfile`
 
 ### Rollback
 
@@ -419,7 +423,7 @@ Update `docs/DATA_MODEL.md` migration log summary + `apps/api/docs/MIGRATIONS.md
 ```
 .github/workflows/
 ├── ci.yml       On PR + push main: lint + typecheck + test (unit + integration + e2e) + openapi drift check
-└── deploy.yml   workflow_run: sau khi CI XANH trên main → flyctl deploy --remote-only --config apps/api/fly.toml
+└── deploy.yml   workflow_run: sau khi CI XANH trên main → flyctl deploy . --remote-only --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
 ```
 
 - **BE deploy:** `deploy.yml` (gate bằng `workflow_run` của CI; chi tiết ở mục [CD — GitHub Actions auto-deploy](#cd--github-actions-auto-deploy-t-cd)).

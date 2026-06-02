@@ -21,8 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      # Build context = repo root; fly đọc build.dockerfile từ apps/api/fly.toml.
+      # `.` (WORKING_DIRECTORY) = repo root → build context = root (Dockerfile cần
+      # lockfile + workspace manifests ở root). KHÔNG có `.` thì fly lấy thư mục của
+      # --config (apps/api) làm base → dockerfile bị nhân đôi (apps/api/apps/api/Dockerfile)
+      # + context sai. --dockerfile (relative working dir) override build.dockerfile.
       # --remote-only: build trên Fly builder (không cần Docker trên runner).
-      - run: flyctl deploy --remote-only --config apps/api/fly.toml
+      - run: flyctl deploy . --remote-only --config apps/api/fly.toml --dockerfile apps/api/Dockerfile
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

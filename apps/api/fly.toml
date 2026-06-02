@@ -38,6 +38,9 @@ primary_region = 'sin'                       # Singapore — gần VN nhất tro
 
 [[vm]]
   size = 'shared-cpu-1x'
-  memory = '256mb'                           # free-tier default; nâng (vd 512mb) nếu OOM khi runtime
+  # 512mb BẮT BUỘC: 256mb không đủ cho NestJS boot (app thrash/treo lúc init → không listen
+  # → health check fail → PR01 'no healthy instances'). Sự cố 2026-06-02 — flyctl từng hạ
+  # xuống 256mb khi normalize, gây treo. KHÔNG hạ lại dưới 512mb.
+  memory = '512mb'
   cpus = 1
-  memory_mb = 256
+  memory_mb = 512
